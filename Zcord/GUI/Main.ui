@@ -11,8 +11,8 @@
    </rect>
   </property>
   <property name="sizePolicy">
-   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-    <horstretch>100</horstretch>
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
     <verstretch>0</verstretch>
    </sizepolicy>
   </property>
@@ -30,7 +30,7 @@ margin:0px;</string>
    </property>
    <layout class="QHBoxLayout" name="horizontalLayout_2">
     <item>
-     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,3,8">
+     <layout class="QHBoxLayout" name="horizontalLayout" stretch="1,3,0">
       <property name="spacing">
        <number>0</number>
       </property>
@@ -142,54 +142,50 @@ font-size:25px;
          </item>
          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QFrame" name="verticalFrame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">width:100px;
+heigth:100px;</string>
+           </property>
            <layout class="QVBoxLayout" name="wrapperUsersGroups">
-            <item>
-             <widget class="QPushButton" name="pushButton_2">
-              <property name="text">
-               <string>PushButton</string>
+            <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
+             <widget class="QScrollArea" name="GroupsList">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_4">
-              <property name="text">
-               <string>PushButton</string>
+              <property name="styleSheet">
+               <string notr="true">width:50%;
+height:200px;
+border:0;</string>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_5">
-              <property name="text">
-               <string>PushButton</string>
+              <property name="widgetResizable">
+               <bool>true</bool>
               </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_8">
-              <property name="text">
-               <string>PushButton</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_6">
-              <property name="text">
-               <string>PushButton</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QPushButton" name="pushButton_7">
-              <property name="text">
-               <string>PushButton</string>
-              </property>
+              <widget class="QWidget" name="scrollAreaWidgetContents">
+               <property name="geometry">
+                <rect>
+                 <x>0</x>
+                 <y>0</y>
+                 <width>100</width>
+                 <height>400</height>
+                </rect>
+               </property>
+              </widget>
              </widget>
             </item>
            </layout>
           </widget>
          </item>
          <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-          <widget class="QPushButton" name="pushButton_3">
+          <widget class="QPushButton" name="SettingsButton">
            <property name="cursor">
             <cursorShape>PointingHandCursor</cursorShape>
            </property>
@@ -223,10 +219,73 @@ align-text:center;
       </item>
       <item>
        <widget class="QFrame" name="DialogColumn">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Maximum" vsizetype="Minimum">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="maximumSize">
+         <size>
+          <width>350</width>
+          <height>16777215</height>
+         </size>
+        </property>
         <property name="styleSheet">
          <string notr="true">background-color:rgba(38,40,45,255);</string>
         </property>
-        <layout class="QVBoxLayout" name="verticalLayout_4"/>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <property name="sizeConstraint">
+          <enum>QLayout::SetDefaultConstraint</enum>
+         </property>
+         <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+          <widget class="QFrame" name="verticalFrame">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">width:100px;
+height:100px;</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_6">
+            <item>
+             <widget class="QPushButton" name="SearchButton">
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+ width:250px;
+height:30px;
+border: 2px solid #323338;
+border-radius: 10px;
+background-image: url(:/icons/icon/search_24dp_808994_FILL0_wght400_GRAD0_opsz24.svg); 
+background-repeat: no-repeat;
+background-position: left;
+background-color:#323338;
+font-size:16px;
+color:#808994;
+text-align:left;
+padding-left:27px;
+}
+
+QPushButton:hover {
+background-color:#656c76;
+color:black;
+background-image: url(:/icons/icon/search_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg); 
+background-repeat: no-repeat;
+background-position: left;
+}</string>
+              </property>
+              <property name="text">
+               <string>Поиск</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+        </layout>
        </widget>
       </item>
       <item>

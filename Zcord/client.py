@@ -2,27 +2,29 @@ import socket
 import pyaudio
 
 
-def callback(in_data, frame_count, time_info, status):
-    return (in_data, pyaudio.paContinue)
+class VoiceConnection(object):
+    def __init__(self):
+        pass
 
+    def sender(self):
+        data_to_send = stream_input.read(1024)
+        client.sendall(data_to_send)  # Отправляем данные на сервер
 
-def sender():
-    data_to_send = stream_input.read(1024)
-    client.sendall(data_to_send)  # Отправляем данные на сервер
-
-
-def getter():
-    data_to_read = client.recvfrom(4096)  # Получаем данные с сервера
-    callback(data_to_read, RATE, 5, "on")
+    def getter(self):
+        data_to_read, address = client.recvfrom(CHUNK)  # Получаем данные с сервера
+        stream_output.write(data_to_read)
 
 
 if __name__ == "__main__":
-    HOST = "127.0.0.1"  # The server's hostname or IP address
+    con = VoiceConnection()
+
+    HOST = "26.36.124.241"  # The server's hostname or IP address
     PORT = 65128  # The port used by the server
 
     FORMAT = pyaudio.paInt16  # Формат звука
     CHANNELS = 1        # Количество каналов (1 для моно)
     RATE = 44100        # Частота дискретизации
+    CHUNK = 4096
 
     p = pyaudio.PyAudio()
 
@@ -40,16 +42,14 @@ if __name__ == "__main__":
     stream_output = p.open(format=FORMAT,
                            channels=CHANNELS,
                            rate=RATE,
-                           input=True,
-                           output=True,
-                           stream_callback=callback)
+                           output=True)
 
     print("Начата передача аудио..., для завершения ctrl + c")
-    sender()
+    con.sender()
     try:
         while True:
-            sender()
-            getter()
+            con.sender()
+            con.getter()
 
     except KeyboardInterrupt:
         print("Передача завершена.")

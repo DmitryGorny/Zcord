@@ -28,23 +28,20 @@ class Server(object):
     async def read_request(self):
         self.server.bind((self.HOST, self.PORT))
         self.data, self.address = self.server.recvfrom(self.CHUNK)
-        print(self.address[0])
-        c = self.output_addresses.index[self.address[0]]
+        c = self.output_addresses.index(self.address[0])
         del self.output_addresses[c]
         print(f"Connected to: {self.address}")
         cl = Client(address=self.address)
 
         while True:
-            print("43324")
             self.data, self.address = self.server.recvfrom(self.CHUNK)
-            print(1)
             if not self.data:
                 break
 
             await self.send_request()
 
     async def send_request(self):
-        print(self.output_addresses)
+        print(self.output_addresses, self.output_port)
         self.server.sendto(self.data, (self.output_addresses[0], self.output_port))
 
     def close_server(self):
@@ -58,7 +55,7 @@ if __name__ == "__main__":
     output_client_ports = [32783, 12833, 12454, 59317]
     socket_list = []
     for i in range(len(list_of_users)):
-        socket_list.append(Server(list_of_users, free_server_ports[i], output_client_ports[i]))
+        socket_list.append(Server(list_of_users.copy(), free_server_ports[i], output_client_ports[i]))
     ioloop = asyncio.get_event_loop()
     tasks = []
     for j in socket_list:

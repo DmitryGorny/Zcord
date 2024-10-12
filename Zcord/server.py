@@ -22,22 +22,29 @@ class Server(object):
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.CHUNK = 4096
         print("Server starts")
+        #print(self.output_addresses)
+        #print(self.output_addresses[0], self.output_port)
 
     async def read_request(self):
         self.server.bind((self.HOST, self.PORT))
         self.data, self.address = self.server.recvfrom(self.CHUNK)
+        print(self.address[0])
+        c = self.output_addresses.index[self.address[0]]
+        del self.output_addresses[c]
         print(f"Connected to: {self.address}")
         cl = Client(address=self.address)
 
         while True:
+            print("43324")
             self.data, self.address = self.server.recvfrom(self.CHUNK)
-
+            print(1)
             if not self.data:
                 break
 
-            self.send_request()
+            await self.send_request()
 
-    def send_request(self):
+    async def send_request(self):
+        print(self.output_addresses)
         self.server.sendto(self.data, (self.output_addresses[0], self.output_port))
 
     def close_server(self):
@@ -46,13 +53,12 @@ class Server(object):
 
 
 if __name__ == "__main__":
-    list_of_users = ["26.181.96.20", "26.36.124.241"]
+    list_of_users = ['26.181.96.20', '26.36.124.241']
     free_server_ports = [32731, 13764, 50001, 45632]
     output_client_ports = [32783, 12833, 12454, 59317]
     socket_list = []
     for i in range(len(list_of_users)):
-        list_output_users = list_of_users.copy().pop(i)
-        socket_list.append(Server(list_output_users, free_server_ports[i], output_client_ports[i]))
+        socket_list.append(Server(list_of_users, free_server_ports[i], output_client_ports[i]))
     ioloop = asyncio.get_event_loop()
     tasks = []
     for j in socket_list:

@@ -19,7 +19,7 @@ if __name__ == "__main__":
     con = VoiceConnection()
 
     HOST = "26.36.124.241"  # The server's hostname or IP address
-    PORT = 65128  # The port used by the server
+    PORT = 32731  # The port used by the server
 
     FORMAT = pyaudio.paInt16  # Формат звука
     CHANNELS = 1        # Количество каналов (1 для моно)

@@ -1,11 +1,7 @@
 import socket
 import pyaudio
-import threading
+import asyncio
 import numpy as np
-
-
-def callback(in_data, frame_count, time_info, status):
-    return (in_data, pyaudio.paContinue)
 
 
 class Client(object):
@@ -17,43 +13,52 @@ class Client(object):
 
 
 class Server(object):
-    def __init__(self):
+    def __init__(self, output_addresses, server_port, output_port):
+        self.addreses = []
+        self.output_addresses = output_addresses
+        self.output_port = output_port
         self.HOST = "26.36.124.241"  # Standard loopback interface address (localhost)
-        self.PORT = 65128  # Port to listen on (non-privileged ports are > 1023)
+        self.PORT = server_port  # Port to listen on (non-privileged ports are > 1023)
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.CHUNK = 4096
         print("Server starts")
 
-        #self.f = wave.open("output.wav", "wb")  # Открываем файл для записи в бинарном режиме
-
-    def read_request(self):
+    async def read_request(self):
         self.server.bind((self.HOST, self.PORT))
         self.data, self.address = self.server.recvfrom(self.CHUNK)
         print(f"Connected to: {self.address}")
-        Client(address=self.address)
-
-        #self.f.setnchannels(CHANNELS)
-        #self.f.setsampwidth(2)  # 2 байта для paInt16
-        #self.f.setframerate(RATE)
+        cl = Client(address=self.address)
 
         while True:
             self.data, self.address = self.server.recvfrom(self.CHUNK)
+
             if not self.data:
                 break
-            #self.f.writeframes(data)
-            #stream.write(self.data)
+
             self.send_request()
 
     def send_request(self):
-        self.server.sendto(self.data, self.address)
+        self.server.sendto(self.data, (self.output_addresses[0], self.output_port))
 
     def close_server(self):
         print("Server ends")
-        #self.f.close()
         self.server.close()
 
 
 if __name__ == "__main__":
-    server_obj = Server()
-    main_thread = threading.Thread(target=server_obj.read_request())
-    main_thread.start()
+    list_of_users = ["26.181.96.20", "26.36.124.241"]
+    free_server_ports = [32731, 13764, 50001, 45632]
+    output_client_ports = [32783, 12833, 12454, 59317]
+    socket_list = []
+    for i in range(len(list_of_users)):
+        list_output_users = list_of_users.copy().pop(i)
+        socket_list.append(Server(list_output_users, free_server_ports[i], output_client_ports[i]))
+    ioloop = asyncio.get_event_loop()
+    tasks = []
+    for j in socket_list:
+        tasks.append(ioloop.create_task(j.read_request()))
+    ioloop.run_until_complete(asyncio.wait(tasks))
+
+    ioloop.close()
+    #server_obj = Server()
+    #server_obj.read_request()

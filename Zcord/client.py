@@ -8,10 +8,10 @@ class VoiceConnection(object):
 
     def sender(self):
         data_to_send = stream_input.read(1024)
-        client.sendall(data_to_send)  # Отправляем данные на сервер
+        speak.sendall(data_to_send)  # Отправляем данные на сервер
 
     def getter(self):
-        data_to_read, address = client.recvfrom(CHUNK)  # Получаем данные с сервера
+        data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
         stream_output.write(data_to_read)
 
 
@@ -19,7 +19,10 @@ if __name__ == "__main__":
     con = VoiceConnection()
 
     HOST = "26.36.124.241"  # The server's hostname or IP address
-    PORT = 32731  # The port used by the server
+    CLIENT = "26.36.124.241"
+
+    SERVER_PORT = 32731  # The port used by the server
+    CLIENT_PORT = 32783
 
     FORMAT = pyaudio.paInt16  # Формат звука
     CHANNELS = 1        # Количество каналов (1 для моно)
@@ -28,10 +31,11 @@ if __name__ == "__main__":
 
     p = pyaudio.PyAudio()
 
-    client = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-    hostname = socket.gethostname()  # В документации сказано если использовать в коннект имя хоста то будет непредсказуемость
+    listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    speak = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
-    client.connect((HOST, PORT))
+    speak.connect((HOST, SERVER_PORT))
+    listen.bind((HOST, CLIENT_PORT))
 
     stream_input = p.open(format=FORMAT,
                           channels=CHANNELS,
@@ -59,5 +63,5 @@ if __name__ == "__main__":
         stream_output.stop_stream()
         stream_output.close()
         p.terminate()
-        client.close()
+        listen.close()
 

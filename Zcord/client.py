@@ -63,5 +63,5 @@ if __name__ == "__main__":
         stream_output.stop_stream()
         stream_output.close()
         p.terminate()
-        #listen.close()
+        listen.close()
 

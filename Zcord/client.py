@@ -1,5 +1,6 @@
 import socket
 import pyaudio
+import multiprocessing as mp
 
 
 class VoiceConnection(object):
@@ -7,22 +8,21 @@ class VoiceConnection(object):
         pass
 
     def sender(self):
-        data_to_send = stream_input.read(1024)
-        speak.sendall(data_to_send)  # Отправляем данные на сервер
-
-    def getter(self):
-        data_to_read, address = speak.recvfrom(CHUNK)  # Получаем данные с сервера
-        stream_output.write(data_to_read)
+        while True:
+            print("send")
+            data_to_send = stream_input.read(1024)
+            speak.sendall(data_to_send)  # Отправляем данные на сервер
+            print(123)
 
 
 if __name__ == "__main__":
     con = VoiceConnection()
 
-    HOST = "26.181.96.20"  # The server's hostname or IP address
-    CLIENT = "26.181.96.20"
+    HOST = "26.36.124.241"  # The server's hostname or IP address
+    CLIENT = "26.36.124.241"
 
     PORT_TO_SPEAK = 65128  # The port used by the server
-    PORT_TO_LISTEN = 12833
+    PORT_TO_LISTEN = 22223
 
     FORMAT = pyaudio.paInt16  # Формат звука
     CHANNELS = 1        # Количество каналов (1 для моно)
@@ -31,11 +31,11 @@ if __name__ == "__main__":
 
     p = pyaudio.PyAudio()
 
-    listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
     speak = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    #listen = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
 
     speak.connect((HOST, PORT_TO_SPEAK))
-    listen.bind((CLIENT, PORT_TO_LISTEN))
+    #listen.bind((CLIENT, PORT_TO_LISTEN))
 
     stream_input = p.open(format=FORMAT,
                           channels=CHANNELS,
@@ -43,25 +43,13 @@ if __name__ == "__main__":
                           input=True,
                           frames_per_buffer=1024)
 
-    stream_output = p.open(format=FORMAT,
-                           channels=CHANNELS,
-                           rate=RATE,
-                           output=True)
-
     print("Начата передача аудио..., для завершения ctrl + c")
     con.sender()
-    try:
-        while True:
+    while True:
+        try:
             con.sender()
-            con.getter()
+        except BaseException:
+            pass
 
-    except KeyboardInterrupt:
-        print("Передача завершена.")
-    finally:
-        stream_input.stop_stream()
-        stream_input.close()
-        stream_output.stop_stream()
-        stream_output.close()
-        p.terminate()
-        listen.close()
+
 

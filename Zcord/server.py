@@ -1,7 +1,12 @@
 import socket
 import pyaudio
-import asyncio
+import threading
+import multiprocessing as mp
 import numpy as np
+
+
+
+
 
 
 class Client(object):
@@ -12,56 +17,91 @@ class Client(object):
         return self.address
 
 
-class Server(object):
-    def __init__(self, output_addresses, server_port, output_port):
-        self.addreses = []
-        self.output_addresses = output_addresses
-        self.output_port = output_port
-        self.HOST = "26.36.124.241"  # Standard loopback interface address (localhost)
-        self.PORT = server_port  # Port to listen on (non-privileged ports are > 1023)
+
+class SpeakingServer(object):
+    def __init__(self, ipToSend,portToSend):
+        self.HOST = "26.181.96.20"
+        self.PORT_TO_SEND = portToSend
+        self.IP_TO_SEND = ipToSend
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.CHUNK = 4096
-        print("Server starts")
-        #print(self.output_addresses)
-        #print(self.output_addresses[0], self.output_port)
+        print("Speaking Server starts")
 
-    async def read_request(self):
-        self.server.bind((self.HOST, self.PORT))
-        self.data, self.address = self.server.recvfrom(self.CHUNK)
-        c = self.output_addresses.index(self.address[0])
-        del self.output_addresses[c]
-        print(f"Connected to: {self.address}")
-        cl = Client(address=self.address)
+    def send_request(self, ListenServerObject):
+        self.server.connect((self.HOST, self.PORT_TO_SEND))
+        while True:
+            try:
+
+                self.server.sendto(ListenServerObject.data, (self.IP_TO_SEND, self.PORT_TO_SEND))
+                print(f"Speaking server speaking to {self.IP_TO_SEND}, {self.PORT_TO_SEND}")
+            except AttributeError:
+                continue
+    def close_server(self):
+        print("Server ends")
+        #self.f.close()
+        self.server.close()
+
+class ListeningServer(object):
+    def __init__(self, portToListen, ipToListen):
+
+        self.listOfUsers = [] #Массив объектов пользователей
+
+        self.HOST = "26.181.96.20"  # Standard loopback interface address (localhost)
+        self.IP_TO_LISTEN = ipToListen
+        self.PORT_TO_LISTEN = portToListen  # Port to listen on (non-privileged ports are > 1023)
+        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.CHUNK = 4096
+        print(f"Listening Server starts")
+
+        #self.f = wave.open("output.wav", "wb")  # Открываем файл для записи в бинарном режиме
+
+
+    def createServer(self):
+        pass
+
+    def read_request(self):
+        #print(f"Listening server listening: {self.address}")
+        #data, address = self.server.recvfrom(self.CHUNK)
+        #self.listOfUsers.append(Client(address=self.address))
+
+        self.server.bind((self.HOST, self.PORT_TO_LISTEN))
 
         while True:
-            self.data, self.address = self.server.recvfrom(self.CHUNK)
-            if not self.data:
-                break
+            data, address = self.server.recvfrom(self.CHUNK)
+            print(address)
+            if address[0] == self.IP_TO_LISTEN:
+                self.data, self.address = self.server.recvfrom(self.CHUNK)
+                if not self.data:
+                    break
 
-            await self.send_request()
 
-    async def send_request(self):
-        print(self.output_addresses, self.output_port)
-        self.server.sendto(self.data, (self.output_addresses[0], self.output_port))
+
+            #proccess1 = mp.Process(target=self.checkAndSend, args=("26.181.96.20", ))
+
+            #proccess1.start()
+
+            #proccess1.join()
+
+
+            #self.checkAndSend("26.181.96.20")
+
+    #def checkAndSend(self, addToCheck): #Пока что работает только на 2 клиента
+        #clientsToSend = list(filter(lambda x:x.return_address()[0] == addToCheck, self.listOfUsers))
+                                                                # ^^^^ когд придет Саша, поставить !=
+        #self.send_request(self.data, clientsToSend[0].return_address())
+
 
     def close_server(self):
         print("Server ends")
+        #self.f.close()
         self.server.close()
 
 
 if __name__ == "__main__":
-    list_of_users = ['26.181.96.20', '26.36.124.241']
-    free_server_ports = [32731, 13764, 50001, 45632]
-    output_client_ports = [32783, 12833, 12454, 59317]
-    socket_list = []
-    for i in range(len(list_of_users)):
-        socket_list.append(Server(list_of_users.copy(), free_server_ports[i], output_client_ports[i]))
-    ioloop = asyncio.get_event_loop()
-    tasks = []
-    for j in socket_list:
-        tasks.append(ioloop.create_task(j.read_request()))
-    ioloop.run_until_complete(asyncio.wait(tasks))
+    ListeningServer_obj = ListeningServer(65128, "26.181.96.20")
+    process1 = mp.Process(target=ListeningServer_obj.read_request)
+    process1.start()
 
-    ioloop.close()
-    #server_obj = Server()
-    #server_obj.read_request()
+    SpeakingServer_obj = SpeakingServer("26.181.96.20", 12833)
+    process2 = mp.Process(target=SpeakingServer_obj.send_request(ListeningServer_obj))
+    process2.start()

@@ -3,6 +3,8 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.AuthorizationWindow.AuthorizationWindow import Ui_Authorization
 from logic.Authorization.UserAuthorization import UserAuthorization
 from logic.Errors.AuthorizationError import AuthorizationError
+from logic.Errors.ErrorDialog.UserError.UserError import UserError
+from logic.Errors.ErrorDialog.LoginPassError.LoginPassError import LoginPassError
 import json
 
 class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
@@ -10,7 +12,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
         super(AuthoriztionWindowDisplay, self).__init__()
         self.ui = Ui_Authorization()
         self.ui.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.WindowType.WindowStaysOnTopHint | QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.ui.Wrapper.setStyleSheet("background-color:#101317;border-radius:40px;")
         self.ui.closeWindowButton.clicked.connect(self.on_click_close)
@@ -34,6 +36,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
                                                         padding-left:27px;;
                                                         }
                                                     """)
+            return
 
         if len(password) == 0:
              self.ui.Password_input.setStyleSheet("""QLineEdit {
@@ -48,6 +51,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
                                                         padding-left:27px;;
                                                         }
                                                     """)
+             return
 
         try:
             if UserAuthorization(login, password).login():
@@ -57,9 +61,15 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
                 }
                 with open(f"{sys.path[0]}/Resources/user/User.json", "w") as user_json:
                     user_json.write(json.dumps(user))
+            else:
+                LoginPassErrorBox = LoginPassError()
+                LoginPassErrorBox.show()
+                LoginPassErrorBox.exec()
 
         except AuthorizationError as e:
-            print(e)
+            ErorrBox = UserError()
+            ErorrBox.show()
+            ErorrBox.exec()
 
 
     def on_click_hide(self):

@@ -22,7 +22,7 @@ class MessageServer(object):
                 clients.remove(client)
                 client.close()
                 nickname = nicknames[index]
-                self.broadcast(f"{nickname} left!".encode('utf-8'))
+                self.broadcast(f"Пользователь {nickname} вышел!".encode('utf-8'))
                 print(f"{nickname} left!")
                 nicknames.remove(nickname)
                 break
@@ -41,8 +41,8 @@ class MessageServer(object):
 
             # Print And Broadcast Nickname
             print(f"Nickname is {nickname}")
-            msg_obj.broadcast(f"{nickname} joined!".encode('utf-8'))
-            client.send('Connected to server!'.encode('utf-8'))
+            msg_obj.broadcast(f"Пользователь {nickname} подключился!".encode('utf-8'))
+            client.send('Подключено к серверу'.encode('utf-8'))
 
             # Start Handling Thread For Client
             thread = threading.Thread(target=msg_obj.handle, args=(client,))
@@ -50,7 +50,7 @@ class MessageServer(object):
 
 
 if __name__ == "__main__":
-    HOST = "127.0.0.1"
+    HOST = "26.124.194.150"
     PORT = 55555
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

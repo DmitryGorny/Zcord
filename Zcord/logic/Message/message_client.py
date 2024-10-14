@@ -7,8 +7,9 @@ class MessageConnection(object):
         self.client_tcp = client_tcp
 
     def send_message(self):
-        msg = input("Ваше сообщение: ")
-        self.client_tcp.sendall(msg.encode("utf-8"))
+        while True:
+            msg = f"{nickname}: {input()}"
+            self.client_tcp.sendall(msg.encode("utf-8"))
 
     def recv_message(self):
         while True:
@@ -25,10 +26,10 @@ class MessageConnection(object):
 
 
 if __name__ == "__main__":
-    SERVER_IP = "127.0.0.1"  # IP адрес сервера
+    SERVER_IP = "26.124.194.150"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
-    nickname = input("Choose your nickname: ")
+    nickname = input("Введите свой ник: ")
 
     client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     client_tcp.connect((SERVER_IP, SERVER_PORT))
@@ -37,10 +38,10 @@ if __name__ == "__main__":
 
     print("Старт клиента сообщений")
     try:
-        receive_thread = threading.Thread(target=message_binder.recv_message())
+        receive_thread = threading.Thread(target=message_binder.recv_message)
         receive_thread.start()
 
-        write_thread = threading.Thread(target=message_binder.send_message())
+        write_thread = threading.Thread(target=message_binder.send_message)
         write_thread.start()
     except KeyboardInterrupt:
         print("Прекращение работы клиента сообщений")

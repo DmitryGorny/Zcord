@@ -40,7 +40,7 @@ if __name__ == "__main__":
     try:
         while True:
             con.sender()
-    except KeyboardInterrupt():
+    except KeyboardInterrupt:
         print("Передача аудио закончена или прервана")
     finally:
         p.close(stream_input)

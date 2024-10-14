@@ -75,6 +75,30 @@ class db_handler:
             print(e)
             return False
 
+    def getCertainRow(self, column:str, value:str, columns:str):
+        connection = connect(
+            host=self._host,
+            user=self._user,
+            password= self._password,
+            database=self._database_name
+        )
+
+        try:
+            cursor = connection.cursor()
+
+            cursor.execute(f"SELECT {columns} FROM {self._tableName} where {column} = '{value}'")
+
+
+            result = list(map(lambda x: list(x),  cursor.fetchall()))
+
+            cursor.close()
+            connection.close()
+            return result
+        except Error as e:
+            print(e)
+            return []
+
+
 
 #db = db_hadler("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord")
 

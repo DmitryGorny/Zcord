@@ -1,9 +1,9 @@
 import sys
-print(sys.executable)
 from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.AuthorizationWindow.AuthorizationWindow import Ui_Authorization
 from logic.Authorization.UserAuthorization import UserAuthorization
 from logic.Errors.AuthorizationError import AuthorizationError
+import json
 
 class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
     def __init__(self):
@@ -22,10 +22,24 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
         password = self.ui.Password_input.text()
 
         if len(login) == 0:
-            self.ui.Login_input.styleSheet("""QLineEdit {
+            self.ui.Login_input.setStyleSheet("""QLineEdit {
                                                         width:250px;
                                                         height:30px;
-                                                        border: 2px solid red;
+                                                        border: 2px solid #f5737a;
+                                                        border-radius: 10px;
+                                                        background-color:#1e1f22;
+                                                        font-size:16px;
+                                                        color:#808994;
+                                                        text-align:left;
+                                                        padding-left:27px;;
+                                                        }
+                                                    """)
+
+        if len(password) == 0:
+             self.ui.Password_input.setStyleSheet("""QLineEdit {
+                                                        width:250px;
+                                                        height:30px;
+                                                        border: 2px solid #f5737a;
                                                         border-radius: 10px;
                                                         background-color:#1e1f22;
                                                         font-size:16px;
@@ -36,7 +50,14 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
                                                     """)
 
         try:
-            UserAuthorization(login, password).login()
+            if UserAuthorization(login, password).login():
+                user = {
+                    "nickname": login,
+                    "password": password
+                }
+                with open(f"{sys.path[0]}/Resources/user/User.json", "w") as user_json:
+                    user_json.write(json.dumps(user))
+
         except AuthorizationError as e:
             print(e)
 

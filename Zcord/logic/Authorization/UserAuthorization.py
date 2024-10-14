@@ -13,8 +13,19 @@ class UserAuthorization:
 
         found_user = list(filter(lambda x: self.__nick_name in x, nickname_column))
 
-        if len(found_user) == 0:
+        if len(found_user) == 0: #Проверка наличия логина юзреа в базе
             raise AuthorizationError(self.__nick_name)
+
+        password = users_table.getCertainRow("nickname", found_user[0][0], "password")[0][0]
+
+        if self.__password == password:
+            return True
+
+        return False
+
+
+
+
 
 
 

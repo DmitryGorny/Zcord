@@ -90,3 +90,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
             self.start = self.end
     def mouseReleaseEvent(self, event):
         self.pressing = False
+
+
+    def openRegistrationWindow(self):
+        Registration = UserRegistration()

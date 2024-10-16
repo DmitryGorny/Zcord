@@ -65,7 +65,8 @@
     <string/>
    </property>
    <property name="styleSheet">
-    <string notr="true">background-color:#101317;</string>
+    <string notr="true">background-color:#101317;
+</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_3">
     <property name="topMargin">
@@ -458,6 +459,9 @@ color:black;
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="styleSheet">
              <string notr="true">font-size:18px;</string>

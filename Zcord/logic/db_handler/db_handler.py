@@ -11,16 +11,16 @@ class db_handler:
     Содержит 2 метода:
 
     ( 1 )
-    def getDataFromTableColumn(self, tableName:str, column:str) -> list ---> возвращает list с данными, взятые
+    def getDataFromTableColumn(self, column:str) -> list ---> возвращает list с данными, взятые
                                                                                             из колонки column таблицы tableName
     Пример:
-    db.getDataFromTableColumn("NAME-TABLE", "COLUMN-NAME")
+    db.getDataFromTableColumn("COLUMN-NAME")
 
     ( 2 )
     def insertDataInTable(self, tableName:str, columns:str, dataToInsert:str) -> bool ---> возвращет True, если данные dataToInsert
                                                                                             были добавлены в таблтцу table Name с колонками columns
     Пример:
-    db.insertDataInTable("TABLE-NAME", "(COL1, COL2, COL3, COL4)", "(5, 'data2', 'data3', 'data4')")
+    db.insertDataInTable("(COL1, COL2, COL3, COL4)", "(5, 'data2', 'data3', 'data4')")
     """
     def __init__(self, host, user, password, databaseName, tableName):
         self._host = host
@@ -97,6 +97,34 @@ class db_handler:
         except Error as e:
             print(e)
             return []
+
+    def checkIfUhique(self, column:str, columnToCheck:str):
+        connection = connect(
+            host=self._host,
+            user=self._user,
+            password= self._password,
+            database=self._database_name
+        )
+
+        try:
+            cursor = connection.cursor()
+
+            cursor.execute(f"SELECT {columnToCheck} AS col FROM {self._tableName} WHERE {columnToCheck} != '{column}';")
+
+
+            result = list(map(lambda x: list(x),  cursor.fetchall()))
+
+            cursor.close()
+            connection.close()
+
+            if len(result) == 0:
+                return True
+
+            return False
+        except Error as e:
+            print(e)
+            return False
+
 
 
 

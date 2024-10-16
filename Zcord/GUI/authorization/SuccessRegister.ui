@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Registrationerror</class>
- <widget class="QDialog" name="Registrationerror">
+ <class>SuccessRegister</class>
+ <widget class="QDialog" name="SuccessRegister">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -61,7 +61,7 @@
    <property name="styleSheet">
     <string notr="true">background-color:rgba(38,40,45,255);
 border-radius:50px;
-border:3px solid #BB271A;</string>
+border:3px solid #78A75A;</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
     <property name="spacing">
@@ -112,14 +112,20 @@ border:3px solid #BB271A;</string>
        <property name="bottomMargin">
         <number>0</number>
        </property>
-       <item>
+       <item alignment="Qt::AlignHCenter">
         <widget class="QPushButton" name="pushButton_2">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="text">
           <string/>
          </property>
          <property name="icon">
           <iconset resource="../res-rec.qrc">
-           <normaloff>:/icons/icon/warning_40dp_BB271A_FILL0_wght400_GRAD0_opsz40.svg</normaloff>:/icons/icon/warning_40dp_BB271A_FILL0_wght400_GRAD0_opsz40.svg</iconset>
+           <normaloff>:/icons/icon/done_outline_24dp_78A75A_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/done_outline_24dp_78A75A_FILL0_wght400_GRAD0_opsz24.svg</iconset>
          </property>
          <property name="iconSize">
           <size>
@@ -129,7 +135,7 @@ border:3px solid #BB271A;</string>
          </property>
         </widget>
        </item>
-       <item>
+       <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
         <widget class="QLabel" name="ErrorMes">
          <property name="sizePolicy">
           <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -137,12 +143,24 @@ border:3px solid #BB271A;</string>
            <verstretch>0</verstretch>
           </sizepolicy>
          </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>300</width>
+           <height>20</height>
+          </size>
+         </property>
          <property name="styleSheet">
           <string notr="true">font-size:20px;
 color:white;</string>
          </property>
          <property name="text">
-          <string>Никнейм (логин) занят</string>
+          <string>Вы успешно зарегестрированы</string>
          </property>
         </widget>
        </item>
@@ -150,7 +168,7 @@ color:white;</string>
      </widget>
     </item>
     <item alignment="Qt::AlignHCenter|Qt::AlignBottom">
-     <widget class="QPushButton" name="pushButton">
+     <widget class="QPushButton" name="Ok_button">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>

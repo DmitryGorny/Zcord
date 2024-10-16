@@ -1,6 +1,7 @@
 import sys
 from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.AuthorizationWindow.AuthorizationWindow import Ui_Authorization
+from logic.Authorization.RegistrationWindow.RegistrationWindowDisplay import ReigstrationWindowDisplay
 from logic.Authorization.UserAuthorization import UserAuthorization
 from logic.Errors.AuthorizationError import AuthorizationError
 from logic.Errors.ErrorDialog.UserError.UserError import UserError
@@ -15,9 +16,17 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.ui.Wrapper.setStyleSheet("background-color:#101317;border-radius:40px;")
+        self.ui.Wrapper.layout().setSpacing(0)
+        self.ui.CloseMinimizeButtons.setStyleSheet("margin-right:10px;background-color:none;")
+
+        self.ui.Password_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
+
         self.ui.closeWindowButton.clicked.connect(self.on_click_close)
         self.ui.minimizeWindow.clicked.connect(self.on_click_hide)
         self.ui.SignInButton.clicked.connect(self.authorize)
+        self.ui.RegistrationStartButton.clicked.connect(self.openRegistrationWindow)
+
+
 
     def authorize(self):
         login = self.ui.Login_input.text()
@@ -93,4 +102,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
 
 
     def openRegistrationWindow(self):
-        Registration = UserRegistration()
+        Registration = ReigstrationWindowDisplay()
+
+        Registration.show()
+        Registration.exec()

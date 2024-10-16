@@ -1,5 +1,6 @@
-from logic.db_handler.db_tables.Users import Users
+from logic.db_handler.db_handler import db_handler
 from logic.Errors.AuthorizationError import AuthorizationError
+import bcrypt
 
 class UserAuthorization:
     def __init__(self, nick_name, password):
@@ -7,7 +8,7 @@ class UserAuthorization:
         self.__password = password
 
     def login(self):
-        users_table = Users("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord", "users")
+        users_table = db_handler("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord", "users")
 
         nickname_column = users_table.getDataFromTableColumn("nickname")
 
@@ -18,7 +19,9 @@ class UserAuthorization:
 
         password = users_table.getCertainRow("nickname", found_user[0][0], "password")[0][0]
 
-        if self.__password == password:
+        valid = bcrypt.checkpw(self.__password.encode('utf-8'), password.encode('utf-8'))
+
+        if valid:
             return True
 
         return False

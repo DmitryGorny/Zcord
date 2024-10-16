@@ -71,9 +71,91 @@
     <string notr="true">background-color:#101317;</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout">
-    <property name="topMargin">
+    <property name="spacing">
      <number>0</number>
     </property>
+    <property name="topMargin">
+     <number>5</number>
+    </property>
+    <item alignment="Qt::AlignRight">
+     <widget class="QFrame" name="CloseMinimizeButtons">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">margin-right:10px;</string>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <item>
+        <widget class="QPushButton" name="minimizeWindow">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-radius:10px;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../res-rec.qrc">
+           <normaloff>:/icons/icon/remove_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/remove_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="closeWindowButton">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="maximumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">border-radius:10px;</string>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="icon">
+          <iconset resource="../res-rec.qrc">
+           <normaloff>:/icons/icon/close_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/close_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
      <widget class="QFrame" name="menu">
       <property name="sizePolicy">
@@ -409,12 +491,15 @@ color:black;
            <number>0</number>
           </property>
           <item>
-           <widget class="QPushButton" name="pushButton">
+           <widget class="QPushButton" name="RegistrationStartButton">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
+            </property>
+            <property name="cursor">
+             <cursorShape>PointingHandCursor</cursorShape>
             </property>
             <property name="styleSheet">
              <string notr="true">font-size:18px;</string>
@@ -433,6 +518,8 @@ color:black;
    </layout>
   </widget>
  </widget>
- <resources/>
+ <resources>
+  <include location="../res-rec.qrc"/>
+ </resources>
  <connections/>
 </ui>

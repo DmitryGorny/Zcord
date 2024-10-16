@@ -36,8 +36,13 @@ class MessageRoom(object):
                 message = msg[2]
                 if nickname not in self.nicknames_in_chats[chat_code]:  # ВОТ ЗДЕСЬ
                     self.nicknames_in_chats[chat_code].append(nickname)
+                    try:
+                        if chat_code != old_chat_cod:
+                            del self.nicknames_in_chats[old_chat_cod][self.nicknames_in_chats[old_chat_cod].index(nickname)]
+                    except UnboundLocalError:
+                        pass
                 else:
-                    pass
+                    old_chat_cod = int(chat_code)
                 date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 date_now = date_now
                 self.broadcast((chat_code, date_now + nickname, message))

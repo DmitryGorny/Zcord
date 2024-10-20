@@ -1,7 +1,7 @@
 import socket
 import threading
 from datetime import datetime
-import json
+import msgspec
 
 
 class MessageRoom(object):
@@ -16,7 +16,11 @@ class MessageRoom(object):
             1: [],
             2: []
         }
-        self.f = open('cache_chat.json', 'w')
+
+    @staticmethod
+    def serialize(x):
+        ser = msgspec.json.encode(x)
+        return ser
 
     def broadcast(self, msg):
         chat_code = msg[0]
@@ -34,6 +38,9 @@ class MessageRoom(object):
                 chat_code = int(msg[0])
                 nickname = msg[1]
                 message = msg[2]
+                if message == "change chat":
+                    client.send(MessageRoom.serialize(self.cache_chat["chat_id"][chat_code]))
+                    continue
                 if nickname not in self.nicknames_in_chats[chat_code]:  # ВОТ ЗДЕСЬ
                     self.nicknames_in_chats[chat_code].append(nickname)
                     try:
@@ -47,7 +54,7 @@ class MessageRoom(object):
                 date_now = date_now
                 self.broadcast((chat_code, date_now + nickname, message))
 
-                self.cache_chat["chat_id"][chat_code].append(message)
+                self.cache_chat["chat_id"][chat_code].append(f"{date_now + nickname}: {message}")
 
                 if len(self.cache_chat["chat_id"][chat_code]) >= 20:
                     del self.cache_chat["chat_id"][chat_code][0]
@@ -66,7 +73,7 @@ class MessageRoom(object):
                     #for i in self.cache_chat:
                       #  json.dump(self.cache_chat, self.f)
                    # self.f.close()
-                #break
+                break
 
     def receive(self):
         while True:

@@ -1,5 +1,6 @@
 import socket
 import threading
+import msgspec
 
 
 class MainInterface:
@@ -25,6 +26,8 @@ class MessageConnection(MainInterface):
             a = input()
             if a == "change chat":
                 self.change_chat(input("Введите id чата: "))
+                msg = f"{self.return_current_chat()}, {nickname}, {a}".encode("utf-8")
+                self.client_tcp.sendall(msg)
             else:
                 msg = f"{self.return_current_chat()}, {nickname}, {a}".encode("utf-8")
                 self.client_tcp.sendall(msg)
@@ -32,7 +35,13 @@ class MessageConnection(MainInterface):
     def recv_message(self):
         while True:
             try:
-                message = self.client_tcp.recv(1024).decode("utf-8")
+                message = self.client_tcp.recv(1024)
+                cache, flg = MessageConnection.deserialize(message)
+                if flg:
+                    for i in cache:
+                        print(i)
+                    continue
+                message = message.decode("utf-8")
                 if message == 'NICK':
                     self.client_tcp.send(nickname.encode('utf-8'))
                 else:
@@ -41,6 +50,15 @@ class MessageConnection(MainInterface):
                 print("Ошибка, конец соединения")
                 self.client_tcp.close()
                 break
+
+    @staticmethod
+    def deserialize(message):
+        try:
+            cache = msgspec.json.decode(message)
+            return cache, True
+        except msgspec.DecodeError:
+            cache = ''
+            return cache, False
 
 
 if __name__ == "__main__":

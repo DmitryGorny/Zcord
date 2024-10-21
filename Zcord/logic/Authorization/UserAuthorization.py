@@ -8,7 +8,7 @@ class UserAuthorization:
         self.__password = password
 
     def login(self):
-        users_table = db_handler("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord", "users")
+        users_table = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "users")
 
         nickname_column = users_table.getDataFromTableColumn("nickname")
 

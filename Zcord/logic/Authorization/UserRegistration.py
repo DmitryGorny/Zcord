@@ -7,7 +7,7 @@ class UserRegistration:
         self.__password = password
 
     def register(self):
-        users_table = db_handler("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord", "users")
+        users_table = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "users")
 
         newPass = bcrypt.hashpw(self.__password.encode(), bcrypt.gensalt())
 

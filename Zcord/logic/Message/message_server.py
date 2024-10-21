@@ -13,8 +13,8 @@ class MessageRoom(object):
             }
         }
         self.nicknames_in_chats = {
-            1: [1, 2, 3],
-            2: [1, 4, 5]
+            1: [],
+            2: []
         }
 
     @staticmethod
@@ -27,11 +27,10 @@ class MessageRoom(object):
         nickname = msg[1]
         message = msg[2]
         for client in self.nicknames_in_chats[chat_code]:
-            if client[1] == chat_code:
-                clients[client].send(f"{nickname}: {message}".encode('utf-8'))
+            ret = b'0' + f"{nickname}: {message}".encode('utf-8')
+            clients[client].send(ret)
 
     def handle(self, client, nickname):
-        old = ""
         while True:
             try:
                 # Broadcasting Messages
@@ -41,7 +40,7 @@ class MessageRoom(object):
                 nickname = msg[1]
                 message = msg[2]
                 if message == "change chat":
-                    client.send(MessageRoom.serialize(self.cache_chat["chat_id"][chat_code]))
+                    client.send(b'1' + MessageRoom.serialize(self.cache_chat["chat_id"][chat_code]))
                     continue
                 if nickname not in self.nicknames_in_chats[chat_code]:  # ВОТ ЗДЕСЬ
                     self.nicknames_in_chats[chat_code].append(nickname)
@@ -69,12 +68,7 @@ class MessageRoom(object):
                         self.broadcast((j, nickname, f"Пользователь {nickname} вышел!"))
                 clients.pop(nickname)
                 client.close()
-                #self.broadcast(f"Пользователь {nickname} вышел!".encode('utf-8'))
                 print(f"{nickname} left!")
-                #if len(nicknames) == 0:
-                    #for i in self.cache_chat:
-                      #  json.dump(self.cache_chat, self.f)
-                   # self.f.close()
                 break
 
     def receive(self):
@@ -84,14 +78,14 @@ class MessageRoom(object):
             print(f"Connected to {address}")
 
             # Request And Store Nickname
-            client.send('NICK'.encode('utf-8'))
+            client.send(b'0' + 'NICK'.encode('utf-8'))
             nickname = client.recv(1024).decode('utf-8')
             clients[nickname] = client
 
             # Print And Broadcast Nickname
             print(f"Nickname is {nickname}")
-            #self.broadcast(f"Пользователь {nickname} подключился!".encode('utf-8'))
-            client.send('Подключено к серверу'.encode('utf-8'))
+
+            client.send(b'0' + 'Подключено к серверу'.encode('utf-8'))
 
             # Start Handling Thread For Client
             thread = threading.Thread(target=msg_obj.handle, args=(client, nickname,))
@@ -99,7 +93,7 @@ class MessageRoom(object):
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
+    HOST = "26.124.194.150"
     PORT = 55555
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

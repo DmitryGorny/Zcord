@@ -1,5 +1,19 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/person_add_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/person_add_24dp_333333_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/close_fullscreen_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/minimize_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/attach_file_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/call_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/send_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/send_30dp_333333_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/forum_90dp_333333_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/chevron_right_24dp_808994_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/chevron_right_24dp_78A75A_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/done_outline_24dp_78A75A_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/remove_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/close_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</file>

@@ -13,8 +13,8 @@ class MessageRoom(object):
             }
         }
         self.nicknames_in_chats = {
-            1: [],
-            2: []
+            1: [1, 2, 3],
+            2: [1, 4, 5]
         }
 
     @staticmethod
@@ -27,9 +27,11 @@ class MessageRoom(object):
         nickname = msg[1]
         message = msg[2]
         for client in self.nicknames_in_chats[chat_code]:
-            clients[client].send(f"{nickname}: {message}".encode('utf-8'))
+            if client[1] == chat_code:
+                clients[client].send(f"{nickname}: {message}".encode('utf-8'))
 
     def handle(self, client, nickname):
+        old = ""
         while True:
             try:
                 # Broadcasting Messages

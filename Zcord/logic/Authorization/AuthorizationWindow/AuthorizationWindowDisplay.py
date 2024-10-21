@@ -6,9 +6,10 @@ from logic.Authorization.UserAuthorization import UserAuthorization
 from logic.Errors.AuthorizationError import AuthorizationError
 from logic.Errors.ErrorDialog.UserError.UserError import UserError
 from logic.Errors.ErrorDialog.LoginPassError.LoginPassError import LoginPassError
+from logic.Authorization.User.User import User
 import json
 
-class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
+class AuthoriztionWindowDisplay(QtWidgets.QDialog):
     def __init__(self):
         super(AuthoriztionWindowDisplay, self).__init__()
         self.ui = Ui_Authorization()
@@ -25,6 +26,8 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
         self.ui.minimizeWindow.clicked.connect(self.on_click_hide)
         self.ui.SignInButton.clicked.connect(self.authorize)
         self.ui.RegistrationStartButton.clicked.connect(self.openRegistrationWindow)
+
+        self.__user = 0
 
 
 
@@ -70,6 +73,9 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
                 }
                 with open(f"{sys.path[0]}/Resources/user/User.json", "w") as user_json:
                     user_json.write(json.dumps(user))
+
+                self.close()
+                self.__user = User(login, password)
             else:
                 LoginPassErrorBox = LoginPassError()
                 LoginPassErrorBox.show()
@@ -83,6 +89,9 @@ class AuthoriztionWindowDisplay(QtWidgets.QMainWindow):
 
     def on_click_hide(self):
         self.showMinimized()
+
+    def getUser(self):
+        return self.__user
 
     def on_click_close(self):
         sys.exit()

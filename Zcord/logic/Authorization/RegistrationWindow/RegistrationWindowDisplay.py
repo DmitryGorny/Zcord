@@ -1,4 +1,3 @@
-import sys
 from PyQt6 import QtWidgets, QtCore, QtGui
 from logic.Authorization.RegistrationWindow.RegistrationWindow import Ui_Dialog
 from logic.Authorization.UserRegistration import UserRegistration

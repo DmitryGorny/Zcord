@@ -35,9 +35,11 @@ class MessageConnection(MainInterface):
     def recv_message(self):
         while True:
             try:
-                message = self.client_tcp.recv(1024)
-                cache, flg = MessageConnection.deserialize(message)
-                if flg:
+                message = self.client_tcp.recv(1025)
+                header = message[0:1]
+                message = message[1:]
+                if header == b'1':
+                    cache = MessageConnection.deserialize(message)
                     for i in cache:
                         print(i)
                     continue
@@ -45,7 +47,8 @@ class MessageConnection(MainInterface):
                 if message == 'NICK':
                     self.client_tcp.send(nickname.encode('utf-8'))
                 else:
-                    print(message)
+                    if self.return_current_chat() != 0:
+                        print(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 self.client_tcp.close()
@@ -53,16 +56,12 @@ class MessageConnection(MainInterface):
 
     @staticmethod
     def deserialize(message):
-        try:
-            cache = msgspec.json.decode(message)
-            return cache, True
-        except msgspec.DecodeError:
-            cache = ''
-            return cache, False
+        cache = msgspec.json.decode(message)
+        return cache
 
 
 if __name__ == "__main__":
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.124.194.150"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     nickname = input("Введите свой ник: ")
@@ -79,16 +78,9 @@ if __name__ == "__main__":
         exit(0)
 
     print("Старт клиента сообщений")
-    try:
-        receive_thread = threading.Thread(target=message_binder.recv_message)
-        receive_thread.start()
 
-        write_thread = threading.Thread(target=message_binder.send_message)
-        write_thread.start()
+    receive_thread = threading.Thread(target=message_binder.recv_message)
+    receive_thread.start()
 
-        while True:
-            pass
-
-    except KeyboardInterrupt:
-        print("Прекращение работы клиента сообщений")
-        exit(0)
+    write_thread = threading.Thread(target=message_binder.send_message)
+    write_thread.start()

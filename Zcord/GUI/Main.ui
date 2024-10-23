@@ -31,7 +31,8 @@ padding:0;</string>
   </property>
   <widget class="QWidget" name="centralwidget">
    <property name="styleSheet">
-    <string notr="true">padding:0px;
+    <string notr="true">background-color:black;
+padding:0px;
 margin:0px;</string>
    </property>
    <layout class="QVBoxLayout" name="verticalLayout_9">
@@ -50,102 +51,6 @@ margin:0px;</string>
     <property name="bottomMargin">
      <number>0</number>
     </property>
-    <item>
-     <widget class="QFrame" name="horizontalFrame">
-      <property name="maximumSize">
-       <size>
-        <width>16777215</width>
-        <height>65</height>
-       </size>
-      </property>
-      <layout class="QHBoxLayout" name="horizontalLayout_2">
-       <property name="spacing">
-        <number>0</number>
-       </property>
-       <property name="leftMargin">
-        <number>40</number>
-       </property>
-       <property name="topMargin">
-        <number>0</number>
-       </property>
-       <property name="bottomMargin">
-        <number>0</number>
-       </property>
-       <item alignment="Qt::AlignLeft|Qt::AlignVCenter">
-        <widget class="QLabel" name="label_2">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>30</width>
-           <height>0</height>
-          </size>
-         </property>
-         <property name="styleSheet">
-          <string notr="true">color:white;
-font-size:18px;</string>
-         </property>
-         <property name="text">
-          <string>Zcord</string>
-         </property>
-        </widget>
-       </item>
-       <item alignment="Qt::AlignRight|Qt::AlignVCenter">
-        <widget class="QFrame" name="horizontalFrame">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <layout class="QHBoxLayout" name="horizontalLayout_7">
-          <item alignment="Qt::AlignRight">
-           <widget class="QPushButton" name="minimize">
-            <property name="styleSheet">
-             <string notr="true">color:white;
-</string>
-            </property>
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="res-rec.qrc">
-              <normaloff>:/icons/icon/remove_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/remove_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignRight">
-           <widget class="QPushButton" name="WindowMode">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="res-rec.qrc">
-              <normaloff>:/icons/icon/close_fullscreen_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/close_fullscreen_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
-            </property>
-           </widget>
-          </item>
-          <item alignment="Qt::AlignRight">
-           <widget class="QPushButton" name="close">
-            <property name="text">
-             <string/>
-            </property>
-            <property name="icon">
-             <iconset resource="res-rec.qrc">
-              <normaloff>:/icons/icon/close_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/close_24dp_EFEFEF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
     <item>
      <widget class="QFrame" name="Main">
       <property name="maximumSize">
@@ -311,7 +216,7 @@ border:0;</string>
                   <x>0</x>
                   <y>0</y>
                   <width>100</width>
-                  <height>397</height>
+                  <height>400</height>
                  </rect>
                 </property>
                </widget>

@@ -130,14 +130,14 @@ border:3px solid white;</string>
       <property name="maximumSize">
        <size>
         <width>16777215</width>
-        <height>100</height>
+        <height>200</height>
        </size>
       </property>
       <property name="styleSheet">
        <string notr="true">background-color:rgba(38,40,45,255);
 border:none;</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+      <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0,0">
        <property name="spacing">
         <number>0</number>
        </property>
@@ -246,6 +246,25 @@ font-size:16px;</string>
            </widget>
           </item>
          </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QPushButton" name="Status">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
         </widget>
        </item>
       </layout>

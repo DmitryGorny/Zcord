@@ -125,6 +125,54 @@ class db_handler:
             print(e)
             return False
 
+    def UpdateRequest(self, columnToChange:str, newValue:str, condition:str = "") -> bool:
+        connection = connect(
+            host=self._host,
+            user=self._user,
+            password= self._password,
+            database=self._database_name
+        )
+
+        try:
+            cursor = connection.cursor()
+
+            cursor.execute(f"UPDATE {self._tableName} SET {columnToChange} = {newValue} {condition}")
+
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            return True
+        except Error as e:
+            print(e)
+            return False
+
+
+    def DeleteRequest(self, columnToDeleteFrom:str, CheckValue:str) -> bool:
+        connection = connect(
+            host=self._host,
+            user=self._user,
+            password= self._password,
+            database=self._database_name
+        )
+
+        try:
+            cursor = connection.cursor()
+
+            cursor.execute(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} LIMIT 1")
+
+            connection.commit()
+
+            cursor.close()
+            connection.close()
+
+            return True
+        except Error as e:
+            print(e)
+            return False
+
+
 
 
 

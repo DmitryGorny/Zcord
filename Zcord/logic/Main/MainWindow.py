@@ -10,7 +10,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint | QtCore.Qt.WindowType.WindowStaysOnTopHint)
 
         self.ui.pushButton.setIcon(QtGui.QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
@@ -77,11 +77,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def addFriend(self):
-        addFriendsDialog = AddFriendWindow()
+        if not AddFriendWindow.isOpen:
+            addFriendsDialog = AddFriendWindow(self.__user)
 
-        addFriendsDialog.show()
+            addFriendsDialog.show()
 
-        addFriendsDialog.exec()
+            addFriendsDialog.exec()
 
 
 
@@ -90,7 +91,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def closeWindow(self):
         self.close()
-
 
     def mousePressEvent(self, event):
         self.start = self.mapToGlobal(event.pos())
@@ -105,15 +105,14 @@ class MainWindow(QtWidgets.QMainWindow):
     def mouseReleaseEvent(self, event):
         self.pressing = False
 
-
     def on_click_hide(self):
         self.showMinimized()
 
     def on_click_fullscreenWindowMode(self):
-        if self.isFullScreen():
+        if self.isMaximized():
             self.showNormal()
         else:
-            self.showFullScreen()
+            self.showMaximized()
 
 
 

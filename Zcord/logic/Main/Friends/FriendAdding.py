@@ -58,6 +58,10 @@ class FriendAdding:
 
 
 
+fr = FriendAdding(User("BYDLO", 12345))
+
+fr.sendRequest("zalupa")
+
 
 
 

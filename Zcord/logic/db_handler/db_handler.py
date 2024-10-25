@@ -32,7 +32,7 @@ class db_handler:
 
 
 
-    def getDataFromTableColumn(self, column:str) -> list:
+    def getDataFromTableColumn(self, column:str, condition:str = "") -> list:
         connection = connect(
                 host=self._host,
                 user=self._user,
@@ -43,7 +43,7 @@ class db_handler:
         try:
             cursor = connection.cursor()
 
-            cursor.execute(f"SELECT {column} FROM {self._tableName}")
+            cursor.execute(f"SELECT {column} FROM {self._tableName} {condition}")
 
             result = list(map(lambda x: list(x),  cursor.fetchall()))
 

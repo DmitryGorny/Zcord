@@ -16,8 +16,8 @@
   <widget class="QFrame" name="MAIN">
    <property name="geometry">
     <rect>
-     <x>0</x>
-     <y>0</y>
+     <x>-10</x>
+     <y>-10</y>
      <width>761</width>
      <height>681</height>
     </rect>
@@ -250,6 +250,16 @@ border:3px solid white;</string>
           <property name="leftMargin">
            <number>45</number>
           </property>
+          <property name="rightMargin">
+           <number>45</number>
+          </property>
+          <item>
+           <widget class="QListWidget" name="ChatScroll">
+            <property name="styleSheet">
+             <string notr="true">border:none;</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>

@@ -39,6 +39,20 @@ class Chat(QtWidgets.QWidget):
         self.ui.Chat_input_.clear()
 
 
+    def recieveMessage(self, NickSender, text):
+        if len(text) == 0:
+            return
+
+        message = Message(text, NickSender)
+
+        widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
+        widget.setSizeHint(message.ui.Message_.sizeHint())
+
+        self.ui.ChatScroll.setSpacing(10)
+        self.ui.ChatScroll.addItem(widget)
+        self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
+        self.ui.Chat_input_.clear()
+
 
 
 

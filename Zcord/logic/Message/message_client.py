@@ -21,7 +21,7 @@ class MessageConnection(MainInterface):
         self.client_tcp = client_tcp
         super().__init__()
 
-    def send_message(self):
+    def send_message(self, nickname):
         while True:
             a = input()
             if a == "change chat":
@@ -32,7 +32,7 @@ class MessageConnection(MainInterface):
                 msg = f"{self.return_current_chat()}, {nickname}, {a}".encode("utf-8")
                 self.client_tcp.sendall(msg)
 
-    def recv_message(self):
+    def recv_message(self, nickname):
         while True:
             try:
                 message = self.client_tcp.recv(1025)
@@ -60,13 +60,17 @@ class MessageConnection(MainInterface):
         return cache
 
 
-if __name__ == "__main__":
-    SERVER_IP = "26.124.194.150"  # IP адрес сервера
+def thread_start(message_binder, nickname):
+    receive_thread = threading.Thread(target=message_binder.recv_message, args=(nickname, ))
+    receive_thread.start()
+
+    write_thread = threading.Thread(target=message_binder.send_message, args=(nickname, ))
+    write_thread.start()
+
+
+def call(nickname):
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
-
-    nickname = input("Введите свой ник: ")
-
-    all_chats = [1, 2]
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -79,8 +83,4 @@ if __name__ == "__main__":
 
     print("Старт клиента сообщений")
 
-    receive_thread = threading.Thread(target=message_binder.recv_message)
-    receive_thread.start()
-
-    write_thread = threading.Thread(target=message_binder.send_message)
-    write_thread.start()
+    thread_start(message_binder, nickname)

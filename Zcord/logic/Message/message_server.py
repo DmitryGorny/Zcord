@@ -92,7 +92,7 @@ class MessageRoom(object):
 
 
 if __name__ == "__main__":
-    HOST = "26.124.194.150"
+    HOST = "26.36.124.241"
     PORT = 55555
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

@@ -3,6 +3,7 @@ from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
 from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
+from logic.Message import message_client
 import json
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -33,6 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
 
         self.ui.ScrollFriends.setVisible(False)
+        self.call_chat()
 
 
 
@@ -63,8 +65,8 @@ class MainWindow(QtWidgets.QMainWindow):
         for friend in self.__friends.keys():
             self.__chats.append(Chat(self.__friends[friend]["chat_id"], friend, self.__user))
 
-
-
+    def call_chat(self):
+        message_client.call(self.__user.getNickName())
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():

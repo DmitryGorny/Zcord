@@ -66,7 +66,7 @@ class MainWindow(QtWidgets.QMainWindow):
             self.__chats.append(Chat(self.__friends[friend]["chat_id"], friend, self.__user))
 
     def call_chat(self):
-        message_client.call(self.__user.getNickName())
+        message_client.call(self.__user.getNickName(), )
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():

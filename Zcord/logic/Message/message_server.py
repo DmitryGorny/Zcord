@@ -5,12 +5,8 @@ import msgspec
 
 
 class MessageRoom(object):
-    def __init__(self):
-        self.cache_chat = {"chat_id": {
-            1: [],
-            2: []
-            }
-        }
+    def __init__(self, chat_id):
+        self.cache_chat = chat_id
         self.nicknames_in_chats = {
             1: [],
             2: []
@@ -70,25 +66,30 @@ class MessageRoom(object):
                 print(f"{nickname} left!")
                 break
 
-    def receive(self):
-        while True:
-            # Accept Connection
-            client, address = server_msg.accept()
-            print(f"Connected to {address}")
 
-            # Request And Store Nickname
-            client.send(b'0' + 'NICK'.encode('utf-8'))
-            nickname = client.recv(1024).decode('utf-8')
-            clients[nickname] = client
+def receive():
+    while True:
+        # Accept Connection
+        client, address = server_msg.accept()
+        print(f"Connected to {address}")
 
-            # Print And Broadcast Nickname
-            print(f"Nickname is {nickname}")
+        # Request And Store Nickname
+        client.send(b'0' + 'NICK'.encode('utf-8'))
+        msg = client.recv(1024)
+        msg = msg.decode('utf-8').split(", ")
+        nickname = msg[0]
+        chat_id = msg[1]
+        clients[nickname] = client
 
-            client.send(b'0' + 'Подключено к серверу'.encode('utf-8'))
+        # Print And Broadcast Nickname
+        print(f"Nickname is {nickname}")
 
-            # Start Handling Thread For Client
-            thread = threading.Thread(target=msg_obj.handle, args=(client, nickname,))
-            thread.start()
+        client.send(b'0' + 'Подключено к серверу'.encode('utf-8'))
+        print(chat_id)
+        msg_obj = MessageRoom(chat_id)
+        # Start Handling Thread For Client
+        thread = threading.Thread(target=msg_obj.handle, args=(client, nickname,))
+        thread.start()
 
 
 if __name__ == "__main__":
@@ -97,9 +98,5 @@ if __name__ == "__main__":
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()
-
     clients = {}
-
-    msg_obj = MessageRoom()
-
-    msg_obj.receive()
+    receive()

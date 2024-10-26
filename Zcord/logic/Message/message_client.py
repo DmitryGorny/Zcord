@@ -17,7 +17,8 @@ class MainInterface:
 
 
 class MessageConnection(MainInterface):
-    def __init__(self, client_tcp):
+    def __init__(self, client_tcp, cache_chat):
+        self.cache_chat = cache_chat
         self.client_tcp = client_tcp
         super().__init__()
 
@@ -45,7 +46,7 @@ class MessageConnection(MainInterface):
                     continue
                 message = message.decode("utf-8")
                 if message == 'NICK':
-                    self.client_tcp.send(nickname.encode('utf-8'))
+                    self.client_tcp.send(f"{nickname.encode('utf-8')}, {self.cache_chat.encode('utf-8')}")
                 else:
                     if self.return_current_chat() != 0:
                         print(message)
@@ -68,18 +69,23 @@ def thread_start(message_binder, nickname):
     write_thread.start()
 
 
-def call(nickname):
+def call(nickname, chat_id):
     SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_tcp.connect((SERVER_IP, SERVER_PORT))
-
-        message_binder = MessageConnection(client_tcp)
     except ConnectionRefusedError:
         print("Не удалось подключится к серверу или сервер неактивен")
         exit(0)
+
+    cache_chat = {"chat_id": {}}
+
+    for k in chat_id:
+        cache_chat["chat_id"][k] = []
+
+    message_binder = MessageConnection(client_tcp, cache_chat)
 
     print("Старт клиента сообщений")
 

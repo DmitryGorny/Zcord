@@ -2,12 +2,13 @@ import socket
 import threading
 from datetime import datetime
 import msgspec
+import copy
 
 
 class MessageRoom(object):
     def __init__(self, chat_id):
-        self.cache_chat = chat_id
-        self.nicknames_in_chats = chat_id
+        self.cache_chat = copy.deepcopy(chat_id)
+        self.nicknames_in_chats = copy.deepcopy(chat_id)
 
     @staticmethod
     def serialize(x):
@@ -36,11 +37,11 @@ class MessageRoom(object):
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
-                print()
                 if message == "change chat":
                     client.send(b'1' + MessageRoom.serialize(self.cache_chat["chat_id"][chat_code]))
                     continue
-                if nickname not in self.nicknames_in_chats['chat_id'][chat_code]:  # ВОТ ЗДЕСЬ
+                #print(self.nicknames_in_chats['chat_id'][chat_code])
+                if nickname not in self.nicknames_in_chats['chat_id'][chat_code]:
                     self.nicknames_in_chats['chat_id'][chat_code].append(nickname)
                     try:
                         if chat_code != old_chat_cod:
@@ -83,12 +84,10 @@ def receive():
         nickname = msg[0]
         chat_id = MessageRoom.deserialize(msg[1])
         clients[nickname] = client
-
         # Print And Broadcast Nickname
         print(f"Nickname is {nickname}")
 
         client.send(b'0' + 'Подключено к серверу'.encode('utf-8'))
-        print(chat_id)
 
         msg_obj = MessageRoom(chat_id)
         # Start Handling Thread For Client

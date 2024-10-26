@@ -1,6 +1,7 @@
 import socket
 import threading
 import msgspec
+from logic.Main.Chat.ChatClass import Chat
 
 
 class MainInterface:
@@ -23,10 +24,16 @@ class MainInterface:
 class MessageConnection(object):
     cache_chat = 0
     client_tcp = 0
+    user = ""
 
-    def __init__(self, client_tcp, cache_chat):
+    def __init__(self, client_tcp, cache_chat, user):
         MessageConnection.set_cache_chat(cache_chat)
         MessageConnection.set_client_tcp(client_tcp)
+        MessageConnection.set_user(user)
+
+    @staticmethod
+    def set_user(user):
+        MessageConnection.user = user
 
     @staticmethod
     def set_cache_chat(cache_chat):
@@ -58,7 +65,10 @@ class MessageConnection(object):
                     MessageConnection.client_tcp.send(f"{nickname}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 else:
                     if MainInterface.return_current_chat() != 0:
-                        print(message)
+                        if nickname != MessageConnection.user.getNickName():
+                            cht = Chat.Chat(MainInterface.return_current_chat(), nickname, MessageConnection.user)
+                            cht.recieveMessage(message)
+                            print(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -84,7 +94,7 @@ def thread_start(nickname):
     receive_thread.start()
 
 
-def call(nickname, chat_id):
+def call(nickname, chat_id, user):
     SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
@@ -99,7 +109,7 @@ def call(nickname, chat_id):
     for k in chat_id:
         cache_chat["chat_id"][k] = []
 
-    MessageConnection(client_tcp, cache_chat)
+    MessageConnection(client_tcp, cache_chat, user)
 
     print("Старт клиента сообщений")
 

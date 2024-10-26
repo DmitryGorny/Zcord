@@ -1,4 +1,6 @@
 import socket
+import sys
+
 import pyaudio
 
 
@@ -7,8 +9,13 @@ class VoiceConnection(object):
         pass
 
     def getter(self):
-        data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
-        stream_output.write(data_to_read)
+        while True:
+            try:
+                data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
+                stream_output.write(data_to_read)
+            except KeyboardInterrupt:
+                print("Приём аудио завершен или прерван")
+                sys.exit()
 
 
 if __name__ == "__main__":
@@ -36,12 +43,5 @@ if __name__ == "__main__":
     print("Начат приём аудио..., для завершения ctrl + c")
     data_to_read, address = listen.recvfrom(CHUNK)
     print(f"Connected to {address}")
-    try:
-        while True:
-            con.getter()
-    except KeyboardInterrupt():
-        print("Приём аудио закончен или прерван")
-    finally:
-        p.close(stream_output)
-        listen.close()
-        stream_output.close()
+
+    con.getter()

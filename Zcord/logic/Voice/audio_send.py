@@ -1,4 +1,6 @@
 import socket
+import sys
+
 import pyaudio
 
 
@@ -7,12 +9,18 @@ class VoiceConnection(object):
         pass
 
     def sender(self):
-        try:
-            data_to_send = stream_input.read(1024)
-            speak.sendall(b'1' + data_to_send)  # Отправляем данные на сервер
-        except KeyboardInterrupt:
-            print("Передача аудио закончена или прервана")
-            speak.sendall(b'0')
+        while True:
+            try:
+                data_to_send = stream_input.read(1024)
+                speak.sendall(b'1' + data_to_send)  # Отправляем данные на сервер
+            except KeyboardInterrupt:
+                print("Передача аудио закончена или прервана")
+                speak.sendall(b'0')
+                sys.exit()
+
+    def first_packet(self):
+        data_to_send = stream_input.read(1024)
+        speak.sendall(b'1' + data_to_send)  # Отправляем данные на сервер
 
 
 if __name__ == "__main__":
@@ -40,13 +48,5 @@ if __name__ == "__main__":
                           frames_per_buffer=1024)
 
     print("Начата передача аудио, для завершения ctrl + c")
+    con.first_packet()
     con.sender()
-    try:
-        while True:
-            con.sender()
-    except KeyboardInterrupt():
-        print("Передача аудио закончена или прервана")
-    finally:
-        p.close(stream_input)
-        stream_input.close()
-        speak.close()

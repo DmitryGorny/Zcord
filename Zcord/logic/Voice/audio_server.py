@@ -25,15 +25,19 @@ class VoiceServer(object):
     async def read_request(self):
         while True:
             self.data, self.address = self.server.recvfrom(self.CHUNK)
-            if self.data[0] == b'0':
+            if self.data[0:1] == b'0':
                 print(f"{self.address} disconnect!")
                 self.first_packet()
+            self.data = self.data[1::]
             self.send_request()
             await asyncio.sleep(0)
 
     def first_packet(self):
-        data, address = self.server.recvfrom(self.CHUNK)
-        print(f"Connect to: {address}")
+        while True:
+            data, address = self.server.recvfrom(self.CHUNK)
+            if data[0:1] == b'1':
+                print(f"Connect to: {address}")
+                break
 
     def send_request(self):
         self.server.sendto(self.data, (self.ip_to_output, self.port_to_output))

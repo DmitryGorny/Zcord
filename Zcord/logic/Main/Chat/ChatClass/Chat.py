@@ -1,6 +1,8 @@
 from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
 from PyQt6 import QtWidgets, QtCore, QtGui
 from logic.Main.Chat.Message.Message import Message
+from logic.Message import message_client
+
 
 class Chat(QtWidgets.QWidget):
     def __init__(self, chatId, friendNick, user):
@@ -25,6 +27,7 @@ class Chat(QtWidgets.QWidget):
         if len(messageText) == 0:
             return
 
+        message_client.MessageConnection.send_message(messageText, self.__user.getNickName())
         message = Message(messageText, self.__user.getNickName())
 
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
@@ -45,3 +48,6 @@ class Chat(QtWidgets.QWidget):
 
     def getChatWidget(self):
         return self.ui
+
+    def getChatId(self):
+        return self.__chatId

@@ -68,8 +68,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def call_chat(self):
         chat_ids = []
         for chat in self.__chats:
-            chat_ids.append(chat.getChatId())
-        message_client.call(self.__user.getNickName())
+            chat_ids.append(str(chat.getChatId()))
+        message_client.call(self.__user.getNickName(), chat_ids)
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():
@@ -172,6 +172,9 @@ class MainWindow(QtWidgets.QMainWindow):
 
         chat = list(filter(lambda x: x.getNickName() == sender.text, self.__chats))[0]
 
+        chat_id = chat.getChatId()
+
+        message_client.MainInterface.change_chat(chat_id, self.__user.getNickName())
 
         chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)
         self.ui.stackedWidget.addWidget(chat.ui.MAIN)

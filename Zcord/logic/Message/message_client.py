@@ -9,34 +9,43 @@ class MainInterface:
     def __init__(self):
         pass
 
-    def change_chat(self, current_chat):
+    @staticmethod
+    def change_chat(current_chat, nickname):
         MainInterface.__current_chat = current_chat
+        msg = f"{MainInterface.return_current_chat()}, {nickname}, {'change chat'}".encode("utf-8")
+        MessageConnection.client_tcp.sendall(msg)
 
-    def return_current_chat(self):
+    @staticmethod
+    def return_current_chat():
         return MainInterface.__current_chat
 
 
-class MessageConnection(MainInterface):
+class MessageConnection(object):
+    cache_chat = 0
+    client_tcp = 0
+
     def __init__(self, client_tcp, cache_chat):
-        self.cache_chat = cache_chat
-        self.client_tcp = client_tcp
-        super().__init__()
+        MessageConnection.set_cache_chat(cache_chat)
+        MessageConnection.set_client_tcp(client_tcp)
 
-    def send_message(self, nickname):
-        while True:
-            a = input()
-            if a == "change chat":
-                self.change_chat(input("Введите id чата: "))
-                msg = f"{self.return_current_chat()}, {nickname}, {a}".encode("utf-8")
-                self.client_tcp.sendall(msg)
-            else:
-                msg = f"{self.return_current_chat()}, {nickname}, {a}".encode("utf-8")
-                self.client_tcp.sendall(msg)
+    @staticmethod
+    def set_cache_chat(cache_chat):
+        MessageConnection.cache_chat = cache_chat
 
-    def recv_message(self, nickname):
+    @staticmethod
+    def set_client_tcp(client_tcp):
+        MessageConnection.client_tcp = client_tcp
+
+    @staticmethod
+    def send_message(message, nickname):
+        msg = f"{MainInterface.return_current_chat()}, {nickname}, {message}".encode("utf-8")
+        MessageConnection.client_tcp.sendall(msg)
+
+    @staticmethod
+    def recv_message(nickname):
         while True:
             try:
-                message = self.client_tcp.recv(1025)
+                message = MessageConnection.client_tcp.recv(1025)
                 header = message[0:1]
                 message = message[1:]
                 if header == b'1':
@@ -46,27 +55,33 @@ class MessageConnection(MainInterface):
                     continue
                 message = message.decode("utf-8")
                 if message == 'NICK':
-                    self.client_tcp.send(f"{nickname.encode('utf-8')}, {self.cache_chat.encode('utf-8')}")
+                    MessageConnection.client_tcp.send(f"{nickname}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 else:
-                    if self.return_current_chat() != 0:
+                    if MainInterface.return_current_chat() != 0:
                         print(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
-                self.client_tcp.close()
+                MessageConnection.client_tcp.close()
                 break
+
+    @staticmethod
+    def get_tcp_server(self):
+        return self.client_tcp
 
     @staticmethod
     def deserialize(message):
         cache = msgspec.json.decode(message)
         return cache
 
+    @staticmethod
+    def serialize(x):
+        ser = msgspec.json.encode(x)
+        return ser
 
-def thread_start(message_binder, nickname):
-    receive_thread = threading.Thread(target=message_binder.recv_message, args=(nickname, ))
+
+def thread_start(nickname):
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
     receive_thread.start()
-
-    write_thread = threading.Thread(target=message_binder.send_message, args=(nickname, ))
-    write_thread.start()
 
 
 def call(nickname, chat_id):
@@ -81,12 +96,11 @@ def call(nickname, chat_id):
         exit(0)
 
     cache_chat = {"chat_id": {}}
-
     for k in chat_id:
         cache_chat["chat_id"][k] = []
 
-    message_binder = MessageConnection(client_tcp, cache_chat)
+    MessageConnection(client_tcp, cache_chat)
 
     print("Старт клиента сообщений")
 
-    thread_start(message_binder, nickname)
+    thread_start(nickname)

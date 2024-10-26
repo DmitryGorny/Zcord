@@ -7,21 +7,23 @@ import msgspec
 class MessageRoom(object):
     def __init__(self, chat_id):
         self.cache_chat = chat_id
-        self.nicknames_in_chats = {
-            1: [],
-            2: []
-        }
+        self.nicknames_in_chats = chat_id
 
     @staticmethod
     def serialize(x):
         ser = msgspec.json.encode(x)
         return ser
 
+    @staticmethod
+    def deserialize(message):
+        cache = msgspec.json.decode(message)
+        return cache
+
     def broadcast(self, msg):
         chat_code = msg[0]
         nickname = msg[1]
         message = msg[2]
-        for client in self.nicknames_in_chats[chat_code]:
+        for client in self.nicknames_in_chats['chat_id'][chat_code]:
             ret = b'0' + f"{nickname}: {message}".encode('utf-8')
             clients[client].send(ret)
 
@@ -31,17 +33,18 @@ class MessageRoom(object):
                 # Broadcasting Messages
                 msg = client.recv(1024)
                 msg = msg.decode('utf-8').split(", ")
-                chat_code = int(msg[0])
+                chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
+                print()
                 if message == "change chat":
                     client.send(b'1' + MessageRoom.serialize(self.cache_chat["chat_id"][chat_code]))
                     continue
-                if nickname not in self.nicknames_in_chats[chat_code]:  # ВОТ ЗДЕСЬ
-                    self.nicknames_in_chats[chat_code].append(nickname)
+                if nickname not in self.nicknames_in_chats['chat_id'][chat_code]:  # ВОТ ЗДЕСЬ
+                    self.nicknames_in_chats['chat_id'][chat_code].append(nickname)
                     try:
                         if chat_code != old_chat_cod:
-                            del self.nicknames_in_chats[old_chat_cod][self.nicknames_in_chats[old_chat_cod].index(nickname)]
+                            del self.nicknames_in_chats['chat_id'][old_chat_cod][self.nicknames_in_chats['chat_id'][old_chat_cod].index(nickname)]
                     except UnboundLocalError:
                         pass
                 else:
@@ -57,9 +60,9 @@ class MessageRoom(object):
 
             except ConnectionResetError:
                 # Removing And Closing Clients
-                for j in self.nicknames_in_chats:
-                    if nickname in self.nicknames_in_chats[j]:
-                        self.nicknames_in_chats[j].remove(nickname)
+                for j in self.nicknames_in_chats['chat_id']:
+                    if nickname in self.nicknames_in_chats['chat_id'][j]:
+                        self.nicknames_in_chats['chat_id'][j].remove(nickname)
                         self.broadcast((j, nickname, f"Пользователь {nickname} вышел!"))
                 clients.pop(nickname)
                 client.close()
@@ -78,7 +81,7 @@ def receive():
         msg = client.recv(1024)
         msg = msg.decode('utf-8').split(", ")
         nickname = msg[0]
-        chat_id = msg[1]
+        chat_id = MessageRoom.deserialize(msg[1])
         clients[nickname] = client
 
         # Print And Broadcast Nickname
@@ -86,6 +89,7 @@ def receive():
 
         client.send(b'0' + 'Подключено к серверу'.encode('utf-8'))
         print(chat_id)
+
         msg_obj = MessageRoom(chat_id)
         # Start Handling Thread For Client
         thread = threading.Thread(target=msg_obj.handle, args=(client, nickname,))

@@ -39,11 +39,11 @@ class Chat(QtWidgets.QWidget):
         self.ui.Chat_input_.clear()
 
 
-    def recieveMessage(self, NickSender, text):
+    def recieveMessage(self, text):
         if len(text) == 0:
             return
 
-        message = Message(text, NickSender)
+        message = Message(text, self.__friendNickname)
 
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())

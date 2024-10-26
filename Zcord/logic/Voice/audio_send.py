@@ -7,8 +7,12 @@ class VoiceConnection(object):
         pass
 
     def sender(self):
-        data_to_send = stream_input.read(1024)
-        speak.sendall(data_to_send)  # Отправляем данные на сервер
+        try:
+            data_to_send = stream_input.read(1024)
+            speak.sendall(b'1' + data_to_send)  # Отправляем данные на сервер
+        except KeyboardInterrupt:
+            print("Передача аудио закончена или прервана")
+            speak.sendall(b'0')
 
 
 if __name__ == "__main__":

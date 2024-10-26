@@ -15,7 +15,7 @@ if __name__ == "__main__":
     con = VoiceConnection()
 
     CLIENT = "26.36.124.241"  # IP адрес свой (клиента)
-    PORT_TO_LISTEN = 55536  # Порт, используемый клиентом
+    PORT_TO_LISTEN = 22223  # Порт, используемый клиентом
 
     FORMAT = pyaudio.paInt16  # Формат звука
     CHANNELS = 1        # Количество каналов (1 для моно)

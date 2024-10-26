@@ -11,10 +11,11 @@ class Client(object):
 
 
 class VoiceServer(object):
-    def __init__(self, server_port, ip_to_output):
+    def __init__(self, server_port, ip_to_output, port_to_output):
         self.HOST = "26.36.124.241"  # Standard loopback interface address (localhost)
         self.ip_to_output = ip_to_output
         self.server_port = server_port  # Port to listen on (non-privileged ports are > 1023)
+        self.port_to_output = port_to_output
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.CHUNK = 4096
         self.server.bind((self.HOST, self.server_port))
@@ -24,8 +25,9 @@ class VoiceServer(object):
     async def read_request(self):
         while True:
             self.data, self.address = self.server.recvfrom(self.CHUNK)
-            if not self.data:
-                break
+            if self.data[0] == b'0':
+                print(f"{self.address} disconnect!")
+                self.first_packet()
             self.send_request()
             await asyncio.sleep(0)
 
@@ -34,7 +36,7 @@ class VoiceServer(object):
         print(f"Connect to: {address}")
 
     def send_request(self):
-        self.server.sendto(self.data, (self.ip_to_output, 55536))
+        self.server.sendto(self.data, (self.ip_to_output, self.port_to_output))
 
     def close_server(self):
         print("Server ends")
@@ -42,8 +44,8 @@ class VoiceServer(object):
 
 
 async def main():
-    listening_server_obj = VoiceServer(65128, "26.164.192.100")
-    listening_server_obj1 = VoiceServer(54325, "26.36.124.241")
+    listening_server_obj = VoiceServer(65128, "26.181.96.20", 22222)
+    listening_server_obj1 = VoiceServer(54325, "26.36.124.241", 22223)
     task1 = asyncio.create_task(listening_server_obj.read_request())
     task2 = asyncio.create_task(listening_server_obj1.read_request())
     await task1
@@ -51,7 +53,5 @@ async def main():
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
-
     # Позже необходимо добавить работу с классом Client, а именно из него брать все апйишники и порты
     asyncio.run(main())

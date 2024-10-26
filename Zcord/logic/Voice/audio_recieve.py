@@ -8,15 +8,16 @@ class VoiceConnection(object):
         pass
 
     def getter(self):
-        data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
-        stream_output.write(data_to_read)
+        while True:
+            data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
+            stream_output.write(data_to_read)
 
 
 if __name__ == "__main__":
     con = VoiceConnection()
 
-    CLIENT = "26.181.96.20"  # IP адрес свой (клиента)
-    PORT_TO_LISTEN = 22222  # Порт, используемый клиентом
+    CLIENT = "26.36.124.241"  # IP адрес свой (клиента)
+    PORT_TO_LISTEN = 55533  # Порт, используемый клиентом
 
     FORMAT = pyaudio.paInt16  # Формат звука
     CHANNELS = 1        # Количество каналов (1 для моно)
@@ -38,8 +39,7 @@ if __name__ == "__main__":
     data_to_read, address = listen.recvfrom(CHUNK)
     print(f"Connected to {address}")
     try:
-        while True:
-            con.getter()
+        con.getter()
     except KeyboardInterrupt:
         print("Приём аудио закончен или прерван")
     finally:

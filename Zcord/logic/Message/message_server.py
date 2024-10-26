@@ -5,8 +5,7 @@ import msgspec
 
 
 class MessageRoom(object):
-    def __init__(self, server_msg):
-        self.server_msg = server_msg
+    def __init__(self):
         self.cache_chat = {"chat_id": {
             1: [],
             2: []
@@ -101,6 +100,6 @@ if __name__ == "__main__":
 
     clients = {}
 
-    msg_obj = MessageRoom(server_msg)
+    msg_obj = MessageRoom()
 
     msg_obj.receive()

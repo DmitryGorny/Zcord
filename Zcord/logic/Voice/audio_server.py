@@ -1,5 +1,6 @@
 import socket
-import asyncio
+from multiprocessing import Pool, cpu_count, Process
+from multiprocessing.pool import ThreadPool
 
 
 class Client(object):
@@ -11,46 +12,66 @@ class Client(object):
 
 
 class VoiceServer(object):
-    def __init__(self, server_port, ip_to_output, port_to_output):
-        self.HOST = "26.36.124.241"  # Standard loopback interface address (localhost)
-        self.ip_to_output = ip_to_output
-        self.server_port = server_port  # Port to listen on (non-privileged ports are > 1023)
-        self.port_to_output = port_to_output
-        self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    def __init__(self, server_udp, server_tcp):
+        self.server_udp = server_udp
+        self.server_tcp = server_tcp
         self.CHUNK = 4096
-        self.server.bind((self.HOST, self.server_port))
+        self.clients = {}
         print(f"Listening Server starts")
-        self.first_packet()
 
-    async def read_request(self):
+    def read_request(self, client, nickname):
         while True:
-            self.data, self.address = self.server.recvfrom(self.CHUNK)
-            if not self.data:
-                break
-            self.send_request()
-            await asyncio.sleep(0)
+            #try:
+                data, address = self.server_udp.recvfrom(self.CHUNK)
+                if not data:
+                    break
+                print(self.clients)
+                with Pool(processes=cpu_count() * len(self.clients)) as pool:
+                    pool.map(self.broadcast, [(i, data) for i in self.clients.values() if i != address[0]])
+            #except ConnectionResetError:
+                # Removing And Closing Clients
+                #self.broadcast((j, nickname, f"Пользователь {nickname} вышел!"))
+                #self.clients.pop(nickname)
+               # client.close()
+                #print(f"{nickname} left!")
+                #break
 
-    def first_packet(self):
-        data, address = self.server.recvfrom(self.CHUNK)
-        print(f"Connect to: {address}")
+    def broadcast(self, client):
+        print(client)
+        self.server_udp.sendto(client[1], (client[0], 55536))
 
-    def send_request(self):
-        self.server.sendto(self.data, (self.ip_to_output, self.port_to_output))
+    def receive(self):
+        while True:
+            # Accept Connection
+            client, address = self.server_tcp.accept()
+            print(f"Connected to {address}")
 
-    def close_server(self):
-        print("Server ends")
-        self.server.close()
+            # Request And Store Nickname
+            client.send('NICK'.encode('utf-8'))
+            nickname = client.recv(1024).decode('utf-8')
+            self.clients[nickname] = address[0]
 
+            print(f"Nickname is {nickname}")
 
-async def main():
-    listening_server_obj = VoiceServer(65128, "26.164.192.100", 22222)
-    listening_server_obj1 = VoiceServer(54325, "26.36.124.241", 22223)
-    task1 = asyncio.create_task(listening_server_obj.read_request())
-    task2 = asyncio.create_task(listening_server_obj1.read_request())
-    await task1
-    await task2
+            client.send('Подключено к серверу'.encode('utf-8'))
+
+            # Start Handling Thread For Client
+            process = Process(target=voice_obj.read_request, args=(client, nickname,))
+            process.start()
 
 
 if __name__ == "__main__":
+    HOST = "26.36.124.241"
+    UDP_PORT = 55534
+    TCP_PORT = 55533
+    server_voice_udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+    server_voice_udp.bind((HOST, UDP_PORT))
+
+    server_voice_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_voice_tcp.bind((HOST, TCP_PORT))
+    server_voice_tcp.listen()
+
+    voice_obj = VoiceServer(server_voice_udp, server_voice_tcp)
+
+    voice_obj.receive()
     # Позже необходимо добавить работу с классом Client, а именно из него брать все апйишники и порты
-    asyncio.run(main())

@@ -1,0 +1,94 @@
+Index: logic/Main/MainWindow.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from PyQt6 import QtWidgets, QtCore, QtGui\r\nfrom logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord\r\nfrom logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow\r\nfrom logic.Main.Chat.ChatClass.Chat import Chat\r\nfrom logic.db_handler.db_handler import db_handler\r\nfrom logic.Message import message_client\r\nimport json\r\n\r\nclass MainWindow(QtWidgets.QMainWindow):\r\n    def __init__(self, user):\r\n        super(MainWindow, self).__init__()\r\n        self.ui = Ui_Zcord()\r\n        self.ui.setupUi(self)\r\n\r\n        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint | QtCore.Qt.WindowType.WindowStaysOnTopHint)\r\n\r\n        self.ui.pushButton.setIcon(QtGui.QIcon(\"GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg\"))\r\n\r\n        self.__user = user\r\n\r\n        self.ui.UsersLogo.setText(self.__user.getNickName()[0]) #Установка первой буквы в лого\r\n\r\n        self.__friends = {}\r\n\r\n        self.__chats = []\r\n\r\n        self.getFriends()\r\n        self.createChats()\r\n\r\n        self.ui.close.clicked.connect(self.closeWindow)\r\n        self.ui.minimize.clicked.connect(self.on_click_hide)\r\n        self.ui.WindowMode.clicked.connect(self.on_click_fullscreenWindowMode)\r\n        self.ui.AddFriends.clicked.connect(self.addFriend)\r\n        self.ui.ShowFreind.clicked.connect(self.showFriendList)\r\n\r\n        self.ui.ScrollFriends.setVisible(False)\r\n        self.call_chat()\r\n\r\n\r\n\r\n\r\n    def getFriends(self):\r\n        with open(\"Resources/frineds/friends.json\", \"r\") as Frineds_json:\r\n\r\n            friendsDict = json.load(Frineds_json)\r\n\r\n            self.__friends = friendsDict.copy()\r\n\r\n            db = db_handler(\"26.181.96.20\", \"Dmitry\", \"gfggfggfg3D-\", \"zcord\", \"friendship\")\r\n\r\n            friends = db.getDataFromTableColumn(\"*\", f\"WHERE `friend_one_id` = '{self.__user.getNickName()}' AND `status` = 2\")\r\n\r\n\r\n            for friendArr in friends:\r\n                if friendArr[2] not in self.__friends:\r\n                    self.__friends[friendArr[2]] = {\r\n                        \"chat_id\": friendArr[0],\r\n                    }\r\n\r\n            Frineds_json.close()\r\n\r\n\r\n\r\n    def createChats(self):\r\n        for friend in self.__friends.keys():\r\n            self.__chats.append(Chat(self.__friends[friend][\"chat_id\"], friend, self.__user))\r\n\r\n    def call_chat(self):\r\n        message_client.call(self.__user.getNickName())\r\n\r\n    def showFriendList(self):\r\n        if not self.ui.ScrollFriends.isVisible():\r\n            self.ui.ScrollFriends.setVisible(True)\r\n\r\n            layoutFinal = QtWidgets.QVBoxLayout()\r\n            layoutFinal.setSpacing(5)\r\n            layoutFinal.setContentsMargins(0,0,0,0)\r\n            for friend_nickname in self.__friends.keys():\r\n                QFr = ClikableFrame(friend_nickname)\r\n                QFr.clicked.connect(self.chooseChat)\r\n                layout = QtWidgets.QHBoxLayout()\r\n                layout.setSpacing(10)\r\n                user_logo = QtWidgets.QPushButton()\r\n                user_logo.setFixedHeight(40)\r\n                user_logo.setFixedWidth(40)\r\n                user_logo.setStyleSheet(\"\"\"background-color:pink;\r\n                                            border-radius:15%;\r\n                                            color:white;\r\n                                            font-size:16px;\"\"\")\r\n\r\n                user_name = QtWidgets.QLabel()\r\n                user_name.setStyleSheet(\"\"\"color:white;\r\n                                            font-size:18px;\r\n                                            border:none;\r\n                                            background-color:none;\"\"\")\r\n                user_logo.setText(friend_nickname[0])\r\n                user_name.setText(friend_nickname)\r\n\r\n                layout.addWidget(user_logo)\r\n                layout.addWidget(user_name)\r\n\r\n\r\n                QFr.setLayout(layout)\r\n                QFr.setStyleSheet(\"\"\"QFrame:hover { \r\n                                        border-radius:15%;\r\n                                        background-color:rgba(0, 0, 0, 0.26);}\r\n                                        QFrame {\r\n                                        margin:0;\r\n                                        }\"\"\")\r\n                QFr.setFixedWidth(250)\r\n                QFr.setFixedHeight(70)\r\n                QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)\r\n                layoutFinal.addWidget(QFr)\r\n\r\n            widget = QtWidgets.QWidget()\r\n\r\n            widget.setLayout(layoutFinal)\r\n\r\n            self.ui.ScrollFriends.setMaximumHeight(350)\r\n\r\n            self.ui.ScrollFriends.setStyleSheet(\"\"\"QScrollArea {\r\n                                                            border:none;\r\n                                                        }\r\n                                                        \r\n                                                        QScrollBar:vertical {\r\n                                                            border:none;\r\n                                                            width:10px;\r\n                                                            height:20px;\r\n                                                            \r\n                                                        }\r\n                                                        \r\n                                                         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical\r\n                                                         {\r\n                                                             heigth:0;\r\n                                                         }\r\n                                                         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical\r\n                                                         {\r\n                                                             background: none;\r\n                                                         }\r\n                                                         QScrollBar::add-line:vertical {\r\n                                                                height: 0px;\r\n                                                         }\r\n                                                                \r\n                                                                QScrollBar::sub-line:vertical {\r\n                                                                height: 0px;\r\n                                                         }\r\n                                                         QScrollBar::handle:vertical {\r\n                                                            background: orange;\r\n                                                            min-height:10px;\r\n                                                            border-radius: 5px;\r\n                                                         }\"\"\")\r\n\r\n\r\n            self.ui.ScrollFriends.setWidget(widget)\r\n        else:\r\n            self.ui.ScrollFriends.setVisible(False)\r\n\r\n\r\n    def addFriend(self):\r\n        if not AddFriendWindow.isOpen:\r\n            addFriendsDialog = AddFriendWindow(self.__user)\r\n\r\n            addFriendsDialog.show()\r\n\r\n            addFriendsDialog.exec()\r\n\r\n    def chooseChat(self):\r\n        sender = self.sender()\r\n\r\n        chat = list(filter(lambda x: x.getNickName() == sender.text, self.__chats))[0]\r\n\r\n\r\n        chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)\r\n        self.ui.stackedWidget.addWidget(chat.ui.MAIN)\r\n        self.ui.stackedWidget.setCurrentWidget(chat.ui.MAIN)\r\n\r\n\r\n    def closeWindow(self):\r\n        with open(\"Resources/frineds/friends.json\", \"w\") as Frineds_json:\r\n            Frineds_json.write(json.dumps(self.__friends))\r\n        self.close()\r\n\r\n\r\n    def mousePressEvent(self, event):\r\n        self.start = self.mapToGlobal(event.pos())\r\n        self.pressing = True\r\n\r\n    def mouseMoveEvent(self, event):\r\n        if self.pressing:\r\n            self.end = self.mapToGlobal(event.pos())\r\n            self.movement = self.end-self.start\r\n            self.move(self.mapToGlobal(self.movement))\r\n            self.start = self.end\r\n    def mouseReleaseEvent(self, event):\r\n        self.pressing = False\r\n\r\n    def on_click_hide(self):\r\n        self.showMinimized()\r\n\r\n    def on_click_fullscreenWindowMode(self):\r\n        if self.isMaximized():\r\n            self.showNormal()\r\n        else:\r\n            self.showMaximized()\r\n\r\n\r\n\r\n\r\n\r\nclass ClikableFrame(QtWidgets.QFrame):\r\n    def __init__(self, text):\r\n        super(ClikableFrame, self).__init__()\r\n        self.text = text\r\n        \r\n    clicked = QtCore.pyqtSignal()\r\n\r\n    def mouseReleaseEvent(self, e):\r\n        super().mouseReleaseEvent(e)\r\n\r\n        self.clicked.emit()\r\n\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/logic/Main/MainWindow.py b/logic/Main/MainWindow.py
+--- a/logic/Main/MainWindow.py	(revision 09b9b4a3071a9d3fefa23945d3f05542d6e41b5b)
++++ b/logic/Main/MainWindow.py	(date 1729976839277)
+@@ -66,7 +66,11 @@
+             self.__chats.append(Chat(self.__friends[friend]["chat_id"], friend, self.__user))
+ 
+     def call_chat(self):
+-        message_client.call(self.__user.getNickName())
++        chat_ids = []
++        for chat in self.__chats:
++            chat_ids.append(chat.getChatId())
++
++        message_client.call(self.__user.getNickName(), chat_ids)
+ 
+     def showFriendList(self):
+         if not self.ui.ScrollFriends.isVisible():
+Index: logic/Main/Chat/ChatClass/Chat.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat\r\nfrom PyQt6 import QtWidgets, QtCore, QtGui\r\nfrom logic.Main.Chat.Message.Message import Message\r\n\r\nclass Chat(QtWidgets.QWidget):\r\n    def __init__(self, chatId, friendNick, user):\r\n        super(Chat, self).__init__()\r\n\r\n        self.ui = Ui_Chat()\r\n        self.ui.setupUi(self)\r\n\r\n        self.__chatId = chatId\r\n        self.__user = user\r\n        self.__friendNickname = friendNick\r\n\r\n\r\n        self.ui.UsersNickInChat.setText(friendNick)\r\n        self.ui.UsersLogoinChat.setText(friendNick[0])\r\n\r\n        self.ui.Send_button.clicked.connect(self.sendMessage)\r\n\r\n    def sendMessage(self):\r\n        messageText = self.ui.Chat_input_.text()\r\n\r\n        if len(messageText) == 0:\r\n            return\r\n\r\n        message = Message(messageText, self.__user.getNickName())\r\n\r\n        widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)\r\n        widget.setSizeHint(message.ui.Message_.sizeHint())\r\n\r\n        self.ui.ChatScroll.setSpacing(10)\r\n        self.ui.ChatScroll.addItem(widget)\r\n        self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)\r\n        self.ui.Chat_input_.clear()\r\n\r\n\r\n\r\n\r\n\r\n    def getNickName(self):\r\n        return self.__friendNickname\r\n\r\n\r\n    def getChatWidget(self):\r\n        return self.ui\r\n
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/logic/Main/Chat/ChatClass/Chat.py b/logic/Main/Chat/ChatClass/Chat.py
+--- a/logic/Main/Chat/ChatClass/Chat.py	(revision 09b9b4a3071a9d3fefa23945d3f05542d6e41b5b)
++++ b/logic/Main/Chat/ChatClass/Chat.py	(date 1729975804229)
+@@ -37,7 +37,8 @@
+ 
+ 
+ 
+-
++    def getChatId(self):
++        return self.__chatId
+ 
+     def getNickName(self):
+         return self.__friendNickname
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<project version=\"4\">\r\n  <component name=\"ProjectRootManager\" version=\"2\" project-jdk-name=\"Python 3.12\" project-jdk-type=\"Python SDK\" />\r\n</project>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	(revision 09b9b4a3071a9d3fefa23945d3f05542d6e41b5b)
++++ b/.idea/misc.xml	(date 1729975330841)
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.12" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (Zcord) (2)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/Zcord.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+><?xml version=\"1.0\" encoding=\"UTF-8\"?>\r\n<module type=\"PYTHON_MODULE\" version=\"4\">\r\n  <component name=\"NewModuleRootManager\">\r\n    <content url=\"file://$MODULE_DIR$\">\r\n      <excludeFolder url=\"file://$MODULE_DIR$/venv\" />\r\n    </content>\r\n    <orderEntry type=\"jdk\" jdkName=\"Python 3.12\" jdkType=\"Python SDK\" />\r\n    <orderEntry type=\"sourceFolder\" forTests=\"false\" />\r\n  </component>\r\n  <component name=\"PyDocumentationSettings\">\r\n    <option name=\"format\" value=\"PLAIN\" />\r\n    <option name=\"myDocStringFormat\" value=\"Plain\" />\r\n  </component>\r\n  <component name=\"TemplatesService\">\r\n    <option name=\"TEMPLATE_FOLDERS\">\r\n      <list>\r\n        <option value=\"$MODULE_DIR$/Web/templates\" />\r\n      </list>\r\n    </option>\r\n  </component>\r\n</module>
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/Zcord.iml b/.idea/Zcord.iml
+--- a/.idea/Zcord.iml	(revision 09b9b4a3071a9d3fefa23945d3f05542d6e41b5b)
++++ b/.idea/Zcord.iml	(date 1729975330837)
+@@ -4,7 +4,7 @@
+     <content url="file://$MODULE_DIR$">
+       <excludeFolder url="file://$MODULE_DIR$/venv" />
+     </content>
+-    <orderEntry type="jdk" jdkName="Python 3.12" jdkType="Python SDK" />
++    <orderEntry type="jdk" jdkName="Python 3.11 (Zcord) (2)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+   <component name="PyDocumentationSettings">
+Index: Resources/user/User.json
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.BaseRevisionTextPatchEP
+<+>{\"nickname\": \"Huesos4\", \"password\": \"111222333\"}
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/Resources/user/User.json b/Resources/user/User.json
+--- a/Resources/user/User.json	(revision 09b9b4a3071a9d3fefa23945d3f05542d6e41b5b)
++++ b/Resources/user/User.json	(date 1729976823642)
+@@ -1,1 +1,1 @@
+-{"nickname": "Huesos4", "password": "111222333"}
+\ No newline at end of file
++{"nickname": "BYDLO", "password": "12345"}
+\ No newline at end of file

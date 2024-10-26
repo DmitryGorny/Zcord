@@ -1,0 +1,60 @@
+Index: client.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/client.py b/client.py
+--- a/client.py	
++++ b/client.py	
+@@ -11,18 +11,18 @@
+         speak.sendall(data_to_send)  # Отправляем данные на сервер
+ 
+     def getter(self):
+-        data_to_read, address = speak.recvfrom(CHUNK)  # Получаем данные с сервера
++        data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
+         stream_output.write(data_to_read)
+ 
+ 
+ if __name__ == "__main__":
+     con = VoiceConnection()
+ 
+-    HOST = "26.181.96.20"  # The server's hostname or IP address
++    HOST = "26.36.124.241"  # The server's hostname or IP address
+     CLIENT = "26.181.96.20"
+ 
+-    PORT_TO_SPEAK = 65128  # The port used by the server
+-    PORT_TO_LISTEN = 12833
++    PORT_TO_SPEAK = 54325  # The port used by the server
++    PORT_TO_LISTEN = 14331
+ 
+     FORMAT = pyaudio.paInt16  # Формат звука
+     CHANNELS = 1        # Количество каналов (1 для моно)
+Index: server.py
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/server.py b/server.py
+--- a/server.py	
++++ b/server.py	
+@@ -31,7 +31,6 @@
+         self.server.connect((self.HOST, self.PORT_TO_SEND))
+         while True:
+             try:
+-
+                 self.server.sendto(ListenServerObject.data, (self.IP_TO_SEND, self.PORT_TO_SEND))
+                 print(f"Speaking server speaking to {self.IP_TO_SEND}, {self.PORT_TO_SEND}")
+             except AttributeError:
+@@ -68,11 +67,9 @@
+ 
+         while True:
+             data, address = self.server.recvfrom(self.CHUNK)
+-            print(address)
+             if address[0] == self.IP_TO_LISTEN:
++                print(1)
+                 self.data, self.address = self.server.recvfrom(self.CHUNK)
+-                if not self.data:
+-                    break
+ 
+ 
+ 

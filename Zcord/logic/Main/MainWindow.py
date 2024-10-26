@@ -48,14 +48,18 @@ class MainWindow(QtWidgets.QMainWindow):
 
             db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
-            friends = db.getDataFromTableColumn("*", f"WHERE `friend_one_id` = '{self.__user.getNickName()}' AND `status` = 2")
+            friends = db.getDataFromTableColumn("*", f"WHERE `friend_one_id` = '{self.__user.getNickName()}' AND `status` = 2 OR `friend_two_id` = '{self.__user.getNickName()}' AND `status` = 2")
+
+            print(friends)
 
 
             for friendArr in friends:
-                if friendArr[2] not in self.__friends:
-                    self.__friends[friendArr[2]] = {
-                        "chat_id": friendArr[0],
-                    }
+                for nick in friendArr:
+                    if not str(nick).isdigit():
+                        if nick != self.__user.getNickName():
+                            self.__friends[nick] = {
+                                "chat_id": friendArr[0],
+                            }
 
             Frineds_json.close()
 

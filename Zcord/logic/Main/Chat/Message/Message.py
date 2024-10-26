@@ -13,6 +13,9 @@ class Message(QtWidgets.QDialog):
         self.ui.Users_Name.setText(username)
         self.ui.Message_Text.setText(text)
 
+        self.ui.Message_.setMidLineWidth(400)
+        self.ui.Message_.setContentsMargins(0,0,0,0)
+
 
 
 

@@ -33,6 +33,7 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatScroll.setSpacing(10)
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
+        self.ui.Chat_input_.clear()
 
 
 

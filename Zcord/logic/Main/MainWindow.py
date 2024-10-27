@@ -34,7 +34,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
 
         self.ui.ScrollFriends.setVisible(False)
-        self.call_chat()
+        #self.call_chat()
 
 
 
@@ -48,12 +48,16 @@ class MainWindow(QtWidgets.QMainWindow):
 
             db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
-            friends = db.getDataFromTableColumn("*", f"WHERE `friend_one_id` = '{self.__user.getNickName()}' AND `status` = 2")
-
+            friends = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' AND status = 2 OR friend_two_id = '{self.__user.getNickName()}' AND status = 2")
 
             for friendArr in friends:
-                if friendArr[2] not in self.__friends:
-                    self.__friends[friendArr[2]] = {
+                if friendArr[1] not in self.__friends and friendArr[2] not in self.__friends:
+                    if friendArr[1] != self.__user.getNickName():
+                        key = friendArr[1]
+                    else:
+                        key = friendArr[2]
+
+                    self.__friends[key] = {
                         "chat_id": friendArr[0],
                     }
 
@@ -69,7 +73,7 @@ class MainWindow(QtWidgets.QMainWindow):
         chat_ids = []
         for chat in self.__chats:
             chat_ids.append(str(chat.getChatId()))
-        message_client.call(self.__user.getNickName(), chat_ids)
+        message_client.call(self.__user.getNickName(), chat_ids, self.__user)
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():

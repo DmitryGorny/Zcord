@@ -1,5 +1,5 @@
 from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
-from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
 from logic.Message import message_client
 
@@ -36,6 +36,7 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatScroll.setSpacing(10)
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
+        self.ui.ChatScroll.setCurrentItem(widget)
         self.ui.Chat_input_.clear()
 
 

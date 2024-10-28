@@ -4,6 +4,8 @@ from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
 from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
+from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
+
 import json
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -12,7 +14,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint | QtCore.Qt.WindowType.WindowStaysOnTopHint)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
         self.ui.pushButton.setIcon(QtGui.QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
@@ -34,8 +36,26 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
 
         self.ui.ScrollFriends.setVisible(False)
-        #self.call_chat()
+        self.call_chat()
 
+        self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
+
+        self.pressing = False
+
+    def mousePressEvent(self, event):
+            self.start = self.mapToGlobal(event.pos())
+            self.pressing = True
+
+
+    def MoveWindow(self, event):
+        if self.isMaximized():
+            return
+
+        if self.pressing:
+            self.end = self.mapToGlobal(event.pos())
+            movement = self.end-self.start
+            self.move(self.mapToGlobal(movement))
+            self.start = self.end
 
 
 
@@ -73,7 +93,7 @@ class MainWindow(QtWidgets.QMainWindow):
         chat_ids = []
         for chat in self.__chats:
             chat_ids.append(str(chat.getChatId()))
-        message_client.call(self.__user.getNickName(), chat_ids, self.__user)
+        self.__client = message_client.call(self.__user.getNickName(), chat_ids, self.__user)
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():
@@ -190,17 +210,14 @@ class MainWindow(QtWidgets.QMainWindow):
             Frineds_json.write(json.dumps(self.__friends))
         self.close()
 
+        self.__client.close()
 
-    def mousePressEvent(self, event):
-        self.start = self.mapToGlobal(event.pos())
-        self.pressing = True
 
-    def mouseMoveEvent(self, event):
-        if self.pressing:
-            self.end = self.mapToGlobal(event.pos())
-            self.movement = self.end-self.start
-            self.move(self.mapToGlobal(self.movement))
-            self.start = self.end
+
+
+
+
+
     def mouseReleaseEvent(self, event):
         self.pressing = False
 
@@ -213,19 +230,16 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.showMaximized()
 
+    def updateWindowMargins(self):
+        if self.isMaximized():
+            screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
+            self.setGeometry(screen_geometry)
+
+    def resizeEvent(self, event):
+        self.updateWindowMargins()
+        super().resizeEvent(event)
 
 
 
 
-class ClikableFrame(QtWidgets.QFrame):
-    def __init__(self, text):
-        super(ClikableFrame, self).__init__()
-        self.text = text
-        
-    clicked = QtCore.pyqtSignal()
-
-    def mouseReleaseEvent(self, e):
-        super().mouseReleaseEvent(e)
-
-        self.clicked.emit()
 

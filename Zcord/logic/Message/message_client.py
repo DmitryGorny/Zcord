@@ -65,7 +65,7 @@ class MessageConnection(object):
                     MessageConnection.client_tcp.send(f"{nickname}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 else:
                     if MainInterface.return_current_chat() != 0:
-                        if nickname != MessageConnection.user.getNickName():
+                        #if nickname != MessageConnection.user.getNickName():
                             cht = Chat.Chat(MainInterface.return_current_chat(), nickname, MessageConnection.user)
                             cht.recieveMessage(message)
                             print(message)
@@ -93,9 +93,8 @@ def thread_start(nickname):
     receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
     receive_thread.start()
 
-
 def call(nickname, chat_id, user):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:
@@ -113,4 +112,10 @@ def call(nickname, chat_id, user):
 
     print("Старт клиента сообщений")
 
+    event = threading.Event()
+
     thread_start(nickname)
+
+    return client_tcp
+
+

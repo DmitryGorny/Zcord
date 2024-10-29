@@ -1,7 +1,8 @@
 import socket
 import threading
 import msgspec
-from logic.Main.Chat.ChatClass import Chat
+from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import QThread
 
 
 class MainInterface:
@@ -22,14 +23,18 @@ class MainInterface:
 
 
 class MessageConnection(object):
+
+    finished = pyqtSignal()
     cache_chat = 0
     client_tcp = 0
     user = ""
 
     def __init__(self, client_tcp, cache_chat, user):
+        super(MessageConnection, self).__init__()
         MessageConnection.set_cache_chat(cache_chat)
         MessageConnection.set_client_tcp(client_tcp)
         MessageConnection.set_user(user)
+
 
     @staticmethod
     def set_user(user):
@@ -47,6 +52,13 @@ class MessageConnection(object):
     def send_message(message, nickname):
         msg = f"{MainInterface.return_current_chat()}, {nickname}, {message}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
+
+    @staticmethod
+    def sendMessageToQt(chats, nickname, message):
+        for chat in chats.get():
+            if chat.getNickName() == nickname:
+                print(123223213123)
+                MessageConnection.finished.connect(chat.recieveMessage)
 
     @staticmethod
     def recv_message(nickname_yours, chats):
@@ -70,16 +82,15 @@ class MessageConnection(object):
                     date_now = msg[1]
                     nickname = msg[2]
                     if MainInterface.return_current_chat() != 0:
+                        print(nickname)
                         if nickname != MessageConnection.user.getNickName():
-                            for chat in chats.get():
-                                print(chat.getNickName(), nickname)
-                                if chat.getNickName() == nickname:
-                                    chat.recieveMessage(message)
-                                    print(date_now, message)
+                            MessageConnection.sendMessageToQt(chats, nickname, message)
+                            MessageConnection.finished.emit(nickname, message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
                 break
+
 
     @staticmethod
     def get_tcp_server(self):
@@ -97,13 +108,12 @@ class MessageConnection(object):
 
 
 def thread_start(nickname, chats):
-    MessageConnection.recv_message(nickname, chats)
-    #receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
-    #receive_thread.start()
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
+    receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

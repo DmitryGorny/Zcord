@@ -6,12 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="e2675407-eb81-4f0c-aeb8-d0891b15042f" name="Changes" comment="Иправление ошибки с отображением друзей">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/frineds/friends.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/frineds/friends.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -239,16 +235,6 @@
     <MESSAGE value="Zcord терпит изменения 3" />
     <MESSAGE value="Иправление ошибки с отображением друзей" />
     <option name="LAST_COMMIT_MESSAGE" value="Иправление ошибки с отображением друзей" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/zcord.py</url>
-          <option name="timeStamp" value="2" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Zcord$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1729984269127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

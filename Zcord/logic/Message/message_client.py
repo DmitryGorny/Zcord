@@ -70,9 +70,12 @@ class MessageConnection(object):
                     date_now = msg[1]
                     nickname = msg[2]
                     if MainInterface.return_current_chat() != 0:
-                        print(nickname, MessageConnection.user.getNickName())
                         if nickname != MessageConnection.user.getNickName():
-                            print(date_now, message)
+                            for chat in chats.get():
+                                print(chat.getNickName(), nickname)
+                                if chat.getNickName() == nickname:
+                                    chat.recieveMessage(message)
+                                    print(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()

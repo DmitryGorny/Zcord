@@ -19,6 +19,8 @@ class Chat(QtWidgets.QWidget):
         self.ui.UsersNickInChat.setText(friendNick)
         self.ui.UsersLogoinChat.setText(friendNick[0])
 
+        self.installEventFilter(self)
+
         self.ui.Send_button.clicked.connect(self.sendMessage)
 
         self.ui.ChatScroll.setSpacing(10)

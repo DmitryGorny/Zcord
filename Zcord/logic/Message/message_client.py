@@ -76,7 +76,6 @@ class MessageConnection(object):
                     date_now = msg[1]
                     nickname = msg[2]
                     if MainInterface.return_current_chat() != 0:
-                        print(nickname)
                         if nickname != MessageConnection.user.getNickName():
                             reciever.sygnal.emit(message)
             except ConnectionResetError:
@@ -102,9 +101,10 @@ class MessageConnection(object):
 
 def thread_start(nickname, chats):
     reciever = SygnalChanger()
-    for chat in chats.get():
-        if chat.getNickName() == nickname:
-            reciever.sygnal.connect(chat.recieveMessage)
+    #for chat in chats.get():
+        #if chat.getNickName() == nickname:
+            #print()
+    reciever.sygnal.connect(chats.get()[0].recieveMessage)
     receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever,))
     receive_thread.start()
 

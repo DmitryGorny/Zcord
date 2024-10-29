@@ -5,7 +5,7 @@ from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtCore import QThread
 
 class SygnalChanger(QObject):
-    sygnal = pyqtSignal()
+    sygnal = pyqtSignal(str)
 class MainInterface:
     __current_chat = 1
 
@@ -78,7 +78,7 @@ class MessageConnection(object):
                     if MainInterface.return_current_chat() != 0:
                         print(nickname)
                         if nickname != MessageConnection.user.getNickName():
-                            reciever.sygnal.emit(nickname, message)
+                            reciever.sygnal.emit(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()

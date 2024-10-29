@@ -105,12 +105,12 @@ def receive():
         nickname = msg[0]
         chat_id = MessageRoom.deserialize(msg[1])
         clients[nickname] = client
-        # Print And Broadcast Nickname
+
         print(f"Nickname is {nickname}")
 
         client.send(b'0' + 'CONNECT'.encode('utf-8'))
 
-        msg_obj = MessageRoom(chat_id)
+        MessageRoom(chat_id)
         # Start Handling Thread For Client
         thread = threading.Thread(target=MessageRoom.handle, args=(client, nickname,))
         thread.start()

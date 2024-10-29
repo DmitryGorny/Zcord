@@ -97,9 +97,8 @@ class MessageConnection(object):
 
 
 def thread_start(nickname, chats):
-    MessageConnection.recv_message(nickname, chats)
-    #receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
-    #receive_thread.start()
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
+    receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):

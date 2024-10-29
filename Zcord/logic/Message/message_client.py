@@ -54,23 +54,23 @@ class MessageConnection(object):
             try:
                 msg = MessageConnection.client_tcp.recv(1025)
                 header = msg[0:1]
-                message = msg[1:]
+                msg = msg[1:]
                 if header == b'1':
                     cache = MessageConnection.deserialize(message)
                     for i in cache:
                         print(i)
                     continue
-                message = message.decode("utf-8").split(", ")
-                date_now = message[0]
-                nickname = message[1]
-                message = message[2]
+                msg = msg.decode("utf-8").split(", ")
+                message = msg[2]
                 if message == 'NICK':
                     MessageConnection.client_tcp.send(f"{nickname_yours}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 else:
+                    date_now = msg[0]
+                    nickname = msg[1]
                     if MainInterface.return_current_chat() != 0:
                         print(nickname, MessageConnection.user.getNickName())
-                        #if nickname != MessageConnection.user.getNickName():
-                        print(date_now, message)
+                        if nickname != MessageConnection.user.getNickName():
+                            print(date_now, message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()

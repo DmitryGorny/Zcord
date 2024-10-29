@@ -98,6 +98,7 @@ def receive():
         client.send(b'0' + 'NICK'.encode('utf-8'))
         msg = client.recv(1024)
         msg = msg.decode('utf-8').split(", ")
+        print(msg)
         nickname = msg[0]
         chat_id = MessageRoom.deserialize(msg[1])
         clients[nickname] = client

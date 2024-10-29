@@ -49,25 +49,28 @@ class MessageConnection(object):
         MessageConnection.client_tcp.sendall(msg)
 
     @staticmethod
-    def recv_message(nickname, chats):
+    def recv_message(nickname_yours, chats):
         while True:
             try:
-                message = MessageConnection.client_tcp.recv(1025)
-                header = message[0:1]
-                message = message[1:]
+                msg = MessageConnection.client_tcp.recv(1025)
+                header = msg[0:1]
+                message = msg[1:]
                 if header == b'1':
                     cache = MessageConnection.deserialize(message)
                     for i in cache:
                         print(i)
                     continue
-                message = message.decode("utf-8")
+                message = message.decode("utf-8").split(", ")
+                date_now = message[0]
+                nickname = message[1]
+                message = message[2]
                 if message == 'NICK':
-                    MessageConnection.client_tcp.send(f"{nickname}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
+                    MessageConnection.client_tcp.send(f"{nickname_yours}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 else:
                     if MainInterface.return_current_chat() != 0:
                         print(nickname, MessageConnection.user.getNickName())
-                        if nickname != MessageConnection.user.getNickName():
-                            print(message)
+                        #if nickname != MessageConnection.user.getNickName():
+                        print(date_now, message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -92,8 +95,9 @@ def thread_start(nickname, chats):
     receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
     receive_thread.start()
 
+
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.124.194.150"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

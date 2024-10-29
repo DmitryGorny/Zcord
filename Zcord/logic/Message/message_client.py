@@ -1,10 +1,11 @@
 import socket
 import threading
 import msgspec
-from PyQt6.QtCore import QObject, QThread, pyqtSignal, pyqtSlot
+from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtCore import QThread
 
-
+class SygnalChanger(QObject):
+    sygnal = pyqtSignal()
 class MainInterface:
     __current_chat = 1
 
@@ -23,17 +24,17 @@ class MainInterface:
 
 
 class MessageConnection(object):
-
-    finished = pyqtSignal()
     cache_chat = 0
     client_tcp = 0
     user = ""
+
 
     def __init__(self, client_tcp, cache_chat, user):
         super(MessageConnection, self).__init__()
         MessageConnection.set_cache_chat(cache_chat)
         MessageConnection.set_client_tcp(client_tcp)
         MessageConnection.set_user(user)
+
 
 
     @staticmethod
@@ -54,14 +55,7 @@ class MessageConnection(object):
         MessageConnection.client_tcp.sendall(msg)
 
     @staticmethod
-    def sendMessageToQt(chats, nickname, message):
-        for chat in chats.get():
-            if chat.getNickName() == nickname:
-                print(123223213123)
-                MessageConnection.finished.connect(chat.recieveMessage)
-
-    @staticmethod
-    def recv_message(nickname_yours, chats):
+    def recv_message(nickname_yours, reciever):
         while True:
             try:
                 msg = MessageConnection.client_tcp.recv(1025)
@@ -84,8 +78,7 @@ class MessageConnection(object):
                     if MainInterface.return_current_chat() != 0:
                         print(nickname)
                         if nickname != MessageConnection.user.getNickName():
-                            MessageConnection.sendMessageToQt(chats, nickname, message)
-                            MessageConnection.finished.emit(nickname, message)
+                            reciever.finished.emit(nickname, message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -108,12 +101,16 @@ class MessageConnection(object):
 
 
 def thread_start(nickname, chats):
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
+    reciever = SygnalChanger()
+    for chat in chats.get():
+        if chat.getNickName() == nickname:
+            reciever.sygnal.connect(chat.recieveMessage)
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever,))
     receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:
@@ -131,6 +128,6 @@ def call(nickname, chat_id, user, chats):
 
     print("Старт клиента сообщений")
 
-    thread_start(nickname, chats)
+    thread = thread_start(nickname, chats)
 
-    return client_tcp
+    return [client_tcp, thread]

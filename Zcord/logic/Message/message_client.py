@@ -56,17 +56,19 @@ class MessageConnection(object):
                 header = msg[0:1]
                 msg = msg[1:]
                 if header == b'1':
-                    cache = MessageConnection.deserialize(message)
+                    cache = MessageConnection.deserialize(msg)
                     for i in cache:
                         print(i)
                     continue
                 msg = msg.decode("utf-8").split(", ")
-                message = msg[2]
+                message = msg[0]
                 if message == 'NICK':
                     MessageConnection.client_tcp.send(f"{nickname_yours}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
+                elif message == 'CONNECT':
+                    print("Подключено к серверу!")
                 else:
-                    date_now = msg[0]
-                    nickname = msg[1]
+                    date_now = msg[1]
+                    nickname = msg[2]
                     if MainInterface.return_current_chat() != 0:
                         print(nickname, MessageConnection.user.getNickName())
                         if nickname != MessageConnection.user.getNickName():
@@ -97,7 +99,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.124.194.150"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:
@@ -114,8 +116,6 @@ def call(nickname, chat_id, user, chats):
     MessageConnection(client_tcp, cache_chat, user)
 
     print("Старт клиента сообщений")
-
-    event = threading.Event()
 
     thread_start(nickname, chats)
 

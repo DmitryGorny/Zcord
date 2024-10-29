@@ -69,7 +69,7 @@ class MessageRoom(object):
                 date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 date_now = date_now
                 print(MessageRoom.nicknames_in_chats['chat_id'][chat_code])
-                MessageRoom.broadcast((chat_code, date_now, nickname, message))
+                MessageRoom.broadcast((chat_code, message, date_now, nickname))
 
                 MessageRoom.cache_chat["chat_id"][chat_code].append(f"{date_now + nickname}: {message}")
 
@@ -81,7 +81,6 @@ class MessageRoom(object):
                 for j in MessageRoom.nicknames_in_chats['chat_id']:
                     if nickname in MessageRoom.nicknames_in_chats['chat_id'][j]:
                         MessageRoom.nicknames_in_chats['chat_id'][j].remove(nickname)
-                        MessageRoom.broadcast((j, nickname, f"Пользователь {nickname} вышел!"))
                 clients.pop(nickname)
                 client.close()
                 print(f"{nickname} left!")
@@ -105,7 +104,7 @@ def receive():
         # Print And Broadcast Nickname
         print(f"Nickname is {nickname}")
 
-        client.send(b'0' + 'Подключено к серверу'.encode('utf-8'))
+        client.send(b'0' + 'CONNECT'.encode('utf-8'))
 
         msg_obj = MessageRoom(chat_id)
         # Start Handling Thread For Client
@@ -114,7 +113,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.124.194.150"
+    HOST = "26.36.124.241"
     PORT = 55555
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

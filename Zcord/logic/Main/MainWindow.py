@@ -1,3 +1,5 @@
+import queue
+
 from PyQt6 import QtWidgets, QtCore, QtGui
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
@@ -5,7 +7,7 @@ from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
-
+import threading
 import json
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -93,7 +95,9 @@ class MainWindow(QtWidgets.QMainWindow):
         chat_ids = []
         for chat in self.__chats:
             chat_ids.append(str(chat.getChatId()))
-        self.__client = message_client.call(self.__user.getNickName(), chat_ids, self.__user)
+        queueToSend = queue.Queue()
+        queueToSend.put(self.__chats)
+        self.__client = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():
@@ -206,8 +210,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def closeWindow(self):
-        with open("Resources/frineds/friends.json", "w") as Frineds_json:
-            Frineds_json.write(json.dumps(self.__friends))
+        #with open("Resources/frineds/friends.json", "w") as Frineds_json:
+            #Frineds_json.write(json.dumps(self.__friends))
         self.close()
 
         self.__client.close()

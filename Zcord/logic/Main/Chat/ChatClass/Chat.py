@@ -21,6 +21,8 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.Send_button.clicked.connect(self.sendMessage)
 
+        self.ui.ChatScroll.setSpacing(10)
+
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
 
@@ -33,11 +35,11 @@ class Chat(QtWidgets.QWidget):
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())
 
-        self.ui.ChatScroll.setSpacing(10)
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
         self.ui.ChatScroll.setCurrentItem(widget)
         self.ui.Chat_input_.clear()
+
 
 
     def recieveMessage(self, text):
@@ -49,10 +51,13 @@ class Chat(QtWidgets.QWidget):
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())
 
-        self.ui.ChatScroll.setSpacing(10)
+
+
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
-        self.ui.Chat_input_.clear()
+        self.ui.ChatScroll.setCurrentItem(widget)
+
+
 
 
 

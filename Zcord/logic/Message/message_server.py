@@ -6,9 +6,15 @@ import copy
 
 
 class MessageRoom(object):
+
+    nicknames_in_chats = []
+
+    @staticmethod
+    def set_nicknames_in_chats(arr):
+        MessageRoom.nicknames_in_chats = copy.deepcopy(arr)
     def __init__(self, chat_id):
         self.cache_chat = copy.deepcopy(chat_id)
-        self.nicknames_in_chats = copy.deepcopy(chat_id)
+        MessageRoom.set_nicknames_in_chats(chat_id)
 
     @staticmethod
     def serialize(x):
@@ -24,7 +30,7 @@ class MessageRoom(object):
         chat_code = msg[0]
         nickname = msg[1]
         message = msg[2]
-        for client in self.nicknames_in_chats['chat_id'][chat_code]:
+        for client in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
             ret = b'0' + f"{nickname}: {message}".encode('utf-8')
             clients[client].send(ret)
 
@@ -40,18 +46,20 @@ class MessageRoom(object):
                 if message == "change chat":
                     client.send(b'1' + MessageRoom.serialize(self.cache_chat["chat_id"][chat_code]))
                     continue
-                #print(self.nicknames_in_chats['chat_id'][chat_code])
-                if nickname not in self.nicknames_in_chats['chat_id'][chat_code]:
-                    self.nicknames_in_chats['chat_id'][chat_code].append(nickname)
+                if nickname not in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
+                    MessageRoom.nicknames_in_chats['chat_id'][chat_code].append(nickname)
                     try:
                         if chat_code != old_chat_cod:
-                            del self.nicknames_in_chats['chat_id'][old_chat_cod][self.nicknames_in_chats['chat_id'][old_chat_cod].index(nickname)]
+                            del MessageRoom.nicknames_in_chats['chat_id'][old_chat_cod][MessageRoom.nicknames_in_chats['chat_id'][old_chat_cod].index(nickname)]
                     except UnboundLocalError:
                         pass
                 else:
                     old_chat_cod = int(chat_code)
+
                 date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 date_now = date_now
+                print(clients)
+                print(MessageRoom.nicknames_in_chats['chat_id'][chat_code])
                 self.broadcast((chat_code, date_now + nickname, message))
 
                 self.cache_chat["chat_id"][chat_code].append(f"{date_now + nickname}: {message}")
@@ -61,9 +69,9 @@ class MessageRoom(object):
 
             except ConnectionResetError:
                 # Removing And Closing Clients
-                for j in self.nicknames_in_chats['chat_id']:
+                for j in MessageRoom.nicknames_in_chats['chat_id']:
                     if nickname in self.nicknames_in_chats['chat_id'][j]:
-                        self.nicknames_in_chats['chat_id'][j].remove(nickname)
+                        MessageRoom.nicknames_in_chats['chat_id'][j].remove(nickname)
                         self.broadcast((j, nickname, f"Пользователь {nickname} вышел!"))
                 clients.pop(nickname)
                 client.close()

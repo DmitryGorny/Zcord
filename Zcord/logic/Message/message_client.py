@@ -49,7 +49,7 @@ class MessageConnection(object):
         MessageConnection.client_tcp.sendall(msg)
 
     @staticmethod
-    def recv_message(nickname):
+    def recv_message(nickname, chats):
         while True:
             try:
                 message = MessageConnection.client_tcp.recv(1025)
@@ -65,9 +65,8 @@ class MessageConnection(object):
                     MessageConnection.client_tcp.send(f"{nickname}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 else:
                     if MainInterface.return_current_chat() != 0:
-                        #if nickname != MessageConnection.user.getNickName():
-                            cht = Chat.Chat(MainInterface.return_current_chat(), nickname, MessageConnection.user)
-                            cht.recieveMessage(message)
+                        print(nickname, MessageConnection.user.getNickName())
+                        if nickname != MessageConnection.user.getNickName():
                             print(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
@@ -89,11 +88,11 @@ class MessageConnection(object):
         return ser
 
 
-def thread_start(nickname):
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
+def thread_start(nickname, chats):
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
     receive_thread.start()
 
-def call(nickname, chat_id, user):
+def call(nickname, chat_id, user, chats):
     SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
@@ -114,8 +113,6 @@ def call(nickname, chat_id, user):
 
     event = threading.Event()
 
-    thread_start(nickname)
+    thread_start(nickname, chats)
 
     return client_tcp
-
-

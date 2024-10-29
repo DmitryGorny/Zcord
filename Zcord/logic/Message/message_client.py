@@ -75,7 +75,7 @@ class MessageConnection(object):
                                 print(chat.getNickName(), nickname)
                                 if chat.getNickName() == nickname:
                                     chat.recieveMessage(message)
-                                    print(message)
+                                    print(date_now, message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -97,8 +97,9 @@ class MessageConnection(object):
 
 
 def thread_start(nickname, chats):
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
-    receive_thread.start()
+    MessageConnection.recv_message(nickname, chats)
+    #receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, chats,))
+    #receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):

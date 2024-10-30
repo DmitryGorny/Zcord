@@ -23,10 +23,12 @@ class MainInterface:
         return MainInterface.__current_chat
 
 
+
 class MessageConnection(object):
     cache_chat = 0
     client_tcp = 0
     user = ""
+    chat = ""
 
 
     def __init__(self, client_tcp, cache_chat, user):
@@ -55,7 +57,7 @@ class MessageConnection(object):
         MessageConnection.client_tcp.sendall(msg)
 
     @staticmethod
-    def recv_message(nickname_yours, reciever):
+    def recv_message(nickname_yours, reciever, chats):
         while True:
             try:
                 msg = MessageConnection.client_tcp.recv(1025)
@@ -76,8 +78,21 @@ class MessageConnection(object):
                     date_now = msg[1]
                     nickname = msg[2]
                     if MainInterface.return_current_chat() != 0:
-                        if nickname != MessageConnection.user.getNickName():
-                            reciever.sygnal.emit(message)
+                        if nickname == nickname_yours:
+                            continue
+
+                        if isinstance(MessageConnection.chat, str) or MessageConnection.chat.getNickName() != nickname:
+                            for CertainChat in chats.get():
+                                MessageConnection.chat = CertainChat
+                                break
+
+                        try:
+                            reciever.sygnal.disconnect()
+                        except TypeError:
+                            pass
+
+                        reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                        reciever.sygnal.emit(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -101,16 +116,12 @@ class MessageConnection(object):
 
 def thread_start(nickname, chats):
     reciever = SygnalChanger()
-    #for chat in chats.get():
-        #if chat.getNickName() == nickname:
-            #print()
-    reciever.sygnal.connect(chats.get()[0].recieveMessage)
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever,))
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, chats, ))
     receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

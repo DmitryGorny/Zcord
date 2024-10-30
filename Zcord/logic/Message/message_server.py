@@ -56,6 +56,7 @@ class MessageRoom(object):
                 message = msg[2]
                 if message == "change chat":
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat["chat_id"][chat_code]))
+                    old_chat_cod = str(chat_code)
                     flg = True
                 if nickname not in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
                     MessageRoom.nicknames_in_chats['chat_id'][chat_code].append(nickname)
@@ -117,7 +118,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
+    HOST = "26.181.96.20"
     PORT = 55555
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

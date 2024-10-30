@@ -25,6 +25,10 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.ChatScroll.setSpacing(10)
 
+    #def addThread(self, thread):
+
+        #self.__thread = thread
+
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
 

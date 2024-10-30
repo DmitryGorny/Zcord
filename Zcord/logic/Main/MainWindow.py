@@ -97,7 +97,12 @@ class MainWindow(QtWidgets.QMainWindow):
             chat_ids.append(str(chat.getChatId()))
         queueToSend = queue.Queue()
         queueToSend.put(self.__chats)
-        self.__client = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
+
+        self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
+        self.__client = self.callClient[0]
+
+
+
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>747</width>
-    <height>677</height>
+    <width>760</width>
+    <height>682</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -104,7 +104,7 @@ height:50px;
 border-radius:25px;
 color:White;
 font-size:25px;
-align-text:center;
+text-align:center;
 </string>
                </property>
                <property name="text">
@@ -256,7 +256,49 @@ border:3px solid white;</string>
           <item>
            <widget class="QListWidget" name="ChatScroll">
             <property name="styleSheet">
-             <string notr="true">border:none;</string>
+             <string notr="true">QListWidget {
+border:none;
+}
+
+
+QListWidget::item
+{
+    background:none; 
+}
+QListWidget::item:selected
+{
+    background: none;
+}
+
+QScrollBar:vertical {
+           border:none;
+            width:10px;
+             height:20px;
+                                                            
+  }
+                                                        
+ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+ {
+         heigth:0;
+ }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+ {
+               background: none;
+ }
+  QScrollBar::add-line:vertical {
+               height: 0px;
+  }
+ QScrollBar::sub-line:vertical {
+ 				height: 0px;
+ }
+QScrollBar::handle:vertical {
+               background: orange;
+                min-height:10px;
+                 border-radius: 5px;
+ }</string>
+            </property>
+            <property name="verticalScrollBarPolicy">
+             <enum>Qt::ScrollBarAsNeeded</enum>
             </property>
            </widget>
           </item>

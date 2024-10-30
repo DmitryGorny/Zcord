@@ -177,7 +177,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                                                 height: 0px;
                                                          }
                                                                 
-                                                                QScrollBar::sub-line:vertical {
+                                                        QScrollBar::sub-line:vertical {
                                                                 height: 0px;
                                                          }
                                                          QScrollBar::handle:vertical {

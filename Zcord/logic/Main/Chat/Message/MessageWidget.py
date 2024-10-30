@@ -12,17 +12,23 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Form(object):
     def setupUi(self, Form):
         Form.setObjectName("Form")
-        Form.resize(431, 112)
+        Form.resize(549, 372)
         self.Message_ = QtWidgets.QFrame(parent=Form)
-        self.Message_.setGeometry(QtCore.QRect(10, 20, 411, 81))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.Message_.setGeometry(QtCore.QRect(10, 20, 411, 100))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Message_.sizePolicy().hasHeightForWidth())
         self.Message_.setSizePolicy(sizePolicy)
         self.Message_.setMinimumSize(QtCore.QSize(400, 50))
-        self.Message_.setStyleSheet("background-color:rgba(38,40,45,255);\n"
-"border-radius:25%;")
+        self.Message_.setStyleSheet("QFrame {\n"
+"background-color:rgba(38,40,45,255);\n"
+"border-radius:25%;\n"
+"}\n"
+"\n"
+"QFrame:acrtive {\n"
+"    border:none;\n"
+"}")
         self.Message_.setObjectName("Message_")
         self.Message = QtWidgets.QVBoxLayout(self.Message_)
         self.Message.setContentsMargins(35, -1, -1, 15)
@@ -59,15 +65,22 @@ class Ui_Form(object):
         self.Users_Name.setObjectName("Users_Name")
         self._2.addWidget(self.Users_Name)
         self.Message.addWidget(self.User)
-        self.Message_Text = QtWidgets.QLabel(parent=self.Message_)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.Message_Text = QtWidgets.QTextEdit(parent=self.Message_)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Message_Text.sizePolicy().hasHeightForWidth())
         self.Message_Text.setSizePolicy(sizePolicy)
+        self.Message_Text.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.Message_Text.setStyleSheet("color:white;\n"
 "font-size:16px;\n"
-"margin-left:47px;")
+"margin-left:30px;")
+        self.Message_Text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.Message_Text.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
+        self.Message_Text.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
+        self.Message_Text.setUndoRedoEnabled(False)
+        self.Message_Text.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)
+        self.Message_Text.setReadOnly(True)
         self.Message_Text.setObjectName("Message_Text")
         self.Message.addWidget(self.Message_Text)
 
@@ -79,4 +92,3 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form"))
         self.UserLogo.setText(_translate("Form", "U"))
         self.Users_Name.setText(_translate("Form", "User2"))
-        self.Message_Text.setText(_translate("Form", "Text of the message"))

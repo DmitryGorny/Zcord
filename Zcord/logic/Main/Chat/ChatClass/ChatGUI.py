@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Chat(object):
     def setupUi(self, Chat):
         Chat.setObjectName("Chat")
-        Chat.resize(747, 677)
+        Chat.resize(760, 682)
         self.MAIN = QtWidgets.QFrame(parent=Chat)
         self.MAIN.setGeometry(QtCore.QRect(-10, -10, 761, 681))
         self.MAIN.setObjectName("MAIN")
@@ -62,7 +62,7 @@ class Ui_Chat(object):
 "border-radius:25px;\n"
 "color:White;\n"
 "font-size:25px;\n"
-"align-text:center;\n"
+"text-align:center;\n"
 "")
         self.UsersLogoinChat.setObjectName("UsersLogoinChat")
         self.LogoAndNickName.addWidget(self.UsersLogoinChat)
@@ -136,7 +136,47 @@ class Ui_Chat(object):
         self.verticalLayout_5.setContentsMargins(45, -1, 45, -1)
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.ChatScroll = QtWidgets.QListWidget(parent=self.MessahesInChat)
-        self.ChatScroll.setStyleSheet("border:none;")
+        self.ChatScroll.setStyleSheet("QListWidget {\n"
+"border:none;\n"
+"}\n"
+"\n"
+"\n"
+"QListWidget::item\n"
+"{\n"
+"    background:none; \n"
+"}\n"
+"QListWidget::item:selected\n"
+"{\n"
+"    background: none;\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"           border:none;\n"
+"            width:10px;\n"
+"             height:20px;\n"
+"                                                            \n"
+"  }\n"
+"                                                        \n"
+" QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical\n"
+" {\n"
+"         heigth:0;\n"
+" }\n"
+"QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical\n"
+" {\n"
+"               background: none;\n"
+" }\n"
+"  QScrollBar::add-line:vertical {\n"
+"               height: 0px;\n"
+"  }\n"
+" QScrollBar::sub-line:vertical {\n"
+"                 height: 0px;\n"
+" }\n"
+"QScrollBar::handle:vertical {\n"
+"               background: orange;\n"
+"                min-height:10px;\n"
+"                 border-radius: 5px;\n"
+" }")
+        self.ChatScroll.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.ChatScroll.setObjectName("ChatScroll")
         self.verticalLayout_5.addWidget(self.ChatScroll)
         self.verticalLayout_2.addWidget(self.MessahesInChat)

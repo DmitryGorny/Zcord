@@ -23,13 +23,11 @@ class Chat(QtWidgets.QWidget):
         self.ui.Send_button.clicked.connect(self.sendMessage)
 
         self.ui.ChatScroll.setSpacing(10)
+        self.ui.ChatScroll.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.ui.ChatScroll.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
         self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
 
-
-    #def addThread(self, thread):
-
-        #self.__thread = thread
 
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()

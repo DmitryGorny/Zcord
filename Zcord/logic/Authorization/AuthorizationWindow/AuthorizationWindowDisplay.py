@@ -23,11 +23,18 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
         self.ui.Password_input.setEchoMode(QtWidgets.QLineEdit.EchoMode.Password)
 
         self.ui.closeWindowButton.clicked.connect(self.on_click_close)
+        self.ui.closeWindowButton.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.ui.minimizeWindow.clicked.connect(self.on_click_hide)
+        self.ui.minimizeWindow.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self.ui.SignInButton.clicked.connect(self.authorize)
         self.ui.RegistrationStartButton.clicked.connect(self.openRegistrationWindow)
 
+        self.ui.Password_input.returnPressed.connect(self.authorize)
+        self.ui.Login_input.returnPressed.connect(lambda: self.ui.Password_input.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus))
+
         self.__user = 0
+
+
 
 
 
@@ -88,6 +95,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
 
 
     def on_click_hide(self):
+        print(1)
         self.showMinimized()
 
     def getUser(self):

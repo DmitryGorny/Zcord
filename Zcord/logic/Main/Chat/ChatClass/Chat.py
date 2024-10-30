@@ -15,7 +15,6 @@ class Chat(QtWidgets.QWidget):
         self.__user = user
         self.__friendNickname = friendNick
 
-
         self.ui.UsersNickInChat.setText(friendNick)
         self.ui.UsersLogoinChat.setText(friendNick[0])
 
@@ -24,6 +23,9 @@ class Chat(QtWidgets.QWidget):
         self.ui.Send_button.clicked.connect(self.sendMessage)
 
         self.ui.ChatScroll.setSpacing(10)
+
+        self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
+
 
     #def addThread(self, thread):
 
@@ -57,15 +59,9 @@ class Chat(QtWidgets.QWidget):
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())
 
-
-
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
         self.ui.ChatScroll.setCurrentItem(widget)
-
-
-
-
 
 
     def getNickName(self):

@@ -6,6 +6,7 @@ from PyQt6.QtCore import QThread
 
 class SygnalChanger(QObject):
     sygnal = pyqtSignal(str)
+    chat = ""
 class MainInterface:
     __current_chat = 1
 
@@ -28,7 +29,6 @@ class MessageConnection(object):
     cache_chat = 0
     client_tcp = 0
     user = ""
-    chat = ""
 
 
     def __init__(self, client_tcp, cache_chat, user):
@@ -81,17 +81,20 @@ class MessageConnection(object):
                         if nickname == nickname_yours:
                             continue
 
-                        if isinstance(MessageConnection.chat, str) or MessageConnection.chat.getNickName() != nickname:
+                        if isinstance(reciever.chat, str) or reciever.chat.getNickName() != nickname:
                             for CertainChat in chats.get():
-                                MessageConnection.chat = CertainChat
-                                break
+                                print(nickname)
+                                if nickname == CertainChat.getNickName():
+                                    reciever.chat = CertainChat
+                                    break
 
                         try:
                             reciever.sygnal.disconnect()
                         except TypeError:
                             pass
 
-                        reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                        print(message)
+                        reciever.sygnal.connect(reciever.chat.recieveMessage)
                         reciever.sygnal.emit(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")

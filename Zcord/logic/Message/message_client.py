@@ -16,7 +16,7 @@ class MainInterface:
     @staticmethod
     def change_chat(current_chat, nickname):
         MainInterface.__current_chat = current_chat
-        msg = f"{MainInterface.return_current_chat()}, {nickname}, {'change chat'}".encode("utf-8")
+        msg = f"{MainInterface.return_current_chat()}, {nickname}, {'__change_chat__'}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
 
     @staticmethod
@@ -70,9 +70,9 @@ class MessageConnection(object):
                     continue
                 msg = msg.decode("utf-8").split(", ")
                 message = msg[0]
-                if message == 'NICK':
+                if message == '__NICK__':
                     MessageConnection.client_tcp.send(f"{nickname_yours}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
-                elif message == 'CONNECT':
+                elif message == '__CONNECT__':
                     print("Подключено к серверу!")
                 else:
                     date_now = msg[1]
@@ -124,7 +124,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

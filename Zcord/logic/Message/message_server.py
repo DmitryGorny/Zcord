@@ -12,12 +12,11 @@ class MessageRoom(object):
 
     @staticmethod
     def set_nicknames_in_chats(arr):
-        MessageRoom.nicknames_in_chats = {**MessageRoom.nicknames_in_chats, **arr}
-        print(MessageRoom.nicknames_in_chats)
+        MessageRoom.nicknames_in_chats = {**MessageRoom.nicknames_in_chats, **arr}  # Какого хуя
 
     @staticmethod
     def set_cache_chat(arr):
-        MessageRoom.cache_chat = {**MessageRoom.cache_chat, **arr}
+        MessageRoom.cache_chat = {**arr, **MessageRoom.cache_chat}
 
     def __init__(self, chat_id):
         MessageRoom.set_cache_chat(copy.deepcopy(chat_id))
@@ -48,16 +47,14 @@ class MessageRoom(object):
         while True:
             try:
                 # Broadcasting Messages
-                flg = False
                 msg = client.recv(1024)
                 msg = msg.decode('utf-8').split(", ")
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
-                if message == "change chat":
+                if message == "__change_chat__":
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat["chat_id"][chat_code]))
-                    old_chat_cod = str(chat_code)
-                    flg = True
+                    continue
                 if nickname not in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
                     MessageRoom.nicknames_in_chats['chat_id'][chat_code].append(nickname)
                     try:
@@ -65,19 +62,17 @@ class MessageRoom(object):
                             del MessageRoom.nicknames_in_chats['chat_id'][old_chat_cod][MessageRoom.nicknames_in_chats['chat_id'][old_chat_cod].index(nickname)]
                     except UnboundLocalError:
                         pass
-                else:
-                    old_chat_cod = str(chat_code)
 
-                if flg:
-                    continue
+                    old_chat_cod = str(chat_code)
 
                 date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 date_now = date_now
-                print(MessageRoom.nicknames_in_chats['chat_id'][chat_code])
+
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
 
                 MessageRoom.cache_chat["chat_id"][chat_code].append(f"{date_now + nickname}: {message}")
 
+                print(MessageRoom.nicknames_in_chats)
                 if len(MessageRoom.cache_chat["chat_id"][chat_code]) >= 20:
                     del MessageRoom.cache_chat["chat_id"][chat_code][0]
 
@@ -99,7 +94,7 @@ def receive():
         print(f"Connected to {address}")
 
         # Request And Store Nickname
-        client.send(b'0' + 'NICK'.encode('utf-8'))
+        client.send(b'0' + '__NICK__'.encode('utf-8'))
         msg = client.recv(1024)
         msg = msg.decode('utf-8').split(", ")
         print(msg)
@@ -109,7 +104,7 @@ def receive():
 
         print(f"Nickname is {nickname}")
 
-        client.send(b'0' + 'CONNECT'.encode('utf-8'))
+        client.send(b'0' + '__CONNECT__'.encode('utf-8'))
 
         MessageRoom(chat_id)
         # Start Handling Thread For Client
@@ -118,7 +113,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     PORT = 55555
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

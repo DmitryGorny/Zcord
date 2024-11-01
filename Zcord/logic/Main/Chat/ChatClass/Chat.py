@@ -62,6 +62,9 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatScroll.setCurrentItem(widget)
 
 
+    def clearLayout(self):
+        self.ui.Chat_input_.clear()
+
     def getNickName(self):
         return self.__friendNickname
 

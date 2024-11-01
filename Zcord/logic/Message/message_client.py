@@ -6,6 +6,7 @@ from PyQt6.QtCore import QThread
 
 class SygnalChanger(QObject):
     sygnal = pyqtSignal(str)
+    clear = pyqtSignal()
     chat = ""
 class MainInterface:
     __current_chat = 1
@@ -14,10 +15,16 @@ class MainInterface:
         pass
 
     @staticmethod
-    def change_chat(current_chat, nickname):
+    def change_chat(current_chat, nickname, sygnalChanger, chats):
         MainInterface.__current_chat = current_chat
-        msg = f"{MainInterface.return_current_chat()}, {nickname}, {'__change_chat__'}".encode("utf-8")
+        msg = f"{MainInterface.return_current_chat()}, {nickname}, {'change chat'}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
+        try:
+            print(MessageConnection.chat)
+            #sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
+            #sygnalChanger.clear.emit()
+        except AttributeError:
+            return
 
     @staticmethod
     def return_current_chat():
@@ -29,6 +36,7 @@ class MessageConnection(object):
     cache_chat = 0
     client_tcp = 0
     user = ""
+    chat = ""
 
 
     def __init__(self, client_tcp, cache_chat, user):
@@ -70,9 +78,9 @@ class MessageConnection(object):
                     continue
                 msg = msg.decode("utf-8").split(", ")
                 message = msg[0]
-                if message == '__NICK__':
+                if message == 'NICK':
                     MessageConnection.client_tcp.send(f"{nickname_yours}, {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
-                elif message == '__CONNECT__':
+                elif message == 'CONNECT':
                     print("Подключено к серверу!")
                 else:
                     date_now = msg[1]
@@ -81,11 +89,11 @@ class MessageConnection(object):
                         if nickname == nickname_yours:
                             continue
 
-                        if isinstance(reciever.chat, str) or reciever.chat.getNickName() != nickname:
+                        if isinstance(MessageConnection.chat, str) or MessageConnection.chat.getNickName() != nickname:
                             for CertainChat in chats.get():
                                 print(nickname)
                                 if nickname == CertainChat.getNickName():
-                                    reciever.chat = CertainChat
+                                    MessageConnection.chat = CertainChat
                                     break
 
                         try:
@@ -94,7 +102,7 @@ class MessageConnection(object):
                             pass
 
                         print(message)
-                        reciever.sygnal.connect(reciever.chat.recieveMessage)
+                        reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                         reciever.sygnal.emit(message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
@@ -124,7 +132,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

@@ -6,13 +6,7 @@
   <component name="ChangeListManager">
     <list default="true" id="e2675407-eb81-4f0c-aeb8-d0891b15042f" name="Changes" comment="Работающий ЛС">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/Chat/Chat.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Chat/Chat.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/Chat/Message.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Chat/Message.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/ChatGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/ChatGUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Message/Message.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Message/Message.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Message/MessageWidget.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Message/MessageWidget.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />

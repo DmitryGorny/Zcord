@@ -47,6 +47,7 @@ class MessageRoom(object):
         while True:
             try:
                 # Broadcasting Messages
+                flg = False
                 msg = client.recv(1024)
                 msg = msg.decode('utf-8').split(", ")
                 chat_code = str(msg[0])
@@ -54,7 +55,7 @@ class MessageRoom(object):
                 message = msg[2]
                 if message == "__change_chat__":
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat["chat_id"][chat_code]))
-                    continue
+                    flg = True
                 if nickname not in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
                     MessageRoom.nicknames_in_chats['chat_id'][chat_code].append(nickname)
                     try:
@@ -64,6 +65,9 @@ class MessageRoom(object):
                         pass
 
                     old_chat_cod = str(chat_code)
+
+                if flg:
+                    continue
 
                 date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                 date_now = date_now

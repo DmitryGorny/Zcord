@@ -12,7 +12,7 @@ class MessageRoom(object):
 
     @staticmethod
     def set_nicknames_in_chats(arr):
-        MessageRoom.nicknames_in_chats = {**MessageRoom.nicknames_in_chats, **arr}  # Какого хуя
+        MessageRoom.nicknames_in_chats = {**MessageRoom.nicknames_in_chats, **arr}
 
     @staticmethod
     def set_cache_chat(arr):
@@ -38,7 +38,7 @@ class MessageRoom(object):
         date_now = msg[1]
         nickname = msg[2]
         message = msg[3]
-        for client in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
+        for client in MessageRoom.nicknames_in_chats[chat_code]:
             ret = b'0' + f"{date_now}, {nickname}, {message}".encode('utf-8')
             clients[client].send(ret)
 
@@ -54,13 +54,13 @@ class MessageRoom(object):
                 nickname = msg[1]
                 message = msg[2]
                 if message == "__change_chat__":
-                    client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat["chat_id"][chat_code]))
+                    client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
                     flg = True
-                if nickname not in MessageRoom.nicknames_in_chats['chat_id'][chat_code]:
-                    MessageRoom.nicknames_in_chats['chat_id'][chat_code].append(nickname)
+                if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
+                    MessageRoom.nicknames_in_chats[chat_code].append(nickname)
                     try:
                         if chat_code != old_chat_cod:
-                            del MessageRoom.nicknames_in_chats['chat_id'][old_chat_cod][MessageRoom.nicknames_in_chats['chat_id'][old_chat_cod].index(nickname)]
+                            del MessageRoom.nicknames_in_chats[old_chat_cod][MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)]
                     except UnboundLocalError:
                         pass
 
@@ -74,17 +74,17 @@ class MessageRoom(object):
 
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
 
-                MessageRoom.cache_chat["chat_id"][chat_code].append(f"{date_now + nickname}: {message}")
+                MessageRoom.cache_chat[chat_code].append(f"{date_now + nickname}: {message}")
 
-                print(MessageRoom.nicknames_in_chats)
-                if len(MessageRoom.cache_chat["chat_id"][chat_code]) >= 20:
-                    del MessageRoom.cache_chat["chat_id"][chat_code][0]
+                print(MessageRoom.cache_chat)
+                if len(MessageRoom.cache_chat[chat_code]) >= 20:
+                    del MessageRoom.cache_chat[chat_code][0]
 
             except ConnectionResetError:
                 # Removing And Closing Clients
-                for j in MessageRoom.nicknames_in_chats['chat_id']:
-                    if nickname in MessageRoom.nicknames_in_chats['chat_id'][j]:
-                        MessageRoom.nicknames_in_chats['chat_id'][j].remove(nickname)
+                for j in MessageRoom.nicknames_in_chats:
+                    if nickname in MessageRoom.nicknames_in_chats[j]:
+                        MessageRoom.nicknames_in_chats[j].remove(nickname)
                 clients.pop(nickname)
                 client.close()
                 print(f"{nickname} left!")
@@ -105,7 +105,6 @@ def receive():
         nickname = msg[0]
         chat_id = MessageRoom.deserialize(msg[1])
         clients[nickname] = client
-
         print(f"Nickname is {nickname}")
 
         client.send(b'0' + '__CONNECT__'.encode('utf-8'))

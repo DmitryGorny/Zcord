@@ -79,9 +79,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     else:
                         key = friendArr[2]
 
-                    self.__friends[key] = {
-                        "chat_id": friendArr[0],
-                    }
+                    self.__friends[key] = friendArr[0]
 
             Frineds_json.close()
 
@@ -89,7 +87,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def createChats(self):
         for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend]["chat_id"], friend, self.__user))
+            self.__chats.append(Chat(self.__friends[friend], friend, self.__user))
 
     def call_chat(self):
         chat_ids = []

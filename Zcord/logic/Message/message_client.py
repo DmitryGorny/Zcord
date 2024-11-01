@@ -4,10 +4,13 @@ import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
 from PyQt6.QtCore import QThread
 
+
 class SygnalChanger(QObject):
     sygnal = pyqtSignal(str)
     clear = pyqtSignal()
     chat = ""
+
+
 class MainInterface:
     __current_chat = 1
 
@@ -31,21 +34,17 @@ class MainInterface:
         return MainInterface.__current_chat
 
 
-
 class MessageConnection(object):
-    cache_chat = 0
-    client_tcp = 0
+    cache_chat = None
+    client_tcp = None
     user = ""
     chat = ""
-
 
     def __init__(self, client_tcp, cache_chat, user):
         super(MessageConnection, self).__init__()
         MessageConnection.set_cache_chat(cache_chat)
         MessageConnection.set_client_tcp(client_tcp)
         MessageConnection.set_user(user)
-
-
 
     @staticmethod
     def set_user(user):
@@ -109,7 +108,6 @@ class MessageConnection(object):
                 MessageConnection.client_tcp.close()
                 break
 
-
     @staticmethod
     def get_tcp_server(self):
         return self.client_tcp
@@ -150,6 +148,6 @@ def call(nickname, chat_id, user, chats):
 
     print("Старт клиента сообщений")
 
-    thread = thread_start(nickname, chats)
-
-    return [client_tcp, thread]
+    thread_start(nickname, chats)
+    print(client_tcp)
+    return [client_tcp]

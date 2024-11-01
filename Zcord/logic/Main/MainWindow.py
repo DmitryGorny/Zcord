@@ -207,7 +207,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
         chat_id = chat.getChatId()
 
-        message_client.MainInterface.change_chat(chat_id, self.__user.getNickName())
+
+        message_client.MainInterface.change_chat(chat_id, self.__user.getNickName(), message_client.SygnalChanger())
 
         chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)
         self.ui.stackedWidget.addWidget(chat.ui.MAIN)

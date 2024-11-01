@@ -18,14 +18,13 @@ class MainInterface:
         pass
 
     @staticmethod
-    def change_chat(current_chat, nickname, sygnalChanger, chats):
+    def change_chat(current_chat, nickname, sygnalChanger):
         MainInterface.__current_chat = current_chat
         msg = f"{MainInterface.return_current_chat()}, {nickname}, {'change chat'}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
         try:
-            print(MessageConnection.chat)
-            #sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
-            #sygnalChanger.clear.emit()
+            sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
+            sygnalChanger.clear.emit()
         except AttributeError:
             return
 
@@ -100,7 +99,6 @@ class MessageConnection(object):
                         except TypeError:
                             pass
 
-                        print(message)
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                         reciever.sygnal.emit(message)
             except ConnectionResetError:
@@ -130,7 +128,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:
@@ -149,5 +147,4 @@ def call(nickname, chat_id, user, chats):
     print("Старт клиента сообщений")
 
     thread_start(nickname, chats)
-    print(client_tcp)
     return [client_tcp]

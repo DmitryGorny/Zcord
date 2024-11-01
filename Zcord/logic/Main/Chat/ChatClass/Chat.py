@@ -63,7 +63,7 @@ class Chat(QtWidgets.QWidget):
 
 
     def clearLayout(self):
-        self.ui.Chat_input_.clear()
+        self.ui.ChatScroll.clear()
 
     def getNickName(self):
         return self.__friendNickname

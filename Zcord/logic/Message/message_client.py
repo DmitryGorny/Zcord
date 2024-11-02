@@ -2,7 +2,6 @@ import socket
 import threading
 import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
-from PyQt6.QtCore import QThread
 
 
 class SygnalChanger(QObject):
@@ -23,9 +22,8 @@ class MainInterface:
         msg = f"{MainInterface.return_current_chat()}, {nickname}, {'__change_chat__'}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
         try:
-            print(MessageConnection.chat)
-            #sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
-            #sygnalChanger.clear.emit()
+            sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
+            sygnalChanger.clear.emit()
         except AttributeError:
             return
 
@@ -37,8 +35,8 @@ class MainInterface:
 class MessageConnection(object):
     cache_chat = None
     client_tcp = None
-    user = ""
-    chat = ""
+    user = None
+    chat = None
 
     def __init__(self, client_tcp, cache_chat, user):
         super(MessageConnection, self).__init__()
@@ -73,7 +71,7 @@ class MessageConnection(object):
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
-                        print(i)
+                        print(i)  # i[0] - дата, i[1] - ник, i[2] - смска
                     continue
                 msg = msg.decode("utf-8").split(", ")
                 message = msg[0]

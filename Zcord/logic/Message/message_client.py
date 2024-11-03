@@ -1,13 +1,15 @@
 import socket
 import threading
+import time
+
 import msgspec
-from PyQt6.QtCore import pyqtSignal, QObject
+from PyQt6.QtCore import pyqtSignal, QObject, QCoreApplication
 
 
 class SygnalChanger(QObject):
     sygnal = pyqtSignal(str, str)
     clear = pyqtSignal()
-
+    chat = ""
 
 
 class MainInterface:
@@ -37,7 +39,7 @@ class MessageConnection(object):
     client_tcp = None
     user = None
     chat = None
-    messagesFromCacheInQueue = [] #Очередь из сообщений, от пользователя клиента до инициализации Chat в MessageConnection.chat
+    queueOfCahcedMessages = []
 
     def __init__(self, client_tcp, cache_chat, user):
         super(MessageConnection, self).__init__()
@@ -71,39 +73,39 @@ class MessageConnection(object):
                 msg = msg[1:]
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
-
                     for i in cache:
                         # i[0] - дата, i[1] - ник, i[2] - смска
 
-                        #Проверяется ник отправителя и наличие объекта класса Chat
                         if i[1] == nickname_yours and MessageConnection.chat is None:
-                            MessageConnection.messagesFromCacheInQueue.append(i)
+                            MessageConnection.queueOfCahcedMessages.append(i)
                             continue
 
-                        #Проверяем наличие объекта класса Chat и добавляем его при необходимости
+
                         if MessageConnection.chat is None:
-                            for CertainChat in chats.get():
-                                if i[1] == CertainChat.getNickName():
-                                    MessageConnection.chat = CertainChat
+                            for chat in chats.get():
+                                if chat.getNickName() == i[1]:
+                                    MessageConnection.chat = chat
                                     break
 
                         try:
-                            print("- сигнал")
                             reciever.sygnal.disconnect()
                         except TypeError:
                             pass
 
+
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
 
-                        if len(MessageConnection.messagesFromCacheInQueue) > 0:
-                            for messageQ in MessageConnection.messagesFromCacheInQueue:
-                                print(messageQ[2], messageQ[1])
-                                reciever.sygnal.emit(messageQ[2], messageQ[1])
+                        if len(MessageConnection.queueOfCahcedMessages) > 0:
+                            for messFromQue in MessageConnection.queueOfCahcedMessages:
+                                reciever.sygnal.emit(messFromQue[2], messFromQue[1])
+                            MessageConnection.queueOfCahcedMessages.clear()
 
-                        #print(i[2], i[1])
+
+                        print(1)
                         reciever.sygnal.emit(i[2], i[1])
-                    continue
+                        time.sleep(0.01) #Я такого костыля рот ебал
 
+                    continue
                 msg = msg.decode("utf-8").split(", ")
                 message = msg[0]
                 if message == '__NICK__':
@@ -111,27 +113,25 @@ class MessageConnection(object):
                 elif message == '__CONNECT__':
                     print("Подключено к серверу!")
                 else:
-                    print(msg)
- #Идет непонятная ошибка при первом заходе в чат после подключения
                     date_now = msg[1]
                     nickname = msg[2]
-
-
                     if MainInterface.return_current_chat() != 0:
                         if nickname == nickname_yours:
                             continue
+
+                        if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
+                            for CertainChat in chats.get():
+                                print(nickname)
+                                if nickname == CertainChat.getNickName():
+                                    MessageConnection.chat = CertainChat
+                                    break
 
                         try:
                             reciever.sygnal.disconnect()
                         except TypeError:
                             pass
 
-                        if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
-                            for CertainChat in chats.get():
-                                if nickname == CertainChat.getNickName():
-                                    MessageConnection.chat = CertainChat
-                                    break
-
+                        print(message)
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                         reciever.sygnal.emit(message, nickname)
             except ConnectionResetError:
@@ -161,7 +161,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

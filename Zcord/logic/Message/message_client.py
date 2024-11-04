@@ -3,7 +3,7 @@ import threading
 import time
 
 import msgspec
-from PyQt6.QtCore import pyqtSignal, QObject, QCoreApplication
+from PyQt6.QtCore import pyqtSignal, QObject, QCoreApplication, QThread
 
 
 class SygnalChanger(QObject):
@@ -76,14 +76,10 @@ class MessageConnection(QObject):
                     for i in cache:
                         # i[0] - chat_code, i[1] - дата, i[2] - ник, i[3] - смска
 
-                        if i[1] == nickname_yours and MessageConnection.chat is None:
-                            MessageConnection.queueOfCahcedMessages.append(i)
-                            continue
-
-
                         if MessageConnection.chat is None:
                             for chat in chats.get():
-                                if chat.getNickName() == i[1]:
+                                if int(chat.getChatId()) == int(i[3]):
+                                    print(1)
                                     MessageConnection.chat = chat
                                     break
 
@@ -95,13 +91,7 @@ class MessageConnection(QObject):
 
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
 
-                        if len(MessageConnection.queueOfCahcedMessages) > 0:
-                            for messFromQue in MessageConnection.queueOfCahcedMessages:
-                                reciever.sygnal.emit(messFromQue[2], messFromQue[1])
-                            MessageConnection.queueOfCahcedMessages.clear()
 
-
-                        print(1)
                         reciever.sygnal.emit(i[2], i[1])
                         time.sleep(0.01) #Я такого костыля рот ебал
 
@@ -115,14 +105,14 @@ class MessageConnection(QObject):
                 else:
                     date_now = msg[1]
                     nickname = msg[2]
+                    chat_code = msg[3]
                     if MainInterface.return_current_chat() != 0:
                         if nickname == nickname_yours:
                             continue
 
                         if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
                             for CertainChat in chats.get():
-                                print(nickname)
-                                if nickname == CertainChat.getNickName():
+                                if int(CertainChat.getChatId()) == int(chat_code):
                                     MessageConnection.chat = CertainChat
                                     break
 

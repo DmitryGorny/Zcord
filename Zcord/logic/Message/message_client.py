@@ -74,7 +74,7 @@ class MessageConnection(QObject):
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
-                        # i[0] - chat_code, i[1] - дата, i[2] - ник, i[3] - смска
+                        # i[0] - дата, i[1] - ник, i[2] - смска, i[3] - чат код
 
                         if i[1] == nickname_yours and MessageConnection.chat is None:
                             MessageConnection.queueOfCahcedMessages.append(i)

@@ -34,7 +34,7 @@ class MainInterface:
         return MainInterface.__current_chat
 
 
-class MessageConnection(object):
+class MessageConnection(QObject):
     cache_chat = None
     client_tcp = None
     user = None
@@ -74,7 +74,7 @@ class MessageConnection(object):
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
-                        # i[0] - дата, i[1] - ник, i[2] - смска
+                        # i[0] - chat_code, i[1] - дата, i[2] - ник, i[3] - смска
 
                         if i[1] == nickname_yours and MessageConnection.chat is None:
                             MessageConnection.queueOfCahcedMessages.append(i)
@@ -161,7 +161,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

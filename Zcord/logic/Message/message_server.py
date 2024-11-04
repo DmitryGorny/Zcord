@@ -39,7 +39,7 @@ class MessageRoom(object):
         nickname = msg[2]
         message = msg[3]
         for client in MessageRoom.nicknames_in_chats[chat_code]:
-            ret = b'0' + f"{date_now}, {nickname}, {message}".encode('utf-8')
+            ret = b'0' + f"{date_now}, {nickname}, {message}, {chat_code}".encode('utf-8')
             clients[client].send(ret)
 
     @staticmethod
@@ -60,7 +60,8 @@ class MessageRoom(object):
                     MessageRoom.nicknames_in_chats[chat_code].append(nickname)
                     try:
                         if chat_code != old_chat_cod:
-                            del MessageRoom.nicknames_in_chats[old_chat_cod][MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)]
+                            index = MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)
+                            del MessageRoom.nicknames_in_chats[old_chat_cod][index]
                     except UnboundLocalError:
                         pass
 
@@ -74,10 +75,9 @@ class MessageRoom(object):
 
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
 
-                MessageRoom.cache_chat[chat_code].append((date_now, nickname, message))
+                MessageRoom.cache_chat[chat_code].append((chat_code, date_now, nickname, message))
 
-                print(MessageRoom.cache_chat)
-                if len(MessageRoom.cache_chat[chat_code]) >= 20:
+                if len(MessageRoom.cache_chat[chat_code]) >= 21:
                     del MessageRoom.cache_chat[chat_code][0]
 
             except ConnectionResetError:

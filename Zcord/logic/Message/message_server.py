@@ -75,7 +75,7 @@ class MessageRoom(object):
 
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
 
-                MessageRoom.cache_chat[chat_code].append((chat_code, date_now, nickname, message))
+                MessageRoom.cache_chat[chat_code].append((date_now, nickname, message, chat_code))
 
                 if len(MessageRoom.cache_chat[chat_code]) >= 21:
                     del MessageRoom.cache_chat[chat_code][0]

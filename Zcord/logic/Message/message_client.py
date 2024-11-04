@@ -1,3 +1,4 @@
+import queue
 import socket
 import threading
 import time
@@ -10,6 +11,20 @@ class SygnalChanger(QObject):
     sygnal = pyqtSignal(str, str)
     clear = pyqtSignal()
     chat = ""
+
+
+class RecieveThread(QThread):
+    def __init__(self, func, nick, reciever, chats):
+        super(RecieveThread, self).__init__()
+
+        self.funcToCall = func
+        self.nickname = nick
+        self.receiever = reciever
+        self.chats = chats
+
+
+    def run(self):
+        self.funcToCall(self.nickname, self.receiever, self.chats)
 
 
 class MainInterface:
@@ -79,7 +94,6 @@ class MessageConnection(QObject):
                         if MessageConnection.chat is None:
                             for chat in chats.get():
                                 if int(chat.getChatId()) == int(i[3]):
-                                    print(1)
                                     MessageConnection.chat = chat
                                     break
 
@@ -91,9 +105,10 @@ class MessageConnection(QObject):
 
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
 
-
+                        print(1)
                         reciever.sygnal.emit(i[2], i[1])
-                        time.sleep(0.01) #Я такого костыля рот ебал
+
+                        QCoreApplication.processEvents()
 
                     continue
                 msg = msg.decode("utf-8").split(", ")
@@ -103,18 +118,21 @@ class MessageConnection(QObject):
                 elif message == '__CONNECT__':
                     print("Подключено к серверу!")
                 else:
-                    date_now = msg[1]
-                    nickname = msg[2]
+                    date_now = msg[0]
+                    nickname = msg[1]
+                    mess = msg[2]
                     chat_code = msg[3]
-                    if MainInterface.return_current_chat() != 0:
-                        if nickname == nickname_yours:
-                            continue
 
-                        if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
+                    if MainInterface.return_current_chat() != 0:
+
+                        if MessageConnection.chat is None or MessageConnection.chat.getChatId() != chat_code:
                             for CertainChat in chats.get():
                                 if int(CertainChat.getChatId()) == int(chat_code):
                                     MessageConnection.chat = CertainChat
                                     break
+
+                        if nickname == nickname_yours:
+                            continue
 
                         try:
                             reciever.sygnal.disconnect()
@@ -122,6 +140,7 @@ class MessageConnection(QObject):
                             pass
 
                         print(message)
+
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                         reciever.sygnal.emit(message, nickname)
             except ConnectionResetError:
@@ -143,15 +162,22 @@ class MessageConnection(QObject):
         ser = msgspec.json.encode(x)
         return ser
 
-
+Thread1 = "" #Сохраняется ссылка на поток и сборщик его не удаляет
 def thread_start(nickname, chats):
     reciever = SygnalChanger()
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, chats, ))
-    receive_thread.start()
+
+    global Thread1
+
+    Thread1 = RecieveThread(MessageConnection.recv_message, nickname, reciever, chats)
+
+    Thread1.start()
+
+    #receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, chats, ))
+    #receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55555  # Порт, используемый сервером
 
     try:

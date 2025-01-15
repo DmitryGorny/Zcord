@@ -73,15 +73,22 @@ class MessageConnection(QObject):
                 msg = msg[1:]
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
+
                     for i in cache:
                         # i[0] - chat_code, i[1] - дата, i[2] - ник, i[3] - смска
 
                         if MessageConnection.chat is None:
-                            for chat in chats.get():
-                                if int(chat.getChatId()) == int(i[3]):
-                                    print(1)
+                            for chat in chats[0]:
+                                if int(chat.getChatId()) == int(i[0]):
                                     MessageConnection.chat = chat
                                     break
+                        else:
+                            if MessageConnection.chat.getChatId() != int(i[0]):
+                                for chat in chats[0]:
+                                    if int(chat.getChatId()) == int(i[0]):
+                                        MessageConnection.chat = chat
+                                        break
+
 
                         try:
                             reciever.sygnal.disconnect()
@@ -91,11 +98,13 @@ class MessageConnection(QObject):
 
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
 
+                        reciever.sygnal.emit(i[2], i[3])
 
-                        reciever.sygnal.emit(i[2], i[1])
-                        time.sleep(0.01) #Я такого костыля рот ебал
+                        time.sleep(0.01) #Костыль. Что-то в emit (chat.recieveMessage) работает асинхронно???
+
 
                     continue
+
                 msg = msg.decode("utf-8").split(", ")
                 message = msg[0]
                 if message == '__NICK__':
@@ -106,12 +115,13 @@ class MessageConnection(QObject):
                     date_now = msg[1]
                     nickname = msg[2]
                     chat_code = msg[3]
+
                     if MainInterface.return_current_chat() != 0:
                         if nickname == nickname_yours:
                             continue
 
                         if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
-                            for CertainChat in chats.get():
+                            for CertainChat in chats[0]:
                                 if int(CertainChat.getChatId()) == int(chat_code):
                                     MessageConnection.chat = CertainChat
                                     break
@@ -123,7 +133,7 @@ class MessageConnection(QObject):
 
                         print(message)
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                        reciever.sygnal.emit(message, nickname)
+                        reciever.sygnal.emit(nickname, message)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -145,14 +155,18 @@ class MessageConnection(QObject):
 
 
 def thread_start(nickname, chats):
+    chatsToRecieve = []
+    while not chats.empty():
+        chatsToRecieve.append(chats.get()) #достаем объекты chat из очереди и пихаем их в массив
+
     reciever = SygnalChanger()
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, chats, ))
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, chatsToRecieve, ))
     receive_thread.start()
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
-    SERVER_PORT = 55555  # Порт, используемый сервером
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_PORT = 55556  # Порт, используемый сервером
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

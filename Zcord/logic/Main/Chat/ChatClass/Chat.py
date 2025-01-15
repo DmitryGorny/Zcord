@@ -48,11 +48,10 @@ class Chat(QtWidgets.QWidget):
 
 
 
-    def recieveMessage(self, text):
+    def recieveMessage(self, sender, text):
         if len(text) == 0:
             return
-
-        message = Message(text, self.__friendNickname)
+        message = Message(text, sender)
 
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())
@@ -60,6 +59,8 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
         self.ui.ChatScroll.setCurrentItem(widget)
+
+        return True
 
 
     def clearLayout(self):

@@ -116,8 +116,8 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
-    PORT = 55555
+    HOST = "26.181.96.20"
+    PORT = 55556
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()

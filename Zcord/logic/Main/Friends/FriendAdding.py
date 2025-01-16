@@ -21,12 +21,17 @@ class FriendAdding:
         if len(userToSend) == 0:
             return False
 
-        rowWithFriends = db.getCertainRow("friend_one_id", self.__user.getNickName(), "friend_one_id,friend_two_id, status")
+        #Код проверки наличия дружбы перед отправкой запроса. Может работать медленно при большом количестве данных
+        rowWithFriends1 = db.getCertainRow("friend_one_id", self.__user.getNickName(), "friend_one_id,friend_two_id, status")
 
-        friendshipRow = list(filter(lambda x: nickToSend in x, rowWithFriends))
+        rowWithFriends2 = db.getCertainRow("friend_one_id", nickToSend, "friend_one_id,friend_two_id, status")
+
+        friendshipRow1 = list(filter(lambda x: nickToSend in x, rowWithFriends1))
+
+        friendshipRow2 = list(filter(lambda x: self.__user.getNickName() in x, rowWithFriends2))
 
 
-        if len(friendshipRow) == 0:
+        if len(friendshipRow1) == 0 and len(friendshipRow2) == 0:
             addFriends = db.insertDataInTable("(`friend_one_id`,`friend_two_id`, `status`)",
                                                             f"('{self.__user.getNickName()}', '{nickToSend}', '1')" )
 

@@ -89,7 +89,6 @@ class MessageConnection(QObject):
                                         MessageConnection.chat = chat
                                         break
 
-
                         try:
                             reciever.sygnal.disconnect()
                         except TypeError:
@@ -115,6 +114,7 @@ class MessageConnection(QObject):
                     date_now = msg[1]
                     nickname = msg[2]
                     chat_code = msg[3]
+                    print(msg)
 
                     if MainInterface.return_current_chat() != 0:
                         if nickname == nickname_yours:

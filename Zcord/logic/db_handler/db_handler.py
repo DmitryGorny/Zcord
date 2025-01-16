@@ -75,7 +75,7 @@ class db_handler:
             print(e)
             return False
 
-    def getCertainRow(self, column:str, value:str, columns:str):
+    def getCertainRow(self, column:str, value:str, columns:str, condition:str="1=1"):
         connection = connect(
             host=self._host,
             user=self._user,
@@ -86,7 +86,7 @@ class db_handler:
         try:
             cursor = connection.cursor()
 
-            cursor.execute(f"SELECT {columns} FROM {self._tableName} where {column} = '{value}'")
+            cursor.execute(f"SELECT {columns} FROM {self._tableName} where {column} = '{value}' AND {condition}")
 
 
             result = list(map(lambda x: list(x),  cursor.fetchall()))

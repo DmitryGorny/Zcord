@@ -39,7 +39,7 @@ class MessageRoom(object):
         nickname = msg[2]
         message = msg[3]
         for client in MessageRoom.nicknames_in_chats[chat_code]:
-            ret = b'0' + f"{date_now}, {nickname}, {message}, {chat_code}".encode('utf-8')
+            ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}".encode('utf-8')
             clients[client].send(ret)
 
     @staticmethod
@@ -49,10 +49,12 @@ class MessageRoom(object):
                 # Broadcasting Messages
                 flg = False
                 msg = client.recv(1024)
-                msg = msg.decode('utf-8').split(", ")
+                msg = msg.decode('utf-8').split("&+& ")
+                print(msg)
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
+                print(message)
                 if message == "__change_chat__":
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
                     flg = True
@@ -100,7 +102,7 @@ def receive():
         # Request And Store Nickname
         client.send(b'0' + '__NICK__'.encode('utf-8'))
         msg = client.recv(1024)
-        msg = msg.decode('utf-8').split(", ")
+        msg = msg.decode('utf-8').split("&+& ")
         print(msg)
         nickname = msg[0]
         chat_id = MessageRoom.deserialize(msg[1])
@@ -116,7 +118,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     PORT = 55556
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

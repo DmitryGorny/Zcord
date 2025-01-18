@@ -62,32 +62,29 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def getFriends(self):
-        with open("Resources/frineds/friends.json", "r") as Frineds_json:
+        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
-            friendsDict = json.load(Frineds_json)
+        friends = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' OR friend_two_id = '{self.__user.getNickName()}'")
 
-            self.__friends = friendsDict.copy()
+        print(friends)
+        for friendArr in friends:
+            if friendArr[1] not in self.__friends and friendArr[2] not in self.__friends:
+                if friendArr[1] != self.__user.getNickName():
+                    key = friendArr[1]
+                else:
+                    key = friendArr[2]
 
-            db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
-
-            friends = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' AND status = 2 OR friend_two_id = '{self.__user.getNickName()}' AND status = 2")
-
-            for friendArr in friends:
-                if friendArr[1] not in self.__friends and friendArr[2] not in self.__friends:
-                    if friendArr[1] != self.__user.getNickName():
-                        key = friendArr[1]
-                    else:
-                        key = friendArr[2]
-
-                    self.__friends[key] = friendArr[0]
-
-            Frineds_json.close()
-
-
+                self.__friends[key] = [friendArr[0], friendArr[3]]
 
     def createChats(self):
         for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend], friend, self.__user))
+            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user, self.__friends[friend][1]))
+
+    def addChatToList(self, chatId, friendNick, status):
+        chat = Chat(chatId, friendNick, self.__user, status)
+        self.__chats.append(chat)
+
+        return chat
 
     def call_chat(self):
         chat_ids = []
@@ -97,7 +94,9 @@ class MainWindow(QtWidgets.QMainWindow):
         queueToSend.put(self.__chats)
 
         self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
+
         self.__client = self.callClient[0]
+        self.__messageConnection = self.callClient[1]
 
 
 
@@ -109,8 +108,8 @@ class MainWindow(QtWidgets.QMainWindow):
             layoutFinal = QtWidgets.QVBoxLayout()
             layoutFinal.setSpacing(5)
             layoutFinal.setContentsMargins(0,0,0,0)
-            for friend_nickname in self.__friends.keys():
-                QFr = ClikableFrame(friend_nickname)
+            for chat in self.__chats:
+                QFr = ClikableFrame(chat.getNickName())
                 QFr.clicked.connect(self.chooseChat)
                 layout = QtWidgets.QHBoxLayout()
                 layout.setSpacing(10)
@@ -127,8 +126,8 @@ class MainWindow(QtWidgets.QMainWindow):
                                             font-size:18px;
                                             border:none;
                                             background-color:none;""")
-                user_logo.setText(friend_nickname[0])
-                user_name.setText(friend_nickname)
+                user_logo.setText(chat.getNickName()[0])
+                user_name.setText(chat.getNickName())
 
                 layout.addWidget(user_logo)
                 layout.addWidget(user_name)
@@ -198,6 +197,23 @@ class MainWindow(QtWidgets.QMainWindow):
 
             addFriendsDialog.exec()
 
+            senderAndReciver = addFriendsDialog.getSenderAndReciver()
+
+            if len(senderAndReciver) == 0:
+                return
+
+            friendshipTable = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
+
+            #Подумать над необходимостью получения status, т.к. при создании запроса он всегда равен 1
+            friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status", f"friend_two_id = '{senderAndReciver[1]}'")[0]
+
+            chat = self.addChatToList(friendshipInfo[0], senderAndReciver[1], friendshipInfo[1])
+
+            chat.sendFriendRequest()
+
+
+
+
     def chooseChat(self):
         sender = self.sender()
 
@@ -219,12 +235,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.close()
 
         self.__client.close()
-
-
-
-
-
-
 
     def mouseReleaseEvent(self, event):
         self.pressing = False

@@ -52,6 +52,10 @@ class MessageConnection(QObject):
         MessageConnection.user = user
 
     @staticmethod
+    def addChat(chat_id):
+        MessageConnection.cache_chat[chat_id] = []
+
+    @staticmethod
     def set_cache_chat(cache_chat):
         MessageConnection.cache_chat = cache_chat
 
@@ -71,21 +75,21 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(1025)
                 header = msg[0:1]
                 msg = msg[1:]
+                print(msg)
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
-
                     for i in cache:
                         # i[0] - дата, i[1] - ник, i[2] - смска, i[3] - чат код
 
                         if MessageConnection.chat is None:
                             for chat in chats[0]:
-                                if int(chat.getChatId()) == int(i[0]):
+                                if int(chat.getChatId()) == int(i[3]):
                                     MessageConnection.chat = chat
                                     break
                         else:
-                            if MessageConnection.chat.getChatId() != int(i[0]):
+                            if MessageConnection.chat.getChatId() != int(i[3]):
                                 for chat in chats[0]:
-                                    if int(chat.getChatId()) == int(i[0]):
+                                    if int(chat.getChatId()) == int(i[3]):
                                         MessageConnection.chat = chat
                                         break
 
@@ -97,7 +101,7 @@ class MessageConnection(QObject):
 
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
 
-                        reciever.sygnal.emit(i[2], i[3])
+                        reciever.sygnal.emit(i[1], i[2])
 
                         time.sleep(0.01) #Костыль. Что-то в emit (chat.recieveMessage) работает асинхронно???
 
@@ -110,12 +114,25 @@ class MessageConnection(QObject):
                     MessageConnection.client_tcp.send(f"{nickname_yours}&+& {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 elif message == '__CONNECT__':
                     print("Подключено к серверу!")
+                elif "__FRIEND_REQUEST__" in message:
+                    Sender_nickname = message.split("&")[1]
+                    Sender_chat_id = message.split("&")[2]
+
+                    if MessageConnection.chat is None or MessageConnection.chat.getNickName() != Sender_nickname:
+                            for CertainChat in chats[0]:
+                                if int(CertainChat.getChatId()) == int(Sender_chat_id):
+                                    MessageConnection.chat = CertainChat
+                                    break
+                            try:
+                                reciever.sygnal.disconnect()
+                            except TypeError:
+                                pass
+                            reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                            reciever.sygnal.emit(Sender_nickname, "DRUG_REQUEST") #####################
                 else:
                     date_now = msg[1]
                     nickname = msg[2]
                     chat_code = msg[3]
-                    print(msg)
-
                     if MainInterface.return_current_chat() != 0:
                         if nickname == nickname_yours:
                             continue
@@ -131,7 +148,6 @@ class MessageConnection(QObject):
                         except TypeError:
                             pass
 
-                        print(message)
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                         reciever.sygnal.emit(nickname, message)
             except ConnectionResetError:
@@ -165,7 +181,7 @@ def thread_start(nickname, chats):
 
 
 def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55556  # Порт, используемый сервером
 
     try:
@@ -179,10 +195,11 @@ def call(nickname, chat_id, user, chats):
     for k in chat_id:
         cache_chat[k] = []
 
-    MessageConnection(client_tcp, cache_chat, user)
+
+    clientClass = MessageConnection(client_tcp, cache_chat, user)
 
     print("Старт клиента сообщений")
 
     thread_start(nickname, chats)
 
-    return [client_tcp]
+    return [client_tcp, clientClass]

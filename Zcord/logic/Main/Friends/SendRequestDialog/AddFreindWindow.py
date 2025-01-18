@@ -72,6 +72,13 @@ class AddFriendWindow(QtWidgets.QDialog):
 
             AddFriendWindow.isOpen = True
 
+            self.__senderAndReciever = []
+
+    def getSenderAndReciver(self):
+        return self.__senderAndReciever
+
+    def clearSenderAndReciever(self):
+        self.__senderAndReciever.clear()
     def closeWindow(self):
         AddFriendWindow.isOpen = False
 
@@ -97,6 +104,7 @@ class AddFriendWindow(QtWidgets.QDialog):
         if isRequestSent:
             self.ui.Status.setIcon(QtGui.QIcon("GUI/icon/done_outline_40dp_78A75A_FILL0_wght400_GRAD0_opsz40.svg"))
             self.ui.Status.setIconSize(QtCore.QSize(20, 20))
+            self.__senderAndReciever = [self.__user.getNickName(), self.ui.FriendsNick_input.text()] #Возвращает ник отправителя и получателя
         else:
             self.ui.Status.setIcon(QtGui.QIcon("GUI/icon/warning_40dp_BB271A_FILL0_wght400_GRAD0_opsz40.svg"))
             self.ui.Status.setIconSize(QtCore.QSize(20, 20))

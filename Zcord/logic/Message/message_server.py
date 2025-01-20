@@ -42,7 +42,10 @@ class MessageRoom(object):
         date_now = msg[1]
         nickname = msg[2]
         message = msg[3]
+        print(MessageRoom.nicknames_in_chats[chat_code])
+        print(MessageRoom.nicknames_in_chats)
         for client in MessageRoom.nicknames_in_chats[chat_code]:
+            print(11)
             ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}".encode('utf-8')
             clients[client].send(ret)
 
@@ -61,12 +64,14 @@ class MessageRoom(object):
                 if "__FRIEND-ADDING__" in message:
                     chats_id = settleFirstInformationAboutClients(client)[0]
                     MessageRoom.copyCacheChat(chats_id)
-
                     chat_id = message.split("&")[1]
-                    #client.send(b'0' + f'__FRIEND_REQUEST__&{nickname}&{chat_id}'.encode('utf-8')) #Здесь
 
                     date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
                     date_now = date_now
+
+                    MessageRoom.nicknames_in_chats[chat_id].append(nickname)
+                    MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
+                    MessageRoom.broadcast((chat_id, "__FRIEND_REQUEST__", date_now, nickname))
 
                     continue
                 if message == "__change_chat__":
@@ -93,8 +98,6 @@ class MessageRoom(object):
                 MessageRoom.cache_chat[chat_code].append((date_now, nickname, message, chat_code))
 
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
-
-                print(message)
 
                 if len(MessageRoom.cache_chat[chat_code]) >= 21:
                     del MessageRoom.cache_chat[chat_code][0]

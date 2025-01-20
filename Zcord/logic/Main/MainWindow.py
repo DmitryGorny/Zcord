@@ -208,8 +208,10 @@ class MainWindow(QtWidgets.QMainWindow):
             friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status", f"friend_two_id = '{senderAndReciver[1]}'")[0]
 
             chat = self.addChatToList(friendshipInfo[0], senderAndReciver[1], friendshipInfo[1])
-
+            message_client.MessageConnection.addChatToList(chat)
             chat.sendFriendRequest()
+
+
 
 
 

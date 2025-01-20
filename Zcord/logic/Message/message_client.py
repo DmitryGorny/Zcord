@@ -8,8 +8,10 @@ from PyQt6.QtCore import pyqtSignal, QObject, QCoreApplication, QThread
 
 class SygnalChanger(QObject):
     sygnal = pyqtSignal(str, str)
+    friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
     chat = ""
+
 
 
 class MainInterface:
@@ -39,6 +41,7 @@ class MessageConnection(QObject):
     client_tcp = None
     user = None
     chat = None
+    chatsList = []
     queueOfCahcedMessages = []
 
     def __init__(self, client_tcp, cache_chat, user):
@@ -50,6 +53,11 @@ class MessageConnection(QObject):
     @staticmethod
     def set_user(user):
         MessageConnection.user = user
+
+
+    @staticmethod
+    def addChatToList(chatObject):
+        MessageConnection.chatsList.append(chatObject)
 
     @staticmethod
     def addChat(chat_id):
@@ -69,26 +77,24 @@ class MessageConnection(QObject):
         MessageConnection.client_tcp.sendall(msg)
 
     @staticmethod
-    def recv_message(nickname_yours, reciever, chats):
+    def recv_message(nickname_yours, reciever):
         while True:
             try:
                 msg = MessageConnection.client_tcp.recv(1025)
                 header = msg[0:1]
                 msg = msg[1:]
-                print(msg)
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
                         # i[0] - дата, i[1] - ник, i[2] - смска, i[3] - чат код
-
                         if MessageConnection.chat is None:
-                            for chat in chats[0]:
+                            for chat in MessageConnection.chatsList[0]:
                                 if int(chat.getChatId()) == int(i[3]):
                                     MessageConnection.chat = chat
                                     break
                         else:
                             if MessageConnection.chat.getChatId() != int(i[3]):
-                                for chat in chats[0]:
+                                for chat in MessageConnection.chatsList[0]:
                                     if int(chat.getChatId()) == int(i[3]):
                                         MessageConnection.chat = chat
                                         break
@@ -97,11 +103,22 @@ class MessageConnection(QObject):
                             reciever.sygnal.disconnect()
                         except TypeError:
                             pass
+                                                            #Это все конченное уродство
+                        try:
+                            reciever.friendRequestShow.disconnect()
+                        except TypeError:
+                            pass
 
-
-                        reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-
-                        reciever.sygnal.emit(i[1], i[2])
+                        if i[2] == "__FRIEND_REQUEST__":
+                            if i[1] != nickname_yours:
+                                reciever.friendRequestShow.connect(MessageConnection.chat.showFriendRequestWidget)
+                                reciever.friendRequestShow.emit(i[1])
+                            else:
+                                reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                                reciever.sygnal.emit(i[1], "Вы отправили приглашение в друзья")
+                        else:
+                            reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                            reciever.sygnal.emit(i[1], i[2])
 
                         time.sleep(0.01) #Костыль. Что-то в emit (chat.recieveMessage) работает асинхронно???
 
@@ -114,31 +131,17 @@ class MessageConnection(QObject):
                     MessageConnection.client_tcp.send(f"{nickname_yours}&+& {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 elif message == '__CONNECT__':
                     print("Подключено к серверу!")
-                elif "__FRIEND_REQUEST__" in message:
-                    Sender_nickname = message.split("&")[1]
-                    Sender_chat_id = message.split("&")[2]
-
-                    if MessageConnection.chat is None or MessageConnection.chat.getNickName() != Sender_nickname:
-                            for CertainChat in chats[0]:
-                                if int(CertainChat.getChatId()) == int(Sender_chat_id):
-                                    MessageConnection.chat = CertainChat
-                                    break
-                            try:
-                                reciever.sygnal.disconnect()
-                            except TypeError:
-                                pass
-                            reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                            reciever.sygnal.emit(Sender_nickname, "DRUG_REQUEST") #####################
                 else:
                     date_now = msg[1]
                     nickname = msg[2]
                     chat_code = msg[3]
+
                     if MainInterface.return_current_chat() != 0:
                         if nickname == nickname_yours:
                             continue
 
                         if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
-                            for CertainChat in chats[0]:
+                            for CertainChat in MessageConnection.chatsList[0]:
                                 if int(CertainChat.getChatId()) == int(chat_code):
                                     MessageConnection.chat = CertainChat
                                     break
@@ -170,13 +173,9 @@ class MessageConnection(QObject):
         return ser
 
 
-def thread_start(nickname, chats):
-    chatsToRecieve = []
-    while not chats.empty():
-        chatsToRecieve.append(chats.get()) #достаем объекты chat из очереди и пихаем их в массив
-
+def thread_start(nickname):
     reciever = SygnalChanger()
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, chatsToRecieve, ))
+    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, ))
     receive_thread.start()
 
 
@@ -195,11 +194,14 @@ def call(nickname, chat_id, user, chats):
     for k in chat_id:
         cache_chat[k] = []
 
-
     clientClass = MessageConnection(client_tcp, cache_chat, user)
+
+    while not chats.empty():
+        MessageConnection.addChatToList(chats.get()) #достаем объекты chat из очереди и пихаем их в массив
+
 
     print("Старт клиента сообщений")
 
-    thread_start(nickname, chats)
+    thread_start(nickname)
 
     return [client_tcp, clientClass]

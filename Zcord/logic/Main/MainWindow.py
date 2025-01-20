@@ -66,7 +66,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         friends = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' OR friend_two_id = '{self.__user.getNickName()}'")
 
-        print(friends)
         for friendArr in friends:
             if friendArr[1] not in self.__friends and friendArr[2] not in self.__friends:
                 if friendArr[1] != self.__user.getNickName():
@@ -75,6 +74,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     key = friendArr[2]
 
                 self.__friends[key] = [friendArr[0], friendArr[3]]
+        self.__user.setFrinds(self.__friends)
 
     def createChats(self):
         for friend in self.__friends.keys():
@@ -98,8 +98,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.__client = self.callClient[0]
         self.__messageConnection = self.callClient[1]
 
-
-
+    def addFriendToDict(self, name, chat_id, status):
+        self.__friends[name] = [chat_id, status]
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():
@@ -207,9 +207,16 @@ class MainWindow(QtWidgets.QMainWindow):
             #Подумать над необходимостью получения status, т.к. при создании запроса он всегда равен 1
             friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status", f"friend_two_id = '{senderAndReciver[1]}'")[0]
 
+            self.addFriendToDict(senderAndReciver[1], friendshipInfo[0], friendshipInfo[1])
+            self.__user.setFrinds(self.__friends)
+
             chat = self.addChatToList(friendshipInfo[0], senderAndReciver[1], friendshipInfo[1])
             message_client.MessageConnection.addChatToList(chat)
             chat.sendFriendRequest()
+
+            print(self.__friends)
+
+
 
 
 

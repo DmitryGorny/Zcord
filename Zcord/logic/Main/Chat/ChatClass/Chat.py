@@ -31,6 +31,10 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
 
+        print(self.__user.getFriends())
+        if self.__user.getFriends()[self.__friendNickname][1] == 1:
+            self.ui.ChatInputLayout.setHidden(True)
+
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
 

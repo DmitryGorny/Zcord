@@ -17,3 +17,4 @@ class UserRegistration:
             return True
 
         return False
+

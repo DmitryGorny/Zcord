@@ -42,10 +42,7 @@ class MessageRoom(object):
         date_now = msg[1]
         nickname = msg[2]
         message = msg[3]
-        print(MessageRoom.nicknames_in_chats[chat_code])
-        print(MessageRoom.nicknames_in_chats)
         for client in MessageRoom.nicknames_in_chats[chat_code]:
-            print(11)
             ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}".encode('utf-8')
             clients[client].send(ret)
 
@@ -72,8 +69,8 @@ class MessageRoom(object):
                     MessageRoom.nicknames_in_chats[chat_id].append(nickname)
                     MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
                     MessageRoom.broadcast((chat_id, "__FRIEND_REQUEST__", date_now, nickname))
-
                     continue
+
                 if message == "__change_chat__":
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
                     flg = True
@@ -122,6 +119,7 @@ def settleFirstInformationAboutClients(client):
         clients[nickname] = client
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]
+
 def receive():
     while True:
         # Accept Connection

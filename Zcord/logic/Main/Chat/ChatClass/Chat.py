@@ -6,7 +6,7 @@ from logic.Message import message_client
 
 
 class Chat(QtWidgets.QWidget):
-    def __init__(self, chatId, friendNick, user, status):
+    def __init__(self, chatId, friendNick, user):
         super(Chat, self).__init__()
 
         self.ui = Ui_Chat()
@@ -15,8 +15,6 @@ class Chat(QtWidgets.QWidget):
         self.__chatId = chatId
         self.__user = user
         self.__friendNickname = friendNick
-
-        self.__status = status
 
         self.ui.UsersNickInChat.setText(friendNick)
         self.ui.UsersLogoinChat.setText(friendNick[0])
@@ -69,9 +67,8 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def sendFriendRequest(self):
-        if self.__status == 1:
-            message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}", self.__user.getNickName())
-            message_client.MessageConnection.addChat(self.__chatId)
+        message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}", self.__user.getNickName())
+        message_client.MessageConnection.addChat(self.__chatId)
 
     def showFriendRequestWidget(self, sender):
         message = FriendRequestMessage(sender)

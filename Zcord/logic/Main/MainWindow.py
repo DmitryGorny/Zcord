@@ -1,5 +1,4 @@
 import queue
-
 from PyQt6 import QtWidgets, QtCore, QtGui
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
@@ -7,8 +6,7 @@ from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
-import threading
-import json
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, user):
@@ -78,10 +76,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def createChats(self):
         for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user, self.__friends[friend][1]))
+            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user))
 
-    def addChatToList(self, chatId, friendNick, status):
-        chat = Chat(chatId, friendNick, self.__user, status)
+
+    def addChatToList(self, chatId, friendNick):
+        chat = Chat(chatId, friendNick, self.__user)
         self.__chats.append(chat)
 
         return chat
@@ -210,18 +209,9 @@ class MainWindow(QtWidgets.QMainWindow):
             self.addFriendToDict(senderAndReciver[1], friendshipInfo[0], friendshipInfo[1])
             self.__user.setFrinds(self.__friends)
 
-            chat = self.addChatToList(friendshipInfo[0], senderAndReciver[1], friendshipInfo[1])
+            chat = self.addChatToList(friendshipInfo[0], senderAndReciver[1])
             message_client.MessageConnection.addChatToList(chat)
             chat.sendFriendRequest()
-
-            print(self.__friends)
-
-
-
-
-
-
-
 
     def chooseChat(self):
         sender = self.sender()
@@ -229,7 +219,6 @@ class MainWindow(QtWidgets.QMainWindow):
         chat = list(filter(lambda x: x.getNickName() == sender.text, self.__chats))[0]
 
         chat_id = chat.getChatId()
-
 
         message_client.MainInterface.change_chat(chat_id, self.__user.getNickName(), message_client.SygnalChanger())
 

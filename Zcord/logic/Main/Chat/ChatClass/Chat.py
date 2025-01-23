@@ -3,6 +3,7 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
 from logic.Main.Chat.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
 from logic.Message import message_client
+from logic.Main.Friends.FriendAdding import FriendAdding
 
 
 class Chat(QtWidgets.QWidget):
@@ -67,11 +68,11 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def sendFriendRequest(self):
-        message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}", self.__user.getNickName())
+        message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
         message_client.MessageConnection.addChat(self.__chatId)
 
     def showFriendRequestWidget(self, sender):
-        message = FriendRequestMessage(sender)
+        message = FriendRequestMessage(sender, self.acceptFriendRequest)
 
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())
@@ -79,6 +80,15 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
         self.ui.ChatScroll.setCurrentItem(widget)
+
+    def acceptFriendRequest(self):
+        friendAdding = FriendAdding(self.__user)
+
+        friendAdding.acceptRequest(self.__friendNickname)
+
+        message_client.MessageConnection.send_message(f"__ACCEPT-REQUEST__&{self.__chatId}", self.__user.getNickName())
+
+        self.clearLayout()
 
     def clearLayout(self):
         self.ui.ChatScroll.clear()

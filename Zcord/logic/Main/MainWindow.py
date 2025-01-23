@@ -80,10 +80,11 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def addChatToList(self, chatId, friendNick):
-        chat = Chat(chatId, friendNick, self.__user)
-        self.__chats.append(chat)
+        if len(list(filter(lambda x: x.getNickName == friendNick, self.__chats))) == 0:
+            chat = Chat(chatId, friendNick, self.__user)
+            self.__chats.append(chat)
 
-        return chat
+            return chat
 
     def call_chat(self):
         chat_ids = []
@@ -92,7 +93,7 @@ class MainWindow(QtWidgets.QMainWindow):
         queueToSend = queue.Queue()
         queueToSend.put(self.__chats)
 
-        self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
+        self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend, self.dynamicUpdateSlot)
 
         self.__client = self.callClient[0]
         self.__messageConnection = self.callClient[1]
@@ -100,49 +101,16 @@ class MainWindow(QtWidgets.QMainWindow):
     def addFriendToDict(self, name, chat_id, status):
         self.__friends[name] = [chat_id, status]
 
-    def showFriendList(self):
-        if not self.ui.ScrollFriends.isVisible():
+    def showFriendList(self, dynamicUdate:bool = False):
+        if not self.ui.ScrollFriends.isVisible() and not dynamicUdate:
             self.ui.ScrollFriends.setVisible(True)
 
             layoutFinal = QtWidgets.QVBoxLayout()
             layoutFinal.setSpacing(5)
             layoutFinal.setContentsMargins(0,0,0,0)
+
             for chat in self.__chats:
-                QFr = ClikableFrame(chat.getNickName())
-                QFr.clicked.connect(self.chooseChat)
-                layout = QtWidgets.QHBoxLayout()
-                layout.setSpacing(10)
-                user_logo = QtWidgets.QPushButton()
-                user_logo.setFixedHeight(40)
-                user_logo.setFixedWidth(40)
-                user_logo.setStyleSheet("""background-color:pink;
-                                            border-radius:15%;
-                                            color:white;
-                                            font-size:16px;""")
-
-                user_name = QtWidgets.QLabel()
-                user_name.setStyleSheet("""color:white;
-                                            font-size:18px;
-                                            border:none;
-                                            background-color:none;""")
-                user_logo.setText(chat.getNickName()[0])
-                user_name.setText(chat.getNickName())
-
-                layout.addWidget(user_logo)
-                layout.addWidget(user_name)
-
-
-                QFr.setLayout(layout)
-                QFr.setStyleSheet("""QFrame:hover { 
-                                        border-radius:15%;
-                                        background-color:rgba(0, 0, 0, 0.26);}
-                                        QFrame {
-                                        margin:0;
-                                        }""")
-                QFr.setFixedWidth(250)
-                QFr.setFixedHeight(70)
-                QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-                layoutFinal.addWidget(QFr)
+               self.createChatWidget(chat, layoutFinal)
 
             widget = QtWidgets.QWidget()
 
@@ -206,10 +174,9 @@ class MainWindow(QtWidgets.QMainWindow):
             #Подумать над необходимостью получения status, т.к. при создании запроса он всегда равен 1
             friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status", f"friend_two_id = '{senderAndReciver[1]}'")[0]
 
-            self.addFriendToDict(senderAndReciver[1], friendshipInfo[0], friendshipInfo[1])
-            self.__user.setFrinds(self.__friends)
+            self.dynamicUpdateSlot("ADD-CANDIDATE-FRIEND", (senderAndReciver[1], friendshipInfo[0], friendshipInfo[1]))
 
-            chat = self.addChatToList(friendshipInfo[0], senderAndReciver[1])
+            chat = self.dynamicUpdateSlot("UPDATE-CHATS", (friendshipInfo[0], senderAndReciver[1]))
             message_client.MessageConnection.addChatToList(chat)
             chat.sendFriendRequest()
 
@@ -226,6 +193,29 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.stackedWidget.addWidget(chat.ui.MAIN)
         self.ui.stackedWidget.setCurrentWidget(chat.ui.MAIN)
 
+
+    def dynamicUpdateSlot(self, command:str, args:tuple):
+        """
+        В *args передаются парометры необходимые для дальнейшего выполнения функций в кейсах
+                      индекс\/
+        ADD-FRIEND: args = 0:"никнейм друга" - обнавляет статус друга в словаре, передает словарь в user
+        UPDATE-CHATS: args = 0:"айди чата", 1:"никнейм друга"
+        """
+        match command:
+            case "ADD-FRIEND":
+                self.updateFriendshipStatus(args[0])
+                self.__user.setFrinds(self.__friends)
+            case "UPDATE-CHATS":
+                chat = self.addChatToList(args[0], args[1])
+                self.updateChatList(chat)
+                return chat
+            case "ADD-CANDIDATE-FRIEND":
+                self.addFriendToDict(args[0], args[1], args[2])
+                self.__user.setFrinds(self.__friends)
+
+    def updateFriendshipStatus(self, friendName):
+        """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
+        self.__friends[friendName][1] = 2
 
     def closeWindow(self):
         #with open("Resources/frineds/friends.json", "w") as Frineds_json:
@@ -256,6 +246,45 @@ class MainWindow(QtWidgets.QMainWindow):
         super().resizeEvent(event)
 
 
+    def createChatWidget(self, chat, layoutFinal):
+        QFr = ClikableFrame(chat.getNickName())
+        QFr.clicked.connect(self.chooseChat)
+        layout = QtWidgets.QHBoxLayout()
+        layout.setSpacing(10)
+        user_logo = QtWidgets.QPushButton()
+        user_logo.setFixedHeight(40)
+        user_logo.setFixedWidth(40)
+        user_logo.setStyleSheet("""background-color:pink;
+                                    border-radius:15%;
+                                    color:white;
+                                    font-size:16px;""")
+
+        user_name = QtWidgets.QLabel()
+        user_name.setStyleSheet("""color:white;
+                                    font-size:18px;
+                                    border:none;
+                                    background-color:none;""")
+        user_logo.setText(chat.getNickName()[0])
+        user_name.setText(chat.getNickName())
+
+        layout.addWidget(user_logo)
+        layout.addWidget(user_name)
 
 
+        QFr.setLayout(layout)
+        QFr.setStyleSheet("""QFrame:hover { 
+                                border-radius:15%;
+                                background-color:rgba(0, 0, 0, 0.26);}
+                                QFrame {
+                                margin:0;
+                                }""")
+        QFr.setFixedWidth(250)
+        QFr.setFixedHeight(70)
+        QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        layoutFinal.addWidget(QFr)
 
+        return layoutFinal
+
+    def updateChatList(self, chat):
+        if self.ui.ScrollFriends.isVisible():
+            self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())

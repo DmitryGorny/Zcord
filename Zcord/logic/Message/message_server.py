@@ -76,15 +76,25 @@ class MessageRoom(object):
                     chats_id = settleFirstInformationAboutClients(client)[0]
                     MessageRoom.copyCacheChat(chats_id)
                     chat_id = message.split("&")[1]
+                    friendNick = message.split("&")[2]
 
                     date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
+
                     MessageRoom.nicknames_in_chats[chat_id].append(nickname)
+                    MessageRoom.nicknames_in_chats[chat_id].append(friendNick)
                     MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
+
+                    print(clients)
+                    #client.send(b'2' + MessageRoom.serialize(f"__FRIEND_REQUEST__&{chat_id}&{nickname}"))
+                    MessageRoom.broadcast((chat_id, f"__FRIEND_REQUEST__&{friendNick}", date_now, nickname))
+
                     continue
 
+                if "__ACCEPT-REQUEST__" in message:
+                    MessageRoom.broadcast((message.split("&")[1], message, "[]", nickname))
+
                 if message == "__change_chat__":
-                    print(MessageRoom.cache_chat)
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
                     flg = True
 
@@ -151,7 +161,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
+    HOST = "26.181.96.20"
     PORT = 55556
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

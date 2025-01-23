@@ -10,6 +10,8 @@ class SygnalChanger(QObject):
     sygnal = pyqtSignal(str, str)
     friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
+    dynamicInterfaceUpdate = pyqtSignal(str, object) #См. документацию dynamicUpdate
+
     chat = ""
 
 
@@ -131,6 +133,13 @@ class MessageConnection(QObject):
                     MessageConnection.client_tcp.send(f"{nickname_yours}&+& {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 elif message == '__CONNECT__':
                     print("Подключено к серверу!")
+                elif "__FRIEND_REQUEST__" in message:
+                    if message.split("&")[1] == nickname_yours:
+                        reciever.dynamicInterfaceUpdate.emit("ADD-CANDIDATE-FRIEND", (msg[2], msg[3], 1))
+                        reciever.dynamicInterfaceUpdate.emit("UPDATE-CHATS", (msg[3], msg[2]))
+                    continue
+                elif "__ACCEPT-REQUEST__" in message:
+                        pass
                 else:
                     date_now = msg[1]
                     nickname = msg[2]
@@ -173,14 +182,15 @@ class MessageConnection(QObject):
         return ser
 
 
-def thread_start(nickname):
+def thread_start(nickname, dynamicUpdateCallback):
     reciever = SygnalChanger()
+    reciever.dynamicInterfaceUpdate.connect(dynamicUpdateCallback)
     receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, ))
     receive_thread.start()
 
 
-def call(nickname, chat_id, user, chats):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+def call(nickname, chat_id, user, chats, callback):
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55556  # Порт, используемый сервером
 
     try:
@@ -202,6 +212,6 @@ def call(nickname, chat_id, user, chats):
 
     print("Старт клиента сообщений")
 
-    thread_start(nickname)
+    thread_start(nickname, callback)
 
     return [client_tcp, clientClass]

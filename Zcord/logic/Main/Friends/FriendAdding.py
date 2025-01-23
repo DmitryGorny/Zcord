@@ -42,10 +42,12 @@ class FriendAdding:
     def acceptRequest(self, NickToAnswer) -> bool:
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
-        rowWithFriend = db.getCertainRow("friend_one_id", self.__user.getNickName(), "chat_id, friend_one_id,friend_two_id, status")
+        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
+                                                       f"or friend_two_id = '{self.__user.getNickName()}'")
+
+        print(rowWithFriend, "dfdfsdfsdfsfsdfsdf")
 
         friendshipRow = list(filter(lambda x: NickToAnswer in x, rowWithFriend))
-
 
         updatingStatus = db.UpdateRequest("`status`", "2", f"WHERE `chat_id` = {friendshipRow[0][0]}")
 

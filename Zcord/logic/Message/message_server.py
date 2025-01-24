@@ -3,6 +3,7 @@ import threading
 from datetime import datetime
 import msgspec
 import copy
+from logic.db_handler.db_handler import db_handler
 
 
 class MessageRoom(object):
@@ -48,6 +49,19 @@ class MessageRoom(object):
 
     @staticmethod
     def handle(client, nickname):
+        db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
+        db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
+        pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
+        for pre_ch in pre_chat_ids:
+            pre_cache = db_ms.getDataFromTableColumn("chat_id, message, sender_nick, date", f"WHERE chat_id = {pre_ch[0]}")
+        print(pre_cache)
+        for pre_ch in pre_cache:
+            p = str(pre_ch[0])
+            if p in MessageRoom.cache_chat:
+                MessageRoom.cache_chat[p].append((pre_ch[3], pre_ch[2], pre_ch[1], p))
+            else:
+                MessageRoom.cache_chat[p] = [(pre_ch[3], pre_ch[2], pre_ch[1], p)]
+
         while True:
             try:
                 # Broadcasting Messages
@@ -63,15 +77,14 @@ class MessageRoom(object):
                     MessageRoom.copyCacheChat(chats_id)
                     chat_id = message.split("&")[1]
 
-                    date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                    date_now = date_now
+                    date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                     MessageRoom.nicknames_in_chats[chat_id].append(nickname)
                     MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
-                    MessageRoom.broadcast((chat_id, "__FRIEND_REQUEST__", date_now, nickname))
                     continue
 
                 if message == "__change_chat__":
+                    print(MessageRoom.cache_chat)
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
                     flg = True
 
@@ -89,14 +102,14 @@ class MessageRoom(object):
                 if flg:
                     continue
 
-                date_now = f"[{datetime.now().strftime('%Y-%m-%d %H:%M:%S')}] "
-                date_now = date_now
+                date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 MessageRoom.cache_chat[chat_code].append((date_now, nickname, message, chat_code))
 
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
-
                 if len(MessageRoom.cache_chat[chat_code]) >= 21:
+                    db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
+                    db.insertDataInTable("(chat_id, message, sender_nick, date)", f"({chat_code}, '{message}', '{nickname}', '{date_now}')")
                     del MessageRoom.cache_chat[chat_code][0]
 
             except ConnectionResetError:
@@ -138,7 +151,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     PORT = 55556
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

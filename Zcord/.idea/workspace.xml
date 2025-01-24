@@ -4,19 +4,40 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="e2675407-eb81-4f0c-aeb8-d0891b15042f" name="Changes" comment="Работающий ЛС">
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Работающий ЛС">
+      <change beforePath="$PROJECT_DIR$/.idea/Zcord.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Zcord.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_11_2024_17_14__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_11_2024_17_14__Changes_.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_11_37__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_11_37__Changes_.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_22_34__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_22_34__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/UserError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/UserError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/SendRequestDialog/AddFreindWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/SendRequestDialog/AddFreindWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_recieve.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_recieve.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_send.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_send.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
     <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="FlaskConsoleOptions" custom-start-script="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))">
+    <envs>
+      <env key="FLASK_APP" value="app" />
+    </envs>
+    <option name="myCustomStartScript" value="import sys&#10;sys.path.extend([WORKING_DIR_AND_PYTHON_PATHS])&#10;from flask.cli import ScriptInfo&#10;locals().update(ScriptInfo(create_app=None).load_app().make_shell_context())&#10;print(&quot;Python %s on %s\nApp: %s [%s]\nInstance: %s&quot; % (sys.version, sys.platform, app.import_name, app.env, app.instance_path))" />
+    <option name="myEnvs">
+      <map>
+        <entry key="FLASK_APP" value="app" />
+      </map>
+    </option>
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
@@ -42,17 +63,19 @@
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;advanced.settings&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\FriendRequestMessage" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\Message" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\ChatClass" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.zcord">
-    <configuration name="MainWindow" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+  <component name="RunManager" selected="Python.audio_recieve">
+    <configuration name="audio_recieve" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -60,11 +83,12 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Main" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Voice" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Main/MainWindow.py" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Voice/audio_recieve.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -73,7 +97,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="UserAuthorization" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="audio_send" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -81,12 +105,34 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Authorization" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Voice" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Voice/audio_send.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="audio_server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Voice" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Voice/audio_server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -117,16 +163,17 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="message_server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="message_server" type="PythonConfigurationType" factoryName="Python" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
       <envs>
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
-      <option name="SDK_HOME" value="" />
+      <option name="SDK_HOME" value="C:\Users\Disita\AppData\Local\Programs\Python\Python312\python.exe" />
+      <option name="SDK_NAME" value="Python 3.12" />
       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Message" />
-      <option name="IS_MODULE_SDK" value="true" />
+      <option name="IS_MODULE_SDK" value="false" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
@@ -163,24 +210,27 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.audio_recieve" />
+        <item itemvalue="Python.audio_send" />
+        <item itemvalue="Python.audio_server" />
         <item itemvalue="Python.zcord" />
         <item itemvalue="Python.message_server" />
-        <item itemvalue="Python.MainWindow" />
-        <item itemvalue="Python.message_client" />
-        <item itemvalue="Python.UserAuthorization" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="e2675407-eb81-4f0c-aeb8-d0891b15042f" name="Changes" comment="Добавление а" />
+      <changelist id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="" />
       <created>1729970822841</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1729970822841</updated>
       <workItem from="1729970824543" duration="58000" />
       <workItem from="1729971049684" duration="13258000" />
+      <workItem from="1737565470851" duration="5406000" />
+      <workItem from="1737730386660" duration="6000" />
+      <workItem from="1737730889350" duration="2433000" />
     </task>
     <task id="LOCAL-00001" summary="Zcord терпит изменения">
       <option name="closed" value="true" />
@@ -273,7 +323,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/master" />
+                        <option value="FriendAdding" />
                       </list>
                     </value>
                   </entry>
@@ -296,10 +346,15 @@
     <option name="LAST_COMMIT_MESSAGE" value="Работающий ЛС" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/zcord_py$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1737741825642" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Zcord$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1729984269127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/Zcord$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1729984270097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
+    <SUITE FILE_PATH="coverage/zcord_py$audio_send.coverage" NAME="audio_send Coverage Results" MODIFIED="1737749148023" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
+    <SUITE FILE_PATH="coverage/zcord_py$audio_server.coverage" NAME="audio_server Coverage Results" MODIFIED="1737749146711" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
     <SUITE FILE_PATH="coverage/Zcord$audio_server.coverage" NAME="audio_server Coverage Results" MODIFIED="1729971140087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
+    <SUITE FILE_PATH="coverage/zcord_py$audio_recieve.coverage" NAME="audio_recieve Coverage Results" MODIFIED="1737749150346" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
     <SUITE FILE_PATH="coverage/Zcord$UserAuthorization.coverage" NAME="UserAuthorization Coverage Results" MODIFIED="1729971150493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Authorization" />
     <SUITE FILE_PATH="coverage/Zcord$message_client.coverage" NAME="message_client Coverage Results" MODIFIED="1729973828182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
+    <SUITE FILE_PATH="coverage/zcord_py$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1737741824471" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
   </component>
 </project>

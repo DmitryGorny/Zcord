@@ -48,7 +48,7 @@ class VoiceServer(object):
 
 
 async def main():
-    listening_server_obj = VoiceServer(65128, "26.181.96.20", 22222)
+    listening_server_obj = VoiceServer(65128, "26.240.215.49", 22222)
     listening_server_obj1 = VoiceServer(54325, "26.36.124.241", 22223)
     task1 = asyncio.create_task(listening_server_obj.read_request())
     task2 = asyncio.create_task(listening_server_obj1.read_request())

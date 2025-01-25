@@ -52,16 +52,23 @@ class MessageRoom(object):
         db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
+        print(pre_chat_ids)
+        pre_cache = []
         for pre_ch in pre_chat_ids:
-            pre_cache = db_ms.getDataFromTableColumn("chat_id, message, sender_nick, date", f"WHERE chat_id = {pre_ch[0]}")
+            x = db_ms.getDataFromTableColumn("chat_id, message, sender_nick, date", f"WHERE chat_id = {pre_ch[0]}")
+            for k in x:
+                pre_cache.append(k)
         print(pre_cache)
         for pre_ch in pre_cache:
             p = str(pre_ch[0])
+            l = (pre_ch[3], pre_ch[2], pre_ch[1], p)
             if p in MessageRoom.cache_chat:
-                MessageRoom.cache_chat[p].append((pre_ch[3], pre_ch[2], pre_ch[1], p))
+                if l not in MessageRoom.cache_chat[p]:
+                    MessageRoom.cache_chat[p].append(l)
             else:
-                MessageRoom.cache_chat[p] = [(pre_ch[3], pre_ch[2], pre_ch[1], p)]
+                MessageRoom.cache_chat[p] = [l]
 
+        print(MessageRoom.cache_chat)
         while True:
             try:
                 # Broadcasting Messages
@@ -84,6 +91,9 @@ class MessageRoom(object):
                     MessageRoom.nicknames_in_chats[chat_id].append(nickname)
                     MessageRoom.nicknames_in_chats[chat_id].append(friendNick)
                     MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
+
+                    db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
+                    db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date)", f"({chat_id}, '{nickname}', '{friendNick}', '__FRIEND_REQUEST__', '{date_now}')")
 
                     print(clients)
                     #client.send(b'2' + MessageRoom.serialize(f"__FRIEND_REQUEST__&{chat_id}&{nickname}"))
@@ -161,10 +171,20 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     PORT = 55556
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()
     clients = {}
+    db_prefr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
+    pre_fr_add = db_prefr.getDataFromTableColumn("chat_id, sender_nick, friend_nick, message, date")
+    if len(pre_fr_add) != 0:
+        for l in pre_fr_add:
+            p = str(l[0])
+            element = (l[4], l[1], "__FRIEND_REQUEST__", p)
+            if p in MessageRoom.cache_chat.keys():
+                MessageRoom.cache_chat[p].append(element)
+            else:
+                MessageRoom.cache_chat[p] = [element]
     receive()

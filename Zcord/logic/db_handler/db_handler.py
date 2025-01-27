@@ -149,7 +149,7 @@ class db_handler:
             return False
 
 
-    def DeleteRequest(self, columnToDeleteFrom:str, CheckValue:str) -> bool:
+    def DeleteRequest(self, columnToDeleteFrom:str, CheckValue:str, condition:str = "") -> bool:
         connection = connect(
             host=self._host,
             user=self._user,
@@ -160,7 +160,7 @@ class db_handler:
         try:
             cursor = connection.cursor()
 
-            cursor.execute(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} LIMIT 1")
+            cursor.execute(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} {condition}")
 
             connection.commit()
 

@@ -26,6 +26,7 @@ class FriendAdding:
         friendshipRow = list(filter(lambda x: nickToSend in x, rowWithFriend))
 
         if len(friendshipRow) == 0 or friendshipRow[0][len(friendshipRow[0]) - 1] != 3:
+
             addFriends = db.insertDataInTable("(`friend_one_id`,`friend_two_id`, `status`)",
                                                             f"('{self.__user.getNickName()}', '{nickToSend}', '1')" )
 

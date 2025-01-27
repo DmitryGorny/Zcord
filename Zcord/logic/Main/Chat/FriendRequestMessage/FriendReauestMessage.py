@@ -2,7 +2,7 @@ from PyQt6 import QtWidgets, QtCore, QtGui
 from logic.Main.Chat.FriendRequestMessage.FriendRequest import Ui_Form
 
 class FriendRequestMessage(QtWidgets.QWidget):
-    def __init__(self, username, AcceptCallback):
+    def __init__(self, username, AcceptCallback, RejectCallback):
         super(FriendRequestMessage, self).__init__()
 
         self.ui = Ui_Form()
@@ -15,3 +15,4 @@ class FriendRequestMessage(QtWidgets.QWidget):
 
         self.ui.AcceptButton.clicked.connect(AcceptCallback)
 
+        self.ui.RejectButton.clicked.connect(RejectCallback)

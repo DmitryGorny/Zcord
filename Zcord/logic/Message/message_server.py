@@ -43,9 +43,13 @@ class MessageRoom(object):
         date_now = msg[1]
         nickname = msg[2]
         message = msg[3]
+        print(MessageRoom.nicknames_in_chats[chat_code])
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}".encode('utf-8')
-            clients[client].send(ret)
+            try:
+                clients[client].send(ret)
+            except KeyError:
+                continue
 
     @staticmethod
     def handle(client, nickname):
@@ -54,7 +58,6 @@ class MessageRoom(object):
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
         for pre_ch in pre_chat_ids:
             pre_cache = db_ms.getDataFromTableColumn("chat_id, message, sender_nick, date", f"WHERE chat_id = {pre_ch[0]}")
-        print(pre_cache)
         for pre_ch in pre_cache:
             p = str(pre_ch[0])
             if p in MessageRoom.cache_chat:
@@ -80,19 +83,28 @@ class MessageRoom(object):
 
                     date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
-
                     MessageRoom.nicknames_in_chats[chat_id].append(nickname)
                     MessageRoom.nicknames_in_chats[chat_id].append(friendNick)
                     MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
 
-                    print(clients)
-                    #client.send(b'2' + MessageRoom.serialize(f"__FRIEND_REQUEST__&{chat_id}&{nickname}"))
+                    #Передавать специализированные сообщения обычным броадакстом так себе идейка
                     MessageRoom.broadcast((chat_id, f"__FRIEND_REQUEST__&{friendNick}", date_now, nickname))
 
                     continue
 
+                print(message)
+
                 if "__ACCEPT-REQUEST__" in message:
+                    #Передавать специализированные сообщения обычным броадакстом так себе идейка +
                     MessageRoom.broadcast((message.split("&")[1], message, "[]", nickname))
+                    continue
+
+                if "__REJECT-REQUEST__" in message:
+                    if message.split("&")[2] not in MessageRoom.nicknames_in_chats[message.split("&")[1]]:
+                        MessageRoom.nicknames_in_chats[message.split("&")[1]].append(message.split("&")[2])
+                    print(MessageRoom.nicknames_in_chats)
+                    MessageRoom.broadcast((message.split("&")[1], message, "[]", nickname))
+                    continue
 
                 if message == "__change_chat__":
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
@@ -115,7 +127,6 @@ class MessageRoom(object):
                 date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
 
                 MessageRoom.cache_chat[chat_code].append((date_now, nickname, message, chat_code))
-
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
                 if len(MessageRoom.cache_chat[chat_code]) >= 21:
                     db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")

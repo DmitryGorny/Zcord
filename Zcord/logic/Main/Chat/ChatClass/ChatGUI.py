@@ -94,7 +94,7 @@ class Ui_Chat(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.CallButton.sizePolicy().hasHeightForWidth())
         self.CallButton.setSizePolicy(sizePolicy)
-        self.CallButton.setMinimumSize(QtCore.QSize(30, 30))
+        self.CallButton.setMinimumSize(QtCore.QSize(45, 45))
         self.CallButton.setMaximumSize(QtCore.QSize(40, 40))
         self.CallButton.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.CallButton.setStyleSheet("background-color:rgba(38,40,45,255);\n"
@@ -114,16 +114,16 @@ class Ui_Chat(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.InfoButton.sizePolicy().hasHeightForWidth())
         self.InfoButton.setSizePolicy(sizePolicy)
-        self.InfoButton.setMinimumSize(QtCore.QSize(40, 40))
+        self.InfoButton.setMinimumSize(QtCore.QSize(45, 45))
         self.InfoButton.setMaximumSize(QtCore.QSize(40, 40))
         self.InfoButton.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.InfoButton.setStyleSheet("background-color:rgba(38,40,45,255);\n"
+        self.InfoButton.setStyleSheet("background-color:r#BB271A;\n"
 "border:none;\n"
 "border-radius:15%;\n"
-"border:3px solid white;")
+"border:3px solid #BB271A;")
         self.InfoButton.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap("GUI/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("GUI/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.InfoButton.setIcon(icon1)
         self.InfoButton.setIconSize(QtCore.QSize(30, 30))
         self.InfoButton.setObjectName("InfoButton")
@@ -206,7 +206,7 @@ class Ui_Chat(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Chat_input_.sizePolicy().hasHeightForWidth())
         self.Chat_input_.setSizePolicy(sizePolicy)
-        self.Chat_input_.setMinimumSize(QtCore.QSize(400, 0))
+        self.Chat_input_.setMinimumSize(QtCore.QSize(200, 0))
         self.Chat_input_.setStyleSheet("QLineEdit {\n"
 " width:250px;\n"
 "height:30px;\n"
@@ -274,6 +274,9 @@ class Ui_Chat(object):
         self.verticalLayout_2.setStretch(1, 8)
         self.verticalLayout_2.setStretch(2, 1)
         self.MAIN_ChatLayout.addWidget(self.Column)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.MAIN_ChatLayout.addLayout(self.verticalLayout)
 
         self.retranslateUi(Chat)
         QtCore.QMetaObject.connectSlotsByName(Chat)

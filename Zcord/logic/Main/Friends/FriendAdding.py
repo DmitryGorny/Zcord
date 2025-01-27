@@ -40,12 +40,11 @@ class FriendAdding:
         return False
 
     def acceptRequest(self, NickToAnswer) -> bool:
+        """Метод меняет статус в БД с 1 на 2, клиентские части не затрагиваются"""
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
         rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
                                                        f"or friend_two_id = '{self.__user.getNickName()}'")
-
-        print(rowWithFriend, "dfdfsdfsdfsfsdfsdf")
 
         friendshipRow = list(filter(lambda x: NickToAnswer in x, rowWithFriend))
 
@@ -57,7 +56,8 @@ class FriendAdding:
     def rejectReques(self, FriendToDelete):
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
-        rowWithFriend = db.getCertainRow("friend_one_id", self.__user.getNickName(), "chat_id, friend_one_id,friend_two_id, status")
+        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
+                                                       f"or friend_two_id = '{self.__user.getNickName()}'")
 
         friendshipRow = list(filter(lambda x: FriendToDelete in x, rowWithFriend))
 

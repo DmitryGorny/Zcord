@@ -42,10 +42,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.pressing = False
 
+        self.ui.stackedWidget.addWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget.setCurrentWidget(self.ui.WrapperForHomeScreen)
+
     def mousePressEvent(self, event):
             self.start = self.mapToGlobal(event.pos())
             self.pressing = True
-
 
     def MoveWindow(self, event):
         if self.isMaximized():
@@ -56,7 +58,6 @@ class MainWindow(QtWidgets.QMainWindow):
             movement = self.end-self.start
             self.move(self.mapToGlobal(movement))
             self.start = self.end
-
 
 
     def getFriends(self):
@@ -80,11 +81,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def addChatToList(self, chatId, friendNick):
-        if len(list(filter(lambda x: x.getNickName == friendNick, self.__chats))) == 0:
-            chat = Chat(chatId, friendNick, self.__user)
-            self.__chats.append(chat)
+        chat = Chat(chatId, friendNick, self.__user)
+        self.__chats.append(chat)
 
-            return chat
+        return chat
 
     def call_chat(self):
         chat_ids = []
@@ -200,10 +200,12 @@ class MainWindow(QtWidgets.QMainWindow):
                       индекс\/
         ADD-FRIEND: args = 0:"никнейм друга" - обнавляет статус друга в словаре, передает словарь в user
         UPDATE-CHATS: args = 0:"айди чата", 1:"никнейм друга"
+        DELETE-FRIEND: args = 0:"никнейм друга"
+        DELETE-CHAT: args = 0:"никнейм друга"
         """
         match command:
             case "ADD-FRIEND":
-                self.updateFriendshipStatus(args[0])
+                self.updateFriendshipStatus(args)
                 self.__user.setFrinds(self.__friends)
             case "UPDATE-CHATS":
                 chat = self.addChatToList(args[0], args[1])
@@ -212,11 +214,24 @@ class MainWindow(QtWidgets.QMainWindow):
             case "ADD-CANDIDATE-FRIEND":
                 self.addFriendToDict(args[0], args[1], args[2])
                 self.__user.setFrinds(self.__friends)
-
+            case "DELETE-FRIEND":
+                self.deleteFriend(args)
+                self.__user.setFrinds(self.__friends)
+            case "DELETE-CHAT":
+                chat = self.deleteChat(args)
+                self.deleteChatFromUI(chat)
     def updateFriendshipStatus(self, friendName):
         """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
         self.__friends[friendName][1] = 2
 
+    def deleteFriend(self, friendName):
+        del self.__friends[friendName]
+
+    def deleteChat(self, friendName):
+        chat = list(filter(lambda chat: chat.getNickName() == friendName, self.__chats))[0]
+        self.__chats.remove(chat)
+        self.ui.stackedWidget.setCurrentWidget(self.ui.WrapperForHomeScreen)
+        return chat
     def closeWindow(self):
         #with open("Resources/frineds/friends.json", "w") as Frineds_json:
             #Frineds_json.write(json.dumps(self.__friends))
@@ -282,9 +297,18 @@ class MainWindow(QtWidgets.QMainWindow):
         QFr.setFixedHeight(70)
         QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         layoutFinal.addWidget(QFr)
-
+        layoutFinal.update()
         return layoutFinal
 
     def updateChatList(self, chat):
         if self.ui.ScrollFriends.isVisible():
             self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
+
+    def deleteChatFromUI(self, chat):
+        if self.ui.ScrollFriends.isVisible():
+            for i in range(self.ui.ScrollFriends.widget().layout().count()):
+                widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
+                if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.getNickName():
+                    self.ui.ScrollFriends.widget().layout().takeAt(i)
+                    widgetToDelete.deleteLater()
+                    self.ui.ScrollFriends.widget().layout().update()

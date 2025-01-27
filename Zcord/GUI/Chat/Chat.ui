@@ -22,7 +22,7 @@
      <height>681</height>
     </rect>
    </property>
-   <layout class="QHBoxLayout" name="MAIN_ChatLayout" stretch="0">
+   <layout class="QHBoxLayout" name="MAIN_ChatLayout" stretch="0,0">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -160,8 +160,8 @@ color:white;</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>30</width>
-                 <height>30</height>
+                 <width>45</width>
+                 <height>45</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -204,8 +204,8 @@ border:3px solid white;</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>45</width>
+                 <height>45</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -218,17 +218,17 @@ border:3px solid white;</string>
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color:rgba(38,40,45,255);
+                <string notr="true">background-color:r#BB271A;
 border:none;
 border-radius:15%;
-border:3px solid white;</string>
+border:3px solid #BB271A;</string>
                </property>
                <property name="text">
                 <string/>
                </property>
                <property name="icon">
                 <iconset resource="../res-rec.qrc">
-                 <normaloff>:/icons/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</iconset>
+                 <normaloff>:/icons/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -342,7 +342,7 @@ QScrollBar::handle:vertical {
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>400</width>
+                 <width>200</width>
                  <height>0</height>
                 </size>
                </property>
@@ -471,6 +471,9 @@ border:3px solid white;</string>
        </item>
       </layout>
      </widget>
+    </item>
+    <item>
+     <layout class="QVBoxLayout" name="verticalLayout"/>
     </item>
    </layout>
   </widget>

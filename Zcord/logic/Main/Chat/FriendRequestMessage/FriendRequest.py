@@ -88,16 +88,18 @@ class Ui_Form(object):
         self.horizontalLayout.setContentsMargins(0, -1, -1, -1)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.AcceptButton = QtWidgets.QPushButton(parent=self.horizontalFrame)
+        self.AcceptButton.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.AcceptButton.setStyleSheet("background-color:white;\n"
 "color:rgba(38,40,45,255);")
         self.AcceptButton.setObjectName("AcceptButton")
         self.horizontalLayout.addWidget(self.AcceptButton)
-        self.pushButton_2 = QtWidgets.QPushButton(parent=self.horizontalFrame)
-        self.pushButton_2.setStyleSheet("background-color:#BB271A;\n"
+        self.RejectButton = QtWidgets.QPushButton(parent=self.horizontalFrame)
+        self.RejectButton.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.RejectButton.setStyleSheet("background-color:#BB271A;\n"
 "border-color:#BB271A;\n"
 "")
-        self.pushButton_2.setObjectName("pushButton_2")
-        self.horizontalLayout.addWidget(self.pushButton_2)
+        self.RejectButton.setObjectName("RejectButton")
+        self.horizontalLayout.addWidget(self.RejectButton)
         self.Message.addWidget(self.horizontalFrame)
 
         self.retranslateUi(Form)
@@ -110,4 +112,4 @@ class Ui_Form(object):
         self.Users_Name.setText(_translate("Form", "User2"))
         self.label.setText(_translate("Form", "Вам отправлено приглашение в друзья"))
         self.AcceptButton.setText(_translate("Form", "Принять"))
-        self.pushButton_2.setText(_translate("Form", "Отклонить"))
+        self.RejectButton.setText(_translate("Form", "Отклонить"))

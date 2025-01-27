@@ -11,10 +11,8 @@ class SygnalChanger(QObject):
     friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
     dynamicInterfaceUpdate = pyqtSignal(str, object) #См. документацию dynamicUpdate
-
+    unblockChat = pyqtSignal()
     chat = ""
-
-
 
 class MainInterface:
     __current_chat = 1
@@ -85,6 +83,7 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(1025)
                 header = msg[0:1]
                 msg = msg[1:]
+                print(msg)
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
@@ -124,7 +123,6 @@ class MessageConnection(QObject):
 
                         time.sleep(0.01) #Костыль. Что-то в emit (chat.recieveMessage) работает асинхронно???
 
-
                     continue
 
                 msg = msg.decode("utf-8").split("&+& ")
@@ -139,7 +137,21 @@ class MessageConnection(QObject):
                         reciever.dynamicInterfaceUpdate.emit("UPDATE-CHATS", (msg[3], msg[2]))
                     continue
                 elif "__ACCEPT-REQUEST__" in message:
-                        pass
+                    if msg[2] != nickname_yours:
+                         reciever.dynamicInterfaceUpdate.emit("ADD-FRIEND", (msg[2]))
+                         MessageConnection.chat = list(filter(lambda chat: chat.getChatId() == int(message.split("&")[1]), MessageConnection.chatsList[0]))[0]
+                         reciever.unblockChat.connect(MessageConnection.chat.startMessaging)
+                         reciever.unblockChat.emit()
+                    else:
+                        reciever.dynamicInterfaceUpdate.emit("ADD-FRIEND", (message.split("&")[2]))
+                    continue
+                elif "__REJECT-REQUEST__" in message:
+                    if msg[2] != nickname_yours:
+                        reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[2]))
+                    else:
+                        print(msg[2])
+                        reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (message.split("&")[2]))
+                    continue
                 else:
                     date_now = msg[1]
                     nickname = msg[2]

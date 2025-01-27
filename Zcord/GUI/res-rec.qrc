@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/person_remove_30dp_BB271A_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>res-rec.qrc</file>
     <file>icon/person_add_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/person_add_24dp_333333_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg</file>

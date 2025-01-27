@@ -159,6 +159,9 @@ font-size:18px;
        </property>
        <item>
         <widget class="QPushButton" name="AcceptButton">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="styleSheet">
           <string notr="true">background-color:white;
 color:rgba(38,40,45,255);</string>
@@ -169,7 +172,10 @@ color:rgba(38,40,45,255);</string>
         </widget>
        </item>
        <item>
-        <widget class="QPushButton" name="pushButton_2">
+        <widget class="QPushButton" name="RejectButton">
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
          <property name="styleSheet">
           <string notr="true">background-color:#BB271A;
 border-color:#BB271A;

@@ -66,6 +66,9 @@ class MainWindow(QtWidgets.QMainWindow):
         friends = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' OR friend_two_id = '{self.__user.getNickName()}'")
 
         for friendArr in friends:
+            if friendArr[len(friendArr) - 1] == 3:
+                continue
+
             if friendArr[1] not in self.__friends and friendArr[2] not in self.__friends:
                 if friendArr[1] != self.__user.getNickName():
                     key = friendArr[1]

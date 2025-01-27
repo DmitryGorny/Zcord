@@ -7,10 +7,11 @@
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Работающий ЛС">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendAdding.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendAdding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/db_handler/db_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/db_handler/db_handler.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -58,6 +59,7 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\DeleteFriend" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\FriendRequestMessage" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\Message" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\ChatClass" />

@@ -1,9 +1,10 @@
 from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
-from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
 from logic.Main.Chat.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
 from logic.Message import message_client
 from logic.Main.Friends.FriendAdding import FriendAdding
+from logic.Main.Chat.DeleteFriend.DeleteFriend import DeleteFriend
 
 
 class Chat(QtWidgets.QWidget):
@@ -29,6 +30,8 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatScroll.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
         self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
+
+        self.ui.InfoButton.clicked.connect(self.showDeleteFriendDialog)
 
         if self.__user.getFriends()[self.__friendNickname][1] == 1:
             self.ui.ChatInputLayout.setHidden(True)
@@ -95,12 +98,24 @@ class Chat(QtWidgets.QWidget):
     def clearLayout(self):
         self.ui.ChatScroll.clear()
 
-    def rejectRequest(self):
+    def rejectRequest(self, deleteFriend:bool = False):
         friendAdding = FriendAdding(self.__user)
 
-        friendAdding.rejectReques(self.__friendNickname)
+        friendAdding.rejectReques(self.__friendNickname, deleteFriend)
 
         message_client.MessageConnection.send_message(f"__REJECT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
+
+    def showDeleteFriendDialog(self):
+        if not DeleteFriend.isOpen:
+            deleteFriendDialog = DeleteFriend(self.rejectRequest, self.blockUser)
+
+            deleteFriendDialog.show()
+            deleteFriendDialog.exec()
+
+    def blockUser(self):
+        friendAdding = FriendAdding(self.__user)
+        friendAdding.BlockUser(self.__friendNickname)
+        message_client.MessageConnection.send_message(f"__DELETE-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
 
     def getNickName(self):
         return self.__friendNickname

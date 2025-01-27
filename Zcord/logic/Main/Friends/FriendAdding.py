@@ -1,11 +1,9 @@
-import mysql
 from logic.db_handler.db_handler import db_handler
-from logic.Authorization.User.User import User
-
 class FriendAdding:
     """
     Статус 1 - неподтвержденный запрос
     Статус 2 в БД - дружба
+    Статус 3 - Блокировка
     """
     def __init__(self, user):
         self.__user = user
@@ -22,16 +20,12 @@ class FriendAdding:
             return False
 
         #Код проверки наличия дружбы перед отправкой запроса. Может работать медленно при большом количестве данных
-        rowWithFriends1 = db.getCertainRow("friend_one_id", self.__user.getNickName(), "friend_one_id,friend_two_id, status")
+        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
+                                                       f"or friend_two_id = '{self.__user.getNickName()}'")
 
-        rowWithFriends2 = db.getCertainRow("friend_one_id", nickToSend, "friend_one_id,friend_two_id, status")
+        friendshipRow = list(filter(lambda x: nickToSend in x, rowWithFriend))
 
-        friendshipRow1 = list(filter(lambda x: nickToSend in x, rowWithFriends1))
-
-        friendshipRow2 = list(filter(lambda x: self.__user.getNickName() in x, rowWithFriends2))
-
-
-        if len(friendshipRow1) == 0 and len(friendshipRow2) == 0:
+        if len(friendshipRow) == 0 or friendshipRow[0][len(friendshipRow[0]) - 1] != 3:
             addFriends = db.insertDataInTable("(`friend_one_id`,`friend_two_id`, `status`)",
                                                             f"('{self.__user.getNickName()}', '{nickToSend}', '1')" )
 
@@ -54,7 +48,7 @@ class FriendAdding:
         return updatingStatus
 
 
-    def rejectReques(self, FriendToDelete):
+    def rejectReques(self, FriendToDelete, deleteFriend:bool = False):
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
         rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
@@ -64,16 +58,22 @@ class FriendAdding:
 
         db.DeleteRequest("`chat_id`", friendshipRow[0][0])
 
-        self.deleteFriendRequest(FriendToDelete)
+        if not deleteFriend:
+            self.deleteFriendRequest(FriendToDelete)
+
 
     def deleteFriendRequest(self, friendNick):
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
         id = db.getDataFromTableColumn("`id`", f"WHERE sender_nick = '{self.__user.getNickName()}' AND friend_nick = '{friendNick}' "
                                         f"OR sender_nick = '{friendNick}' AND friend_nick = '{self.__user.getNickName()}'")
-        print(id, self.__user.getNickName(), friendNick)
         db.DeleteRequest("id", id[0][0])
 
+    def BlockUser(self, userToBlock):
+        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
+        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
+                                                        f"or friend_two_id = '{self.__user.getNickName()}'")
 
+        friendshipRow = list(filter(lambda x: userToBlock in x, rowWithFriend))
 
-
+        db.UpdateRequest("`status`", "3", f"WHERE `chat_id` = {friendshipRow[0][0]}")
 

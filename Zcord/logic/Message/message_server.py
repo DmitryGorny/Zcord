@@ -104,11 +104,13 @@ class MessageRoom(object):
                     continue
 
                 if "__ACCEPT-REQUEST__" in message:
+                    if message.split("&")[2] not in MessageRoom.nicknames_in_chats[message.split("&")[1]]:
+                        MessageRoom.nicknames_in_chats[message.split("&")[1]].append(message.split("&")[2])
                     #Передавать специализированные сообщения обычным броадакстом так себе идейка +
                     MessageRoom.broadcast((message.split("&")[1], message, "[]", nickname))
                     continue
 
-                if "__REJECT-REQUEST__" in message:
+                if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
                     if message.split("&")[2] not in MessageRoom.nicknames_in_chats[message.split("&")[1]]:
                         MessageRoom.nicknames_in_chats[message.split("&")[1]].append(message.split("&")[2])
                     MessageRoom.broadcast((message.split("&")[1], message, "[]", nickname))

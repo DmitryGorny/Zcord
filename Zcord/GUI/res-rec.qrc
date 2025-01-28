@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/switches_35dp_E8EAED_FILL0_wght400_GRAD0_opsz40.png</file>
     <file>icon/person_add_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/person_add_24dp_333333_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg</file>

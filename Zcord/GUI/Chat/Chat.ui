@@ -43,9 +43,9 @@
       <property name="styleSheet">
        <string notr="true">background-color:rgba(16,19,23,255);</string>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,8,1">
+      <layout class="QVBoxLayout" name="verticalLayout_2" stretch="0,0">
        <property name="spacing">
-        <number>20</number>
+        <number>0</number>
        </property>
        <property name="leftMargin">
         <number>0</number>
@@ -160,8 +160,8 @@ color:white;</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>30</width>
-                 <height>30</height>
+                 <width>45</width>
+                 <height>45</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -204,8 +204,8 @@ border:3px solid white;</string>
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>40</width>
-                 <height>40</height>
+                 <width>45</width>
+                 <height>45</height>
                 </size>
                </property>
                <property name="maximumSize">
@@ -218,17 +218,17 @@ border:3px solid white;</string>
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
                <property name="styleSheet">
-                <string notr="true">background-color:rgba(38,40,45,255);
+                <string notr="true">background-color:r#BB271A;
 border:none;
 border-radius:15%;
-border:3px solid white;</string>
+border:3px solid #BB271A;</string>
                </property>
                <property name="text">
                 <string/>
                </property>
                <property name="icon">
                 <iconset resource="../res-rec.qrc">
-                 <normaloff>:/icons/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg</iconset>
+                 <normaloff>:/icons/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</iconset>
                </property>
                <property name="iconSize">
                 <size>
@@ -245,18 +245,307 @@ border:3px solid white;</string>
         </widget>
        </item>
        <item>
-        <widget class="QFrame" name="MessahesInChat">
-         <layout class="QVBoxLayout" name="verticalLayout_5">
+        <widget class="QFrame" name="ChatLayout">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>0</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_7">
+          <property name="spacing">
+           <number>0</number>
+          </property>
           <property name="leftMargin">
-           <number>45</number>
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
           </property>
           <property name="rightMargin">
-           <number>45</number>
+           <number>0</number>
           </property>
           <item>
-           <widget class="QListWidget" name="ChatScroll">
+           <widget class="QFrame" name="Call">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>0</width>
+              <height>200</height>
+             </size>
+            </property>
             <property name="styleSheet">
-             <string notr="true">QListWidget {
+             <string notr="true">QFrame{
+background-color:rgba(38,40,45,255);
+border-top:3px solid white;
+border-bottom:3px solid white;
+}
+
+QPushButton {
+	border:3px solid white;
+	border-radius:50%;
+	color:white;
+	font-size:30px;
+}</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout">
+             <property name="spacing">
+              <number>0</number>
+             </property>
+             <property name="leftMargin">
+              <number>0</number>
+             </property>
+             <property name="topMargin">
+              <number>0</number>
+             </property>
+             <property name="rightMargin">
+              <number>0</number>
+             </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
+             <item alignment="Qt::AlignHCenter">
+              <widget class="QFrame" name="wrapperForUsers">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QFrame {
+border:none;
+}</string>
+               </property>
+               <layout class="QHBoxLayout" name="horizontalLayout_4">
+                <property name="spacing">
+                 <number>40</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="User2_icon">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>16777215</width>
+                    <height>16777215</height>
+                   </size>
+                  </property>
+                  <property name="text">
+                   <string>U</string>
+                  </property>
+                 </widget>
+                </item>
+                <item alignment="Qt::AlignHCenter">
+                 <widget class="QPushButton" name="User1_icon">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>100</width>
+                    <height>100</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">color:white;</string>
+                  </property>
+                  <property name="text">
+                   <string>U</string>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+             <item alignment="Qt::AlignHCenter">
+              <widget class="QFrame" name="horizontalFrame">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="styleSheet">
+                <string notr="true">QFrame {
+border:none;
+}
+
+QPushButton {
+	border:3px solid orange;
+	border-radius:15%;
+	color:white;
+	font-size:30px;
+}</string>
+               </property>
+               <layout class="QHBoxLayout" name="wrapperForButtons">
+                <property name="spacing">
+                 <number>25</number>
+                </property>
+                <item>
+                 <widget class="QPushButton" name="muteHeadphones">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">
+border:2px solid white;
+background-color:black;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../res-rec.qrc">
+                    <normaloff>:/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QPushButton" name="muteMic">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">border:2px solid white;
+background-color:black;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../res-rec.qrc">
+                    <normaloff>:/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="flat">
+                   <bool>false</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item alignment="Qt::AlignVCenter">
+                 <widget class="QPushButton" name="leaveCall">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">border-color:#BB271A;
+background-color:#BB271A;</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset resource="../res-rec.qrc">
+                    <normaloff>:/icons/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QFrame" name="MessahesInChat">
+            <layout class="QVBoxLayout" name="verticalLayout_5">
+             <property name="leftMargin">
+              <number>45</number>
+             </property>
+             <property name="rightMargin">
+              <number>45</number>
+             </property>
+             <item>
+              <widget class="QListWidget" name="ChatScroll">
+               <property name="styleSheet">
+                <string notr="true">QListWidget {
 border:none;
 }
 
@@ -296,30 +585,15 @@ QScrollBar::handle:vertical {
                 min-height:10px;
                  border-radius: 5px;
  }</string>
-            </property>
-            <property name="verticalScrollBarPolicy">
-             <enum>Qt::ScrollBarAsNeeded</enum>
-            </property>
+               </property>
+               <property name="verticalScrollBarPolicy">
+                <enum>Qt::ScrollBarAsNeeded</enum>
+               </property>
+              </widget>
+             </item>
+            </layout>
            </widget>
           </item>
-         </layout>
-        </widget>
-       </item>
-       <item>
-        <widget class="QFrame" name="ChatLayout">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>0</width>
-           <height>0</height>
-          </size>
-         </property>
-         <layout class="QVBoxLayout" name="verticalLayout_7">
           <item>
            <widget class="QFrame" name="ChatInputLayout">
             <property name="sizePolicy">
@@ -342,7 +616,7 @@ QScrollBar::handle:vertical {
                </property>
                <property name="minimumSize">
                 <size>
-                 <width>400</width>
+                 <width>200</width>
                  <height>0</height>
                 </size>
                </property>

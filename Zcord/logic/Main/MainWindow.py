@@ -1,20 +1,27 @@
 import queue
 
 from PyQt6 import QtWidgets, QtCore, QtGui
+
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
 from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
+from logic.Main.Parameters.Params_Window import ParamsWindow
 import threading
 import json
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, user):
         super(MainWindow, self).__init__()
+
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
+
+        self.parameters = ParamsWindow()
+        self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
 
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
@@ -36,13 +43,14 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.WindowMode.clicked.connect(self.on_click_fullscreenWindowMode)
         self.ui.AddFriends.clicked.connect(self.addFriend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
-
+        self.ui.SettingsButton.clicked.connect(self.show_parameters)
         self.ui.ScrollFriends.setVisible(False)
         self.call_chat()
 
         self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
 
         self.pressing = False
+
 
     def mousePressEvent(self, event):
             self.start = self.mapToGlobal(event.pos())
@@ -99,8 +107,11 @@ class MainWindow(QtWidgets.QMainWindow):
         self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
         self.__client = self.callClient[0]
 
+    def show_main(self):
+        pass
 
-
+    def show_parameters(self):
+        self.ui.stackedWidget.setCurrentWidget(self.parameters.ui_pr.MAIN)
 
     def showFriendList(self):
         if not self.ui.ScrollFriends.isVisible():
@@ -209,8 +220,8 @@ class MainWindow(QtWidgets.QMainWindow):
         message_client.MainInterface.change_chat(chat_id, self.__user.getNickName(), message_client.SygnalChanger())
 
         chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)
-        self.ui.stackedWidget.addWidget(chat.ui.MAIN)
-        self.ui.stackedWidget.setCurrentWidget(chat.ui.MAIN)
+        self.ui.stackedWidget_2.addWidget(chat.ui.MAIN)
+        self.ui.stackedWidget_2.setCurrentWidget(chat.ui.MAIN)
 
 
     def closeWindow(self):

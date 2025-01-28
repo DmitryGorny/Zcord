@@ -79,13 +79,13 @@ class MessageConnection(QObject):
 
                         if MessageConnection.chat is None:
                             for chat in chats[0]:
-                                if int(chat.getChatId()) == int(i[0]):
+                                if int(chat.getChatId()) == int(i[3]):
                                     MessageConnection.chat = chat
                                     break
                         else:
-                            if MessageConnection.chat.getChatId() != int(i[0]):
+                            if MessageConnection.chat.getChatId() != int(i[3]):
                                 for chat in chats[0]:
-                                    if int(chat.getChatId()) == int(i[0]):
+                                    if int(chat.getChatId()) == int(i[3]):
                                         MessageConnection.chat = chat
                                         break
 

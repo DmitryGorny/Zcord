@@ -2,15 +2,16 @@ from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
 from logic.Message import message_client
+from logic.Voice import audio_send
 
 
 class Chat(QtWidgets.QWidget):
     def __init__(self, chatId, friendNick, user):
         super(Chat, self).__init__()
-
+        self.thread = None
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
-
+        self.ui.Call.hide()
         self.__chatId = chatId
         self.__user = user
         self.__friendNickname = friendNick
@@ -28,6 +29,8 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
 
+        self.ui.CallButton.clicked.connect(self.call_voice)
+        self.ui.leaveCall.clicked.connect(self.leave_call)
 
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
@@ -62,6 +65,16 @@ class Chat(QtWidgets.QWidget):
 
         return True
 
+    def leave_call(self):
+        audio_send.close_send(self.thread)
+        self.ui.Call.hide()
+        self.thread = None
+
+    def call_voice(self):
+        if not self.thread:
+            self.thread = audio_send.start_voice()
+            self.ui.Call.show()
+            print("Вы с кем-то уже разговариваете")
 
     def clearLayout(self):
         self.ui.ChatScroll.clear()

@@ -105,6 +105,7 @@ class AddFriendWindow(QtWidgets.QDialog):
             self.ui.Status.setIcon(QtGui.QIcon("GUI/icon/done_outline_40dp_78A75A_FILL0_wght400_GRAD0_opsz40.svg"))
             self.ui.Status.setIconSize(QtCore.QSize(20, 20))
             self.__senderAndReciever = [self.__user.getNickName(), self.ui.FriendsNick_input.text()] #Возвращает ник отправителя и получателя
+            self.close()
         else:
             self.ui.Status.setIcon(QtGui.QIcon("GUI/icon/warning_40dp_BB271A_FILL0_wght400_GRAD0_opsz40.svg"))
             self.ui.Status.setIconSize(QtCore.QSize(20, 20))

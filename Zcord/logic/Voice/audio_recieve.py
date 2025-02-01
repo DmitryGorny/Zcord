@@ -9,13 +9,15 @@ class VoiceConnection:
     output_volume = 1.0
 
     def __init__(self):
-        pass
+        self.FORMAT = pyaudio.paInt16  # Формат звука
+        self.CHANNELS = 1  # Количество каналов (1 для моно)
+        self.RATE = 48000  # Частота дискретизации
+        self.CHUNK = 1440
 
-    @staticmethod
-    def getter():
+    def getter(self):
         while True:
             try:
-                data_to_read, address = listen.recvfrom(CHUNK)  # Получаем данные с сервера
+                data_to_read, address = listen.recvfrom(self.CHUNK)  # Получаем данные с сервера
 
                 stream_output.write(VoiceConnection.control_output_volume(data_to_read, VoiceConnection.output_volume))
             except KeyboardInterrupt:
@@ -23,13 +25,10 @@ class VoiceConnection:
                 sys.exit()
 
     @staticmethod
-    # Функция для изменения громкости
     def control_output_volume(data, volume):
-        # Преобразуем данные в массив numpy
         samples = np.frombuffer(data, dtype=np.int16)
         # Масштабируем сэмплы
         samples = (samples * volume).astype(np.int16)
-        # Возвращаем данные в формате bytes
         return samples.tobytes()
 
     @staticmethod
@@ -42,11 +41,6 @@ if __name__ == "__main__":
 
     CLIENT = "26.36.124.241"  # IP адрес свой (клиента)
     PORT_TO_LISTEN = 22223  # Порт, используемый клиентом
-
-    FORMAT = pyaudio.paInt16  # Формат звука
-    CHANNELS = 1        # Количество каналов (1 для моно)
-    RATE = 44100        # Частота дискретизации
-    CHUNK = 4096
 
     p = pyaudio.PyAudio()
 

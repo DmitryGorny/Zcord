@@ -10,6 +10,7 @@ import time
 
 class VoiceConnection:
     noise_profile = None
+    output_volume = 1.0
     volume = 1.0
     vad = wb.Vad()
     vad.set_mode(2)
@@ -45,13 +46,11 @@ class VoiceConnection:
                 if VoiceConnection.noise_profile is not None:
                     data_to_send = self.noise_down(data_to_send)
 
-                self.stream_output.write(VoiceConnection.adjust_volume(data_to_send, VoiceConnection.volume))
-                self.speak.sendall(b'1' + data_to_send)
+                self.speak.sendall(b'2' + data_to_send)
 
             except KeyboardInterrupt:
                 print("Передача аудио закончена или прервана")
-                self.speak.sendall(b'0')
-                sys.exit()
+        self.speak.sendall(b'0')
 
     @staticmethod
     def noise_down(data_to_send, RATE=48000):
@@ -79,6 +78,26 @@ class VoiceConnection:
         samples = (samples * volume).astype(np.int16)
         return samples.tobytes()
 
+    def getter(self):
+        while self.is_running:
+            try:
+                data_to_read, address = self.speak.recvfrom(self.CHUNK)  # Получаем данные с сервера
+                self.stream_output.write(VoiceConnection.control_output_volume(data_to_read, VoiceConnection.output_volume))
+            except Exception as e:
+                print(f"Отловлена ошибка: {e}")
+                print("Приём аудио завершен или прерван")
+
+    @staticmethod
+    def control_output_volume(data, volume):
+        samples = np.frombuffer(data, dtype=np.int16)
+        # Масштабируем сэмплы
+        samples = (samples * volume).astype(np.int16)
+        return samples.tobytes()
+
+    @staticmethod
+    def change_output_volume(volume):
+        VoiceConnection.output_volume = volume
+
     def close(self):
         self.is_running = False
         self.stream_input.stop_stream()
@@ -92,13 +111,15 @@ class VoiceConnection:
 
 def start_voice():
     HOST = "26.36.124.241"
-    PORT_TO_SPEAK = 54325
+    PORT_TO_SPEAK = 65128
 
     voice_conn = VoiceConnection(HOST, PORT_TO_SPEAK)
-    print("Начата передача аудио, для завершения ctrl + c")
+    print("Начата передача аудио")
     voice_conn.first_packet()
-    thread = threading.Thread(target=voice_conn.sender)
-    thread.start()
+    thread_speak = threading.Thread(target=voice_conn.sender)
+    thread_listen = threading.Thread(target=voice_conn.getter)
+    thread_speak.start()
+    thread_listen.start()
     return voice_conn
 
 

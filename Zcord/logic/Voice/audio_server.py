@@ -2,7 +2,7 @@ import socket
 import asyncio
 
 
-class Client(object):
+class Client:
     def __init__(self, address):
         self.address = address
 
@@ -11,36 +11,41 @@ class Client(object):
 
 
 class VoiceServer(object):
-    def __init__(self, server_port, ip_to_output, port_to_output):
-        self.HOST = "26.36.124.241"  # Standard loopback interface address (localhost)
-        self.ip_to_output = ip_to_output
+    def __init__(self, server_ip, server_port):
+        # 1 - порт инициализации сервера, 2 - ip инициализации сервера
+        self.server_ip = server_ip  # Адрес сервера
         self.server_port = server_port  # Port to listen on (non-privileged ports are > 1023)
-        self.port_to_output = port_to_output
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.CHUNK = 4096
-        self.server.bind((self.HOST, self.server_port))
-        print(f"Listening Server starts")
-        self.first_packet()
+        self.CHUNK = 1440
+        self.server.bind((self.server_ip, self.server_port))
+        print(f"Сервер запущен")
+        self.clients = {}  # Словарь для хранения активных клиентов
 
     async def read_request(self):
         while True:
-            self.data, self.address = self.server.recvfrom(self.CHUNK)
-            if self.data[0:1] == b'0':
-                print(f"{self.address} disconnect!")
-                self.first_packet()
-            self.data = self.data[1::]
-            self.send_request()
-            await asyncio.sleep(0)
-
-    def first_packet(self):
-        while True:
-            data, address = self.server.recvfrom(self.CHUNK)
-            if data[0:1] == b'1':
-                print(f"Connect to: {address}")
+            try:
+                data, address = await asyncio.get_event_loop().sock_recvfrom(self.server, self.CHUNK)
+                header = data[0:1]
+                if header == b'2':
+                    data = data[1:]
+                    self.broadcast(data, address)
+                elif header == b'1':
+                    print(f"Пользователь с ip: {address} подключен")
+                    self.clients[address] = Client(address)
+                elif header == b'0':
+                    print(f"{address} disconnected!")
+                    del self.clients[address]
+            except Exception as e:
+                print(f"Error reading request: {e}")
                 break
 
-    def send_request(self):
-        self.server.sendto(self.data, (self.ip_to_output, self.port_to_output))
+    def broadcast(self, data: bytes, sender_address: tuple):
+        for client_address in self.clients:
+            if client_address != sender_address:  # Не отправляем данные отправителю
+                try:
+                    self.server.sendto(data, client_address)
+                except Exception as e:
+                    print(f"Error sending data to {client_address}: {e}")
 
     def close_server(self):
         print("Server ends")
@@ -48,12 +53,8 @@ class VoiceServer(object):
 
 
 async def main():
-    listening_server_obj = VoiceServer(65128, "26.240.215.49", 22222)
-    listening_server_obj1 = VoiceServer(54325, "26.36.124.241", 22223)
-    task1 = asyncio.create_task(listening_server_obj.read_request())
-    task2 = asyncio.create_task(listening_server_obj1.read_request())
-    await task1
-    await task2
+    server = VoiceServer("26.36.124.241", 65128)
+    await server.read_request()
 
 
 if __name__ == "__main__":

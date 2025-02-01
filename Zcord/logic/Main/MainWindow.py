@@ -20,9 +20,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
-        self.parameters = ParamsWindow()
+        self.parameters = ParamsWindow(self.ui)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
         self.ui.pushButton.setIcon(QtGui.QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
@@ -106,9 +105,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend)
         self.__client = self.callClient[0]
-
-    def show_main(self):
-        pass
 
     def show_parameters(self):
         self.ui.stackedWidget.setCurrentWidget(self.parameters.ui_pr.MAIN)

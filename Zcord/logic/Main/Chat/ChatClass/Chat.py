@@ -8,7 +8,7 @@ from logic.Voice import audio_send
 class Chat(QtWidgets.QWidget):
     def __init__(self, chatId, friendNick, user):
         super(Chat, self).__init__()
-        self.thread = None
+        self.voice_conn = None
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
         self.ui.Call.hide()
@@ -66,14 +66,15 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def leave_call(self):
-        audio_send.close_send(self.thread)
+        self.voice_conn.close()
         self.ui.Call.hide()
-        self.thread = None
+        self.voice_conn = None
 
     def call_voice(self):
-        if not self.thread:
-            self.thread = audio_send.start_voice()
+        if not self.voice_conn:
+            self.voice_conn = audio_send.start_voice()
             self.ui.Call.show()
+        else:
             print("Вы с кем-то уже разговариваете")
 
     def clearLayout(self):

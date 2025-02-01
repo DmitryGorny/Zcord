@@ -4,25 +4,22 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Хороший шумодав с Noisereduce">
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса">
       <change afterPath="$PROJECT_DIR$/../.idea/server-client.iml" afterDir="false" />
       <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/Web/.idea/Web.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/Zcord.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Zcord.iml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_11_2024_17_14__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_11_2024_17_14__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_11_37__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_11_37__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_22_34__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_22_34__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/Chat/Chat.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Chat/Chat.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/Main.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Main.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/Parameters/Parameters.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Parameters/Parameters.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/Voice/VoiceParameters.ui" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/GUI/res-rec.qrc" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/res-rec.qrc" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/ChatGUI.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/MainWindowGUI.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Parameters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParameters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParamsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParamsClass.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Voice/audio_send.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_send.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -86,14 +83,14 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Chat\ChatClass" />
-      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Parameters" />
       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Voice_main" />
+      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\GUI\Voice" />
+      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Parameters" />
+      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Chat\ChatClass" />
       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\CompiledGUI" />
-      <recent name="C:\Users\Disita\Desktop\server-client\Zcord" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.zcord">
+  <component name="RunManager" selected="Python.message_server">
     <configuration name="VoiceParameters" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -251,7 +248,10 @@
       <workItem from="1737730386660" duration="6000" />
       <workItem from="1737730889350" duration="2433000" />
       <workItem from="1738078575988" duration="835000" />
-      <workItem from="1738102109788" duration="5199000" />
+      <workItem from="1738102109788" duration="6120000" />
+      <workItem from="1738271759318" duration="594000" />
+      <workItem from="1738328145716" duration="9672000" />
+      <workItem from="1738359467959" duration="8517000" />
     </task>
     <task id="LOCAL-00001" summary="Zcord терпит изменения">
       <option name="closed" value="true" />
@@ -335,7 +335,15 @@
       <option name="project" value="LOCAL" />
       <updated>1737902264079</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="Куча нового и интересного с войса">
+      <option name="closed" value="true" />
+      <created>1738108339906</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1738108339906</updated>
+    </task>
+    <option name="localTasksCounter" value="13" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -373,7 +381,8 @@
     <MESSAGE value="Первая рабочая версия чата" />
     <MESSAGE value="Работающий ЛС" />
     <MESSAGE value="Хороший шумодав с Noisereduce" />
-    <option name="LAST_COMMIT_MESSAGE" value="Хороший шумодав с Noisereduce" />
+    <MESSAGE value="Куча нового и интересного с войса" />
+    <option name="LAST_COMMIT_MESSAGE" value="Куча нового и интересного с войса" />
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/zcord_py$audio_send.coverage" NAME="audio_send Coverage Results" MODIFIED="1737853847074" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
@@ -391,6 +400,6 @@
     <SUITE FILE_PATH="coverage/Zcord$audio_server.coverage" NAME="audio_server Coverage Results" MODIFIED="1729971140087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
     <SUITE FILE_PATH="coverage/Zcord$UserAuthorization.coverage" NAME="UserAuthorization Coverage Results" MODIFIED="1729971150493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Authorization" />
     <SUITE FILE_PATH="coverage/AddFreindWindow_py$audio_send.coverage" NAME="audio_send Coverage Results" MODIFIED="1737901297568" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
-    <SUITE FILE_PATH="coverage/AddFreindWindow_py$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1738106002269" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
+    <SUITE FILE_PATH="coverage/AddFreindWindow_py$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1738359619313" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
   </component>
 </project>

@@ -74,9 +74,67 @@ margin:0px;</string>
           <number>35</number>
          </property>
          <item>
+          <widget class="QPushButton" name="backButton">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="mouseTracking">
+            <bool>false</bool>
+           </property>
+           <property name="layoutDirection">
+            <enum>Qt::RightToLeft</enum>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">QPushButton {
+    color: white; /* Белый цвет текста */
+    text-align: center; /* Выравнивание текста по центру */
+    font-size: 16px; /* Размер шрифта */
+    border-radius: 15px; /* Закругленные углы */
+    border: 2px solid rgba(58, 60, 65, 255);
+}
+
+QPushButton:hover {
+    background-color:rgba(58, 60, 65, 255);
+}
+
+QPushButton:pressed {
+    background-color:  rgba(28, 30, 35, 255);
+}
+
+QPushButton::icon {
+    width: 16px; /* Ширина иконки */
+    height: 16px; /* Высота иконки */
+    margin-right: 5px; /* Отступ справа от иконки */
+}</string>
+           </property>
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../res-rec.qrc">
+             <normaloff>:/icons/icon/keyboard_backspace_30dp_E8EAED_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/keyboard_backspace_30dp_E8EAED_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+           </property>
+           <property name="iconSize">
+            <size>
+             <width>50</width>
+             <height>50</height>
+            </size>
+           </property>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignHCenter">
           <widget class="QLabel" name="label_1">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+            <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>

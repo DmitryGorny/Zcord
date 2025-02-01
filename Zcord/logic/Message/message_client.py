@@ -80,23 +80,31 @@ class MessageConnection(QObject):
     def recv_message(nickname_yours, reciever):
         while True:
             try:
-                msg = MessageConnection.client_tcp.recv(1025)
+                msg = MessageConnection.client_tcp.recv(4096)
                 header = msg[0:1]
                 msg = msg[1:]
+                if header == b'2':
+                    number = MessageConnection.deserialize(msg)
+                    for key in number:
+                        try:
+                            chat = list(filter(lambda x: int(x.getChatId()) == int(key), MessageConnection.chatsList[0]))[0]
+                            reciever.dynamicInterfaceUpdate.emit("UPDATE-MESSAGE-NUMBER", (chat, number[key]))
+                        except IndexError:
+                            pass
+                    continue
 
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
-                        # i[0] - дата, i[1] - ник, i[2] - смска, i[3] - чат код
                         if MessageConnection.chat is None:
                             for chat in MessageConnection.chatsList[0]:
-                                if int(chat.getChatId()) == int(i[3]):
+                                if int(chat.getChatId()) == int(i["chat_id"]):
                                     MessageConnection.chat = chat
                                     break
                         else:
-                            if MessageConnection.chat.getChatId() != int(i[3]):
+                            if MessageConnection.chat.getChatId() != int(i["chat_id"]):
                                 for chat in MessageConnection.chatsList[0]:
-                                    if int(chat.getChatId()) == int(i[3]):
+                                    if int(chat.getChatId()) == int(i["chat_id"]):
                                         MessageConnection.chat = chat
                                         break
 
@@ -110,16 +118,16 @@ class MessageConnection(QObject):
                         except TypeError:
                             pass
 
-                        if i[2] == "__FRIEND_REQUEST__":
-                            if i[1] != nickname_yours:
+                        if i["message"] == "__FRIEND_REQUEST__":
+                            if i["sender_nick"] != nickname_yours:
                                 reciever.friendRequestShow.connect(MessageConnection.chat.showFriendRequestWidget)
-                                reciever.friendRequestShow.emit(i[1])
+                                reciever.friendRequestShow.emit(i["sender_nick"])
                             else:
                                 reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                                reciever.sygnal.emit(i[1], "Вы отправили приглашение в друзья")
+                                reciever.sygnal.emit(i["sender_nick"], "Вы отправили приглашение в друзья")
                         else:
                             reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                            reciever.sygnal.emit(i[1], i[2])
+                            reciever.sygnal.emit(i["sender_nick"], i["message"])
 
                         time.sleep(0.01) #Костыль. Что-то в emit (chat.recieveMessage) работает асинхронно???
 
@@ -130,6 +138,7 @@ class MessageConnection(QObject):
                 if message == '__NICK__':
                     MessageConnection.client_tcp.send(f"{nickname_yours}&+& {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
                 elif message == '__CONNECT__':
+                    MessageConnection.send_message("__UPDATE-MESSAGES__", nickname_yours)
                     print("Подключено к серверу!")
                 elif "__FRIEND_REQUEST__" in message:
                     if message.split("&")[1] == nickname_yours:

@@ -1,5 +1,11 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/close_24dp_999999_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/check_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
+    <file>icon/call_end_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>icon/person_remove_30dp_BB271A_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>res-rec.qrc</file>

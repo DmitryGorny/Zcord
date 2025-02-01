@@ -81,6 +81,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def createChats(self):
         for friend in self.__friends.keys():
             self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user))
+        self.showFriendList()
 
 
     def addChatToList(self, chatId, friendNick):
@@ -104,8 +105,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def addFriendToDict(self, name, chat_id, status):
         self.__friends[name] = [chat_id, status]
 
-    def showFriendList(self, dynamicUdate:bool = False):
-        if not self.ui.ScrollFriends.isVisible() and not dynamicUdate:
+    def showFriendList(self):
+        if not self.ui.ScrollFriends.isVisible():
             self.ui.ScrollFriends.setVisible(True)
 
             layoutFinal = QtWidgets.QVBoxLayout()
@@ -153,11 +154,9 @@ class MainWindow(QtWidgets.QMainWindow):
                                                             border-radius: 5px;
                                                          }""")
 
-
             self.ui.ScrollFriends.setWidget(widget)
         else:
             self.ui.ScrollFriends.setVisible(False)
-
 
     def addFriend(self):
         if not AddFriendWindow.isOpen:
@@ -205,6 +204,7 @@ class MainWindow(QtWidgets.QMainWindow):
         UPDATE-CHATS: args = 0:"айди чата", 1:"никнейм друга"
         DELETE-FRIEND: args = 0:"никнейм друга"
         DELETE-CHAT: args = 0:"никнейм друга"
+        UPDATE-MESSAGE-NUMBER: args = 0: "чат", 1: "новое значение"
         """
         match command:
             case "ADD-FRIEND":
@@ -223,6 +223,8 @@ class MainWindow(QtWidgets.QMainWindow):
             case "DELETE-CHAT":
                 chat = self.deleteChat(args)
                 self.deleteChatFromUI(chat)
+            case "UPDATE-MESSAGE-NUMBER":
+                self.unseenMessages(args[0], args[1])
     def updateFriendshipStatus(self, friendName):
         """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
         self.__friends[friendName][1] = 2
@@ -265,8 +267,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def createChatWidget(self, chat, layoutFinal):
-        QFr = ClikableFrame(chat.getNickName())
-        QFr.clicked.connect(self.chooseChat)
+        self.QFr = ClikableFrame(chat.getNickName())
+        self.QFr.clicked.connect(self.chooseChat)
         layout = QtWidgets.QHBoxLayout()
         layout.setSpacing(10)
         user_logo = QtWidgets.QPushButton()
@@ -276,6 +278,20 @@ class MainWindow(QtWidgets.QMainWindow):
                                     border-radius:15%;
                                     color:white;
                                     font-size:16px;""")
+        if chat.messageNumber is None:
+            chat.createUnseenMessageNumber(self.QFr)
+        messagesNumber = chat.messageNumber
+        messagesNumber.setFixedHeight(25)
+        messagesNumber.setFixedWidth(25)
+        messagesNumber.setStyleSheet("""color:black;
+                                    font-size:18px;
+                                    border:1px solid white;
+                                    border-radius:10%;
+                                    padding:0;
+                                    padding-bottom:2px;
+                                    text-align:center;
+                                    background-color:white;""")
+
 
         user_name = QtWidgets.QLabel()
         user_name.setStyleSheet("""color:white;
@@ -287,19 +303,20 @@ class MainWindow(QtWidgets.QMainWindow):
 
         layout.addWidget(user_logo)
         layout.addWidget(user_name)
+        layout.addWidget(messagesNumber)
+        messagesNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
-
-        QFr.setLayout(layout)
-        QFr.setStyleSheet("""QFrame:hover { 
+        self.QFr.setLayout(layout)
+        self.QFr.setStyleSheet("""QFrame:hover { 
                                 border-radius:15%;
                                 background-color:rgba(0, 0, 0, 0.26);}
                                 QFrame {
                                 margin:0;
                                 }""")
-        QFr.setFixedWidth(250)
-        QFr.setFixedHeight(70)
-        QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-        layoutFinal.addWidget(QFr)
+        self.QFr.setFixedWidth(250)
+        self.QFr.setFixedHeight(70)
+        self.QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+        layoutFinal.addWidget(self.QFr)
         layoutFinal.update()
         return layoutFinal
 
@@ -315,3 +332,15 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.ScrollFriends.widget().layout().takeAt(i)
                     widgetToDelete.deleteLater()
                     self.ui.ScrollFriends.widget().layout().update()
+
+    def unseenMessages(self, chat:Chat, newValue:int):
+        print(newValue)
+        if newValue == 0:
+            chat.messageNumber.setVisible(False)
+            return
+
+        if not chat.messageNumber.isVisible():
+            chat.messageNumber.setVisible(True)
+
+        chat.messageNumber.setText(str(newValue))
+

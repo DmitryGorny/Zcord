@@ -160,7 +160,7 @@ class db_handler:
         try:
             cursor = connection.cursor()
 
-            cursor.execute(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} {condition}")
+            cursor.execute(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} {condition} LIMIT 1")
 
             connection.commit()
 

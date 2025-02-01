@@ -7,13 +7,15 @@ from logic.db_handler.db_handler import db_handler
 
 
 class MessageRoom(object):
-
     nicknames_in_chats = {}
     cache_chat = {}
+    allFriends = None
+    unseenMessages = {}
+
 
     @staticmethod
     def set_nicknames_in_chats(arr):
-        MessageRoom.nicknames_in_chats = {**MessageRoom.nicknames_in_chats, **arr}
+        MessageRoom.nicknames_in_chats = {**arr, **MessageRoom.nicknames_in_chats}
 
     @staticmethod
     def set_cache_chat(arr):
@@ -56,19 +58,25 @@ class MessageRoom(object):
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
         pre_cache = []
+
+        db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
+        allFriends = db_fr.getDataFromTableColumn("chat_id, friend_one_id, friend_two_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
         for pre_ch in pre_chat_ids:
-            x = db_ms.getDataFromTableColumn("chat_id, message, sender_nick, date", f"WHERE chat_id = {pre_ch[0]}")
+            if str(pre_ch[0]) not in MessageRoom.unseenMessages:
+                MessageRoom.unseenMessages[str(pre_ch[0])] = 0 #записываются айди всех чатов пользователя
+            x = db_ms.getDataFromTableColumn("id, chat_id, message, sender_nick, date, WasSeen", f"WHERE chat_id = {pre_ch[0]}")
             for k in x:
                 pre_cache.append(k)
-        print(pre_cache)
         for pre_ch in pre_cache:
-            p = str(pre_ch[0])
-            l = (pre_ch[3], pre_ch[2], pre_ch[1], p)
-            if p in MessageRoom.cache_chat:
-                if l not in MessageRoom.cache_chat[p]:
-                    MessageRoom.cache_chat[p].append(l)
+            chat_id = str(pre_ch[1])
+            cachedMessage = {"id": pre_ch[0], "chat_id": pre_ch[1], "message": pre_ch[2], "sender_nick": pre_ch[3], "date": pre_ch[4], "WasSeen": pre_ch[5]}
+            if pre_ch[5] == 0:
+                MessageRoom.unseenMessages[chat_id] += 1
+            if chat_id in MessageRoom.cache_chat:
+                if cachedMessage not in MessageRoom.cache_chat[chat_id]:
+                    MessageRoom.cache_chat[chat_id].append(cachedMessage)
             else:
-                MessageRoom.cache_chat[p] = [l]
+                MessageRoom.cache_chat[chat_id] = [cachedMessage]
 
         while True:
             try:
@@ -79,25 +87,35 @@ class MessageRoom(object):
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
+                date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
+                    "id": 0,
+                    "chat_id": chat_code,
+                    "message": message,
+                    "sender_nick": nickname,
+                    "date": date_now,
+                    "WasSeen": 0
+                }
+
+                if "__UPDATE-MESSAGES__" in message:
+                    #Плохой момент, в случае большого количества пользователей будет слишком долгий перебор на клиенет
+                    client.send(b'2' + MessageRoom.serialize(MessageRoom.unseenMessages))
+                    continue
 
                 if "__FRIEND-ADDING__" in message:
                     chats_id = settleFirstInformationAboutClients(client)[0]
                     MessageRoom.copyCacheChat(chats_id)
                     chat_id = message.split("&")[1]
                     friendNick = message.split("&")[2]
-
-                    date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
-
+                    messageToChache["message"] = "__FRIEND_REQUEST__"
 
                     MessageRoom.nicknames_in_chats[chat_id].append(nickname)
                     MessageRoom.nicknames_in_chats[chat_id].append(friendNick)
-                    MessageRoom.cache_chat[chat_id].append((date_now, nickname, "__FRIEND_REQUEST__", chat_id))
+                    MessageRoom.cache_chat[chat_id].append(messageToChache)
 
                     db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
                     db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date)", f"({chat_id}, '{nickname}', '{friendNick}', '__FRIEND_REQUEST__', '{date_now}')")
 
-
-                    #client.send(b'2' + MessageRoom.serialize(f"__FRIEND_REQUEST__&{chat_id}&{nickname}"))
                     #Передавать специализированные сообщения обычным броадакстом так себе идейка
                     MessageRoom.broadcast((chat_id, f"__FRIEND_REQUEST__&{friendNick}", date_now, nickname))
 
@@ -120,6 +138,12 @@ class MessageRoom(object):
                     client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
                     flg = True
 
+                    for message in MessageRoom.cache_chat[chat_code]:
+                        message["WasSeen"] = 1
+
+                    MessageRoom.unseenMessages[str(chat_code)] = 0
+                    clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+
                 if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
                     MessageRoom.nicknames_in_chats[chat_code].append(nickname)
                     try:
@@ -134,14 +158,31 @@ class MessageRoom(object):
                 if flg:
                     continue
 
-                date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                if len(MessageRoom.nicknames_in_chats[chat_code]) > 1:
+                    messageToChache["WasSeen"] = 1
 
-                MessageRoom.cache_chat[chat_code].append((date_now, nickname, message, chat_code))
+                MessageRoom.cache_chat[chat_code].append(messageToChache)
+
+                if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
+                    MessageRoom.unseenMessages[chat_code] += 1
+                    for frineds in allFriends:
+                        if frineds[0] == int(chat_code):
+                            try:
+                                if frineds[1] != nickname:
+                                    clients[frineds[1]].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                    break
+
+                                if frineds[2] != nickname:
+                                    clients[frineds[2]].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                    break
+                            except KeyError:
+                                break
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
                 if len(MessageRoom.cache_chat[chat_code]) >= 21:
                     db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
-                    db.insertDataInTable("(chat_id, message, sender_nick, date)", f"({chat_code}, '{message}', '{nickname}', '{date_now}')")
-                    del MessageRoom.cache_chat[chat_code][0]
+                    if messageToChache["id"] == 0:
+                        db.insertDataInTable("(chat_id, message, sender_nick, date, WasSeen)", f"({chat_code}, '{message}', '{nickname}', '{date_now}', '{messageToChache['WasSeen']}')")
+                        del MessageRoom.cache_chat[chat_code][0]
 
             except ConnectionResetError:
                 # Removing And Closing Clients
@@ -189,13 +230,13 @@ if __name__ == "__main__":
     server_msg.listen()
     clients = {}
     db_prefr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
-    pre_fr_add = db_prefr.getDataFromTableColumn("chat_id, sender_nick, friend_nick, message, date")
+    pre_fr_add = db_prefr.getDataFromTableColumn("id, chat_id, sender_nick, friend_nick, message, date")
     if len(pre_fr_add) != 0:
         for l in pre_fr_add:
-            p = str(l[0])
-            element = (l[4], l[1], "__FRIEND_REQUEST__", p)
-            if p in MessageRoom.cache_chat.keys():
-                MessageRoom.cache_chat[p].append(element)
+            chat_id = str(l[1])
+            cachedMessage = {"id": l[0], "chat_id": l[1], "message": l[4], "sender_nick": l[2], "date": l[5]}
+            if chat_id in MessageRoom.cache_chat.keys():
+                MessageRoom.cache_chat[chat_id].append(cachedMessage)
             else:
-                MessageRoom.cache_chat[p] = [element]
+                MessageRoom.cache_chat[chat_id] = [cachedMessage]
     receive()

@@ -36,6 +36,8 @@ class Chat(QtWidgets.QWidget):
         if self.__user.getFriends()[self.__friendNickname][1] == 1:
             self.ui.ChatInputLayout.setHidden(True)
 
+        self.messageNumber = None
+
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
 
@@ -54,6 +56,9 @@ class Chat(QtWidgets.QWidget):
         self.ui.Chat_input_.clear()
 
 
+    def createUnseenMessageNumber(self, parent):
+        self.messageNumber = QtWidgets.QLabel("0", parent=parent)
+        self.messageNumber.setVisible(False)
 
     def recieveMessage(self, sender, text):
         if len(text) == 0:
@@ -119,7 +124,6 @@ class Chat(QtWidgets.QWidget):
 
     def getNickName(self):
         return self.__friendNickname
-
 
     def getChatWidget(self):
         return self.ui

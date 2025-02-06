@@ -1,5 +1,6 @@
-from getpass import getpass
-from mysql.connector import connect, Error
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import scoped_session, sessionmaker
+from sqlalchemy.exc import OperationalError, IntegrityError, ProgrammingError
 
 class db_handler:
     """
@@ -22,158 +23,196 @@ class db_handler:
     Пример:
     db.insertDataInTable("(COL1, COL2, COL3, COL4)", "(5, 'data2', 'data3', 'data4')")
     """
+
+    _engine = None
+    _session_factory = None
     def __init__(self, host, user, password, databaseName, tableName):
         self._host = host
         self._user = user
         self._password = password
         self._database_name = databaseName
-
         self._tableName = tableName
 
+        if db_handler._engine is None:
+            db_handler._engine = create_engine(
+                f'mysql://{user}:{password}@{host}/{databaseName}',
+                pool_size=10,
+                max_overflow=5,
+                pool_timeout=30,
+                pool_recycle=3600,
+                pool_pre_ping=True
+            )
+        db_handler._session_factory = scoped_session(sessionmaker(bind=db_handler._engine))
 
+    def __del__(self):
+        db_handler._session_factory.remove()
+    def get_session(self):
+        """Создает новую сессию для текущего потока."""
+        return db_handler._session_factory()
 
     def getDataFromTableColumn(self, column:str, condition:str = "") -> list:
-        connection = connect(
-                host=self._host,
-                user=self._user,
-                password= self._password,
-                database=self._database_name
-        )
-
+        session = self.get_session()
         try:
-            cursor = connection.cursor()
+            result = session.execute(text(f"SELECT {column} FROM {self._tableName} {condition}"))
 
-            cursor.execute(f"SELECT {column} FROM {self._tableName} {condition}")
-
-            result = list(map(lambda x: list(x),  cursor.fetchall()))
-
-            cursor.close()
-            connection.close()
+            result = list(map(lambda x: list(x),  result.fetchall()))
 
             return result
 
-        except Error as e:
-            print(e)
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
             return []
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return []
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return []
+        finally:
+            db_handler._session_factory.remove()
 
     def insertDataInTable(self, columns:str, dataToInsert:str) -> bool:
-        connection = connect(
-                host=self._host,
-                user=self._user,
-                password= self._password,
-                database=self._database_name
-        )
-
+        session = self.get_session()
         try:
-            cursor = connection.cursor()
-            cursor.execute(f"INSERT INTO {self._tableName} {columns} VALUES {dataToInsert};")
-
-            cursor.close()
-            connection.commit()
+            session.execute(text(f"INSERT INTO {self._tableName} {columns} VALUES {dataToInsert};"))
+            session.commit()
             return True
-        except Error as e:
-            print(e)
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
             return False
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return False
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return False
+        finally:
+            db_handler._session_factory.remove()
 
     def getCertainRow(self, column:str, value:str, columns:str, condition:str="1=1"):
-        connection = connect(
-            host=self._host,
-            user=self._user,
-            password= self._password,
-            database=self._database_name
-        )
-
+        session = self.get_session()
         try:
-            cursor = connection.cursor()
+            res = session.execute(text(f"SELECT {columns} FROM {self._tableName} where {column} = '{value}' AND {condition}"))
 
-            cursor.execute(f"SELECT {columns} FROM {self._tableName} where {column} = '{value}' AND {condition}")
+            result = list(map(lambda x: list(x),  res.fetchall()))
 
-
-            result = list(map(lambda x: list(x),  cursor.fetchall()))
-
-            cursor.close()
-            connection.close()
             return result
-        except Error as e:
-            print(e)
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
             return []
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return []
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return []
+        finally:
+            db_handler._session_factory.remove()
 
     def checkIfUhique(self, column:str, columnToCheck:str):
-        connection = connect(
-            host=self._host,
-            user=self._user,
-            password= self._password,
-            database=self._database_name
-        )
-
+        session = self.get_session()
         try:
-            cursor = connection.cursor()
+            res = session.execute(text(f"SELECT {columnToCheck} AS col FROM {self._tableName} WHERE {columnToCheck} != '{column}';"))
 
-            cursor.execute(f"SELECT {columnToCheck} AS col FROM {self._tableName} WHERE {columnToCheck} != '{column}';")
-
-
-            result = list(map(lambda x: list(x),  cursor.fetchall()))
-
-            cursor.close()
-            connection.close()
+            result = list(map(lambda x: list(x),  res.fetchall()))
 
             if len(result) == 0:
                 return True
 
             return False
-        except Error as e:
-            print(e)
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
             return False
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return False
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return False
+        finally:
+            db_handler._session_factory.remove()
 
     def UpdateRequest(self, columnToChange:str, newValue:str, condition:str = "") -> bool:
-        connection = connect(
-            host=self._host,
-            user=self._user,
-            password= self._password,
-            database=self._database_name
-        )
-
+        session = self.get_session()
         try:
-            cursor = connection.cursor()
+            session.execute(text(f"UPDATE {self._tableName} SET {columnToChange} = {newValue} {condition}"))
 
-            cursor.execute(f"UPDATE {self._tableName} SET {columnToChange} = {newValue} {condition}")
-
-            connection.commit()
-
-            cursor.close()
-            connection.close()
+            session.commit()
 
             return True
-        except Error as e:
-            print(e)
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
             return False
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return False
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return False
+        finally:
+            db_handler._session_factory.remove()
 
 
     def DeleteRequest(self, columnToDeleteFrom:str, CheckValue:str, condition:str = "") -> bool:
-        connection = connect(
-            host=self._host,
-            user=self._user,
-            password= self._password,
-            database=self._database_name
-        )
-
+        session = self.get_session()
         try:
-            cursor = connection.cursor()
+            session.execute(text(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} {condition} LIMIT 1"))
 
-            cursor.execute(f"DELETE FROM {self._tableName} WHERE {columnToDeleteFrom} = {CheckValue} {condition} LIMIT 1")
-
-            connection.commit()
-
-            cursor.close()
-            connection.close()
+            session.commit()
 
             return True
-        except Error as e:
-            print(e)
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
             return False
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return False
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return False
+        finally:
+            db_handler._session_factory.remove()
 
-
-
+    def insertDataInTablePacket(self, columns:str, dataToInsert:list) -> bool:
+        """
+        Метод для пактеной отсылке данных в БД
+        dataToInsert - Массив с даннми типа ['(val1, val2)', '(val3, val4)']
+        """
+        session = self.get_session()
+        try:
+            session.execute(text(f"INSERT INTO {self._tableName} {columns} VALUES {','.join(dataToInsert)};"))
+            session.commit()
+            return True
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
+            return False
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return False
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return False
+        finally:
+            db_handler._session_factory.remove()
+    def getAI_Id(self):
+        session = self.get_session()
+        try:
+            res = session.execute(text(f"SELECT max(`id`) from {self._tableName};"))
+            result = list(map(lambda x: list(x),  res.fetchall()))
+            if result[0][0] is None:
+                return [[1]]
+            return result
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
+            return [[1]]
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return [[1]]
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return [[1]]
+        finally:
+            db_handler._session_factory.remove()
 
 
 #db = db_hadler("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord")

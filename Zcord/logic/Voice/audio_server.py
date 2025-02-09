@@ -38,13 +38,13 @@ class VoiceServer:
                     #self.stream_output.write(data)  # проверка на сервере не трогать
                 elif header == b'1':  # подключение юзера к серверу
                     if len(self.clients) != 0:
-                        self.active_users_icon(b'2', address)
+                        self.active_users_icon(b'222', address)
                     print(f"Пользователь с ip: {address} подключен")
                     self.clients[address] = Client(address)
-                    self.broadcast(b'1', address)
+                    self.broadcast(b'111', address)
                 elif header == b'0':  # отключение юзера от сервера
                     print(f"{address} отключен")
-                    self.broadcast(b'0', address)
+                    self.broadcast(b'000', address)
                     del self.clients[address]
             except Exception as e:
                 print(f"Error reading request: {e}")

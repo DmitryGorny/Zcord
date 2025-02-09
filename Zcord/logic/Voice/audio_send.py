@@ -111,13 +111,14 @@ class VoiceConnection(QThread):
             if not self.is_head_mute:
                 try:
                     data_to_read, address = self.speak.recvfrom(4096)  # Получаем данные с сервера
-                    self.speech_detected_icon2.emit(VoiceConnection.vad.is_speech(data_to_read, self.RATE))
-                    header = data_to_read[0:1]
-                    if header == b'1':
+                    #self.speech_detected_icon2.emit(VoiceConnection.vad.is_speech(data_to_read, self.RATE))
+                    header = data_to_read[0:3]
+
+                    if header == b'111':
                         self.icon_change.emit(True)
-                    elif header == b'0':
+                    elif header == b'000':
                         self.icon_change.emit(False)
-                    elif header == b'2':
+                    elif header == b'222':
                         self.icon_change.emit(True)
                     else:
                         self.stream_output.write(data_to_read)

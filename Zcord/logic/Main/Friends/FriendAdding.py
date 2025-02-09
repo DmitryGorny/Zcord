@@ -10,6 +10,8 @@ class FriendAdding:
 
 
     def sendRequest(self, nickToSend) -> bool:
+        if nickToSend == self.__user.getNickName():
+            return False
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
         db_users = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "users")

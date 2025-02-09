@@ -1,9 +1,8 @@
 import socket
 import threading
 import time
-
 import msgspec
-from PyQt6.QtCore import pyqtSignal, QObject, QCoreApplication, QThread
+from PyQt6.QtCore import pyqtSignal, QObject
 
 
 class SygnalChanger(QObject):
@@ -11,6 +10,7 @@ class SygnalChanger(QObject):
     friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
     dynamicInterfaceUpdate = pyqtSignal(str, object) #См. документацию dynamicUpdate
+    dynamicInterfaceUpdateAwaited = pyqtSignal(str, object, object)
     unblockChat = pyqtSignal()
     chat = ""
 
@@ -34,6 +34,9 @@ class MainInterface:
     @staticmethod
     def return_current_chat():
         return MainInterface.__current_chat
+    @staticmethod
+    def setCurrentChat(chat):
+        MainInterface.__current_chat = chat
 
 
 class MessageConnection(QObject):
@@ -80,30 +83,30 @@ class MessageConnection(QObject):
     def recv_message(nickname_yours, reciever):
         while True:
             try:
-                msg = MessageConnection.client_tcp.recv(4096)
+                msg = MessageConnection.client_tcp.recv(16384)
                 header = msg[0:1]
                 msg = msg[1:]
+
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
                         try:
-                            chat = list(filter(lambda x: int(x.getChatId()) == int(key), MessageConnection.chatsList[0]))[0]
-                            reciever.dynamicInterfaceUpdate.emit("UPDATE-MESSAGE-NUMBER", (chat, number[key]))
+                            chat = list(filter(lambda x: int(x.getChatId()) == int(key), MessageConnection.chatsList))[0]
+                            reciever.dynamicInterfaceUpdate.emit("UPDATE-MESSAGE-NUMBER", (chat, number[key][nickname_yours]))
                         except IndexError:
                             pass
                     continue
-
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
                         if MessageConnection.chat is None:
-                            for chat in MessageConnection.chatsList[0]:
+                            for chat in MessageConnection.chatsList:
                                 if int(chat.getChatId()) == int(i["chat_id"]):
                                     MessageConnection.chat = chat
                                     break
                         else:
                             if MessageConnection.chat.getChatId() != int(i["chat_id"]):
-                                for chat in MessageConnection.chatsList[0]:
+                                for chat in MessageConnection.chatsList:
                                     if int(chat.getChatId()) == int(i["chat_id"]):
                                         MessageConnection.chat = chat
                                         break
@@ -117,7 +120,6 @@ class MessageConnection(QObject):
                             reciever.friendRequestShow.disconnect()
                         except TypeError:
                             pass
-
                         if i["message"] == "__FRIEND_REQUEST__":
                             if i["sender_nick"] != nickname_yours:
                                 reciever.friendRequestShow.connect(MessageConnection.chat.showFriendRequestWidget)
@@ -142,13 +144,18 @@ class MessageConnection(QObject):
                     print("Подключено к серверу!")
                 elif "__FRIEND_REQUEST__" in message:
                     if message.split("&")[1] == nickname_yours:
-                        reciever.dynamicInterfaceUpdate.emit("ADD-CANDIDATE-FRIEND", (msg[2], msg[3], 1))
-                        reciever.dynamicInterfaceUpdate.emit("UPDATE-CHATS", (msg[3], msg[2]))
+                        event1 = threading.Event()
+                        event2 = threading.Event()
+                        reciever.dynamicInterfaceUpdateAwaited.emit("ADD-CANDIDATE-FRIEND", (msg[2], msg[3], 1), event1)
+                        event1.wait()
+                        reciever.dynamicInterfaceUpdateAwaited.emit("UPDATE-CHATS", (msg[3], msg[2]), event2)
+                        event2.wait()
+                        MessageConnection.send_message(f"__FRIEND-REQUEST_ACTIVITY__&{message.split('&')[1]}", nickname_yours)
                     continue
                 elif "__ACCEPT-REQUEST__" in message:
                     if msg[2] != nickname_yours:
                          reciever.dynamicInterfaceUpdate.emit("ADD-FRIEND", (msg[2]))
-                         MessageConnection.chat = list(filter(lambda chat: chat.getChatId() == int(message.split("&")[1]), MessageConnection.chatsList[0]))[0]
+                         MessageConnection.chat = list(filter(lambda chat: chat.getChatId() == int(message.split("&")[1]), MessageConnection.chatsList))[0]
                          reciever.unblockChat.connect(MessageConnection.chat.startMessaging)
                          reciever.unblockChat.emit()
                     else:
@@ -159,6 +166,12 @@ class MessageConnection(QObject):
                         reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[2]))
                     else:
                         reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (message.split("&")[2]))
+                    MainInterface.setCurrentChat(None)
+                    for chat in MessageConnection.chatsList:
+                        if chat.getChatId() == message.split("&")[1]:
+                            MessageConnection.chatsList.remove(chat)
+                            break
+
                     continue
                 else:
                     date_now = msg[1]
@@ -170,7 +183,7 @@ class MessageConnection(QObject):
                             continue
 
                         if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
-                            for CertainChat in MessageConnection.chatsList[0]:
+                            for CertainChat in MessageConnection.chatsList:
                                 if int(CertainChat.getChatId()) == int(chat_code):
                                     MessageConnection.chat = CertainChat
                                     break
@@ -205,6 +218,7 @@ class MessageConnection(QObject):
 def thread_start(nickname, dynamicUpdateCallback):
     reciever = SygnalChanger()
     reciever.dynamicInterfaceUpdate.connect(dynamicUpdateCallback)
+    reciever.dynamicInterfaceUpdateAwaited.connect(dynamicUpdateCallback)
     receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, ))
     receive_thread.start()
 

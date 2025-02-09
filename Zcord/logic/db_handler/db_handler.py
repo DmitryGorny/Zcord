@@ -42,10 +42,8 @@ class db_handler:
                 pool_recycle=3600,
                 pool_pre_ping=True
             )
-        db_handler._session_factory = scoped_session(sessionmaker(bind=db_handler._engine))
+            db_handler._session_factory = scoped_session(sessionmaker(bind=db_handler._engine))
 
-    def __del__(self):
-        db_handler._session_factory.remove()
     def get_session(self):
         """Создает новую сессию для текущего потока."""
         return db_handler._session_factory()
@@ -214,8 +212,25 @@ class db_handler:
         finally:
             db_handler._session_factory.remove()
 
+    def packetUpdate(self, columnToUpdate:str, ArrayOfValues:list) -> bool:
+        session = self.get_session()
+        try:
+            for valueInd in range(len(ArrayOfValues)):
+                session.execute(text(f"UPDATE {self._tableName} SET {columnToUpdate} = {ArrayOfValues[valueInd][0]} {ArrayOfValues[valueInd][1]};"))
+                session.commit()
+            return True
+        except OperationalError as e:
+            print(f"Ошибка подключения к базе данных: {e}")
+            return False
+        except IntegrityError as e:
+            print(f"Ошибка целостности данных: {e}")
+            return False
+        except ProgrammingError as e:
+            print(f"Ошибка в SQL-запросе: {e}")
+            return False
+        finally:
+            db_handler._session_factory.remove()
 
-#db = db_hadler("127.0.0.1", "Dmitry", "gfggfggfg3D-", "zcord")
 
 
 

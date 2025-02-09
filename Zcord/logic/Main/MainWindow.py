@@ -6,6 +6,7 @@ from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
+import plyer
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -87,15 +88,15 @@ class MainWindow(QtWidgets.QMainWindow):
     def addChatToList(self, chatId, friendNick):
         chat = Chat(chatId, friendNick, self.__user)
         self.__chats.append(chat)
-
+        message_client.MessageConnection.addChatToList(chat)
         return chat
 
     def call_chat(self):
         chat_ids = []
+        queueToSend = queue.Queue()
         for chat in self.__chats:
             chat_ids.append(str(chat.getChatId()))
-        queueToSend = queue.Queue()
-        queueToSend.put(self.__chats)
+            queueToSend.put(chat)
 
         self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend, self.dynamicUpdateSlot)
 
@@ -196,7 +197,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.stackedWidget.setCurrentWidget(chat.ui.MAIN)
 
 
-    def dynamicUpdateSlot(self, command:str, args:tuple):
+    def dynamicUpdateSlot(self, command:str, args:tuple, done_event=None):
         """
         В *args передаются парометры необходимые для дальнейшего выполнения функций в кейсах
                       индекс\/
@@ -213,10 +214,14 @@ class MainWindow(QtWidgets.QMainWindow):
             case "UPDATE-CHATS":
                 chat = self.addChatToList(args[0], args[1])
                 self.updateChatList(chat)
+                if done_event is not None:
+                    done_event.set()
                 return chat
             case "ADD-CANDIDATE-FRIEND":
                 self.addFriendToDict(args[0], args[1], args[2])
                 self.__user.setFrinds(self.__friends)
+                if done_event is not None:
+                    done_event.set()
             case "DELETE-FRIEND":
                 self.deleteFriend(args)
                 self.__user.setFrinds(self.__friends)
@@ -241,6 +246,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #with open("Resources/frineds/friends.json", "w") as Frineds_json:
             #Frineds_json.write(json.dumps(self.__friends))
         self.close()
+        db_handler._engine.dispose()
 
         self.__client.close()
 
@@ -334,7 +340,6 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.ScrollFriends.widget().layout().update()
 
     def unseenMessages(self, chat:Chat, newValue:int):
-        print(newValue)
         if newValue == 0:
             chat.messageNumber.setVisible(False)
             return
@@ -343,4 +348,4 @@ class MainWindow(QtWidgets.QMainWindow):
             chat.messageNumber.setVisible(True)
 
         chat.messageNumber.setText(str(newValue))
-
+        #plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )

@@ -180,7 +180,6 @@ class MainWindow(QtWidgets.QMainWindow):
             self.dynamicUpdateSlot("ADD-CANDIDATE-FRIEND", (senderAndReciver[1], friendshipInfo[0], friendshipInfo[1]))
 
             chat = self.dynamicUpdateSlot("UPDATE-CHATS", (friendshipInfo[0], senderAndReciver[1]))
-            message_client.MessageConnection.addChatToList(chat)
             chat.sendFriendRequest()
 
     def chooseChat(self):
@@ -338,6 +337,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.ui.ScrollFriends.widget().layout().takeAt(i)
                     widgetToDelete.deleteLater()
                     self.ui.ScrollFriends.widget().layout().update()
+                    break
 
     def unseenMessages(self, chat:Chat, newValue:int):
         if newValue == 0:

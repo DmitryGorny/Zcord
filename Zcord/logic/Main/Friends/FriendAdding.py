@@ -69,8 +69,10 @@ class FriendAdding:
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
         id = db.getDataFromTableColumn("`id`", f"WHERE sender_nick = '{self.__user.getNickName()}' AND friend_nick = '{friendNick}' "
                                         f"OR sender_nick = '{friendNick}' AND friend_nick = '{self.__user.getNickName()}'")
-        print(id)
-        db.DeleteRequest("id", id[0][0])
+        try:
+            db.DeleteRequest("id", id[0][0])
+        except IndexError:
+            pass
 
     def BlockUser(self, userToBlock):
 

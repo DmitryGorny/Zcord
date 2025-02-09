@@ -171,9 +171,8 @@ class MessageConnection(QObject):
                         print(chat.getChatId(), message.split("&")[1])
                         if int(chat.getChatId()) == int(message.split("&")[1]):
                             MessageConnection.chatsList.remove(chat)
+                            MessageConnection.cache_chat.pop(message.split("&")[1], None)
                             break
-                    print(MessageConnection.chatsList)
-
                     continue
                 else:
                     date_now = msg[1]
@@ -244,8 +243,8 @@ def call(nickname, chat_id, user, chats, callback):
 
     while not chats.empty():
         MessageConnection.addChatToList(chats.get())#достаем объекты chat из очереди и пихаем их в массив
-    chats.task_done()
-
+        chats.task_done()
+    print(MessageConnection.chatsList)
 
     print("Старт клиента сообщений")
 

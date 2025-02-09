@@ -75,7 +75,7 @@ class Chat(QtWidgets.QWidget):
 
     def sendFriendRequest(self):
         message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
-        message_client.MessageConnection.addChat(self.__chatId)
+        message_client.MessageConnection.addChat(f"{self.__chatId}")
 
     def showFriendRequestWidget(self, sender):
         message = FriendRequestMessage(sender, self.acceptFriendRequest, self.rejectRequest)

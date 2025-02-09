@@ -124,8 +124,6 @@ class MessageRoom(object):
                     MessageRoom.unseenMessages[chat_id] = {nickname: 0, friendNick: 1}
                     messageToChache["chat_id"] = chat_id
                     messageToChache["message"] = "__FRIEND_REQUEST__"
-                    MessageRoom.nicknames_in_chats[chat_id].append(nickname)
-                    MessageRoom.nicknames_in_chats[chat_id].append(friendNick)
                     MessageRoom.cache_chat[chat_id].append(messageToChache)
 
                     db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
@@ -133,6 +131,11 @@ class MessageRoom(object):
                                                                                                       f"'__FRIEND_REQUEST__', '{date_now}', 0)")
                     #Передавать специализированные сообщения обычным броадакстом так себе идейка
                     MessageRoom.broadcast((chat_id, f"__FRIEND_REQUEST__&{friendNick}", date_now, nickname))
+                    try:
+                        clients[nickname].send(b'0' + f"{date_now}&+& {nickname}&+& {messageToChache['message']}&+& {chat_id}".encode('utf-8'))
+                        clients[friendNick].send(b'0' + f"{date_now}&+& {nickname}&+& {messageToChache['message']}&+& {chat_id}".encode('utf-8'))
+                    except KeyError:
+                        pass
                     continue
 
                 if "__ACCEPT-REQUEST__" in message:
@@ -152,7 +155,6 @@ class MessageRoom(object):
                     MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname))
                     del MessageRoom.nicknames_in_chats[splitedMessage[1]]
                     del MessageRoom.cache_chat[splitedMessage[1]]
-                    print(MessageRoom.cache_chat)
                     continue
 
                 if message == "__change_chat__":
@@ -172,11 +174,12 @@ class MessageRoom(object):
                     try:
                         if chat_code != old_chat_cod:
                             index = MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)
-                            del MessageRoom.nicknames_in_chats[old_chat_cod][index]
-                    except UnboundLocalError:
-                        pass
-                    except KeyError:
-                        pass
+                            MessageRoom.nicknames_in_chats[old_chat_cod].pop(index)
+                            print(MessageRoom.nicknames_in_chats)
+                    except UnboundLocalError as e:
+                        print(e)
+                    except KeyError as e:
+                        print(e)
 
                     old_chat_cod = str(chat_code)
 

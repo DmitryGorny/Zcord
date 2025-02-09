@@ -427,16 +427,22 @@ QPushButton {
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">
-border:2px solid white;
-background-color:black;</string>
+                   <string notr="true">QPushButton {
+	border:2px solid white;
+	background-color:black;
+}
+
+QPushButton:hover {
+    background-color: rgba(58, 60, 65, 255);
+    border: 2px solid rgba(78, 80, 85, 255);
+}</string>
                   </property>
                   <property name="text">
                    <string/>
                   </property>
                   <property name="icon">
                    <iconset resource="../res-rec.qrc">
-                    <normaloff>:/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                    <normaloff>:/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -467,15 +473,22 @@ background-color:black;</string>
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">border:2px solid white;
-background-color:black;</string>
+                   <string notr="true">QPushButton {
+	border:2px solid white;
+	background-color:black;
+}
+
+QPushButton:hover {
+    background-color: rgba(58, 60, 65, 255);
+    border: 2px solid rgba(78, 80, 85, 255);
+}</string>
                   </property>
                   <property name="text">
                    <string/>
                   </property>
                   <property name="icon">
                    <iconset resource="../res-rec.qrc">
-                    <normaloff>:/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                    <normaloff>:/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
                   </property>
                   <property name="iconSize">
                    <size>
@@ -509,8 +522,14 @@ background-color:black;</string>
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">border-color:#BB271A;
-background-color:#BB271A;</string>
+                   <string notr="true">QPushButton {
+	border-color:#BB271A;
+	background-color:#BB271A;
+}
+QPushButton:hover {
+    background-color:#AA000A;
+	border-color:#AA000A;
+}</string>
                   </property>
                   <property name="text">
                    <string/>

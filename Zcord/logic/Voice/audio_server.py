@@ -1,5 +1,6 @@
 import socket
 import asyncio
+import pyaudio
 
 
 class Client:
@@ -10,7 +11,9 @@ class Client:
         return self.address
 
 
-class VoiceServer(object):
+class VoiceServer:
+    clients = {}  # Словарь для хранения активных клиентов
+
     def __init__(self, server_ip, server_port):
         # 1 - порт инициализации сервера, 2 - ip инициализации сервера
         self.server_ip = server_ip  # Адрес сервера
@@ -19,33 +22,47 @@ class VoiceServer(object):
         self.CHUNK = 1440
         self.server.bind((self.server_ip, self.server_port))
         print(f"Сервер запущен")
-        self.clients = {}  # Словарь для хранения активных клиентов
+        self.stream_output = pyaudio.PyAudio().open(format=pyaudio.paInt16,
+                                         channels=1,
+                                         rate=48000,
+                                         output=True)
 
     async def read_request(self):
         while True:
             try:
-                data, address = await asyncio.get_event_loop().sock_recvfrom(self.server, self.CHUNK)
+                data, address = self.server.recvfrom(4096)
                 header = data[0:1]
-                if header == b'2':
+                if header == b'2':  # обычный кадр звука с микрофона
                     data = data[1:]
                     self.broadcast(data, address)
-                elif header == b'1':
+                    #self.stream_output.write(data)  # проверка на сервере не трогать
+                elif header == b'1':  # подключение юзера к серверу
+                    if len(self.clients) != 0:
+                        self.active_users_icon(b'2', address)
                     print(f"Пользователь с ip: {address} подключен")
                     self.clients[address] = Client(address)
-                elif header == b'0':
-                    print(f"{address} disconnected!")
+                    self.broadcast(b'1', address)
+                elif header == b'0':  # отключение юзера от сервера
+                    print(f"{address} отключен")
+                    self.broadcast(b'0', address)
                     del self.clients[address]
             except Exception as e:
                 print(f"Error reading request: {e}")
                 break
 
     def broadcast(self, data: bytes, sender_address: tuple):
-        for client_address in self.clients:
+        for client_address in VoiceServer.clients:
             if client_address != sender_address:  # Не отправляем данные отправителю
                 try:
                     self.server.sendto(data, client_address)
                 except Exception as e:
                     print(f"Error sending data to {client_address}: {e}")
+
+    def active_users_icon(self, data: bytes, sender_address: tuple):
+        try:
+            self.server.sendto(data, sender_address)
+        except Exception as e:
+            print(f"Error sending data to {sender_address}: {e}")
 
     def close_server(self):
         print("Server ends")
@@ -54,7 +71,9 @@ class VoiceServer(object):
 
 async def main():
     server = VoiceServer("26.36.124.241", 65128)
-    await server.read_request()
+    task1 = asyncio.create_task(server.read_request())
+    task2 = asyncio.create_task(server.read_request())
+    await asyncio.gather(task1, task2)
 
 
 if __name__ == "__main__":

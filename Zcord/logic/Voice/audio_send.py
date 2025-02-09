@@ -6,23 +6,35 @@ import numpy as np
 import noisereduce as nr
 import webrtcvad as wb
 import time
+from PyQt6.QtCore import QThread, pyqtSignal
+#from cryptography.fernet import Fernet
 
 
-class VoiceConnection:
+class VoiceConnection(QThread):
     noise_profile = None
     output_volume = 1.0
     volume = 1.0
     vad = wb.Vad()
     vad.set_mode(2)
     voice_checker = False
+    target_level = 2000
+    speech_detected_icon1 = pyqtSignal(bool)
+    speech_detected_icon2 = pyqtSignal(bool)
+    icon_change = pyqtSignal(bool)
+    is_running = False
 
     def __init__(self, host, port):
+        super().__init__()
         self.noise_profile = None
         self.FORMAT = pyaudio.paInt16
         self.CHANNELS = 1
         self.RATE = 48000
         self.CHUNK = 1440
-        self.is_running = True
+
+        self.is_mic_mute = False
+        self.is_head_mute = False
+
+        self.is_speaking = False
 
         self.speak = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.speak.connect((host, port))
@@ -39,17 +51,24 @@ class VoiceConnection:
                                          output=True)
 
     def sender(self):
-        while self.is_running:
-            try:
-                data_to_send = self.stream_input.read(self.CHUNK)
+        while VoiceConnection.is_running:
+            if not self.is_mic_mute:
+                try:
+                    data_to_send = self.stream_input.read(self.CHUNK)
+                    data_to_send = VoiceConnection.adjust_volume(data_to_send, VoiceConnection.volume)
 
-                if VoiceConnection.noise_profile is not None:
-                    data_to_send = self.noise_down(data_to_send)
+                    self.speech_detected_icon1.emit(VoiceConnection.vad.is_speech(data_to_send, self.RATE))
 
-                self.speak.sendall(b'2' + data_to_send)
+                    if VoiceConnection.noise_profile is not None:
+                        data_to_send = self.noise_down(data_to_send)
 
-            except KeyboardInterrupt:
-                print("Передача аудио закончена или прервана")
+                    self.speak.sendall(b'2' + data_to_send)
+                except KeyboardInterrupt:
+                    print("Приём аудио завершен или прерван")
+                except Exception as e:
+                    print(f"Отловлена ошибка в sender: {e}")
+                    print(e.args)
+                    print("Передача аудио закончена или прервана")
         self.speak.sendall(b'0')
 
     @staticmethod
@@ -78,28 +97,50 @@ class VoiceConnection:
         samples = (samples * volume).astype(np.int16)
         return samples.tobytes()
 
-    def getter(self):
-        while self.is_running:
-            try:
-                data_to_read, address = self.speak.recvfrom(self.CHUNK)  # Получаем данные с сервера
-                self.stream_output.write(VoiceConnection.control_output_volume(data_to_read, VoiceConnection.output_volume))
-            except Exception as e:
-                print(f"Отловлена ошибка: {e}")
-                print("Приём аудио завершен или прерван")
-
     @staticmethod
-    def control_output_volume(data, volume):
+    def auto_gain_control(data):  # Автоматическая регулировка усиления (нужно сделать включение в qt)
         samples = np.frombuffer(data, dtype=np.int16)
-        # Масштабируем сэмплы
-        samples = (samples * volume).astype(np.int16)
-        return samples.tobytes()
+        max_amplitude = np.max(np.abs(samples))
+        if max_amplitude == 0:
+            return data
+        gain = VoiceConnection.target_level / max_amplitude
+        return (np.clip(samples * gain, -32768, 32767).astype(np.int16)).tobytes()
+
+    def getter(self):
+        while VoiceConnection.is_running:
+            if not self.is_head_mute:
+                try:
+                    data_to_read, address = self.speak.recvfrom(4096)  # Получаем данные с сервера
+                    self.speech_detected_icon2.emit(VoiceConnection.vad.is_speech(data_to_read, self.RATE))
+                    header = data_to_read[0:1]
+                    if header == b'1':
+                        self.icon_change.emit(True)
+                    elif header == b'0':
+                        self.icon_change.emit(False)
+                    elif header == b'2':
+                        self.icon_change.emit(True)
+                    else:
+                        self.stream_output.write(data_to_read)
+                    # Добавить сюда adjust_volume, разобраться с ошибкой передачи в np параметра data, не поддерживаемая размерность?
+                except KeyboardInterrupt:
+                    print("Приём аудио завершен или прерван")
+                except Exception as e:
+                    print(f"Отловлена ошибка в getter: {e}")
+                    print(e.args)
+                    print("Приём аудио завершен или прерван")
 
     @staticmethod
     def change_output_volume(volume):
         VoiceConnection.output_volume = volume
 
+    def mute_mic(self, flg_mute):
+        self.is_mic_mute = flg_mute
+
+    def mute_head(self, flg_mute):
+        self.is_head_mute = flg_mute
+
     def close(self):
-        self.is_running = False
+        VoiceConnection.is_running = False
         self.stream_input.stop_stream()
         self.stream_input.close()
         self.stream_output.stop_stream()
@@ -110,17 +151,41 @@ class VoiceConnection:
 
 
 def start_voice():
-    HOST = "26.36.124.241"
+    HOST = "26.36.124.241"  #  Вроде как сюда данные сервера к которому мы подключаемся
     PORT_TO_SPEAK = 65128
-
     voice_conn = VoiceConnection(HOST, PORT_TO_SPEAK)
     print("Начата передача аудио")
     voice_conn.first_packet()
+    VoiceConnection.is_running = True
     thread_speak = threading.Thread(target=voice_conn.sender)
     thread_listen = threading.Thread(target=voice_conn.getter)
     thread_speak.start()
     thread_listen.start()
     return voice_conn
+
+
+def get_local_ip():  # можно ли как-то это использовать для общения без локалки?
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        ip = s.getsockname()[0]  # Получаем локальный IP
+        s.close()
+        return ip
+    except Exception as e:
+        print(f"Не удалось определить локальный IP: {e}")
+        return "127.0.0.1"
+
+
+def get_free_port():
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.bind(("", 0))
+        port = s.getsockname()[1]  # Получаем номер порта
+        s.close()
+        return port
+    except Exception as e:
+        print(f"Не удалось найти свободный порт: {e}")
+        return None
 
 
 def listen_noise(duration=5, RATE=48000, CHUNK=1440):

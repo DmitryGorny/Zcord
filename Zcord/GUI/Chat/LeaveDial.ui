@@ -206,7 +206,7 @@ font-size:20px;</string>
   </widget>
  </widget>
  <resources>
-  <include location="../Chat/res-rec.qrc"/>
+  <include location="res-rec.qrc"/>
  </resources>
  <connections/>
 </ui>

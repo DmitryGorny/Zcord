@@ -14,8 +14,12 @@ class VoiceConnection(QThread):
     noise_profile = None
     output_volume = 1.0
     volume = 1.0
+
     vad = wb.Vad()
     vad.set_mode(2)
+    sad = wb.Vad()
+    sad.set_mode(2)
+
     voice_checker = False
     target_level = 2000
     speech_detected_icon1 = pyqtSignal(bool)
@@ -111,7 +115,6 @@ class VoiceConnection(QThread):
             if not self.is_head_mute:
                 try:
                     data_to_read, address = self.speak.recvfrom(4096)  # Получаем данные с сервера
-                    #self.speech_detected_icon2.emit(VoiceConnection.vad.is_speech(data_to_read, self.RATE))
                     header = data_to_read[0:3]
 
                     if header == b'111':
@@ -121,6 +124,8 @@ class VoiceConnection(QThread):
                     elif header == b'222':
                         self.icon_change.emit(True)
                     else:
+                        self.speech_detected_icon2.emit(VoiceConnection.sad.is_speech(data_to_read, self.RATE))
+                        data_to_read = VoiceConnection.adjust_volume(data_to_read, VoiceConnection.output_volume)
                         self.stream_output.write(data_to_read)
                     # Добавить сюда adjust_volume, разобраться с ошибкой передачи в np параметра data, не поддерживаемая размерность?
                 except KeyboardInterrupt:
@@ -216,6 +221,10 @@ def listen_noise(duration=5, RATE=48000, CHUNK=1440):
 
 def volume_change(volume):
     VoiceConnection.volume = volume
+
+
+def headphones_volume_change(volume):
+    VoiceConnection.output_volume = volume
 
 
 def activity_detection(Slider, RATE=48000, CHUNK=1440):

@@ -104,7 +104,7 @@ class Chat(QtWidgets.QWidget):
 
     def rejectRequest(self, deleteFriend:bool = False):
         friendAdding = FriendAdding(self.__user)
-
+        friendAdding.deleteFriendRequest(self.__friendNickname)
         friendAdding.rejectReques(self.__friendNickname, deleteFriend)
 
         message_client.MessageConnection.send_message(f"__REJECT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
@@ -118,6 +118,7 @@ class Chat(QtWidgets.QWidget):
 
     def blockUser(self):
         friendAdding = FriendAdding(self.__user)
+        friendAdding.deleteFriendRequest(self.__friendNickname)
         friendAdding.BlockUser(self.__friendNickname)
         message_client.MessageConnection.send_message(f"__DELETE-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
 

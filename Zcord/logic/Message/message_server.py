@@ -141,6 +141,7 @@ class MessageRoom(object):
                         MessageRoom.nicknames_in_chats[splitedMessage[1]].append(splitedMessage[2])
                     #Передавать специализированные сообщения обычным броадакстом так себе идейка +
                     MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname))
+                    MessageRoom.cache_chat[splitedMessage[1]] = []
                     continue
 
                 if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
@@ -151,6 +152,7 @@ class MessageRoom(object):
                     MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname))
                     del MessageRoom.nicknames_in_chats[splitedMessage[1]]
                     del MessageRoom.cache_chat[splitedMessage[1]]
+                    print(MessageRoom.cache_chat)
                     continue
 
                 if message == "__change_chat__":
@@ -164,7 +166,7 @@ class MessageRoom(object):
 
                     clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
 
-
+                print(MessageRoom.nicknames_in_chats, chat_code)
                 if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
                     MessageRoom.nicknames_in_chats[chat_code].append(nickname)
                     try:
@@ -214,6 +216,8 @@ class MessageRoom(object):
                 for chat_code in MessageRoom.cache_chat.keys():
                     for message in MessageRoom.cache_chat[chat_code]:
                         if message['message'] == "__FRIEND_REQUEST__":
+                            db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
+                            db_fr_add.UpdateRequest("WasSeen", message['WasSeen'], f"WHERE chat_id = {message['chat_id']}")
                             continue
 
                         if message["id"] == 0:

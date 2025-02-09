@@ -69,9 +69,11 @@ class FriendAdding:
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
         id = db.getDataFromTableColumn("`id`", f"WHERE sender_nick = '{self.__user.getNickName()}' AND friend_nick = '{friendNick}' "
                                         f"OR sender_nick = '{friendNick}' AND friend_nick = '{self.__user.getNickName()}'")
+        print(id)
         db.DeleteRequest("id", id[0][0])
 
     def BlockUser(self, userToBlock):
+
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
                                                         f"or friend_two_id = '{self.__user.getNickName()}'")

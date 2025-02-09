@@ -346,6 +346,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         if not chat.messageNumber.isVisible():
             chat.messageNumber.setVisible(True)
-
+        if newValue > 20:
+            newValue = "20+"
         chat.messageNumber.setText(str(newValue))
         #plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )

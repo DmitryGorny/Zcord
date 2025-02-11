@@ -86,7 +86,6 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(16384)
                 header = msg[0:1]
                 msg = msg[1:]
-
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
@@ -150,7 +149,8 @@ class MessageConnection(QObject):
                         event1.wait()
                         reciever.dynamicInterfaceUpdateAwaited.emit("UPDATE-CHATS", (msg[3], msg[2]), event2)
                         event2.wait()
-                        MessageConnection.send_message(f"__FRIEND-REQUEST_ACTIVITY__&{message.split('&')[1]}", nickname_yours)
+                        print(message.split('&'))
+                        MessageConnection.send_message(f"__FRIEND-REQUEST_ACTIVITY__&{msg[3]}", nickname_yours)
                     continue
                 elif "__ACCEPT-REQUEST__" in message:
                     if msg[2] != nickname_yours:
@@ -168,7 +168,6 @@ class MessageConnection(QObject):
                         reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (message.split("&")[2]))
                     MainInterface.setCurrentChat(None)
                     for chat in MessageConnection.chatsList:
-                        print(chat.getChatId(), message.split("&")[1])
                         if int(chat.getChatId()) == int(message.split("&")[1]):
                             MessageConnection.chatsList.remove(chat)
                             MessageConnection.cache_chat.pop(message.split("&")[1], None)

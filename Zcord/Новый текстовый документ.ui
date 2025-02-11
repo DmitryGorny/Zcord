@@ -1,0 +1,376 @@
+        <item>
+         <widget class="QFrame" name="DialogColumn">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>1</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <property name="minimumSize">
+           <size>
+            <width>300</width>
+            <width>250</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>300</width>
+            <width>16777215</width>
+            <height>16777215</height>
+           </size>
+          </property>
+
+           <string notr="true">background-color:rgba(38,40,45,255);</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_4">
+           <property name="spacing">
+            <number>0</number>
+           </property>
+           <property name="sizeConstraint">
+            <enum>QLayout::SetDefaultConstraint</enum>
+           </property>
+           <item>
+            <widget class="QPushButton" name="pushButton_2">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>-1</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+           <property name="leftMargin">
+            <number>0</number>
+           </property>
+           <property name="topMargin">
+            <number>0</number>
+           </property>
+           <property name="rightMargin">
+            <number>0</number>
+           </property>
+           <property name="bottomMargin">
+            <number>0</number>
+           </property>
+           <item alignment="Qt::AlignRight">
+            <widget class="QFrame" name="verticalFrame">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>250</width>
+               <height>0</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>16777215</width>
+               <height>16777215</height>
+              </size>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">border-left: 2px solid rgba(58, 60, 65, 255);</string>
+             </property>
+             <layout class="QVBoxLayout" name="verticalLayout_5">
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QPushButton" name="ProfileSettings">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>-1</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+    background-color: rgba(38, 40, 45, 255);
+    border: 2px solid rgba(58, 60, 65, 255);
+    border-radius: 15px;
+	background-image:url(:/icons/icon/account_circle_32dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.svg);
+	border: 2px solid rgba(58, 60, 65, 255);
+	background-position: left center;
+	border-left:none;
+	border-right:2px solid transparent;;
+	background-repeat:no-repeat;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+	text-align:center;
+}
+
+QPushButton:hover {
+    background-color: rgba(58, 60, 65, 255);
+    border: 2px solid rgba(78, 80, 85, 255);
+	border-right:2px solid orange;
+}
+
+QPushButton:pressed {
+    background-color: rgba(28, 30, 35, 255);
+    border: 2px solid rgba(48, 50, 55, 255);
+	border-top: 2px solid  rgba(28, 30, 35, 255);
+	border-bottom: 2px solid  rgba(28, 30, 35, 255);
+}</string>
+             </property>
+             <property name="text">
+              <string>Настройки чата</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>-1</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+                </property>
+                <property name="text">
+                 <string>Профиль</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>34</width>
+                  <height>34</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="VoiceSettings">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>-1</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+    background-color: rgba(38, 40, 45, 255);
+    border: 2px solid rgba(58, 60, 65, 255);
+    border-radius: 15px;
+	background-image:url(:icons/icon/settings_voice_34dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.svg);
+	border: 2px solid rgba(58, 60, 65, 255);
+	background-position: left center;
+	border-left:none;
+	border-right:2px solid transparent;;
+	background-repeat:no-repeat;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+	text-align:center;
+}
+
+QPushButton:hover {
+    background-color: rgba(58, 60, 65, 255);
+    border: 2px solid rgba(78, 80, 85, 255);
+	border-right:2px solid orange;
+}
+
+QPushButton:pressed {
+    background-color: rgba(28, 30, 35, 255);
+    border: 2px solid rgba(48, 50, 55, 255);
+	border-top: 2px solid  rgba(28, 30, 35, 255);
+	border-bottom: 2px solid  rgba(28, 30, 35, 255);
+}</string>
+             </property>
+             <property name="text">
+              <string>Настройки голоса</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="pushButton_3">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="font">
+              <font>
+               <pointsize>-1</pointsize>
+               <weight>75</weight>
+               <bold>true</bold>
+              </font>
+             </property>
+             <property name="styleSheet">
+              <string notr="true">QPushButton {
+                </property>
+                <property name="text">
+                 <string>Голосовой чат</string>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QPushButton" name="ChatSettings">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>0</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>50</height>
+                 </size>
+                </property>
+                <property name="font">
+                 <font>
+                  <pointsize>-1</pointsize>
+                  <weight>75</weight>
+                  <bold>true</bold>
+                 </font>
+                </property>
+                <property name="cursor">
+                 <cursorShape>PointingHandCursor</cursorShape>
+                </property>
+                <property name="styleSheet">
+                 <string notr="true">QPushButton {
+    background-color: rgba(38, 40, 45, 255);
+    border: 2px solid rgba(58, 60, 65, 255);
+    border-radius: 15px;
+	background-image:url(:/icons/icon/chat_32dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.svg);
+	border: 2px solid rgba(58, 60, 65, 255);
+	background-position: left center;
+	border-left:none;
+	border-right:2px solid transparent;;
+	background-repeat:no-repeat;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    font-weight: bold;
+	text-align:center;
+}
+
+QPushButton:hover {
+    background-color: rgba(58, 60, 65, 255);
+    border: 2px solid rgba(78, 80, 85, 255);
+	border-right:2px solid orange;
+}
+
+QPushButton:pressed {
+    background-color: rgba(28, 30, 35, 255);
+    border: 2px solid rgba(48, 50, 55, 255);
+	border-top: 2px solid  rgba(28, 30, 35, 255);
+	border-bottom: 2px solid  rgba(28, 30, 35, 255);
+}</string>
+             </property>
+             <property name="text">
+              <string>Хуй знает ещё не придумал</string>
+             </property>
+                </property>
+                <property name="text">
+                 <string>Тестовый чат</string>
+                </property>
+                <property name="iconSize">
+                 <size>
+                  <width>31</width>
+                  <height>31</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
+          </layout>
+
+        </item>
+        <item>
+         <widget class="QStackedWidget" name="OptionWidget">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+            <horstretch>4</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
+          <widget class="QWidget" name="page_15"/>
+          <widget class="QWidget" name="page_16"/>
+         </widget>

@@ -58,14 +58,13 @@ class MessageRoom(object):
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
         pre_cache = []
-
+        global allFriends
         db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         allFriends = db_fr.getDataFromTableColumn("chat_id, friend_one_id, friend_two_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
         for pre_ch in pre_chat_ids:
             if str(pre_ch[0]) not in MessageRoom.unseenMessages:
                 friendArr = list(filter(lambda x: pre_ch[0] == x[0], allFriends))[0]
                 MessageRoom.unseenMessages[str(pre_ch[0])] = {friendArr[1]: 0, friendArr[2]: 0}
-
             x = db_ms.getDataFromTableColumn("id, chat_id, message, sender_nick, date, WasSeen", f"WHERE chat_id = {pre_ch[0]}")
             for k in x:
                 pre_cache.append(k)
@@ -110,10 +109,8 @@ class MessageRoom(object):
                     continue
 
                 if "__FRIEND-REQUEST_ACTIVITY__" in message:
-                    chatIdFiltered = filter(lambda x: nickname in MessageRoom.nicknames_in_chats[x] and message.split("&")[1] in MessageRoom.nicknames_in_chats[x], MessageRoom.nicknames_in_chats)
-                    chatID = list(chatIdFiltered)[0]
-                    messageToChache["chat_id"] = chatID
-                    client.send(b'2' + MessageRoom.serialize({chatID: MessageRoom.unseenMessages[chatID]}))
+                    messageToChache["chat_id"] = message.split("&")[1]
+                    client.send(b'2' + MessageRoom.serialize({message.split("&")[1]: MessageRoom.unseenMessages[message.split("&")[1]]}))
                     continue
 
                 if "__FRIEND-ADDING__" in message:
@@ -125,25 +122,23 @@ class MessageRoom(object):
                     messageToChache["chat_id"] = chat_id
                     messageToChache["message"] = "__FRIEND_REQUEST__"
                     MessageRoom.cache_chat[chat_id].append(messageToChache)
-
+                    allFriends = db_fr.getDataFromTableColumn("chat_id, friend_one_id, friend_two_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
                     db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
                     db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date, WasSeen)", f"({chat_id}, '{nickname}', '{friendNick}', "
                                                                                                       f"'__FRIEND_REQUEST__', '{date_now}', 0)")
                     #Передавать специализированные сообщения обычным броадакстом так себе идейка
-                    MessageRoom.broadcast((chat_id, f"__FRIEND_REQUEST__&{friendNick}", date_now, nickname))
                     try:
-                        clients[nickname].send(b'0' + f"{date_now}&+& {nickname}&+& {messageToChache['message']}&+& {chat_id}".encode('utf-8'))
-                        clients[friendNick].send(b'0' + f"{date_now}&+& {nickname}&+& {messageToChache['message']}&+& {chat_id}".encode('utf-8'))
+                        clients[nickname].send(b'0' + f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}".encode('utf-8'))
+                        clients[friendNick].send(b'0' + f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}".encode('utf-8'))
                     except KeyError:
                         pass
                     continue
 
                 if "__ACCEPT-REQUEST__" in message:
                     splitedMessage = message.split("&")
-                    if splitedMessage[2] not in MessageRoom.nicknames_in_chats[splitedMessage[1]]:
-                        MessageRoom.nicknames_in_chats[splitedMessage[1]].append(splitedMessage[2])
-                    #Передавать специализированные сообщения обычным броадакстом так себе идейка +
-                    MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname))
+                    messageToSend = f"{message}&+& []&+& {nickname}&+& {splitedMessage[1]}"
+                    clients[nickname].send(b'0' + messageToSend.encode('utf-8'))
+                    clients[splitedMessage[2]].send(b'0' + messageToSend.encode('utf-8'))
                     MessageRoom.cache_chat[splitedMessage[1]] = []
                     continue
 
@@ -168,19 +163,19 @@ class MessageRoom(object):
 
                     clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
 
-                print(MessageRoom.nicknames_in_chats, chat_code)
                 if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
                     MessageRoom.nicknames_in_chats[chat_code].append(nickname)
+
                     try:
                         if chat_code != old_chat_cod:
                             index = MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)
-                            MessageRoom.nicknames_in_chats[old_chat_cod].pop(index)
-                            print(MessageRoom.nicknames_in_chats)
+                            MessageRoom.nicknames_in_chats[old_chat_cod].remove(nickname)
                     except UnboundLocalError as e:
                         print(e)
+                        pass
                     except KeyError as e:
                         print(e)
-
+                        pass
                     old_chat_cod = str(chat_code)
 
                 if flg:
@@ -191,12 +186,13 @@ class MessageRoom(object):
 
                 MessageRoom.cache_chat[chat_code].append(messageToChache)
                 MessageRoom.broadcast((chat_code, message, date_now, nickname))
-
+                print(MessageRoom.nicknames_in_chats, len(MessageRoom.nicknames_in_chats[chat_code]))
                 if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
                     nicknameToRecive = list(filter(lambda x: x != nickname, MessageRoom.unseenMessages[chat_code].keys()))[0]
                     if messageToChache["WasSeen"] != 1:
                         MessageRoom.unseenMessages[chat_code][nicknameToRecive] += 1
                     for frineds in allFriends:
+                        print(allFriends)
                         if frineds[0] == int(chat_code):
                             try:
                                 if frineds[1] != nickname:

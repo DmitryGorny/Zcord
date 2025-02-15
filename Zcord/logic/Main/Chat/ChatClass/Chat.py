@@ -1,3 +1,5 @@
+import threading
+
 from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
@@ -38,6 +40,8 @@ class Chat(QtWidgets.QWidget):
 
         self.messageNumber = None
 
+        self.unseenMessages = []
+
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
 
@@ -45,13 +49,20 @@ class Chat(QtWidgets.QWidget):
             return
 
         message_client.MessageConnection.send_message(messageText, self.__user.getNickName())
-        message = Message(messageText, self.__user.getNickName())
+        #message = Message(messageText, self.__user.getNickName())
+        #qss = """QFrame {
+                    #background-color:rgba(38,40,45,255);
+                    #border-radius:25%;
+                    #border:2px solid white;
+                    #}
+                    #}"""
+        #message.ui.Message_.setStyleSheet(qss)
 
-        widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
-        widget.setSizeHint(message.ui.Message_.sizeHint())
-        self.ui.ChatScroll.addItem(widget)
-        self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
-        self.ui.ChatScroll.setCurrentItem(widget)
+        #widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
+        #widget.setSizeHint(message.ui.Message_.sizeHint())
+        #self.ui.ChatScroll.addItem(widget)
+        #self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
+        #self.ui.ChatScroll.setCurrentItem(widget)
         self.ui.Chat_input_.clear()
 
 
@@ -59,20 +70,47 @@ class Chat(QtWidgets.QWidget):
         self.messageNumber = QtWidgets.QLabel("0", parent=parent)
         self.messageNumber.setVisible(False)
 
-    def recieveMessage(self, sender, text):
+    def recieveMessage(self, sender, text, date, wasSeen:int = 0, event: threading.Event = None):
         if len(text) == 0:
             return
+
         message = Message(text, sender)
+        message.ui.date_label.setText(date)
+
+        global qss
+        qss = ""
+        if sender == self.__user.getNickName():
+            qss = """QFrame {
+                    background-color:rgba(38,40,45,255);
+                    border-radius:25%;
+                    border:2px solid white;
+                    }
+                    }"""
+
+        if wasSeen == 0:
+            message.ui.WasSeenlabel.setText("Unseen")
+            self.unseenMessages.append(message.ui)
+
+        if len(qss) != 0:
+            message.ui.Message_.setStyleSheet(qss)
 
         widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
         widget.setSizeHint(message.ui.Message_.sizeHint())
 
         self.ui.ChatScroll.addItem(widget)
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
-        self.ui.ChatScroll.setCurrentItem(widget)
+        if wasSeen == 1 or sender == self.__user.getNickName():
+            self.ui.ChatScroll.setCurrentItem(widget)
+
+        if event is not None:
+            event.set()
 
         return True
 
+    def changeUnseenStatus(self):
+        for messageWidget in self.unseenMessages:
+            messageWidget.WasSeenlabel.setText("Seen")
+        self.unseenMessages = []
     def sendFriendRequest(self):
         message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
         message_client.MessageConnection.addChat(f"{self.__chatId}")

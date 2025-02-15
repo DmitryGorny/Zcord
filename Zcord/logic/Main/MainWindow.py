@@ -41,10 +41,12 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
 
-        self.pressing = False
 
         self.ui.stackedWidget.addWidget(self.ui.WrapperForHomeScreen)
         self.ui.stackedWidget.setCurrentWidget(self.ui.WrapperForHomeScreen)
+
+
+
 
     def mousePressEvent(self, event):
             self.start = self.mapToGlobal(event.pos())
@@ -59,6 +61,9 @@ class MainWindow(QtWidgets.QMainWindow):
             movement = self.end-self.start
             self.move(self.mapToGlobal(movement))
             self.start = self.end
+
+    def mouseReleaseEvent(self, event):
+        self.pressing = False
 
 
     def getFriends(self):
@@ -249,8 +254,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.__client.close()
 
-    def mouseReleaseEvent(self, event):
-        self.pressing = False
 
     def on_click_hide(self):
         self.showMinimized()
@@ -269,7 +272,6 @@ class MainWindow(QtWidgets.QMainWindow):
     def resizeEvent(self, event):
         self.updateWindowMargins()
         super().resizeEvent(event)
-
 
     def createChatWidget(self, chat, layoutFinal):
         self.QFr = ClikableFrame(chat.getNickName())
@@ -347,6 +349,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if not chat.messageNumber.isVisible():
             chat.messageNumber.setVisible(True)
         if newValue > 20:
-            newValue = "20+"
+            newValue = "20"
         chat.messageNumber.setText(str(newValue))
         #plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )

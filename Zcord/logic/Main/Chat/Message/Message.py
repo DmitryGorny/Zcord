@@ -26,5 +26,5 @@ class Message(QtWidgets.QWidget):
     def adjust_message_height(self):
         """Изменяет размер QLabel в зависимости от содержимого."""
         self.ui.Message_Text.adjustSize()  # 🔥 QLabel автоматически принимает нужный размер
-        self.setFixedHeight(self.ui.Message_Text.height() + 30)
+        self.setFixedHeight(self.ui.Message_Text.height() + 10)
 

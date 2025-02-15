@@ -6,13 +6,14 @@ from PyQt6.QtCore import pyqtSignal, QObject
 
 
 class SygnalChanger(QObject):
-    sygnal = pyqtSignal(str, str)
+    sygnal = pyqtSignal(str, str, str, int)
     friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
     dynamicInterfaceUpdate = pyqtSignal(str, object) #См. документацию dynamicUpdate
     dynamicInterfaceUpdateAwaited = pyqtSignal(str, object, object)
     unblockChat = pyqtSignal()
-    chat = ""
+    awaitedMessageRecieve = pyqtSignal(str, str, str, int, object)
+    changeUnseenStatus = pyqtSignal()
 
 class MainInterface:
     __current_chat = 1
@@ -95,9 +96,11 @@ class MessageConnection(QObject):
                         except IndexError:
                             pass
                     continue
+
                 if header == b'1':
                     cache = MessageConnection.deserialize(msg)
                     for i in cache:
+                        event = threading.Event()
                         if MessageConnection.chat is None:
                             for chat in MessageConnection.chatsList:
                                 if int(chat.getChatId()) == int(i["chat_id"]):
@@ -111,7 +114,7 @@ class MessageConnection(QObject):
                                         break
 
                         try:
-                            reciever.sygnal.disconnect()
+                            reciever.awaitedMessageRecieve.disconnect()
                         except TypeError:
                             pass
                                                             #Это все конченное уродство
@@ -119,18 +122,24 @@ class MessageConnection(QObject):
                             reciever.friendRequestShow.disconnect()
                         except TypeError:
                             pass
+
                         if i["message"] == "__FRIEND_REQUEST__":
                             if i["sender_nick"] != nickname_yours:
                                 reciever.friendRequestShow.connect(MessageConnection.chat.showFriendRequestWidget)
                                 reciever.friendRequestShow.emit(i["sender_nick"])
                             else:
-                                reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                                reciever.sygnal.emit(i["sender_nick"], "Вы отправили приглашение в друзья")
+                                reciever.awaitedMessageRecieve.connect(MessageConnection.chat.recieveMessage)
+                                reciever.awaitedMessageRecieve.emit(i["sender_nick"], "Вы отправили приглашение в друзья", i["date"], 0, event)
+                                event.wait()
                         else:
-                            reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                            reciever.sygnal.emit(i["sender_nick"], i["message"])
+                            reciever.awaitedMessageRecieve.connect(MessageConnection.chat.recieveMessage)
+                            global WasSeen
+                            WasSeen = 0
+                            if i["sender_nick"] != nickname_yours:
+                                WasSeen = 1
+                            reciever.awaitedMessageRecieve.emit(i["sender_nick"], i["message"], i["date"], WasSeen, event)
 
-                        time.sleep(0.01) #Костыль. Что-то в emit (chat.recieveMessage) работает асинхронно???
+                            event.wait()
 
                     continue
 
@@ -149,7 +158,6 @@ class MessageConnection(QObject):
                         event1.wait()
                         reciever.dynamicInterfaceUpdateAwaited.emit("UPDATE-CHATS", (msg[3], msg[2]), event2)
                         event2.wait()
-                        print(message.split('&'))
                         MessageConnection.send_message(f"__FRIEND-REQUEST_ACTIVITY__&{msg[3]}", nickname_yours)
                     continue
                 elif "__ACCEPT-REQUEST__" in message:
@@ -173,14 +181,22 @@ class MessageConnection(QObject):
                             MessageConnection.cache_chat.pop(message.split("&")[1], None)
                             break
                     continue
+                elif "__USER-JOINED__" in message:
+                    try:
+                        reciever.changeUnseenStatus.disconnect()
+                    except TypeError:
+                        pass
+                    reciever.changeUnseenStatus.connect(MessageConnection.chat.changeUnseenStatus)
+                    reciever.changeUnseenStatus.emit()
                 else:
                     date_now = msg[1]
                     nickname = msg[2]
                     chat_code = msg[3]
+                    wasSeen = msg[4]
 
                     if MainInterface.return_current_chat() != 0:
-                        if nickname == nickname_yours:
-                            continue
+                        #if nickname == nickname_yours:
+                            #continue
 
                         if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
                             for CertainChat in MessageConnection.chatsList:
@@ -194,7 +210,7 @@ class MessageConnection(QObject):
                             pass
 
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                        reciever.sygnal.emit(nickname, message)
+                        reciever.sygnal.emit(nickname, message, date_now, int(wasSeen))
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -206,7 +222,10 @@ class MessageConnection(QObject):
 
     @staticmethod
     def deserialize(message):
-        cache = msgspec.json.decode(message)
+        try: #Фикс ошибки при многократном change_chat
+            cache = msgspec.json.decode(message)
+        except msgspec.DecodeError:
+            return []
         return cache
 
     @staticmethod
@@ -243,8 +262,6 @@ def call(nickname, chat_id, user, chats, callback):
     while not chats.empty():
         MessageConnection.addChatToList(chats.get())#достаем объекты chat из очереди и пихаем их в массив
         chats.task_done()
-    print(MessageConnection.chatsList)
-
     print("Старт клиента сообщений")
 
     thread_start(nickname, callback)

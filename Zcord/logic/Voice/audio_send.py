@@ -7,6 +7,7 @@ import noisereduce as nr
 import webrtcvad as wb
 import time
 from PyQt6.QtCore import QThread, pyqtSignal
+import json
 #from cryptography.fernet import Fernet
 
 
@@ -44,15 +45,27 @@ class VoiceConnection(QThread):
         self.speak.connect((host, port))
 
         self.p = pyaudio.PyAudio()
+        with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
+            loaded_data = json.load(file)
+        try:
+            self.mic_index = loaded_data["microphone_index"]
+            self.head_index = loaded_data["headphones_index"]
+        except Exception as e:
+            print(e)
+            self.mic_index = self.p.get_default_input_device_info()["index"]
+            self.head_index = self.p.get_default_input_device_info()["index"]
+
         self.stream_input = self.p.open(format=self.FORMAT,
                                         channels=self.CHANNELS,
                                         rate=self.RATE,
                                         input=True,
-                                        frames_per_buffer=self.CHUNK)
+                                        frames_per_buffer=self.CHUNK,
+                                        input_device_index=self.mic_index)
         self.stream_output = self.p.open(format=self.FORMAT,
                                          channels=self.CHANNELS,
                                          rate=self.RATE,
-                                         output=True)
+                                         output=True,
+                                         output_device_index=self.head_index)
 
     def sender(self):
         while VoiceConnection.is_running:
@@ -67,12 +80,13 @@ class VoiceConnection(QThread):
                         data_to_send = self.noise_down(data_to_send)
 
                     self.speak.sendall(b'2' + data_to_send)
+                    self.stream_output.write(data_to_send)
                 except KeyboardInterrupt:
                     print("Приём аудио завершен или прерван")
+
                 except Exception as e:
                     print(f"Отловлена ошибка в sender: {e}")
                     print(e.args)
-                    print("Передача аудио закончена или прервана")
         self.speak.sendall(b'0')
 
     @staticmethod
@@ -127,23 +141,41 @@ class VoiceConnection(QThread):
                         self.speech_detected_icon2.emit(VoiceConnection.sad.is_speech(data_to_read, self.RATE))
                         data_to_read = VoiceConnection.adjust_volume(data_to_read, VoiceConnection.output_volume)
                         self.stream_output.write(data_to_read)
-                    # Добавить сюда adjust_volume, разобраться с ошибкой передачи в np параметра data, не поддерживаемая размерность?
                 except KeyboardInterrupt:
                     print("Приём аудио завершен или прерван")
+
                 except Exception as e:
                     print(f"Отловлена ошибка в getter: {e}")
                     print(e.args)
-                    print("Приём аудио завершен или прерван")
-
-    @staticmethod
-    def change_output_volume(volume):
-        VoiceConnection.output_volume = volume
 
     def mute_mic(self, flg_mute):
         self.is_mic_mute = flg_mute
 
     def mute_head(self, flg_mute):
         self.is_head_mute = flg_mute
+
+    def change_device_input(self, input_device_index):
+        self.is_mic_mute = True  # КУКУ НАДО ЧТО-ТО С ЭТИМ СДЕЛАТЬ
+        self.stream_input.stop_stream()
+        self.stream_input.close()
+        self.stream_input = self.p.open(format=self.FORMAT,
+                                        channels=self.CHANNELS,
+                                        rate=self.RATE,
+                                        input=True,
+                                        frames_per_buffer=self.CHUNK,
+                                        input_device_index=input_device_index)
+        self.is_mic_mute = False
+
+    def change_device_output(self, output_device_index):
+        self.is_head_mute = True
+        self.stream_output.stop_stream()
+        self.stream_output.close()
+        self.stream_output = self.p.open(format=self.FORMAT,
+                                         channels=self.CHANNELS,
+                                         rate=self.RATE,
+                                         output=True,
+                                         output_device_index=output_device_index)
+        self.is_head_mute = False
 
     def close(self):
         VoiceConnection.is_running = False

@@ -3,15 +3,16 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
 from logic.Message import message_client
 from logic.Voice import audio_send
-from PyQt6.QtGui import QColor
 
 
 class Chat(QtWidgets.QWidget):
-    def __init__(self, chatId, friendNick, user):
+    def __init__(self, chatId, friendNick, user, voicepr):
         super(Chat, self).__init__()
         self.voice_conn = None
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
+        self.voicepr = voicepr
+
         self.ui.Call.hide()
         self.__chatId = chatId
         self.__user = user
@@ -98,6 +99,8 @@ class Chat(QtWidgets.QWidget):
             self.voice_conn = audio_send.start_voice()
             self.voice_conn.speech_detected_icon1.connect(self.update_button_style_icon_1)
             self.voice_conn.speech_detected_icon2.connect(self.update_button_style_icon_2)
+            self.voicepr.changer_input.connect(self.change_input_device)
+            self.voicepr.changer_output.connect(self.change_output_device)
             self.voice_conn.icon_change.connect(self.show_friend_icon)
             self.ui.Call.show()
         else:
@@ -144,6 +147,16 @@ class Chat(QtWidgets.QWidget):
             self.ui.User2_icon.show()
         else:
             self.ui.User2_icon.hide()
+
+    def change_output_device(self, index_output_device):
+        print(self.voice_conn)
+        if self.voice_conn:
+            self.voice_conn.change_device_output(index_output_device)
+
+    def change_input_device(self, index_input_device):
+        print(self.voice_conn)
+        if self.voice_conn:
+            self.voice_conn.change_device_input(index_input_device)
 
     def clearLayout(self):
         self.ui.ChatScroll.clear()

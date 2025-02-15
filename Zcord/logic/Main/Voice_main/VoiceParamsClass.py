@@ -3,24 +3,51 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Voice import audio_send
 import threading
 import pyaudio
+import json
 
 
 class VoiceParamsClass(QtWidgets.QWidget):
+    changer_input = QtCore.pyqtSignal(int)
+    changer_output = QtCore.pyqtSignal(int)
+
     def __init__(self):
         super(VoiceParamsClass, self).__init__()
 
         self.ui_voice_pr = Ui_VoiceParams()
         self.ui_voice_pr.setupUi(self)
+
         self.ui_voice_pr.pushButton.clicked.connect(self.call_noise_profile)
+        self.ui_voice_pr.pushButton_2.clicked.connect(self.check_mic_volume)
+
         self.ui_voice_pr.VolumeOfMicSlider.valueChanged.connect(self.change_voice_volume)
         self.ui_voice_pr.VolumeOHeadphonesSlider.valueChanged.connect(self.change_headphones_volume)
+
+        self.ui_voice_pr.VolumeOfMicSlider.sliderReleased.connect(self.save_settings)
+        self.ui_voice_pr.VolumeOHeadphonesSlider.sliderReleased.connect(self.save_settings)
+
         self.ui_voice_pr.VolumeCheckWithNoiseReduceSlider.setEnabled(False)
-        self.ui_voice_pr.pushButton_2.clicked.connect(self.check_mic_volume)
 
         self.p = pyaudio.PyAudio()
 
-        self.headphones = {}
-        self.microphones = {}
+        with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
+            self.loaded_data = json.load(file)
+        try:
+            self.mic_index = self.loaded_data["microphone_index"]
+            self.head_index = self.loaded_data["headphones_index"]
+            self.volume_mic_settings = self.loaded_data["volume_mic"]
+            self.volume_head_settings = self.loaded_data["volume_head"]
+
+            self.ui_voice_pr.VolumeOfMicSlider.setValue(self.volume_mic_settings)
+            self.ui_voice_pr.VolumeOHeadphonesSlider.setValue(self.volume_head_settings)
+            self.change_voice_volume()
+            self.change_headphones_volume()
+        except Exception as e:
+            print(e)
+            self.mic_index = -1
+            self.head_index = -1
+
+        self.default_mic = self.p.get_default_input_device_info()['index']
+        self.default_head = self.p.get_default_output_device_info()['index']
         for i in range(self.p.get_device_count()):
             info = self.p.get_device_info_by_index(i)
             name = info["name"]
@@ -29,15 +56,17 @@ class VoiceParamsClass(QtWidgets.QWidget):
             except (UnicodeEncodeError, UnicodeDecodeError):
                 pass
             if info["maxInputChannels"] > 0 and info.get("hostApi") == 0:
-                self.microphones[i] = name
                 self.ui_voice_pr.ChooseMicroBox.addItem(name, i)
-                if self.p.get_default_input_device_info()['index'] == i:
+                if self.default_mic == i and self.mic_index != -1:
+                    self.ui_voice_pr.ChooseMicroBox.setCurrentText(name)
+                elif self.mic_index == i:
                     self.ui_voice_pr.ChooseMicroBox.setCurrentText(name)
 
             elif info["maxOutputChannels"] > 0 and info.get("hostApi") == 0:
-                self.headphones[i] = name
                 self.ui_voice_pr.ChooseHeadPhonesBox.addItem(name, i)
-                if self.p.get_default_output_device_info()['index'] == i:
+                if self.default_head == i and self.head_index != -1:
+                    self.ui_voice_pr.ChooseHeadPhonesBox.setCurrentText(name)
+                elif self.head_index == i:
                     self.ui_voice_pr.ChooseHeadPhonesBox.setCurrentText(name)
 
         self.ui_voice_pr.ChooseMicroBox.currentTextChanged.connect(self.change_input_device)
@@ -78,7 +107,21 @@ class VoiceParamsClass(QtWidgets.QWidget):
             self.is_check_volume = False
 
     def change_input_device(self):
-        print("ХУЙ")
+        if audio_send.VoiceConnection.is_running:
+            self.changer_input.emit(self.ui_voice_pr.ChooseMicroBox.currentData())
+        self.save_settings()
 
     def change_output_device(self):
-        print("ХУЙ")
+        if audio_send.VoiceConnection.is_running:
+            self.changer_output.emit(self.ui_voice_pr.ChooseHeadPhonesBox.currentData())
+        self.save_settings()
+
+    def save_settings(self):
+        data = {
+            "headphones_index": self.ui_voice_pr.ChooseHeadPhonesBox.currentData(),
+            "microphone_index": self.ui_voice_pr.ChooseMicroBox.currentData(),
+            "volume_mic": self.ui_voice_pr.VolumeOfMicSlider.value(),
+            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value()
+        }
+        with open('Resources/settings/settings_voice.json', 'w', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)

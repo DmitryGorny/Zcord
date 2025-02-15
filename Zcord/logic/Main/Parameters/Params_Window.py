@@ -1,13 +1,12 @@
 import sys
 from PyQt6.QtWidgets import QApplication, QMainWindow, QSlider, QWidget
 from PyQt6.QtCore import Qt
-from logic.Main.Voice_main.VoiceParameters import Ui_VoiceParams
 from logic.Main.Parameters.Parameters import Ui_Parameters
 from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
 
 
 class ParamsWindow(QMainWindow):
-    def __init__(self, ui):
+    def __init__(self, ui, voicepr):
         super(ParamsWindow, self).__init__()
 
         self.ui = ui
@@ -15,7 +14,7 @@ class ParamsWindow(QMainWindow):
         self.ui_pr = Ui_Parameters()
         self.ui_pr.setupUi(self)
 
-        self.voicepr = VoiceParamsClass()
+        self.voicepr = voicepr
 
         self.ui_pr.OptionWidget.addWidget(self.voicepr.ui_voice_pr.settingsWrapper)
 

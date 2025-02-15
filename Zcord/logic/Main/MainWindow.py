@@ -9,6 +9,7 @@ from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
+from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
 import threading
 import json
 
@@ -20,7 +21,9 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
-        self.parameters = ParamsWindow(self.ui)
+        self.voicepr = VoiceParamsClass()
+
+        self.parameters = ParamsWindow(self.ui, self.voicepr)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
@@ -94,7 +97,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def createChats(self):
         for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend], friend, self.__user))
+            self.__chats.append(Chat(self.__friends[friend], friend, self.__user, self.voicepr))
 
     def call_chat(self):
         chat_ids = []

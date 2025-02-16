@@ -92,7 +92,7 @@ class MessageRoom(object):
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
-                date_now = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+                date_now = datetime.now().strftime('%d.%m.%Y %H:%M')
                 messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
                     "id": 0,
                     "chat_id": chat_code,

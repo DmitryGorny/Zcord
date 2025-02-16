@@ -194,6 +194,7 @@ class MessageConnection(QObject):
                     nickname = msg[2]
                     chat_code = msg[3]
                     wasSeen = msg[4]
+                    print(date_now)
 
                     if MainInterface.return_current_chat() != 0:
                         #if nickname == nickname_yours:

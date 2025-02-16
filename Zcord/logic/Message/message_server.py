@@ -74,7 +74,7 @@ class MessageRoom(object):
                 chat_id = str(pre_ch[1])
                 cachedMessage = {"id": pre_ch[0], "chat_id": pre_ch[1], "message": pre_ch[2], "sender_nick": pre_ch[3], "date": pre_ch[4], "WasSeen": pre_ch[5]}
                 if pre_ch[5] == 0:
-                    nicknameToRecive = list(filter(lambda x: x == nickname, MessageRoom.unseenMessages[chat_id].keys()))[0]
+                    nicknameToRecive = list(filter(lambda x: x != nickname, MessageRoom.unseenMessages[chat_id].keys()))[0]
                     MessageRoom.unseenMessages[chat_id][nicknameToRecive] += 1
                 if chat_id in MessageRoom.cache_chat:
                     if cachedMessage not in MessageRoom.cache_chat[chat_id]:
@@ -88,7 +88,7 @@ class MessageRoom(object):
                 flg = False
                 msg = client.recv(16384)
                 msg = msg.decode('utf-8').split("&+& ")
-                print(msg)
+
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]

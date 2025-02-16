@@ -134,7 +134,7 @@ class MessageConnection(QObject):
                         else:
                             reciever.awaitedMessageRecieve.connect(MessageConnection.chat.recieveMessage)
                             global WasSeen
-                            WasSeen = 0
+                            WasSeen = int(i["WasSeen"])
                             if i["sender_nick"] != nickname_yours:
                                 WasSeen = 1
                             reciever.awaitedMessageRecieve.emit(i["sender_nick"], i["message"], i["date"], WasSeen, event)
@@ -188,6 +188,7 @@ class MessageConnection(QObject):
                         pass
                     reciever.changeUnseenStatus.connect(MessageConnection.chat.changeUnseenStatus)
                     reciever.changeUnseenStatus.emit()
+                    continue
                 else:
                     date_now = msg[1]
                     nickname = msg[2]

@@ -108,8 +108,11 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def changeUnseenStatus(self):
-        for messageWidget in self.unseenMessages:
-            messageWidget.WasSeenlabel.setText("Seen")
+        try:
+            for messageWidget in self.unseenMessages:
+                messageWidget.WasSeenlabel.setText("Seen")
+        except RuntimeError:
+            return
         self.unseenMessages = []
     def sendFriendRequest(self):
         message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())

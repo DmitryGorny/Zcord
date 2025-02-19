@@ -52,9 +52,13 @@ class MessageRoom(object):
                 clients[client].send(ret)
             except KeyError:
                 continue
-
+    @staticmethod
+    def awaitedSend(client, message, event:threading.Event):
+        client.send(message)
+        event.set()
     @staticmethod
     def handle(client, nickname):
+        currentMessageIndex = -20
         db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
@@ -68,6 +72,7 @@ class MessageRoom(object):
                 MessageRoom.unseenMessages[str(pre_ch[0])] = {friendArr[1]: 0, friendArr[2]: 0}
             x = db_ms.getDataFromTableColumn("id, chat_id, message, sender_nick, date, WasSeen", f"WHERE chat_id = {pre_ch[0]}")
             for k in x:
+                k[4] = k[4].strftime("%Y-%m-%d %H:%M:%S")
                 pre_cache.append(k)
         if len(pre_cache) != 0 and len(MessageRoom.cache_chat[str(pre_cache[0][1])]) == 0:
             for pre_ch in pre_cache:
@@ -81,7 +86,7 @@ class MessageRoom(object):
                         MessageRoom.cache_chat[chat_id].append(cachedMessage)
                 else:
                     MessageRoom.cache_chat[chat_id] = [cachedMessage]
-
+        userGotCahceFlag = True
         while True:
             try:
                 # Broadcasting Messages
@@ -92,7 +97,7 @@ class MessageRoom(object):
                 chat_code = str(msg[0])
                 nickname = msg[1]
                 message = msg[2]
-                date_now = datetime.now().strftime('%d.%m.%Y %H:%M')
+                date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
                     "id": 0,
                     "chat_id": chat_code,
@@ -102,7 +107,6 @@ class MessageRoom(object):
                     "WasSeen": 0
                 }
                 if "__UPDATE-MESSAGES__" in message:
-                    #Плохой момент, в случае большого количества пользователей будет слишком долгий перебор на клиенет
                     try:
                         client.send(b'2' + MessageRoom.serialize(MessageRoom.unseenMessages))
                     except KeyError:
@@ -159,8 +163,36 @@ class MessageRoom(object):
                     del MessageRoom.cache_chat[splitedMessage[1]]
                     continue
 
+                if "__CAHCE-RECIEVED__" in message:
+                    userGotCahceFlag = True
+                    continue
+
+                if "__CACHED-REQUEST__" in message:
+                    if not userGotCahceFlag:
+                        continue
+
+                    global arrayToSend
+                    arrayToSend = []
+                    if currentMessageIndex > 0:
+                        end = currentMessageIndex
+                        currentMessageIndex = max(0, currentMessageIndex - 10)
+                        if currentMessageIndex == 0:
+                            arrayToSend = MessageRoom.cache_chat[chat_code][:end]
+                        else:
+                            arrayToSend = MessageRoom.cache_chat[chat_code][currentMessageIndex:end]
+                    else:
+                        continue
+
+                    arrayToSend.reverse()
+                    client.send(b'3' + MessageRoom.serialize(arrayToSend))
+                    userGotCahceFlag = False
+                    continue
+
                 if message == "__change_chat__":
-                    client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code]))
+                    client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-20:]))
+                    MessageRoom.unseenMessages[chat_code][nickname] = 0
+                    clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+
                     for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
                         clients[clientNick].send(b'0' + "__USER-JOINED__".encode('utf-8'))
 
@@ -169,10 +201,9 @@ class MessageRoom(object):
                     for message in MessageRoom.cache_chat[chat_code]:
                         if nickname != message["sender_nick"]:
                             message["WasSeen"] = 1
-                            MessageRoom.unseenMessages[chat_code][nickname] = 0
 
-                    clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
 
+                currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - 20
                 if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
                     MessageRoom.nicknames_in_chats[chat_code].append(nickname)
 
@@ -220,7 +251,7 @@ class MessageRoom(object):
                 i = 1
                 messagesToInsert = []
                 messagesToUpdate = []
-                for chat_code in MessageRoom.cache_chat.keys():
+                for chat_code in MessageRoom.nicknames_in_chats.keys():
                     for message in MessageRoom.cache_chat[chat_code]:
                         if message['message'] == "__FRIEND_REQUEST__":
                             db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
@@ -238,6 +269,7 @@ class MessageRoom(object):
 
                     if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
                         MessageRoom.nicknames_in_chats[chat_code] = []
+
 
                 if len(messagesToInsert) > 0:
                     db.insertDataInTablePacket("(chat_id, message, sender_nick, date, WasSeen)", messagesToInsert)
@@ -283,7 +315,7 @@ def receive():
 
 if __name__ == "__main__":
     HOST = "26.181.96.20"
-    PORT = 55556
+    PORT = 55557
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()

@@ -9,6 +9,7 @@ from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.Main.Chat.DeleteFriend.DeleteFriend import DeleteFriend
 
 
+
 class Chat(QtWidgets.QWidget):
     def __init__(self, chatId, friendNick, user):
         super(Chat, self).__init__()
@@ -35,12 +36,23 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.InfoButton.clicked.connect(self.showDeleteFriendDialog)
 
+        self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.askForCachedMessages)
+
+        self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
+
         if self.__user.getFriends()[self.__friendNickname][1] == 1:
             self.ui.ChatInputLayout.setHidden(True)
 
         self.messageNumber = None
 
         self.unseenMessages = []
+
+        self.scroll_pos = 0
+
+    def askForCachedMessages(self, val):
+        if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum()/4):
+            message_client.MessageConnection.send_message(f"__CACHED-REQUEST__&{self.__chatId}", self.__user.getNickName())
+
 
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
@@ -49,20 +61,6 @@ class Chat(QtWidgets.QWidget):
             return
 
         message_client.MessageConnection.send_message(messageText, self.__user.getNickName())
-        #message = Message(messageText, self.__user.getNickName())
-        #qss = """QFrame {
-                    #background-color:rgba(38,40,45,255);
-                    #border-radius:25%;
-                    #border:2px solid white;
-                    #}
-                    #}"""
-        #message.ui.Message_.setStyleSheet(qss)
-
-        #widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
-        #widget.setSizeHint(message.ui.Message_.sizeHint())
-        #self.ui.ChatScroll.addItem(widget)
-        #self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
-        #self.ui.ChatScroll.setCurrentItem(widget)
         self.ui.Chat_input_.clear()
 
 
@@ -70,7 +68,10 @@ class Chat(QtWidgets.QWidget):
         self.messageNumber = QtWidgets.QLabel("0", parent=parent)
         self.messageNumber.setVisible(False)
 
-    def recieveMessage(self, sender, text, date, wasSeen:int = 0, event: threading.Event = None):
+    def recieveMessage(self, sender, text, date, messageIndex = 1, wasSeen:int = 0, event: threading.Event = None):
+        if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
+            self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
+
         if len(text) == 0:
             return
 
@@ -94,18 +95,32 @@ class Chat(QtWidgets.QWidget):
         if len(qss) != 0:
             message.ui.Message_.setStyleSheet(qss)
 
-        widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
+        widget = QtWidgets.QListWidgetItem()
         widget.setSizeHint(message.ui.Message_.sizeHint())
 
-        self.ui.ChatScroll.addItem(widget)
+        if messageIndex == 1:
+            self.ui.ChatScroll.addItem(widget)
+        else:
+            self.ui.ChatScroll.insertItem(0, widget)
+            #self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
+
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
-        if wasSeen == 1 or sender == self.__user.getNickName():
+
+        if messageIndex == 1:
             self.ui.ChatScroll.setCurrentItem(widget)
 
         if event is not None:
             event.set()
 
         return True
+
+    def slotForScroll(self):
+        print(11123123)
+        self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
+        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/4))
+        self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
+    def addMessageOnTop(self, sender, text, date, index, wasSeen:int = 0, event = None): #Надубасил в код жестко
+         self.recieveMessage(sender, text, date, index, wasSeen, event)
 
     def changeUnseenStatus(self):
         try:
@@ -141,7 +156,9 @@ class Chat(QtWidgets.QWidget):
         self.ui.ChatInputLayout.setHidden(False)
         self.clearLayout()
     def clearLayout(self):
+        self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
         self.ui.ChatScroll.clear()
+
 
     def rejectRequest(self, deleteFriend:bool = False):
         friendAdding = FriendAdding(self.__user)

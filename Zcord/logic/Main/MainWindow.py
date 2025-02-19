@@ -234,6 +234,9 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.deleteChatFromUI(chat)
             case "UPDATE-MESSAGE-NUMBER":
                 self.unseenMessages(args[0], args[1])
+                if done_event is not None:
+                    done_event.set()
+
     def updateFriendshipStatus(self, friendName):
         """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
         self.__friends[friendName][1] = 2

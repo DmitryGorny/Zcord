@@ -115,20 +115,22 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def slotForScroll(self):
-        print(11123123)
         self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
-        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/4))
+        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/3))
         self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
     def addMessageOnTop(self, sender, text, date, index, wasSeen:int = 0, event = None): #Надубасил в код жестко
          self.recieveMessage(sender, text, date, index, wasSeen, event)
 
-    def changeUnseenStatus(self):
+    def changeUnseenStatus(self, numberOfWidgets):
+        print(numberOfWidgets, len(self.unseenMessages))
+        if numberOfWidgets >= len(self.unseenMessages):
+            numberOfWidgets = len(self.unseenMessages)
         try:
-            for messageWidget in self.unseenMessages:
-                messageWidget.WasSeenlabel.setText("Seen")
-        except RuntimeError:
+            for messageWidget in range(numberOfWidgets):
+                self.unseenMessages[::-1][messageWidget].WasSeenlabel.setText("Seen")
+            del self.unseenMessages[-(numberOfWidgets + 1):]
+        except Exception:
             return
-        self.unseenMessages = []
     def sendFriendRequest(self):
         message_client.MessageConnection.send_message(f"__FRIEND-ADDING__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
         message_client.MessageConnection.addChat(f"{self.__chatId}")

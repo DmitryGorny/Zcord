@@ -13,7 +13,7 @@ class SygnalChanger(QObject):
     dynamicInterfaceUpdateAwaited = pyqtSignal(str, object, object)
     unblockChat = pyqtSignal()
     awaitedMessageRecieve = pyqtSignal(str, str, str, int, int, object)
-    changeUnseenStatus = pyqtSignal()
+    changeUnseenStatus = pyqtSignal(int)
     blockAndUnblockScrollBar = pyqtSignal()
 
 class MainInterface:
@@ -77,9 +77,11 @@ class MessageConnection(QObject):
         MessageConnection.client_tcp = client_tcp
 
     @staticmethod
-    def send_message(message, nickname):
+    def send_message(message, nickname, event:threading.Event = None):
         msg = f"{MainInterface.return_current_chat()}&+& {nickname}&+& {message}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
+        if event is not None:
+            event.set()
 
     @staticmethod
     def recv_message(nickname_yours, reciever):
@@ -88,17 +90,15 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(16384)
                 header = msg[0:1]
                 msg = msg[1:]
+                print(header, msg)
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
-                        event = threading.Event()
                         try:
                             chat = list(filter(lambda x: int(x.getChatId()) == int(key), MessageConnection.chatsList))[0]
-                            reciever.dynamicInterfaceUpdateAwaited.emit("UPDATE-MESSAGE-NUMBER", (chat, number[key][nickname_yours]), event)
+                            reciever.dynamicInterfaceUpdate.emit("UPDATE-MESSAGE-NUMBER", (chat, number[key][nickname_yours]))
                         except IndexError:
-                            event.set()
-
-                        event.wait()
+                            pass
                     continue
 
                 if header == b'1':
@@ -175,11 +175,11 @@ class MessageConnection(QObject):
                         reciever.blockAndUnblockScrollBar.disconnect()
                     except TypeError:
                         pass
-
                     reciever.blockAndUnblockScrollBar.connect(MessageConnection.chat.slotForScroll)
                     reciever.blockAndUnblockScrollBar.emit()
 
                     MessageConnection.send_message("__CAHCE-RECIEVED__", nickname_yours)
+
                     continue
 
                 msg = msg.decode("utf-8").split("&+& ")
@@ -220,13 +220,13 @@ class MessageConnection(QObject):
                             MessageConnection.cache_chat.pop(message.split("&")[1], None)
                             break
                     continue
-                elif "__USER-JOINED__" == message:
+                elif "__USER-JOINED__" in message:
                     try:
                         reciever.changeUnseenStatus.disconnect()
                     except TypeError:
                         pass
                     reciever.changeUnseenStatus.connect(MessageConnection.chat.changeUnseenStatus)
-                    reciever.changeUnseenStatus.emit()
+                    reciever.changeUnseenStatus.emit(int(message.split("&")[1]))
                     continue
                 else:
                     try:

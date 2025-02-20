@@ -80,7 +80,10 @@ class MessageRoom(object):
                 cachedMessage = {"id": pre_ch[0], "chat_id": pre_ch[1], "message": pre_ch[2], "sender_nick": pre_ch[3], "date": pre_ch[4], "WasSeen": pre_ch[5]}
                 if pre_ch[5] == 0:
                     nicknameToRecive = list(filter(lambda x: x != nickname, MessageRoom.unseenMessages[chat_id].keys()))[0]
-                    MessageRoom.unseenMessages[chat_id][nicknameToRecive] += 1
+                    if pre_ch[3] == nicknameToRecive:
+                        MessageRoom.unseenMessages[chat_id][nickname] += 1
+                    else:
+                        MessageRoom.unseenMessages[chat_id][nicknameToRecive] += 1
                 if chat_id in MessageRoom.cache_chat:
                     if cachedMessage not in MessageRoom.cache_chat[chat_id]:
                         MessageRoom.cache_chat[chat_id].append(cachedMessage)
@@ -170,7 +173,6 @@ class MessageRoom(object):
                 if "__CACHED-REQUEST__" in message:
                     if not userGotCahceFlag:
                         continue
-
                     global arrayToSend
                     arrayToSend = []
                     if currentMessageIndex > 0:
@@ -186,24 +188,35 @@ class MessageRoom(object):
                     arrayToSend.reverse()
                     client.send(b'3' + MessageRoom.serialize(arrayToSend))
                     userGotCahceFlag = False
+                    MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - len(arrayToSend))
+                    clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                    for i in range(len(arrayToSend)):
+                        MessageRoom.cache_chat[chat_code][i]["WasSeen"] = 1
+
+                    for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
+                        if clientNick != nickname:
+                            clients[clientNick].send(b'0' + f"__USER-JOINED__&{len(arrayToSend)}".encode('utf-8'))
                     continue
 
                 if message == "__change_chat__":
-                    client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-20:]))
-                    MessageRoom.unseenMessages[chat_code][nickname] = 0
-                    clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                    if len(MessageRoom.cache_chat[chat_code]) != 0:
+                        client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-20:]))
+                        currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - 20
+                        if MessageRoom.cache_chat[chat_code][-1]["WasSeen"] != 1:
+                            MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - 20)
+                            clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                            for message in MessageRoom.cache_chat[chat_code][::-1]:
+                                if MessageRoom.cache_chat[chat_code][::-1].index(message) == 20:
+                                    break
+                                if nickname != message["sender_nick"]:
+                                    message["WasSeen"] = 1
 
-                    for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
-                        clients[clientNick].send(b'0' + "__USER-JOINED__".encode('utf-8'))
+
+                        for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
+                            clients[clientNick].send(b'0' + "__USER-JOINED__&20".encode('utf-8'))
 
                     flg = True
 
-                    for message in MessageRoom.cache_chat[chat_code]:
-                        if nickname != message["sender_nick"]:
-                            message["WasSeen"] = 1
-
-
-                currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - 20
                 if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
                     MessageRoom.nicknames_in_chats[chat_code].append(nickname)
 
@@ -247,7 +260,11 @@ class MessageRoom(object):
             except ConnectionResetError:
                 # Removing And Closing Clients
                 db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
+                global lastId
                 lastId = db.getAI_Id()[0][0]
+                if lastId == 1:
+                    db.insertDataInTable("(chat_id, message, sender_nick, date, WasSeen)", f"(1, '__FIRST__', '0', '{date_now}', 1)")
+                    lastId = db.getAI_Id()[0][0]
                 i = 1
                 messagesToInsert = []
                 messagesToUpdate = []
@@ -266,9 +283,9 @@ class MessageRoom(object):
                         else:
                             messagesToUpdate.append((message["WasSeen"], f"WHERE id = {message['id']}"))
                             pass
-
                     if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
-                        MessageRoom.nicknames_in_chats[chat_code] = []
+                        #MessageRoom.nicknames_in_chats[chat_code] = []
+                        MessageRoom.cache_chat[chat_code] = []
 
 
                 if len(messagesToInsert) > 0:

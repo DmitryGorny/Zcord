@@ -1,6 +1,7 @@
 from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
-from PyQt6 import QtWidgets, QtCore
+from PyQt6 import QtWidgets
 from logic.Main.Chat.Message.Message import Message
+from PyQt6.QtCore import QByteArray, Qt, QTimer, QPropertyAnimation
 from logic.Message import message_client
 from logic.Voice import audio_send
 
@@ -30,7 +31,7 @@ class Chat(QtWidgets.QWidget):
         self.ui.Send_button.clicked.connect(self.sendMessage)
 
         self.ui.ChatScroll.setSpacing(10)
-        self.ui.ChatScroll.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self.ui.ChatScroll.setFocusPolicy(Qt.FocusPolicy.NoFocus)
         self.ui.ChatScroll.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
         self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
@@ -51,12 +52,17 @@ class Chat(QtWidgets.QWidget):
                             border-color: "#3ba55d";
                             """
 
-        self.reset_timer_icon_1 = QtCore.QTimer()
+        self.reset_timer_icon_1 = QTimer()
         self.reset_timer_icon_1.setSingleShot(True)
         self.reset_timer_icon_1.timeout.connect(self.reset_button_style_icon_1)
-        self.reset_timer_icon_2 = QtCore.QTimer()
+        self.reset_timer_icon_2 = QTimer()
         self.reset_timer_icon_2.setSingleShot(True)
         self.reset_timer_icon_2.timeout.connect(self.reset_button_style_icon_2)
+
+        self.animation = QPropertyAnimation(self.ui.User2_icon, QByteArray(b"geometry"))
+        self.animation.setDuration(1000)
+        self.animation.setLoopCount(10)
+        self.animation.valueChanged.connect(self.update_wave_effect)
 
     def sendMessage(self):
         messageText = self.ui.Chat_input_.text()
@@ -103,6 +109,8 @@ class Chat(QtWidgets.QWidget):
             self.voicepr.changer_output.connect(self.change_output_device)
             self.voice_conn.icon_change.connect(self.show_friend_icon)
             self.ui.Call.show()
+            self.ui.User2_icon.show()
+            self.start_wave_effect()
         else:
             print("Вы с кем-то уже разговариваете")
 
@@ -149,14 +157,42 @@ class Chat(QtWidgets.QWidget):
             self.ui.User2_icon.hide()
 
     def change_output_device(self, index_output_device):
-        print(self.voice_conn)
         if self.voice_conn:
             self.voice_conn.change_device_output(index_output_device)
 
     def change_input_device(self, index_input_device):
-        print(self.voice_conn)
         if self.voice_conn:
             self.voice_conn.change_device_input(index_input_device)
+
+    def start_wave_effect(self):
+        self.animation.setStartValue(self.ui.User2_icon.geometry())
+        self.animation.setEndValue(self.ui.User2_icon.geometry().adjusted(-3, -3, 3, 3))
+        self.animation.start()
+        QTimer.singleShot(20000, self.stop_wave_effect)
+
+    def stop_wave_effect(self):
+        self.animation.stop()
+        self.ui.User2_icon.setStyleSheet(self.default_icon)
+        self.ui.User2_icon.hide()
+
+    def update_wave_effect(self):
+        radius = (self.animation.currentValue().width() - self.ui.User2_icon.width()) // 2
+        self.ui.User2_icon.setStyleSheet(self.get_qss(radius))
+
+    def get_qss(self, radius):
+        return f'''
+            QPushButton {{
+                border-color: "#8f8f91";
+            }}
+            QPushButton:after {{
+                content: "";
+                position: absolute;
+                width: {radius}px;
+                height: {radius}px;
+                border-radius: {radius}px;
+                background: rgba(88, 101, 242, 0.3);
+            }}
+        '''
 
     def clearLayout(self):
         self.ui.ChatScroll.clear()

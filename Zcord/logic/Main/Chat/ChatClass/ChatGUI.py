@@ -426,6 +426,9 @@ class Ui_Chat(object):
         self.verticalLayout_7.addWidget(self.ChatInputLayout)
         self.verticalLayout_2.addWidget(self.ChatLayout)
         self.MAIN_ChatLayout.addWidget(self.Column)
+        self.verticalLayout = QtWidgets.QVBoxLayout()
+        self.verticalLayout.setObjectName("verticalLayout")
+        self.MAIN_ChatLayout.addLayout(self.verticalLayout)
 
         self.retranslateUi(Chat)
         QtCore.QMetaObject.connectSlotsByName(Chat)

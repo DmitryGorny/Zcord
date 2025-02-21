@@ -14,16 +14,18 @@ class Ui_Form(object):
         Form.setObjectName("Form")
         Form.resize(549, 372)
         self.Message_ = QtWidgets.QFrame(parent=Form)
-        self.Message_.setGeometry(QtCore.QRect(10, 20, 411, 100))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.Message_.setGeometry(QtCore.QRect(10, 20, 421, 111))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Message_.sizePolicy().hasHeightForWidth())
         self.Message_.setSizePolicy(sizePolicy)
-        self.Message_.setMinimumSize(QtCore.QSize(400, 50))
+        self.Message_.setMinimumSize(QtCore.QSize(400, 90))
+        self.Message_.setMaximumSize(QtCore.QSize(16777215, 220))
         self.Message_.setStyleSheet("QFrame {\n"
 "background-color:rgba(38,40,45,255);\n"
 "border-radius:25%;\n"
+"border:2px solid transparent;\n"
 "}\n"
 "\n"
 "QFrame:acrtive {\n"
@@ -35,11 +37,12 @@ class Ui_Form(object):
         self.Message.setSpacing(2)
         self.Message.setObjectName("Message")
         self.User = QtWidgets.QFrame(parent=self.Message_)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.User.sizePolicy().hasHeightForWidth())
         self.User.setSizePolicy(sizePolicy)
+        self.User.setStyleSheet("border:none;")
         self.User.setObjectName("User")
         self._2 = QtWidgets.QHBoxLayout(self.User)
         self._2.setContentsMargins(-1, 0, -1, 5)
@@ -56,33 +59,70 @@ class Ui_Form(object):
         self.UserLogo.setStyleSheet("background-color:pink;\n"
 "border-radius:15%;\n"
 "font-size:18px;\n"
+"border:none;\n"
 "")
         self.UserLogo.setObjectName("UserLogo")
         self._2.addWidget(self.UserLogo)
         self.Users_Name = QtWidgets.QLabel(parent=self.User)
         self.Users_Name.setStyleSheet("color:white;\n"
-"font-size:18px;")
+"font-size:18px;\n"
+"border:none;")
         self.Users_Name.setObjectName("Users_Name")
         self._2.addWidget(self.Users_Name)
+        self.date_label = QtWidgets.QLabel(parent=self.User)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.date_label.sizePolicy().hasHeightForWidth())
+        self.date_label.setSizePolicy(sizePolicy)
+        self.date_label.setStyleSheet("color:grey;\n"
+"font-size:16px;\n"
+"border:none;")
+        self.date_label.setObjectName("date_label")
+        self._2.addWidget(self.date_label)
         self.Message.addWidget(self.User)
-        self.Message_Text = QtWidgets.QTextEdit(parent=self.Message_)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
+        self.Message_Text = QtWidgets.QLabel(parent=self.Message_)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Message_Text.sizePolicy().hasHeightForWidth())
         self.Message_Text.setSizePolicy(sizePolicy)
-        self.Message_Text.setMaximumSize(QtCore.QSize(16777215, 16777215))
         self.Message_Text.setStyleSheet("color:white;\n"
 "font-size:16px;\n"
-"margin-left:30px;")
-        self.Message_Text.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.Message_Text.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAlwaysOff)
-        self.Message_Text.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.SizeAdjustPolicy.AdjustToContentsOnFirstShow)
-        self.Message_Text.setUndoRedoEnabled(False)
-        self.Message_Text.setLineWrapMode(QtWidgets.QTextEdit.LineWrapMode.WidgetWidth)
-        self.Message_Text.setReadOnly(True)
+"margin-left:30px;\n"
+"border:none;")
+        self.Message_Text.setText("")
         self.Message_Text.setObjectName("Message_Text")
         self.Message.addWidget(self.Message_Text)
+        self.horizontalFrame = QtWidgets.QFrame(parent=self.Message_)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.horizontalFrame.sizePolicy().hasHeightForWidth())
+        self.horizontalFrame.setSizePolicy(sizePolicy)
+        self.horizontalFrame.setMaximumSize(QtCore.QSize(16777215, 20))
+        self.horizontalFrame.setStyleSheet("border:none;\n"
+"margin:0px;\n"
+"padding:0px;")
+        self.horizontalFrame.setObjectName("horizontalFrame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalFrame)
+        self.horizontalLayout.setContentsMargins(-1, 0, 11, 0)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.WasSeenlabel = QtWidgets.QLabel(parent=self.horizontalFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.WasSeenlabel.sizePolicy().hasHeightForWidth())
+        self.WasSeenlabel.setSizePolicy(sizePolicy)
+        self.WasSeenlabel.setStyleSheet("color:grey;\n"
+"font-size:16px;\n"
+"border:none;")
+        self.WasSeenlabel.setObjectName("WasSeenlabel")
+        self.horizontalLayout.addWidget(self.WasSeenlabel, 0, QtCore.Qt.AlignmentFlag.AlignRight)
+        self.Message.addWidget(self.horizontalFrame)
+        self.Message.setStretch(0, 1)
+        self.Message.setStretch(1, 3)
+        self.Message.setStretch(2, 1)
 
         self.retranslateUi(Form)
         QtCore.QMetaObject.connectSlotsByName(Form)
@@ -92,3 +132,5 @@ class Ui_Form(object):
         Form.setWindowTitle(_translate("Form", "Form"))
         self.UserLogo.setText(_translate("Form", "U"))
         self.Users_Name.setText(_translate("Form", "User2"))
+        self.date_label.setText(_translate("Form", "<html><head/><body><p>ывфыв</p></body></html>"))
+        self.WasSeenlabel.setText(_translate("Form", "Seen"))

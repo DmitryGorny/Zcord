@@ -1,7 +1,6 @@
 from PyQt6 import QtCore, QtWidgets
 from logic.Authorization.AuthorizationWindow.AuthorizationWindowDisplay import AuthoriztionWindowDisplay
 from logic.Main.MainWindow import MainWindow
-from logic.Authorization.User.User import User
 import sys
 
 

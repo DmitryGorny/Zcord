@@ -1,0 +1,496 @@
+Index: GUI/Parameters/Parameters.ui
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/GUI/Parameters/Parameters.ui b/GUI/Parameters/Parameters.ui
+--- a/GUI/Parameters/Parameters.ui	
++++ b/GUI/Parameters/Parameters.ui	
+@@ -163,20 +163,20 @@
+         <item>
+          <widget class="QFrame" name="DialogColumn">
+           <property name="sizePolicy">
+-           <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+-            <horstretch>0</horstretch>
++           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
++            <horstretch>1</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+-            <width>300</width>
++            <width>250</width>
+             <height>0</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+-            <width>300</width>
++            <width>16777215</width>
+             <height>16777215</height>
+            </size>
+           </property>
+@@ -187,130 +187,253 @@
+            <string notr="true">background-color:rgba(38,40,45,255);</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
++           <property name="spacing">
++            <number>0</number>
++           </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
+-           <item>
+-            <widget class="QPushButton" name="pushButton_2">
+-             <property name="sizePolicy">
+-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+-               <horstretch>0</horstretch>
+-               <verstretch>0</verstretch>
+-              </sizepolicy>
+-             </property>
+-             <property name="font">
+-              <font>
+-               <pointsize>-1</pointsize>
+-               <weight>75</weight>
+-               <bold>true</bold>
+-              </font>
+-             </property>
+-             <property name="styleSheet">
+-              <string notr="true">QPushButton {
++           <property name="leftMargin">
++            <number>0</number>
++           </property>
++           <property name="topMargin">
++            <number>0</number>
++           </property>
++           <property name="rightMargin">
++            <number>0</number>
++           </property>
++           <property name="bottomMargin">
++            <number>0</number>
++           </property>
++           <item alignment="Qt::AlignRight">
++            <widget class="QFrame" name="verticalFrame">
++             <property name="sizePolicy">
++              <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
++               <horstretch>0</horstretch>
++               <verstretch>0</verstretch>
++              </sizepolicy>
++             </property>
++             <property name="minimumSize">
++              <size>
++               <width>250</width>
++               <height>0</height>
++              </size>
++             </property>
++             <property name="maximumSize">
++              <size>
++               <width>16777215</width>
++               <height>16777215</height>
++              </size>
++             </property>
++             <property name="styleSheet">
++              <string notr="true">border-left: 2px solid rgba(58, 60, 65, 255);</string>
++             </property>
++             <layout class="QVBoxLayout" name="verticalLayout_5">
++              <property name="leftMargin">
++               <number>0</number>
++              </property>
++              <property name="topMargin">
++               <number>0</number>
++              </property>
++              <property name="rightMargin">
++               <number>0</number>
++              </property>
++              <property name="bottomMargin">
++               <number>0</number>
++              </property>
++              <item>
++               <widget class="QPushButton" name="ProfileSettings">
++                <property name="sizePolicy">
++                 <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
++                  <horstretch>0</horstretch>
++                  <verstretch>0</verstretch>
++                 </sizepolicy>
++                </property>
++                <property name="minimumSize">
++                 <size>
++                  <width>0</width>
++                  <height>50</height>
++                 </size>
++                </property>
++                <property name="maximumSize">
++                 <size>
++                  <width>16777215</width>
++                  <height>50</height>
++                 </size>
++                </property>
++                <property name="font">
++                 <font>
++                  <pointsize>-1</pointsize>
++                  <weight>75</weight>
++                  <bold>true</bold>
++                 </font>
++                </property>
++                <property name="cursor">
++                 <cursorShape>PointingHandCursor</cursorShape>
++                </property>
++                <property name="styleSheet">
++                 <string notr="true">QPushButton {
+     background-color: rgba(38, 40, 45, 255);
+-    border: 2px solid rgba(58, 60, 65, 255);
+-    border-radius: 15px;
++	background-image:url(:/icons/icon/account_circle_32dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.svg);
++	border: 2px solid rgba(58, 60, 65, 255);
++	background-position: left center;
++	border-left:none;
++	border-right:2px solid transparent;;
++	background-repeat:no-repeat;
+     color: white;
+-    padding: 10px 20px;
+     font-size: 16px;
+     font-weight: bold;
++	text-align:center;
+ }
+ 
+ QPushButton:hover {
+-    background-color: rgba(58, 60, 65, 255);
+-    border: 2px solid rgba(78, 80, 85, 255);
++	border-right:2px solid orange;
+ }
+ 
+ QPushButton:pressed {
+     background-color: rgba(28, 30, 35, 255);
+-    border: 2px solid rgba(48, 50, 55, 255);
++	border-top: 2px solid  rgba(28, 30, 35, 255);
++	border-bottom: 2px solid  rgba(28, 30, 35, 255);
+ }</string>
+-             </property>
+-             <property name="text">
+-              <string>Настройки чата</string>
+-             </property>
+-            </widget>
+-           </item>
+-           <item>
+-            <widget class="QPushButton" name="pushButton">
+-             <property name="sizePolicy">
+-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+-               <horstretch>0</horstretch>
+-               <verstretch>0</verstretch>
+-              </sizepolicy>
+-             </property>
+-             <property name="font">
+-              <font>
+-               <pointsize>-1</pointsize>
+-               <weight>75</weight>
+-               <bold>true</bold>
+-              </font>
+-             </property>
+-             <property name="styleSheet">
+-              <string notr="true">QPushButton {
++                </property>
++                <property name="text">
++                 <string>Профиль</string>
++                </property>
++                <property name="iconSize">
++                 <size>
++                  <width>34</width>
++                  <height>34</height>
++                 </size>
++                </property>
++               </widget>
++              </item>
++              <item>
++               <widget class="QPushButton" name="VoiceSettings">
++                <property name="sizePolicy">
++                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
++                  <horstretch>0</horstretch>
++                  <verstretch>0</verstretch>
++                 </sizepolicy>
++                </property>
++                <property name="minimumSize">
++                 <size>
++                  <width>0</width>
++                  <height>50</height>
++                 </size>
++                </property>
++                <property name="maximumSize">
++                 <size>
++                  <width>16777215</width>
++                  <height>50</height>
++                 </size>
++                </property>
++                <property name="font">
++                 <font>
++                  <pointsize>-1</pointsize>
++                  <weight>75</weight>
++                  <bold>true</bold>
++                 </font>
++                </property>
++                <property name="cursor">
++                 <cursorShape>PointingHandCursor</cursorShape>
++                </property>
++                <property name="styleSheet">
++                 <string notr="true">QPushButton {
+     background-color: rgba(38, 40, 45, 255);
+-    border: 2px solid rgba(58, 60, 65, 255);
+-    border-radius: 15px;
++	background-image:url(:icons/icon/settings_voice_34dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.svg);
++	border: 2px solid rgba(58, 60, 65, 255);
++	background-position: left center;
++	border-left:none;
++	border-right:2px solid transparent;;
++	background-repeat:no-repeat;
+     color: white;
+-    padding: 10px 20px;
+     font-size: 16px;
+     font-weight: bold;
++	text-align:center;
+ }
+ 
+ QPushButton:hover {
+-    background-color: rgba(58, 60, 65, 255);
+-    border: 2px solid rgba(78, 80, 85, 255);
++	border-right:2px solid orange;
+ }
+ 
+ QPushButton:pressed {
+     background-color: rgba(28, 30, 35, 255);
+-    border: 2px solid rgba(48, 50, 55, 255);
++	border-top: 2px solid  rgba(28, 30, 35, 255);
++	border-bottom: 2px solid  rgba(28, 30, 35, 255);
+ }</string>
+-             </property>
+-             <property name="text">
+-              <string>Настройки голоса</string>
+-             </property>
+-            </widget>
+-           </item>
+-           <item>
+-            <widget class="QPushButton" name="pushButton_3">
+-             <property name="sizePolicy">
+-              <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
+-               <horstretch>0</horstretch>
+-               <verstretch>0</verstretch>
+-              </sizepolicy>
+-             </property>
+-             <property name="font">
+-              <font>
+-               <pointsize>-1</pointsize>
+-               <weight>75</weight>
+-               <bold>true</bold>
+-              </font>
+-             </property>
+-             <property name="styleSheet">
+-              <string notr="true">QPushButton {
++                </property>
++                <property name="text">
++                 <string>Голосовой чат</string>
++                </property>
++               </widget>
++              </item>
++              <item>
++               <widget class="QPushButton" name="ChatSettings">
++                <property name="sizePolicy">
++                 <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
++                  <horstretch>0</horstretch>
++                  <verstretch>0</verstretch>
++                 </sizepolicy>
++                </property>
++                <property name="minimumSize">
++                 <size>
++                  <width>0</width>
++                  <height>50</height>
++                 </size>
++                </property>
++                <property name="maximumSize">
++                 <size>
++                  <width>16777215</width>
++                  <height>50</height>
++                 </size>
++                </property>
++                <property name="font">
++                 <font>
++                  <pointsize>-1</pointsize>
++                  <weight>75</weight>
++                  <bold>true</bold>
++                 </font>
++                </property>
++                <property name="cursor">
++                 <cursorShape>PointingHandCursor</cursorShape>
++                </property>
++                <property name="styleSheet">
++                 <string notr="true">QPushButton {
+     background-color: rgba(38, 40, 45, 255);
+-    border: 2px solid rgba(58, 60, 65, 255);
+-    border-radius: 15px;
++	background-image:url(:/icons/icon/chat_32dp_FFFFFF_FILL0_wght400_GRAD0_opsz40.svg);
++	border: 2px solid rgba(58, 60, 65, 255);
++	background-position: left center;
++	border-left:none;
++	border-right:2px solid transparent;;
++	background-repeat:no-repeat;
+     color: white;
+-    padding: 10px 20px;
+     font-size: 16px;
+     font-weight: bold;
++	text-align:center;
+ }
+ 
+ QPushButton:hover {
+-    background-color: rgba(58, 60, 65, 255);
+-    border: 2px solid rgba(78, 80, 85, 255);
++	border-right:2px solid orange;
+ }
+ 
+ QPushButton:pressed {
+     background-color: rgba(28, 30, 35, 255);
+-    border: 2px solid rgba(48, 50, 55, 255);
++	border-top: 2px solid  rgba(28, 30, 35, 255);
++	border-bottom: 2px solid  rgba(28, 30, 35, 255);
+ }</string>
+-             </property>
+-             <property name="text">
+-              <string>Хуй знает ещё не придумал</string>
+-             </property>
++                </property>
++                <property name="text">
++                 <string>Тестовый чат</string>
++                </property>
++                <property name="iconSize">
++                 <size>
++                  <width>31</width>
++                  <height>31</height>
++                 </size>
++                </property>
++               </widget>
++              </item>
++             </layout>
+             </widget>
+            </item>
+           </layout>
+@@ -318,6 +441,12 @@
+         </item>
+         <item>
+          <widget class="QStackedWidget" name="OptionWidget">
++          <property name="sizePolicy">
++           <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
++            <horstretch>4</horstretch>
++            <verstretch>0</verstretch>
++           </sizepolicy>
++          </property>
+           <widget class="QWidget" name="page_15"/>
+           <widget class="QWidget" name="page_16"/>
+          </widget>
+Index: .idea/workspace.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/workspace.xml b/.idea/workspace.xml
+--- a/.idea/workspace.xml	
++++ b/.idea/workspace.xml	
+@@ -5,15 +5,14 @@
+   </component>
+   <component name="ChangeListManager">
+     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
+-      <change afterPath="$PROJECT_DIR$/../.idea/server-client.iml" afterDir="false" />
+-      <change afterPath="$PROJECT_DIR$/.idea/codeStyles/codeStyleConfig.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_11_2024_17_14__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_01_11_2024_17_14__Changes_.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_11_37__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_11_37__Changes_.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_22_34__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_29_10_2024_22_34__Changes_.xml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/Zcord.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Zcord.iml" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
+       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_recieve.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_recieve.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_send.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_send.py" afterDir="false" />
+-      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Voice/audio_server.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/GUI/Parameters/Parameters.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Parameters/Parameters.ui" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/GUI/res-rec.qrc" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/res-rec.qrc" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Parameters.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Parameters.py" afterDir="false" />
++      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" afterDir="false" />
+     </list>
+     <option name="SHOW_DIALOG" value="false" />
+     <option name="HIGHLIGHT_CONFLICTS" value="true" />
+@@ -76,14 +75,14 @@
+ }</component>
+   <component name="RecentsManager">
+     <key name="MoveFile.RECENT_KEYS">
++      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Parameters" />
+       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Voice_main" />
+       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\GUI\Voice" />
+       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Parameters" />
+       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Chat\ChatClass" />
+-      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\CompiledGUI" />
+     </key>
+   </component>
+-  <component name="RunManager" selected="Python.audio_server">
++  <component name="RunManager" selected="Python.message_server">
+     <configuration name="VoiceParameters" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+       <module name="Zcord" />
+       <option name="INTERPRETER_OPTIONS" value="" />
+@@ -180,7 +179,6 @@
+         <env name="PYTHONUNBUFFERED" value="1" />
+       </envs>
+       <option name="SDK_HOME" value="C:\Users\Disita\AppData\Local\Programs\Python\Python312\python.exe" />
+-      <option name="SDK_NAME" value="Python 3.12" />
+       <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Message" />
+       <option name="IS_MODULE_SDK" value="false" />
+       <option name="ADD_CONTENT_ROOTS" value="true" />
+@@ -219,8 +217,8 @@
+     </configuration>
+     <recent_temporary>
+       <list>
+-        <item itemvalue="Python.audio_server" />
+         <item itemvalue="Python.zcord" />
++        <item itemvalue="Python.audio_server" />
+         <item itemvalue="Python.message_client" />
+         <item itemvalue="Python.VoiceParameters" />
+         <item itemvalue="Python.audio_send" />
+Index: .idea/.name
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/.name b/.idea/.name
+--- a/.idea/.name	
++++ b/.idea/.name	
+@@ -1,1 +1,1 @@
+-AddFreindWindow.py
+\ No newline at end of file
++zcord.py
+\ No newline at end of file
+Index: .idea/misc.xml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/misc.xml b/.idea/misc.xml
+--- a/.idea/misc.xml	
++++ b/.idea/misc.xml	
+@@ -1,4 +1,4 @@
+ <?xml version="1.0" encoding="UTF-8"?>
+ <project version="4">
+-  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11" project-jdk-type="Python SDK" />
++  <component name="ProjectRootManager" version="2" project-jdk-name="Python 3.11 (Zcord) (2)" project-jdk-type="Python SDK" />
+ </project>
+\ No newline at end of file
+Index: .idea/Zcord.iml
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+diff --git a/.idea/Zcord.iml b/.idea/Zcord.iml
+--- a/.idea/Zcord.iml	
++++ b/.idea/Zcord.iml	
+@@ -4,7 +4,7 @@
+     <content url="file://$MODULE_DIR$">
+       <excludeFolder url="file://$MODULE_DIR$/venv" />
+     </content>
+-    <orderEntry type="jdk" jdkName="Python 3.11" jdkType="Python SDK" />
++    <orderEntry type="jdk" jdkName="Python 3.11 (Zcord) (2)" jdkType="Python SDK" />
+     <orderEntry type="sourceFolder" forTests="false" />
+   </component>
+   <component name="PyDocumentationSettings">

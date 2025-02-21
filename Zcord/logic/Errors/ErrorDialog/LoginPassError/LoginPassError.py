@@ -9,8 +9,6 @@ class LoginPassError(QtWidgets.QDialog):
             self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
             self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
             self.ui.setupUi(self)
-
-
             self.ui.pushButton.clicked.connect(self.closeOnClick)
 
             self.resize(600, 400)  # Устанавливаем конечный размер окна

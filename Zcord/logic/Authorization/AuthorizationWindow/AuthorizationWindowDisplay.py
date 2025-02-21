@@ -29,19 +29,13 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
         self.ui.SignInButton.clicked.connect(self.authorize)
         self.ui.RegistrationStartButton.clicked.connect(self.openRegistrationWindow)
 
-        self.ui.Password_input.returnPressed.connect(self.authorize)
         self.ui.Login_input.returnPressed.connect(lambda: self.ui.Password_input.setFocusPolicy(QtCore.Qt.FocusPolicy.StrongFocus))
 
         self.__user = 0
 
-
-
-
-
     def authorize(self):
         login = self.ui.Login_input.text()
         password = self.ui.Password_input.text()
-
         if len(login) == 0:
             self.ui.Login_input.setStyleSheet("""QLineEdit {
                                                         width:250px;
@@ -87,6 +81,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
                 LoginPassErrorBox = LoginPassError()
                 LoginPassErrorBox.show()
                 LoginPassErrorBox.exec()
+                return
 
         except AuthorizationError as e:
             ErorrBox = UserError()
@@ -95,7 +90,6 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
 
 
     def on_click_hide(self):
-        print(1)
         self.showMinimized()
 
     def getUser(self):

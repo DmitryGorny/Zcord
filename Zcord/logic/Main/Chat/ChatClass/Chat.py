@@ -157,7 +157,7 @@ class Chat(QtWidgets.QWidget):
          self.recieveMessage(sender, text, date, index, wasSeen, event)
 
     def changeUnseenStatus(self, numberOfWidgets):
-        print(numberOfWidgets, len(self.unseenMessages))
+        #print(numberOfWidgets, len(self.unseenMessages))
         if numberOfWidgets >= len(self.unseenMessages):
             numberOfWidgets = len(self.unseenMessages)
         try:
@@ -202,8 +202,8 @@ class Chat(QtWidgets.QWidget):
             self.voicepr.changer_output.connect(self.change_output_device)
             self.voice_conn.icon_change.connect(self.show_friend_icon)
             self.ui.Call.show()
-            self.ui.User2_icon.show()
-            self.start_wave_effect()
+            #self.ui.User2_icon.show()
+            #self.start_wave_effect()
         else:
             print("Вы с кем-то уже разговариваете")
 

@@ -1,81 +1,105 @@
 import socket
-import asyncio
+import threading
 import pyaudio
-
-
-class Client:
-    def __init__(self, address):
-        self.address = address
-
-    def return_address(self):
-        return self.address
+import random
 
 
 class VoiceServer:
-    clients = {}  # Словарь для хранения активных клиентов
+    clients_udp = []  # Словарь для хранения активных клиентов
+    clients_tcp = []
 
-    def __init__(self, server_ip, server_port):
+    def __init__(self, server_ip, server_port, client):
         # 1 - порт инициализации сервера, 2 - ip инициализации сервера
-        self.server_ip = server_ip  # Адрес сервера
-        self.server_port = server_port  # Port to listen on (non-privileged ports are > 1023)
+        self.HOST = server_ip  # Адрес сервера
+        self.PORT = server_port  # Port to listen on (non-privileged ports are > 1023)
+
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.server.bind((self.HOST, self.PORT))
+
+        VoiceServer.clients_udp.append(self.server)
+        VoiceServer.clients_tcp.append(client)
+        self.is_running = True
         self.CHUNK = 1440
-        self.server.bind((self.server_ip, self.server_port))
         print(f"Сервер запущен")
         self.stream_output = pyaudio.PyAudio().open(format=pyaudio.paInt16,
                                          channels=1,
                                          rate=48000,
                                          output=True)
 
-    async def read_request(self):
-        while True:
+    def read_request(self):
+        while self.is_running:
             try:
-                data, address = self.server.recvfrom(4096)
-                header = data[0:1]
-                if header == b'2':  # обычный кадр звука с микрофона
-                    data = data[1:]
-                    self.broadcast(data, address)
-                    #self.stream_output.write(data)  # проверка на сервере не трогать
-                elif header == b'1':  # подключение юзера к серверу
-                    if len(self.clients) != 0:
-                        self.active_users_icon(b'222', address)
-                    print(f"Пользователь с ip: {address} подключен")
-                    self.clients[address] = Client(address)
-                    self.broadcast(b'111', address)
-                elif header == b'0':  # отключение юзера от сервера
-                    print(f"{address} отключен")
-                    self.broadcast(b'000', address)
-                    del self.clients[address]
+                data, address = self.server.recvfrom(4096)  # обычный кадр звука с микрофона
+                self.broadcast(data, address)
+                #self.stream_output.write(data)  # проверка на сервере не трогать
+            except OSError as e:
+                if not self.is_running:
+                    print("Сокет закрыт, поток завершается.")
+                    break
+                else:
+                    print(f"read_request: Ошибка чтения: {e}")
+                    break
             except Exception as e:
-                print(f"Error reading request: {e}")
+                print(f"read_request: Error reading request: {e}")
+                print("Если сообщение здесь про то что сокет закрыт то всё норм")
                 break
 
     def broadcast(self, data: bytes, sender_address: tuple):
-        for client_address in VoiceServer.clients:
-            if client_address != sender_address:  # Не отправляем данные отправителю
+        for client_address in VoiceServer.clients_udp:
+            if client_address != self.server:  # Не отправляем данные отправителю
                 try:
-                    self.server.sendto(data, client_address)
+                    self.server.sendto(data, sender_address)
                 except Exception as e:
-                    print(f"Error sending data to {client_address}: {e}")
+                    print(f"broadcast: Error sending data to {client_address}: {e}")
+                    break
 
-    def active_users_icon(self, data: bytes, sender_address: tuple):
-        try:
-            self.server.sendto(data, sender_address)
-        except Exception as e:
-            print(f"Error sending data to {sender_address}: {e}")
+    def get_service_tcp(self, client):
+        while self.is_running:
+            try:
+                data = client.recv(4096)
+                if data == b'EXI':  # отключение юзера от сервера
+                    print(f"{VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)].getpeername()} отключен")
+                    for client_in_server_now in VoiceServer.clients_tcp:
+                        client_in_server_now.send(b'000')
+                    client.send(b'EXI')
+                    del VoiceServer.clients_udp[VoiceServer.clients_udp.index(self.server)]
+                    del VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)]
+                    self.close_server(client)
+                    break
+            except Exception as e:
+                print(f"get_send_service_tcp: Error reading request: {e}")
+                self.close_server(client)
+                break
 
-    def close_server(self):
+    def close_server(self, client):
         print("Server ends")
+        self.is_running = False
+        self.server.shutdown(socket.SHUT_RDWR)
         self.server.close()
+        client.close()
 
 
-async def main():
-    server = VoiceServer("26.36.124.241", 65128)
-    task1 = asyncio.create_task(server.read_request())
-    task2 = asyncio.create_task(server.read_request())
-    await asyncio.gather(task1, task2)
+def main():
+    while True:
+        client, address = server_tcp.accept()
+        enter = client.recv(4096)
+        print(f"Пользователь с tcp ip: {address} подключен {enter}")
+        client.send(b'ENT')
+        CLIENT_UDP_PORT = client.recv(4096).decode('utf-8')
+        server = VoiceServer("26.36.124.241", int(CLIENT_UDP_PORT), client)
+        if len(VoiceServer.clients_tcp) > 1:
+            for client_in_server_now in VoiceServer.clients_tcp:
+                client_in_server_now.send(b'111')
+        thread = threading.Thread(target=server.read_request, args=())
+        thread1 = threading.Thread(target=server.get_service_tcp, args=(client, ))
+        thread.start()
+        thread1.start()
 
 
 if __name__ == "__main__":
-    # Позже необходимо добавить работу с классом Client, а именно из него брать все апйишники и порты
-    asyncio.run(main())
+    HOST = "26.36.124.241"
+    PORT = 65127
+    server_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_tcp.bind((HOST, PORT))
+    server_tcp.listen()
+    main()

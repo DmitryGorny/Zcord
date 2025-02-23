@@ -53,8 +53,8 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
 
 
-        self.ui.stackedWidget.addWidget(self.ui.WrapperForHomeScreen)
-        self.ui.stackedWidget.setCurrentWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
 
 

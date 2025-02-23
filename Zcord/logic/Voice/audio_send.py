@@ -1,3 +1,4 @@
+import random
 import socket
 import sys
 import threading
@@ -28,7 +29,7 @@ class VoiceConnection(QThread):
     icon_change = pyqtSignal(bool)
     is_running = False
 
-    def __init__(self, host, port):
+    def __init__(self, host, port, tcp_port):
         super().__init__()
         self.noise_profile = None
         self.FORMAT = pyaudio.paInt16
@@ -41,8 +42,16 @@ class VoiceConnection(QThread):
 
         self.is_speaking = False
 
+        self.HOST = host
+        self.PORT_UDP = port
+        self.PORT_TCP = tcp_port
+
         self.speak = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.speak.connect((host, port))
+        self.speak.connect((self.HOST, self.PORT_UDP))
+
+        self.speak_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.speak_tcp.connect((self.HOST, self.PORT_TCP))
+
 
         self.p = pyaudio.PyAudio()
         with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
@@ -67,28 +76,6 @@ class VoiceConnection(QThread):
                                          output=True,
                                          output_device_index=self.head_index)
 
-    def sender(self):
-        while VoiceConnection.is_running:
-            if not self.is_mic_mute:
-                try:
-                    data_to_send = self.stream_input.read(self.CHUNK)
-                    data_to_send = VoiceConnection.adjust_volume(data_to_send, VoiceConnection.volume)
-
-                    self.speech_detected_icon1.emit(VoiceConnection.vad.is_speech(data_to_send, self.RATE))
-
-                    if VoiceConnection.noise_profile is not None:
-                        data_to_send = self.noise_down(data_to_send)
-
-                    self.speak.sendall(b'2' + data_to_send)
-                    self.stream_output.write(data_to_send)
-                except KeyboardInterrupt:
-                    print("Приём аудио завершен или прерван")
-
-                except Exception as e:
-                    print(f"Отловлена ошибка в sender: {e}")
-                    print(e.args)
-        self.speak.sendall(b'0')
-
     @staticmethod
     def noise_down(data_to_send, RATE=48000):
         audio_data = np.frombuffer(data_to_send, dtype=np.int16)
@@ -105,10 +92,6 @@ class VoiceConnection(QThread):
         data_to_send = processed_data.tobytes()
         return data_to_send
 
-    def first_packet(self):
-        data_to_send = self.stream_input.read(self.CHUNK)
-        self.speak.sendall(b'1' + data_to_send)
-
     @staticmethod
     def adjust_volume(data, volume):
         samples = np.frombuffer(data, dtype=np.int16)
@@ -124,29 +107,73 @@ class VoiceConnection(QThread):
         gain = VoiceConnection.target_level / max_amplitude
         return (np.clip(samples * gain, -32768, 32767).astype(np.int16)).tobytes()
 
-    def getter(self):
-        while VoiceConnection.is_running:
-            if not self.is_head_mute:
-                try:
-                    data_to_read, address = self.speak.recvfrom(4096)  # Получаем данные с сервера
-                    header = data_to_read[0:3]
+    def send_service_bytes(self, code: bytes):
+        self.speak_tcp.send(code)
 
-                    if header == b'111':
-                        self.icon_change.emit(True)
-                    elif header == b'000':
-                        self.icon_change.emit(False)
-                    elif header == b'222':
-                        self.icon_change.emit(True)
-                    else:
-                        self.speech_detected_icon2.emit(VoiceConnection.sad.is_speech(data_to_read, self.RATE))
-                        data_to_read = VoiceConnection.adjust_volume(data_to_read, VoiceConnection.output_volume)
-                        self.stream_output.write(data_to_read)
+    def first_packet(self):
+        self.send_service_bytes(b'ENT')  # Вход на голосовой сервер
+
+    def sender(self):
+        while VoiceConnection.is_running:
+            if not self.is_mic_mute:
+                try:
+                    data_to_send = self.stream_input.read(self.CHUNK)
+                    data_to_send = VoiceConnection.adjust_volume(data_to_send, VoiceConnection.volume)
+
+                    self.speech_detected_icon1.emit(VoiceConnection.vad.is_speech(data_to_send, self.RATE))
+
+                    if VoiceConnection.noise_profile is not None:
+                        data_to_send = self.noise_down(data_to_send)
+
+                    self.speak.sendall(data_to_send)
+                    #self.stream_output.write(data_to_send)
                 except KeyboardInterrupt:
                     print("Приём аудио завершен или прерван")
 
                 except Exception as e:
+                    print(f"Отловлена ошибка в sender: {e}")
+
+    def getter(self):
+        while VoiceConnection.is_running:
+            if not self.is_head_mute:
+                try:
+                    data_to_read, address = self.speak.recvfrom(4096)  # Получаем данные с сервера (обычный голос)
+                    self.speech_detected_icon2.emit(VoiceConnection.sad.is_speech(data_to_read, self.RATE))
+                    data_to_read = VoiceConnection.adjust_volume(data_to_read, VoiceConnection.output_volume)
+                    self.stream_output.write(data_to_read)
+                except KeyboardInterrupt:
+                    print("Приём аудио завершен или прерван")
+                except OSError as e:
+                    if not VoiceConnection.is_running:
+                        print("Сокет закрыт, поток завершается.")
+                        break
+                    else:
+                        print(f"Отловлена ошибка в getter: {e}")
+                        break
+                except Exception as e:
                     print(f"Отловлена ошибка в getter: {e}")
-                    print(e.args)
+
+    def getter_tcp(self):
+        while VoiceConnection.is_running:
+            try:
+                data_to_service = self.speak_tcp.recv(4096)  # Получаем данные с сервера
+                if data_to_service == b'ENT':
+                    print("Вы подключены к аудио серверу")
+                    self.speak_tcp.send(str(self.PORT_UDP).encode('utf-8'))
+                elif data_to_service == b'EXI':
+                    print("Выход с аудио сервера")
+                elif data_to_service == b'111':
+                    self.icon_change.emit(True)
+                elif data_to_service == b'000':
+                    self.icon_change.emit(False)
+                elif data_to_service == b'':
+                    print("Выход с аудио сервера")
+
+            except KeyboardInterrupt:
+                print("Приём аудио завершен или прерван")
+
+            except Exception as e:
+                print(f"Отловлена ошибка в getter_tcp: {e}")
 
     def mute_mic(self, flg_mute):
         self.is_mic_mute = flg_mute
@@ -179,26 +206,31 @@ class VoiceConnection(QThread):
 
     def close(self):
         VoiceConnection.is_running = False
+        self.send_service_bytes(b'EXI')
         self.stream_input.stop_stream()
         self.stream_input.close()
         self.stream_output.stop_stream()
         self.stream_output.close()
         self.p.terminate()
         self.speak.close()
+        self.speak_tcp.close()
         print("Все аудиопотоки закрыты.")
 
 
 def start_voice():
     HOST = "26.36.124.241"  #  Вроде как сюда данные сервера к которому мы подключаемся
-    PORT_TO_SPEAK = 65128
-    voice_conn = VoiceConnection(HOST, PORT_TO_SPEAK)
+    PORT_TO_SPEAK = random.randint(32000, 65126)
+    PORT_TO_SPEAK_TCP = 65127
+    voice_conn = VoiceConnection(HOST, PORT_TO_SPEAK, PORT_TO_SPEAK_TCP)
     print("Начата передача аудио")
     voice_conn.first_packet()
     VoiceConnection.is_running = True
     thread_speak = threading.Thread(target=voice_conn.sender)
     thread_listen = threading.Thread(target=voice_conn.getter)
+    thread_get_tcp = threading.Thread(target=voice_conn.getter_tcp)
     thread_speak.start()
     thread_listen.start()
+    thread_get_tcp.start()
     return voice_conn
 
 

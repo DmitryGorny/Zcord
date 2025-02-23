@@ -90,7 +90,6 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(16384)
                 header = msg[0:1]
                 msg = msg[1:]
-                print(header, msg)
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
@@ -288,7 +287,7 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 
 def call(nickname, chat_id, user, chats, callback):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55557  # Порт, используемый сервером
 
     try:

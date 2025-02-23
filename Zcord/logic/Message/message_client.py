@@ -90,7 +90,6 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(16384)
                 header = msg[0:1]
                 msg = msg[1:]
-                print(header, msg)
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:

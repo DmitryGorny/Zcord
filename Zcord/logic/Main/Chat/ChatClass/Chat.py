@@ -78,7 +78,6 @@ class Chat(QtWidgets.QWidget):
         message = Message(text, sender)
         message.ui.date_label.setText(date)
 
-        global qss
         qss = ""
         if sender == self.__user.getNickName():
             qss = """QFrame {
@@ -87,7 +86,6 @@ class Chat(QtWidgets.QWidget):
                     border:2px solid white;
                     }
                     }"""
-
         if wasSeen == 0:
             message.ui.WasSeenlabel.setText("Unseen")
             self.unseenMessages.append(message.ui)
@@ -115,20 +113,17 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def slotForScroll(self):
-        self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
-        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/3))
-        self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
+        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/4))
     def addMessageOnTop(self, sender, text, date, index, wasSeen:int = 0, event = None): #Надубасил в код жестко
          self.recieveMessage(sender, text, date, index, wasSeen, event)
 
     def changeUnseenStatus(self, numberOfWidgets):
-        print(numberOfWidgets, len(self.unseenMessages))
         if numberOfWidgets >= len(self.unseenMessages):
             numberOfWidgets = len(self.unseenMessages)
         try:
             for messageWidget in range(numberOfWidgets):
                 self.unseenMessages[::-1][messageWidget].WasSeenlabel.setText("Seen")
-            del self.unseenMessages[-(numberOfWidgets + 1):]
+            del self.unseenMessages[-(numberOfWidgets):]
         except Exception:
             return
     def sendFriendRequest(self):

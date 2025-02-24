@@ -1,3 +1,4 @@
+import os
 import socket
 import threading
 from datetime import datetime
@@ -48,6 +49,7 @@ class MessageConnection(QObject):
     chat = None
     chatsList = []
     queueOfCahcedMessages = []
+    flg = False
 
     def __init__(self, client_tcp, cache_chat, user):
         super(MessageConnection, self).__init__()
@@ -85,7 +87,7 @@ class MessageConnection(QObject):
 
     @staticmethod
     def recv_message(nickname_yours, reciever):
-        while True:
+        while MessageConnection.flg:
             try:
                 msg = MessageConnection.client_tcp.recv(16384)
                 header = msg[0:1]
@@ -255,6 +257,11 @@ class MessageConnection(QObject):
 
                         reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                         reciever.sygnal.emit(nickname, message, date_now, 1, int(wasSeen))
+            except os.error as e:
+                if not MessageConnection.flg:
+                    print("Сокет закрылся корректно")
+                else:
+                    print(e)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 MessageConnection.client_tcp.close()
@@ -287,7 +294,7 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 
 def call(nickname, chat_id, user, chats, callback):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55557  # Порт, используемый сервером
 
     try:
@@ -308,6 +315,7 @@ def call(nickname, chat_id, user, chats, callback):
         chats.task_done()
     print("Старт клиента сообщений")
 
+    MessageConnection.flg = True
     thread_start(nickname, callback)
 
     return [client_tcp, clientClass]

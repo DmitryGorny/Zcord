@@ -173,8 +173,7 @@ class MessageRoom(object):
                 if "__CACHED-REQUEST__" in message:
                     if not userGotCahceFlag:
                         continue
-                    global arrayToSend
-                    arrayToSend = []
+
                     if currentMessageIndex > 0:
                         end = currentMessageIndex
                         currentMessageIndex = max(0, currentMessageIndex - 10)
@@ -260,7 +259,6 @@ class MessageRoom(object):
             except ConnectionResetError:
                 # Removing And Closing Clients
                 db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
-                global lastId
                 lastId = db.getAI_Id()[0][0]
                 if lastId == 1:
                     db.insertDataInTable("(chat_id, message, sender_nick, date, WasSeen)", f"(1, '__FIRST__', '0', '{date_now}', 1)")
@@ -284,7 +282,6 @@ class MessageRoom(object):
                             messagesToUpdate.append((message["WasSeen"], f"WHERE id = {message['id']}"))
                             pass
                     if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
-                        #MessageRoom.nicknames_in_chats[chat_code] = []
                         MessageRoom.cache_chat[chat_code] = []
 
 
@@ -331,7 +328,7 @@ def receive():
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
+    HOST = "26.181.96.20"
     PORT = 55557
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

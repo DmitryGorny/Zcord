@@ -8,15 +8,19 @@ class VoiceServer:
     clients_udp = []  # Словарь для хранения активных клиентов
     clients_tcp = []
 
-    def __init__(self, server_ip, server_port, client):
+    def __init__(self, server_ip, CLIENT_UDP_PORT, client):
         # 1 - порт инициализации сервера, 2 - ip инициализации сервера
         self.HOST = server_ip  # Адрес сервера
-        self.PORT = server_port  # Port to listen on (non-privileged ports are > 1023)
+        self.CLIENT_UDP_PORT = CLIENT_UDP_PORT  # Port to listen on (non-privileged ports are > 1023)
 
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.server.bind((self.HOST, self.PORT))
+        self.SERVER_UDP_PORT = random.randint(32000, 62000)
+        self.server.bind((self.HOST, self.SERVER_UDP_PORT))
+        client.send(b'SERVER_UDP' + str(self.SERVER_UDP_PORT).encode('utf-8'))
 
-        VoiceServer.clients_udp.append(self.server)
+        self.client_udp_address = (client.getpeername()[0], self.CLIENT_UDP_PORT)
+
+        VoiceServer.clients_udp.append(self.client_udp_address)
         VoiceServer.clients_tcp.append(client)
         self.is_running = True
         self.CHUNK = 1440
@@ -46,9 +50,9 @@ class VoiceServer:
 
     def broadcast(self, data: bytes, sender_address: tuple):
         for client_address in VoiceServer.clients_udp:
-            if client_address != self.server:  # Не отправляем данные отправителю
+            if client_address != sender_address:  # Не отправляем данные отправителю
                 try:
-                    self.server.sendto(data, sender_address)
+                    self.server.sendto(data, client_address)  # Подозрение на это
                 except Exception as e:
                     print(f"broadcast: Error sending data to {client_address}: {e}")
                     break
@@ -62,7 +66,7 @@ class VoiceServer:
                     for client_in_server_now in VoiceServer.clients_tcp:
                         client_in_server_now.send(b'000')
                     client.send(b'EXI')
-                    del VoiceServer.clients_udp[VoiceServer.clients_udp.index(self.server)]
+                    del VoiceServer.clients_udp[VoiceServer.clients_udp.index(self.client_udp_address)]
                     del VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)]
                     self.close_server(client)
                     break
@@ -86,7 +90,7 @@ def main():
         print(f"Пользователь с tcp ip: {address} подключен {enter}")
         client.send(b'ENT')
         CLIENT_UDP_PORT = client.recv(4096).decode('utf-8')
-        server = VoiceServer("26.36.124.241", int(CLIENT_UDP_PORT), client)
+        server = VoiceServer("26.36.124.241", int(CLIENT_UDP_PORT), client)  # Слышу себя блять
         if len(VoiceServer.clients_tcp) > 1:
             for client_in_server_now in VoiceServer.clients_tcp:
                 client_in_server_now.send(b'111')

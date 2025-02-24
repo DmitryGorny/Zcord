@@ -45,9 +45,10 @@ class VoiceConnection(QThread):
         self.HOST = host
         self.PORT_UDP = port
         self.PORT_TCP = tcp_port
+        self.SERVER_UDP_PORT = None
 
         self.speak = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.speak.connect((self.HOST, self.PORT_UDP))
+        self.speak.bind(('0.0.0.0', self.PORT_UDP))
 
         self.speak_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.speak_tcp.connect((self.HOST, self.PORT_TCP))
@@ -125,7 +126,10 @@ class VoiceConnection(QThread):
                     if VoiceConnection.noise_profile is not None:
                         data_to_send = self.noise_down(data_to_send)
 
-                    self.speak.sendall(data_to_send)
+                    if self.SERVER_UDP_PORT is not None:
+                        self.speak.sendto(data_to_send, (self.HOST, self.SERVER_UDP_PORT))
+                    else:
+                        print("UDP порт сервера ещё не получен")
                     #self.stream_output.write(data_to_send)
                 except KeyboardInterrupt:
                     print("Приём аудио завершен или прерван")
@@ -168,6 +172,10 @@ class VoiceConnection(QThread):
                     self.icon_change.emit(False)
                 elif data_to_service == b'':
                     print("Выход с аудио сервера")
+                elif b'SERVER_UDP' in data_to_service:
+                    self.SERVER_UDP_PORT = int(data_to_service[10:].decode('utf-8'))
+                    print("Получен UDP порт сервера: ")
+                    print(self.SERVER_UDP_PORT)
 
             except KeyboardInterrupt:
                 print("Приём аудио завершен или прерван")

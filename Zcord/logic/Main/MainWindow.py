@@ -253,6 +253,7 @@ class MainWindow(QtWidgets.QMainWindow):
         #with open("Resources/frineds/friends.json", "w") as Frineds_json:
             #Frineds_json.write(json.dumps(self.__friends))
         self.close()
+        message_client.MessageConnection.flg = False
         db_handler._engine.dispose()
 
         self.__client.close()

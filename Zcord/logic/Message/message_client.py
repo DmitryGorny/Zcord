@@ -4,6 +4,7 @@ import threading
 from datetime import datetime
 import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
+import json
 
 
 class SygnalChanger(QObject):
@@ -26,8 +27,7 @@ class MainInterface:
     @staticmethod
     def change_chat(current_chat, nickname, sygnalChanger):
         MainInterface.__current_chat = current_chat
-        msg = f"{MainInterface.return_current_chat()}&+& {nickname}&+& {'__change_chat__'}".encode("utf-8")
-        MessageConnection.client_tcp.sendall(msg)
+        MessageConnection.send_message('__change_chat__', nickname)
         try:
             sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
             sygnalChanger.clear.emit()
@@ -80,8 +80,11 @@ class MessageConnection(QObject):
 
     @staticmethod
     def send_message(message, nickname):
-        msg = f"{MainInterface.return_current_chat()}&+& {nickname}&+& {message}".encode("utf-8")
-        MessageConnection.client_tcp.sendall(msg)
+        msg = {
+            "chat_id": MainInterface.return_current_chat(),
+            "nickname": nickname,
+            "message": message}
+        MessageConnection.client_tcp.sendall(json.dumps(msg).encode('utf-8'))
 
     @staticmethod
     def recv_message(nickname_yours, reciever):

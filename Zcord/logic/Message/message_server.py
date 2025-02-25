@@ -1,3 +1,4 @@
+import json
 import socket
 import threading
 from datetime import datetime
@@ -92,16 +93,24 @@ class MessageRoom(object):
                 else:
                     MessageRoom.cache_chat[chat_id] = [cachedMessage]
         userGotCahceFlag = True
+        buffer = ""
         while True:
             try:
                 # Broadcasting Messages
                 flg = False
                 msg = client.recv(4096)
-                msg = msg.decode('utf-8').split("&+& ")
-
-                chat_code = str(msg[0])
-                nickname = msg[1]
-                message = msg[2]
+                msg = msg.decode('utf-8')
+                buffer += msg
+                print(buffer)
+                try:
+                    msg = json.loads(buffer)
+                    buffer = ""
+                except json.JSONDecodeError:
+                    print(1111)
+                    continue
+                chat_code = str(msg["chat_id"])
+                nickname = msg["nickname"]
+                message = msg["message"]
                 date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
                 messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
                     "id": 0,

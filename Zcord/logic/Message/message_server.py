@@ -6,7 +6,7 @@ import msgspec
 import copy
 from logic.db_handler.db_handler import db_handler
 import select
-import ijson
+import re
 
 
 class MessageRoom(object):
@@ -57,10 +57,13 @@ class MessageRoom(object):
                 continue
     @staticmethod
     def decode_multiple_json_objects(data):
+        # Регулярное выражение для поиска JSON-объектов
+        json_pattern = re.compile(r"\{.*?\}")
         decoded_objects = []
-        parser = ijson.items(data, '')
-        for obj in parser:
-            decoded_objects.append(obj)
+
+        for match in json_pattern.finditer(data):
+            decoded_objects.append(json.loads(match.group()))
+
         return decoded_objects
     @staticmethod
     def handle(client, nickname):
@@ -107,7 +110,8 @@ class MessageRoom(object):
                 try:
                     arr = MessageRoom.decode_multiple_json_objects(buffer)
                     buffer = ""
-                except ijson.common.IncompleteJSONError:
+                except json.JSONDecodeError:
+                    print("YAICA")
                     continue
 
                 for msg in arr:

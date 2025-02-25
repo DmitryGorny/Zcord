@@ -84,7 +84,7 @@ class MessageConnection(QObject):
             "chat_id": MainInterface.return_current_chat(),
             "nickname": nickname,
             "message": message}
-        MessageConnection.client_tcp.sendall((json.dumps(msg) + "\n").encode('utf-8'))
+        MessageConnection.client_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     @staticmethod
     def recv_message(nickname_yours, reciever):

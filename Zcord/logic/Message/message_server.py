@@ -322,9 +322,10 @@ class MessageRoom(object):
 def settleFirstInformationAboutClients(client):
         client.send(b'0' + '__NICK__'.encode('utf-8'))
         msg = client.recv(1024)
-        msg = msg.decode('utf-8').split("&+& ")
-        nickname = msg[0]
-        chat_id = MessageRoom.deserialize(msg[1])
+        msg = msg.decode('utf-8')
+        msg = json.loads(msg)
+        nickname = msg["nickname"]
+        chat_id = MessageRoom.deserialize(msg["message"])
         clients[nickname] = client
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]

@@ -187,7 +187,7 @@ class MessageConnection(QObject):
                 msg = msg.decode("utf-8").split("&+& ")
                 message = msg[0]
                 if message == '__NICK__':
-                    MessageConnection.client_tcp.send(f"{nickname_yours}&+& {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
+                    MessageConnection.send_message(MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8'), nickname_yours)
                 elif message == '__CONNECT__':
                     MessageConnection.send_message("__UPDATE-MESSAGES__", nickname_yours)
                     print("Подключено к серверу!")
@@ -295,7 +295,7 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 
 def call(nickname, chat_id, user, chats, callback):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55558  # Порт, используемый сервером
 
     try:

@@ -4,6 +4,8 @@ from datetime import datetime
 import msgspec
 import copy
 from logic.db_handler.db_handler import db_handler
+import select
+import time
 
 
 class MessageRoom(object):
@@ -94,7 +96,7 @@ class MessageRoom(object):
             try:
                 # Broadcasting Messages
                 flg = False
-                msg = client.recv(16384)
+                msg = client.recv(4096)
                 msg = msg.decode('utf-8').split("&+& ")
 
                 chat_code = str(msg[0])
@@ -198,9 +200,10 @@ class MessageRoom(object):
                     continue
 
                 if message == "__change_chat__":
+                    numberOfMessagesToShow = 15
                     if len(MessageRoom.cache_chat[chat_code]) != 0:
-                        client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-20:]))
-                        currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - 20
+                        client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-numberOfMessagesToShow:]))
+                        currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - numberOfMessagesToShow
                         if MessageRoom.cache_chat[chat_code][-1]["WasSeen"] != 1:
                             MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - 20)
                             clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
@@ -310,26 +313,29 @@ def settleFirstInformationAboutClients(client):
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]
 
-def receive():
+def receive(server_socket):
     while True:
+        readable, _, _ = select.select([server_socket], [], [], 2)
         # Accept Connection
-        client, address = server_msg.accept()
-        print(f"Connected to {address}")
+        for s in readable:
+            if s is server_socket:
+                client, address = server_msg.accept()
+                print(f"Connected to {address}")
 
-        # Request And Store Nickname
-        nickAndId = settleFirstInformationAboutClients(client)
+                # Request And Store Nickname
+                nickAndId = settleFirstInformationAboutClients(client)
 
-        client.send(b'0' + '__CONNECT__'.encode('utf-8'))
+                client.send(b'0' + '__CONNECT__'.encode('utf-8'))
 
-        MessageRoom(nickAndId[0])
-        # Start Handling Thread For Client
-        thread = threading.Thread(target=MessageRoom.handle, args=(client, nickAndId[1],))
-        thread.start()
+                MessageRoom(nickAndId[0])
+                # Start Handling Thread For Client
+                thread = threading.Thread(target=MessageRoom.handle, args=(client, nickAndId[1],))
+                thread.start()
 
 
 if __name__ == "__main__":
     HOST = "26.181.96.20"
-    PORT = 55557
+    PORT = 55558
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()
@@ -344,4 +350,4 @@ if __name__ == "__main__":
                 MessageRoom.cache_chat[chat_id].append(cachedMessage)
             else:
                 MessageRoom.cache_chat[chat_id] = [cachedMessage]
-    receive()
+    receive(server_msg)

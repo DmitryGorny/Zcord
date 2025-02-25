@@ -79,17 +79,15 @@ class MessageConnection(QObject):
         MessageConnection.client_tcp = client_tcp
 
     @staticmethod
-    def send_message(message, nickname, event:threading.Event = None):
+    def send_message(message, nickname):
         msg = f"{MainInterface.return_current_chat()}&+& {nickname}&+& {message}".encode("utf-8")
         MessageConnection.client_tcp.sendall(msg)
-        if event is not None:
-            event.set()
 
     @staticmethod
     def recv_message(nickname_yours, reciever):
         while MessageConnection.flg:
             try:
-                msg = MessageConnection.client_tcp.recv(16384)
+                msg = MessageConnection.client_tcp.recv(4096)
                 header = msg[0:1]
                 msg = msg[1:]
                 if header == b'2':
@@ -295,7 +293,7 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 def call(nickname, chat_id, user, chats, callback):
     SERVER_IP = "26.181.96.20"  # IP адрес сервера
-    SERVER_PORT = 55557  # Порт, используемый сервером
+    SERVER_PORT = 55558  # Порт, используемый сервером
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

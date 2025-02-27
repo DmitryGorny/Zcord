@@ -57,17 +57,14 @@ class MessageRoom(object):
                 continue
     @staticmethod
     def decode_multiple_json_objects(data):
-        # Регулярное выражение для поиска JSON-объектов
         json_pattern = re.compile(r"\{.*?\}")
         decoded_objects = []
-
         for match in json_pattern.finditer(data):
             decoded_objects.append(json.loads(match.group()))
-
         return decoded_objects
+
     @staticmethod
     def handle(client, nickname):
-        currentMessageIndex = -20
         db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
@@ -111,7 +108,6 @@ class MessageRoom(object):
                     arr = MessageRoom.decode_multiple_json_objects(buffer)
                     buffer = ""
                 except json.JSONDecodeError:
-                    print("YAICA")
                     continue
 
                 for msg in arr:

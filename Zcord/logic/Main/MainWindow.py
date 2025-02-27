@@ -6,6 +6,9 @@ from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
+from PyQt6.QtGui import QIcon
+from PyQt6.QtSvg import QSvgRenderer
+from PyQt6.QtGui import QPixmap, QPainter, QTransform
 import plyer
 
 
@@ -17,7 +20,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
-        self.ui.pushButton.setIcon(QtGui.QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+        self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
         self.__user = user
 
@@ -110,8 +113,13 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def addFriendToDict(self, name, chat_id, status):
         self.__friends[name] = [chat_id, status]
-
     def showFriendList(self):
+        if len(self.__chats) == 0:
+            if not self.ui.ScrollFriends.isVisible():
+                return
+            else:
+                self.ui.ScrollFriends.setVisible(False)
+                return
         if not self.ui.ScrollFriends.isVisible():
             self.ui.ScrollFriends.setVisible(True)
 

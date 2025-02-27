@@ -828,61 +828,7 @@ color:white;</string>
               </item>
               <item>
                <widget class="QFrame" name="bottomWidget">
-                <layout class="QVBoxLayout" name="verticalLayout_7">
-                 <item alignment="Qt::AlignBottom">
-                  <widget class="QFrame" name="ConnectionBlock">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <layout class="QHBoxLayout" name="_2">
-                    <item>
-                     <widget class="QFrame" name="ConnectionAndNick">
-                      <layout class="QVBoxLayout" name="_3">
-                       <item>
-                        <widget class="QPushButton" name="pushButton_4">
-                         <property name="styleSheet">
-                          <string notr="true">border:none;</string>
-                         </property>
-                         <property name="text">
-                          <string>PushButton</string>
-                         </property>
-                        </widget>
-                       </item>
-                       <item>
-                        <widget class="QLabel" name="label_4">
-                         <property name="styleSheet">
-                          <string notr="true">color:white;
-font-size:16px;</string>
-                         </property>
-                         <property name="text">
-                          <string>User</string>
-                         </property>
-                        </widget>
-                       </item>
-                      </layout>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_3">
-                      <property name="text">
-                       <string>PushButton</string>
-                      </property>
-                     </widget>
-                    </item>
-                    <item>
-                     <widget class="QPushButton" name="pushButton_2">
-                      <property name="text">
-                       <string>PushButton</string>
-                      </property>
-                     </widget>
-                    </item>
-                   </layout>
-                  </widget>
-                 </item>
-                </layout>
+                <layout class="QVBoxLayout" name="verticalLayout_7"/>
                </widget>
               </item>
              </layout>

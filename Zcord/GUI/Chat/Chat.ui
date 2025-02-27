@@ -341,7 +341,9 @@ border:none;
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">background-color:none;</string>
+                   <string notr="true">QWidget#widget_2 {
+background:none;
+}</string>
                   </property>
                   <widget class="QPushButton" name="User2_icon">
                    <property name="geometry">
@@ -371,7 +373,7 @@ border:none;
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">background-color:black;</string>
+                    <string notr="true"/>
                    </property>
                    <property name="text">
                     <string>U</string>
@@ -486,7 +488,9 @@ border-radius:17%;</string>
                    </size>
                   </property>
                   <property name="styleSheet">
-                   <string notr="true">background:none;</string>
+                   <string notr="true">QWidget#widget {
+background:none;
+}</string>
                   </property>
                   <widget class="QPushButton" name="User1_icon">
                    <property name="geometry">
@@ -510,8 +514,7 @@ border-radius:17%;</string>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">color:white;
-background-color:black;</string>
+                    <string notr="true"/>
                    </property>
                    <property name="text">
                     <string>U</string>
@@ -563,7 +566,7 @@ border-radius:17%;</string>
                     </size>
                    </property>
                   </widget>
-                  <widget class="QPushButton" name="user1_micMute_2">
+                  <widget class="QPushButton" name="user1_micMute">
                    <property name="geometry">
                     <rect>
                      <x>0</x>
@@ -639,7 +642,7 @@ QPushButton {
                  <number>25</number>
                 </property>
                 <item>
-                 <widget class="QPushButton" name="muteHeadphones">
+                 <widget class="QPushButton" name="muteMic">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>
@@ -679,7 +682,7 @@ background-color:black;</string>
                  </widget>
                 </item>
                 <item>
-                 <widget class="QPushButton" name="muteMic">
+                 <widget class="QPushButton" name="muteHeadphones">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                     <horstretch>0</horstretch>

@@ -26,6 +26,9 @@ class VoiceConnection(QThread):
     target_level = 2000
     speech_detected_icon1 = pyqtSignal(bool)
     speech_detected_icon2 = pyqtSignal(bool)
+    mute_mic_icon2 = pyqtSignal(bool)
+    mute_head_icon2 = pyqtSignal(bool)
+
     icon_change = pyqtSignal(bool)
     is_running = False
 
@@ -176,6 +179,14 @@ class VoiceConnection(QThread):
                     self.SERVER_UDP_PORT = int(data_to_service[10:].decode('utf-8'))
                     print("Получен UDP порт сервера: ")
                     print(self.SERVER_UDP_PORT)
+                elif data_to_service == b'MicMute':
+                    self.mute_mic_icon2.emit(True)
+                elif data_to_service == b'MicUnMute':
+                    self.mute_mic_icon2.emit(False)
+                elif data_to_service == b'HeadMute':
+                    self.mute_head_icon2.emit(True)
+                elif data_to_service == b'HeadUnMute':
+                    self.mute_head_icon2.emit(False)
 
             except KeyboardInterrupt:
                 print("Приём аудио завершен или прерван")

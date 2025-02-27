@@ -30,7 +30,12 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.User1_icon.setText(self.__user.getNickName()[0])
         self.ui.User2_icon.setText(friendNick[0])
-        self.ui.User2_icon.hide()
+        self.ui.user1_headphonesMute.hide()
+        self.ui.user1_micMute.hide()
+
+        self.ui.user2_micMute.hide()
+        self.ui.user2_headphonesMute.hide()
+        self.ui.widget_2.hide()
 
         self.installEventFilter(self)
 
@@ -198,6 +203,9 @@ class Chat(QtWidgets.QWidget):
             self.voice_conn = audio_send.start_voice()
             self.voice_conn.speech_detected_icon1.connect(self.update_button_style_icon_1)
             self.voice_conn.speech_detected_icon2.connect(self.update_button_style_icon_2)
+            self.voice_conn.mute_mic_icon2.connect(self.mute_mic_icon_2)
+            self.voice_conn.mute_head_icon2.connect(self.mute_head_icon_2)
+
             self.voicepr.changer_input.connect(self.change_input_device)
             self.voicepr.changer_output.connect(self.change_output_device)
             self.voice_conn.icon_change.connect(self.show_friend_icon)
@@ -207,21 +215,41 @@ class Chat(QtWidgets.QWidget):
         else:
             print("Вы с кем-то уже разговариваете")
 
+    def mute_mic_icon_2(self, flg):
+        if flg:
+            self.ui.user2_micMute.show()
+        else:
+            self.ui.user2_micMute.hide()
+
+    def mute_head_icon_2(self, flg):
+        if flg:
+            self.ui.user2_headphonesMute.show()
+        else:
+            self.ui.user2_headphonesMute.hide()
+
     def mute_mic(self):
         if not self.input_mute_flg:
             self.voice_conn.mute_mic(True)
             self.input_mute_flg = True
+            self.ui.user1_micMute.show()
+            self.voice_conn.send_service_bytes(b'MicMute')
         else:
             self.voice_conn.mute_mic(False)
             self.input_mute_flg = False
+            self.ui.user1_micMute.hide()
+            self.voice_conn.send_service_bytes(b'MicUnMute')
 
     def mute_headphones(self):
         if not self.output_mute_flg:
             self.voice_conn.mute_head(True)
             self.output_mute_flg = True
+            self.ui.user1_headphonesMute.show()
+            self.voice_conn.send_service_bytes(b'HeadMute')
         else:
             self.voice_conn.mute_head(False)
             self.output_mute_flg = False
+            self.ui.user1_headphonesMute.hide()
+            self.voice_conn.send_service_bytes(b'HeadUnMute')
 
     def update_button_style_icon_1(self, is_speech):
         if is_speech:
@@ -245,9 +273,9 @@ class Chat(QtWidgets.QWidget):
 
     def show_friend_icon(self, is_show):
         if is_show:
-            self.ui.User2_icon.show()
+            self.ui.widget_2.show()
         else:
-            self.ui.User2_icon.hide()
+            self.ui.widget_2.hide()
 
     def change_output_device(self, index_output_device):
         if self.voice_conn:

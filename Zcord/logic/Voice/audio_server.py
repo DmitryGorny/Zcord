@@ -57,19 +57,36 @@ class VoiceServer:
                     print(f"broadcast: Error sending data to {client_address}: {e}")
                     break
 
+    def send_service_tcp(self, data: bytes, client=None):
+        if data == b'000':
+            for client_in_server_now in VoiceServer.clients_tcp:
+                client_in_server_now.send(b'000')
+        else:
+            for client_in_server_now in VoiceServer.clients_tcp:
+                if client_in_server_now != client:
+                    client_in_server_now.send(data)
+
+
     def get_service_tcp(self, client):
         while self.is_running:
             try:
                 data = client.recv(4096)
                 if data == b'EXI':  # отключение юзера от сервера
                     print(f"{VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)].getpeername()} отключен")
-                    for client_in_server_now in VoiceServer.clients_tcp:
-                        client_in_server_now.send(b'000')
+                    self.send_service_tcp(b'000')
                     client.send(b'EXI')
                     del VoiceServer.clients_udp[VoiceServer.clients_udp.index(self.client_udp_address)]
                     del VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)]
                     self.close_server(client)
                     break
+                elif data == b'MicMute':
+                    self.send_service_tcp(b'MicMute', client)
+                elif data == b'MicUnMute':
+                    self.send_service_tcp(b'MicUnMute', client)
+                elif data == b'HeadMute':
+                    self.send_service_tcp(b'HeadMute', client)
+                elif data == b'HeadUnMute':
+                    self.send_service_tcp(b'HeadUnMute', client)
             except Exception as e:
                 print(f"get_send_service_tcp: Error reading request: {e}")
                 self.close_server(client)

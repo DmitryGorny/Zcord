@@ -179,7 +179,14 @@ class Ui_Chat(object):
         self.horizontalLayout_4 = QtWidgets.QHBoxLayout(self.wrapperForUsers)
         self.horizontalLayout_4.setSpacing(40)
         self.horizontalLayout_4.setObjectName("horizontalLayout_4")
-        self.User2_icon = QtWidgets.QPushButton(parent=self.wrapperForUsers)
+        self.widget_2 = QtWidgets.QWidget(parent=self.wrapperForUsers)
+        self.widget_2.setMinimumSize(QtCore.QSize(120, 120))
+        self.widget_2.setStyleSheet("QWidget#widget_2 {\n"
+"background:none;\n"
+"}")
+        self.widget_2.setObjectName("widget_2")
+        self.User2_icon = QtWidgets.QPushButton(parent=self.widget_2)
+        self.User2_icon.setGeometry(QtCore.QRect(10, 10, 100, 100))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -187,18 +194,99 @@ class Ui_Chat(object):
         self.User2_icon.setSizePolicy(sizePolicy)
         self.User2_icon.setMinimumSize(QtCore.QSize(100, 100))
         self.User2_icon.setMaximumSize(QtCore.QSize(16777215, 16777215))
+        self.User2_icon.setStyleSheet("")
         self.User2_icon.setObjectName("User2_icon")
-        self.horizontalLayout_4.addWidget(self.User2_icon)
-        self.User1_icon = QtWidgets.QPushButton(parent=self.wrapperForUsers)
+        self.user2_headphonesMute = QtWidgets.QPushButton(parent=self.widget_2)
+        self.user2_headphonesMute.setGeometry(QtCore.QRect(80, 70, 35, 35))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.user2_headphonesMute.sizePolicy().hasHeightForWidth())
+        self.user2_headphonesMute.setSizePolicy(sizePolicy)
+        self.user2_headphonesMute.setMinimumSize(QtCore.QSize(35, 35))
+        self.user2_headphonesMute.setMaximumSize(QtCore.QSize(35, 35))
+        self.user2_headphonesMute.setStyleSheet("border:5px solid #BB271A;\n"
+"background-color:#BB271A;\n"
+"border-radius:17%;")
+        self.user2_headphonesMute.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("GUI/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.user2_headphonesMute.setIcon(icon2)
+        self.user2_headphonesMute.setIconSize(QtCore.QSize(23, 23))
+        self.user2_headphonesMute.setObjectName("user2_headphonesMute")
+        self.user2_micMute = QtWidgets.QPushButton(parent=self.widget_2)
+        self.user2_micMute.setGeometry(QtCore.QRect(10, 70, 35, 35))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.user2_micMute.sizePolicy().hasHeightForWidth())
+        self.user2_micMute.setSizePolicy(sizePolicy)
+        self.user2_micMute.setMinimumSize(QtCore.QSize(35, 35))
+        self.user2_micMute.setMaximumSize(QtCore.QSize(35, 35))
+        self.user2_micMute.setStyleSheet("border:5px solid #BB271A;\n"
+"background-color:#BB271A;\n"
+"border-radius:17%;")
+        self.user2_micMute.setText("")
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("GUI/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.user2_micMute.setIcon(icon3)
+        self.user2_micMute.setIconSize(QtCore.QSize(23, 23))
+        self.user2_micMute.setObjectName("user2_micMute")
+        self.horizontalLayout_4.addWidget(self.widget_2)
+        self.widget = QtWidgets.QWidget(parent=self.wrapperForUsers)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
+        self.widget.setSizePolicy(sizePolicy)
+        self.widget.setMinimumSize(QtCore.QSize(120, 120))
+        self.widget.setStyleSheet("QWidget#widget {\n"
+"background:none;\n"
+"}")
+        self.widget.setObjectName("widget")
+        self.User1_icon = QtWidgets.QPushButton(parent=self.widget)
+        self.User1_icon.setGeometry(QtCore.QRect(0, 10, 100, 100))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.User1_icon.sizePolicy().hasHeightForWidth())
         self.User1_icon.setSizePolicy(sizePolicy)
         self.User1_icon.setMinimumSize(QtCore.QSize(100, 100))
-        self.User1_icon.setStyleSheet("color:white;")
+        self.User1_icon.setStyleSheet("")
         self.User1_icon.setObjectName("User1_icon")
-        self.horizontalLayout_4.addWidget(self.User1_icon, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.user1_headphonesMute = QtWidgets.QPushButton(parent=self.widget)
+        self.user1_headphonesMute.setGeometry(QtCore.QRect(70, 70, 35, 35))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.user1_headphonesMute.sizePolicy().hasHeightForWidth())
+        self.user1_headphonesMute.setSizePolicy(sizePolicy)
+        self.user1_headphonesMute.setMinimumSize(QtCore.QSize(35, 35))
+        self.user1_headphonesMute.setMaximumSize(QtCore.QSize(35, 35))
+        self.user1_headphonesMute.setStyleSheet("border:5px solid #BB271A;\n"
+"background-color:#BB271A;\n"
+"border-radius:17%;")
+        self.user1_headphonesMute.setText("")
+        self.user1_headphonesMute.setIcon(icon2)
+        self.user1_headphonesMute.setIconSize(QtCore.QSize(23, 23))
+        self.user1_headphonesMute.setObjectName("user1_headphonesMute")
+        self.user1_micMute = QtWidgets.QPushButton(parent=self.widget)
+        self.user1_micMute.setGeometry(QtCore.QRect(0, 70, 35, 35))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.user1_micMute.sizePolicy().hasHeightForWidth())
+        self.user1_micMute.setSizePolicy(sizePolicy)
+        self.user1_micMute.setMinimumSize(QtCore.QSize(35, 35))
+        self.user1_micMute.setMaximumSize(QtCore.QSize(35, 35))
+        self.user1_micMute.setStyleSheet("border:5px solid #BB271A;\n"
+"background-color:#BB271A;\n"
+"border-radius:17%;")
+        self.user1_micMute.setText("")
+        self.user1_micMute.setIcon(icon3)
+        self.user1_micMute.setIconSize(QtCore.QSize(23, 23))
+        self.user1_micMute.setObjectName("user1_micMute")
+        self.horizontalLayout_4.addWidget(self.widget)
         self.verticalLayout.addWidget(self.wrapperForUsers, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.horizontalFrame = QtWidgets.QFrame(parent=self.Call)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -220,30 +308,6 @@ class Ui_Chat(object):
         self.wrapperForButtons = QtWidgets.QHBoxLayout(self.horizontalFrame)
         self.wrapperForButtons.setSpacing(25)
         self.wrapperForButtons.setObjectName("wrapperForButtons")
-        self.muteHeadphones = QtWidgets.QPushButton(parent=self.horizontalFrame)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.muteHeadphones.sizePolicy().hasHeightForWidth())
-        self.muteHeadphones.setSizePolicy(sizePolicy)
-        self.muteHeadphones.setMinimumSize(QtCore.QSize(40, 40))
-        self.muteHeadphones.setMaximumSize(QtCore.QSize(40, 40))
-        self.muteHeadphones.setStyleSheet("QPushButton {\n"
-"    border:2px solid white;\n"
-"    background-color:black;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: rgba(58, 60, 65, 255);\n"
-"    border: 2px solid rgba(78, 80, 85, 255);\n"
-"}")
-        self.muteHeadphones.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("GUI/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.muteHeadphones.setIcon(icon2)
-        self.muteHeadphones.setIconSize(QtCore.QSize(28, 28))
-        self.muteHeadphones.setObjectName("muteHeadphones")
-        self.wrapperForButtons.addWidget(self.muteHeadphones)
         self.muteMic = QtWidgets.QPushButton(parent=self.horizontalFrame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -252,23 +316,30 @@ class Ui_Chat(object):
         self.muteMic.setSizePolicy(sizePolicy)
         self.muteMic.setMinimumSize(QtCore.QSize(40, 40))
         self.muteMic.setMaximumSize(QtCore.QSize(40, 40))
-        self.muteMic.setStyleSheet("QPushButton {\n"
-"    border:2px solid white;\n"
-"    background-color:black;\n"
-"}\n"
-"\n"
-"QPushButton:hover {\n"
-"    background-color: rgba(58, 60, 65, 255);\n"
-"    border: 2px solid rgba(78, 80, 85, 255);\n"
-"}")
+        self.muteMic.setStyleSheet("\n"
+"border:2px solid white;\n"
+"background-color:black;")
         self.muteMic.setText("")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("GUI/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.muteMic.setIcon(icon3)
         self.muteMic.setIconSize(QtCore.QSize(28, 28))
-        self.muteMic.setFlat(False)
         self.muteMic.setObjectName("muteMic")
         self.wrapperForButtons.addWidget(self.muteMic)
+        self.muteHeadphones = QtWidgets.QPushButton(parent=self.horizontalFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.muteHeadphones.sizePolicy().hasHeightForWidth())
+        self.muteHeadphones.setSizePolicy(sizePolicy)
+        self.muteHeadphones.setMinimumSize(QtCore.QSize(40, 40))
+        self.muteHeadphones.setMaximumSize(QtCore.QSize(40, 40))
+        self.muteHeadphones.setStyleSheet("border:2px solid white;\n"
+"background-color:black;")
+        self.muteHeadphones.setText("")
+        self.muteHeadphones.setIcon(icon2)
+        self.muteHeadphones.setIconSize(QtCore.QSize(28, 28))
+        self.muteHeadphones.setFlat(False)
+        self.muteHeadphones.setObjectName("muteHeadphones")
+        self.wrapperForButtons.addWidget(self.muteHeadphones)
         self.leaveCall = QtWidgets.QPushButton(parent=self.horizontalFrame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -277,14 +348,8 @@ class Ui_Chat(object):
         self.leaveCall.setSizePolicy(sizePolicy)
         self.leaveCall.setMinimumSize(QtCore.QSize(40, 40))
         self.leaveCall.setMaximumSize(QtCore.QSize(40, 40))
-        self.leaveCall.setStyleSheet("QPushButton {\n"
-"    border-color:#BB271A;\n"
-"    background-color:#BB271A;\n"
-"}\n"
-"QPushButton:hover {\n"
-"    background-color:#AA000A;\n"
-"    border-color:#AA000A;\n"
-"}")
+        self.leaveCall.setStyleSheet("border-color:#BB271A;\n"
+"background-color:#BB271A;")
         self.leaveCall.setText("")
         icon4 = QtGui.QIcon()
         icon4.addPixmap(QtGui.QPixmap("GUI/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -426,9 +491,6 @@ class Ui_Chat(object):
         self.verticalLayout_7.addWidget(self.ChatInputLayout)
         self.verticalLayout_2.addWidget(self.ChatLayout)
         self.MAIN_ChatLayout.addWidget(self.Column)
-        self.verticalLayout = QtWidgets.QVBoxLayout()
-        self.verticalLayout.setObjectName("verticalLayout")
-        self.MAIN_ChatLayout.addLayout(self.verticalLayout)
 
         self.retranslateUi(Chat)
         QtCore.QMetaObject.connectSlotsByName(Chat)

@@ -66,7 +66,6 @@ class VoiceServer:
                 if client_in_server_now != client:
                     client_in_server_now.send(data)
 
-
     def get_service_tcp(self, client):
         while self.is_running:
             try:
@@ -88,7 +87,10 @@ class VoiceServer:
                 elif data == b'HeadUnMute':
                     self.send_service_tcp(b'HeadUnMute', client)
             except Exception as e:
-                print(f"get_send_service_tcp: Error reading request: {e}")
+                print(f"get_service_tcp: Error reading request: {e}")
+                print(f"{VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)].getpeername()} отключен")
+                del VoiceServer.clients_udp[VoiceServer.clients_udp.index(self.client_udp_address)]
+                del VoiceServer.clients_tcp[VoiceServer.clients_tcp.index(client)]
                 self.close_server(client)
                 break
 

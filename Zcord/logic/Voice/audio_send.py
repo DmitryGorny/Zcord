@@ -44,7 +44,7 @@ class VoiceConnection(QThread):
         self.is_head_mute = False
 
         self.is_speaking = False
-
+        self.lock = threading.Lock()
         self.HOST = host
         self.PORT_UDP = port
         self.PORT_TCP = tcp_port
@@ -55,7 +55,6 @@ class VoiceConnection(QThread):
 
         self.speak_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.speak_tcp.connect((self.HOST, self.PORT_TCP))
-
 
         self.p = pyaudio.PyAudio()
         with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
@@ -78,6 +77,7 @@ class VoiceConnection(QThread):
                                          channels=self.CHANNELS,
                                          rate=self.RATE,
                                          output=True,
+                                         frames_per_buffer=self.CHUNK,
                                          output_device_index=self.head_index)
 
     @staticmethod
@@ -121,7 +121,7 @@ class VoiceConnection(QThread):
         while VoiceConnection.is_running:
             if not self.is_mic_mute:
                 try:
-                    data_to_send = self.stream_input.read(self.CHUNK)
+                    data_to_send = self.stream_input.read(self.CHUNK, exception_on_overflow=False)
                     data_to_send = VoiceConnection.adjust_volume(data_to_send, VoiceConnection.volume)
 
                     self.speech_detected_icon1.emit(VoiceConnection.vad.is_speech(data_to_send, self.RATE))
@@ -139,6 +139,8 @@ class VoiceConnection(QThread):
 
                 except Exception as e:
                     print(f"Отловлена ошибка в sender: {e}")
+            else:
+                time.sleep(0.02)
 
     def getter(self):
         while VoiceConnection.is_running:
@@ -159,6 +161,8 @@ class VoiceConnection(QThread):
                         break
                 except Exception as e:
                     print(f"Отловлена ошибка в getter: {e}")
+            else:
+                time.sleep(0.02)
 
     def getter_tcp(self):
         while VoiceConnection.is_running:

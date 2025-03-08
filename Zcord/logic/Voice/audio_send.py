@@ -9,6 +9,7 @@ import webrtcvad as wb
 import time
 from PyQt6.QtCore import QThread, pyqtSignal
 import json
+from logic.Voice.Sound_Notifications import SoundPlayer
 #from cryptography.fernet import Fernet
 
 
@@ -49,6 +50,14 @@ class VoiceConnection(QThread):
         self.PORT_UDP = port
         self.PORT_TCP = tcp_port
         self.SERVER_UDP_PORT = None
+
+        self.loop_call = SoundPlayer()
+        self.loop_call.load_sound("Resources/melody/loop_call.wav")
+        self.loop_call.set_volume(1)
+
+        self.connect_call = SoundPlayer()
+        self.connect_call.load_sound("Resources/melody/connect_call.wav")
+        self.connect_call.set_volume(1)
 
         self.speak = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.speak.bind(('0.0.0.0', self.PORT_UDP))
@@ -171,10 +180,13 @@ class VoiceConnection(QThread):
                 if data_to_service == b'ENT':
                     print("Вы подключены к аудио серверу")
                     self.speak_tcp.send(str(self.PORT_UDP).encode('utf-8'))
+                    self.loop_call.play(10)
                 elif data_to_service == b'EXI':
                     print("Выход с аудио сервера")
                 elif data_to_service == b'111':
                     self.icon_change.emit(True)
+                    self.loop_call.stop()
+                    self.connect_call.play()
                 elif data_to_service == b'000':
                     self.icon_change.emit(False)
                 elif data_to_service == b'':
@@ -229,6 +241,8 @@ class VoiceConnection(QThread):
 
     def close(self):
         VoiceConnection.is_running = False
+        self.loop_call.quit()
+        self.connect_call.quit()
         self.send_service_bytes(b'EXI')
         self.stream_input.stop_stream()
         self.stream_input.close()

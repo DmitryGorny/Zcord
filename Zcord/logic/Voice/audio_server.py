@@ -9,7 +9,6 @@ class VoiceServer:
     clients_tcp = []
 
     def __init__(self, server_ip, CLIENT_UDP_PORT, client):
-        # 1 - порт инициализации сервера, 2 - ip инициализации сервера
         self.HOST = server_ip  # Адрес сервера
         self.CLIENT_UDP_PORT = CLIENT_UDP_PORT  # Port to listen on (non-privileged ports are > 1023)
 
@@ -52,7 +51,7 @@ class VoiceServer:
         for client_address in VoiceServer.clients_udp:
             if client_address != sender_address:  # Не отправляем данные отправителю
                 try:
-                    self.server.sendto(data, client_address)  # Подозрение на это
+                    self.server.sendto(data, client_address)
                 except Exception as e:
                     print(f"broadcast: Error sending data to {client_address}: {e}")
                     break
@@ -109,7 +108,7 @@ def main():
         print(f"Пользователь с tcp ip: {address} подключен {enter}")
         client.send(b'ENT')
         CLIENT_UDP_PORT = client.recv(4096).decode('utf-8')
-        server = VoiceServer("26.36.124.241", int(CLIENT_UDP_PORT), client)  # Слышу себя блять
+        server = VoiceServer("26.36.124.241", int(CLIENT_UDP_PORT), client)
         if len(VoiceServer.clients_tcp) > 1:
             for client_in_server_now in VoiceServer.clients_tcp:
                 client_in_server_now.send(b'111')

@@ -15,7 +15,6 @@ class MessageRoom(object):
     allFriends = None
     unseenMessages = {}
 
-
     @staticmethod
     def set_nicknames_in_chats(arr):
         MessageRoom.nicknames_in_chats = {**arr, **MessageRoom.nicknames_in_chats}
@@ -52,7 +51,7 @@ class MessageRoom(object):
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
             try:
-                clients[client].send(ret)
+                clients[client].socket.send(ret)
             except KeyError:
                 continue
     @staticmethod
@@ -65,6 +64,8 @@ class MessageRoom(object):
 
     @staticmethod
     def handle(client, nickname):
+        #Вот этот кусок говна надо переписывать, т.к. во многих запросах отпала необходимость из-за типа Client
+        #Или не надо, надо все это смотреть, пиздец полный
         db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
@@ -95,6 +96,7 @@ class MessageRoom(object):
                         MessageRoom.cache_chat[chat_id].append(cachedMessage)
                 else:
                     MessageRoom.cache_chat[chat_id] = [cachedMessage]
+
         userGotCahceFlag = True
         while True:
             buffer = ""
@@ -110,7 +112,7 @@ class MessageRoom(object):
                 except json.JSONDecodeError:
                     continue
 
-                for msg in arr:
+                for msg in arr: #Решение интересное, здоровья автору (мне)
                     chat_code = str(msg["chat_id"])
                     nickname = msg["nickname"]
                     message = msg["message"]
@@ -130,6 +132,47 @@ class MessageRoom(object):
                             pass
 
                         continue
+                    #Статусы
+                    if "__USER-ONLINE__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-ONLINE__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-ONLINE__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["В сети", "#008000"]
+                        continue
+
+                    if "__USER-DISTRUB-BLOCK__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-DISTRUB-BLOCK__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-DISTRUB-BLOCK__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["Не беспокоить", "red"]
+                        continue
+
+                    if "__USER-HIDDEN__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["Невидимка", "grey"]
+                        continue
+
+                    if "__USER-AFK__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-AFK__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-AFK__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["Не активен", "yellow"]
+                        continue
+                    #Статусы
 
                     if "__FRIEND-REQUEST_ACTIVITY__" in message:
                         messageToChache["chat_id"] = message.split("&")[1]
@@ -152,8 +195,8 @@ class MessageRoom(object):
                         #Передавать специализированные сообщения обычным броадакстом так себе идейка
                         try:
                             messageWithRequest = f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}"
-                            clients[nickname].send(b'0' + messageWithRequest.encode('utf-8'))
-                            clients[friendNick].send(b'0' + messageWithRequest.encode('utf-8'))
+                            clients[nickname].socket.send(b'0' + messageWithRequest.encode('utf-8'))
+                            clients[friendNick].socket.send(b'0' + messageWithRequest.encode('utf-8'))
                         except KeyError:
                             pass
                         continue
@@ -162,15 +205,15 @@ class MessageRoom(object):
                         splitedMessage = message.split("&")
                         try:
                             messageToSend = f"{message}&+& []&+& {nickname}&+& {splitedMessage[1]}"
-                            clients[nickname].send(b'0' + messageToSend.encode('utf-8'))
-                            clients[splitedMessage[2]].send(b'0' + messageToSend.encode('utf-8'))
+                            clients[nickname].socket.send(b'0' + messageToSend.encode('utf-8'))
+                            clients[splitedMessage[2]].socket.send(b'0' + messageToSend.encode('utf-8'))
                         except KeyError:
                             pass
 
                         MessageRoom.cache_chat[splitedMessage[1]] = []
                         continue
 
-                    if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
+                    if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:#Привести в порядок
                         splitedMessage = message.split("&")
                         if splitedMessage[2] not in MessageRoom.nicknames_in_chats[splitedMessage[1]]:
                             MessageRoom.nicknames_in_chats[splitedMessage[1]].append(splitedMessage[2])
@@ -202,13 +245,13 @@ class MessageRoom(object):
                         client.send(b'3' + MessageRoom.serialize(arrayToSend))
                         userGotCahceFlag = False
                         MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - len(arrayToSend))
-                        clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                        clients[nickname].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
                         for i in range(len(arrayToSend)):
                             MessageRoom.cache_chat[chat_code][i]["WasSeen"] = 1
 
                         for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
                             if clientNick != nickname:
-                                clients[clientNick].send(b'0' + f"__USER-JOINED__&{len(arrayToSend)}".encode('utf-8'))
+                                clients[clientNick].socket.send(b'0' + f"__USER-JOINED__&{len(arrayToSend)}".encode('utf-8'))
                         continue
 
                     if message == "__change_chat__":
@@ -217,17 +260,17 @@ class MessageRoom(object):
                             client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-numberOfMessagesToShow:]))
                             currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - numberOfMessagesToShow
                             if MessageRoom.cache_chat[chat_code][-1]["WasSeen"] != 1:
-                                MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - 20)
-                                clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - numberOfMessagesToShow)
+                                clients[nickname].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
                                 for message in MessageRoom.cache_chat[chat_code][::-1]:
-                                    if MessageRoom.cache_chat[chat_code][::-1].index(message) == 20:
+                                    if MessageRoom.cache_chat[chat_code][::-1].index(message) == numberOfMessagesToShow:
                                         break
                                     if nickname != message["sender_nick"]:
                                         message["WasSeen"] = 1
 
 
                             for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
-                                clients[clientNick].send(b'0' + "__USER-JOINED__&20".encode('utf-8'))
+                                clients[clientNick].socket.send(b'0' + "__USER-JOINED__&20".encode('utf-8'))
 
                         flg = True
 
@@ -262,17 +305,23 @@ class MessageRoom(object):
                             if frineds[0] == int(chat_code):
                                 try:
                                     if frineds[1] != nickname:
-                                        clients[frineds[1]].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                        clients[frineds[1]].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
                                         break
 
                                     if frineds[2] != nickname:
-                                        clients[frineds[2]].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                        clients[frineds[2]].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
                                         break
                                 except KeyError:
                                     break
 
             except ConnectionResetError:
                 # Removing And Closing Clients
+
+                for key in clients[nickname].friends.keys():
+                    if key not in clients:
+                        continue
+                    clients[key].socket.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+
                 db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
                 lastId = db.getAI_Id()[0][0]
                 if lastId == 1:
@@ -314,6 +363,26 @@ class MessageRoom(object):
                 print(f"{nickname} left!")
                 break
 
+class Client:
+    def __init__(self, nick, socket):
+        self.nick = nick
+        self.socket = socket
+        self.activtyStatus = None
+        self.__friends = None
+    @property
+    def friends(self) -> dict:
+        return self.__friends
+    @friends.setter
+    def friends(self, friends: dict) -> None:
+        self.__friends = friends
+
+    @property
+    def status(self):
+        return self.activtyStatus
+
+    @status.setter
+    def status(self, status):
+        self.activtyStatus = status
 
 def settleFirstInformationAboutClients(client):
         client.send(b'0' + '__NICK__'.encode('utf-8'))
@@ -322,10 +391,35 @@ def settleFirstInformationAboutClients(client):
         msg = json.loads(msg)
         nickname = msg["nickname"]
         chat_id = MessageRoom.deserialize(msg["message"])
-        clients[nickname] = client
+        clientObj = Client(nickname, client)
+        clients[nickname] = clientObj
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]
 
+def askForClientInfo(client) -> None:
+    client.send(b'0' + '__USER-INFO__'.encode('utf-8'))
+    msg = client.recv(1024)
+    msg = msg.decode('utf-8')
+    msg = json.loads(msg)
+    nickname = msg["nickname"]
+    msg = json.loads(msg["message"])
+    clients[nickname].friends = msg["friends"]
+    clients[nickname].status = msg["status"]
+
+    for key in clients[nickname].friends.keys():
+        if key not in clients:
+            continue
+        clients[key].socket.send(b'4' + f"__USER-ONLINE__&{nickname}".encode('utf-8'))
+
+        match clients[key].status[0]:
+            case "В сети":
+                client.send(b'4' + f"__USER-ONLINE__&{key}".encode('utf-8'))
+            case "Не беспокоить":
+                client.send(b'4' + f"__USER-DISTRUB-BLOCK__&{key}".encode('utf-8'))
+            case "Невидимка":
+                client.send(b'4' + f"__USER-HIDDEN__&{key}".encode('utf-8'))
+            case _: #Для кастомных статусов
+                continue
 def receive(server_socket):
     while True:
         readable, _, _ = select.select([server_socket], [], [], 2)
@@ -337,6 +431,7 @@ def receive(server_socket):
 
                 # Request And Store Nickname
                 nickAndId = settleFirstInformationAboutClients(client)
+                askForClientInfo(client)
 
                 client.send(b'0' + '__CONNECT__'.encode('utf-8'))
 
@@ -348,7 +443,7 @@ def receive(server_socket):
 
 if __name__ == "__main__":
     HOST = "26.181.96.20"
-    PORT = 55558
+    PORT = 55557
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()

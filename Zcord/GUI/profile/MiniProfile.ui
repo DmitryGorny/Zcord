@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>UsersMiniProfile</class>
- <widget class="QDialog" name="UsersMiniProfile">
+ <class>Form</class>
+ <widget class="QWidget" name="Form">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>482</width>
-    <height>404</height>
+    <width>473</width>
+    <height>470</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Dialog</string>
+   <string>Form</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
@@ -24,8 +24,14 @@
      </property>
      <property name="minimumSize">
       <size>
-       <width>460</width>
-       <height>0</height>
+       <width>250</width>
+       <height>340</height>
+      </size>
+     </property>
+     <property name="maximumSize">
+      <size>
+       <width>300</width>
+       <height>400</height>
       </size>
      </property>
      <property name="styleSheet">
@@ -35,7 +41,146 @@ border:1px solid white;
 }</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item alignment="Qt::AlignTop">
+      <property name="spacing">
+       <number>10</number>
+      </property>
+      <property name="leftMargin">
+       <number>11</number>
+      </property>
+      <property name="rightMargin">
+       <number>11</number>
+      </property>
+      <property name="bottomMargin">
+       <number>15</number>
+      </property>
+      <item>
+       <widget class="QFrame" name="LogoField">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="minimumSize">
+         <size>
+          <width>0</width>
+          <height>100</height>
+         </size>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">QFrame {
+ border:none;
+}</string>
+        </property>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <property name="leftMargin">
+          <number>10</number>
+         </property>
+         <property name="rightMargin">
+          <number>10</number>
+         </property>
+         <item>
+          <widget class="QWidget" name="widget" native="true">
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>70</height>
+            </size>
+           </property>
+           <property name="maximumSize">
+            <size>
+             <width>75</width>
+             <height>75</height>
+            </size>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">background-color:none;</string>
+           </property>
+           <widget class="QPushButton" name="logo">
+            <property name="geometry">
+             <rect>
+              <x>0</x>
+              <y>0</y>
+              <width>75</width>
+              <height>75</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>75</width>
+              <height>75</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>60</width>
+              <height>65</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color:purple;
+width:50px;
+height:50px;
+border-radius:37%;
+color:White;
+font-size:32px;
+</string>
+            </property>
+            <property name="text">
+             <string>U</string>
+            </property>
+           </widget>
+           <widget class="QPushButton" name="ActivityIndicator_2">
+            <property name="geometry">
+             <rect>
+              <x>50</x>
+              <y>50</y>
+              <width>30</width>
+              <height>30</height>
+             </rect>
+            </property>
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="minimumSize">
+             <size>
+              <width>30</width>
+              <height>30</height>
+             </size>
+            </property>
+            <property name="maximumSize">
+             <size>
+              <width>25</width>
+              <height>25</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">background-color:#008000;
+border-radius:15px;
+color:White;
+border:6px solid rgba(16,19,23,255);
+
+</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+           </widget>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+      <item>
        <widget class="QFrame" name="LogoStatusNickname">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
@@ -50,6 +195,36 @@ border:1px solid white;
          <property name="spacing">
           <number>20</number>
          </property>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QLabel" name="NickName">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="styleSheet">
+            <string notr="true">font-size:22px;
+color:white;
+border:none;</string>
+           </property>
+           <property name="text">
+            <string>BYDLO</string>
+           </property>
+           <property name="wordWrap">
+            <bool>true</bool>
+           </property>
+          </widget>
+         </item>
          <item>
           <widget class="QFrame" name="horizontalFrame">
            <property name="sizePolicy">
@@ -77,107 +252,18 @@ padding:0px;</string>
              <number>0</number>
             </property>
             <item>
-             <widget class="QWidget" name="widget" native="true">
-              <property name="minimumSize">
-               <size>
-                <width>0</width>
-                <height>120</height>
-               </size>
-              </property>
-              <property name="maximumSize">
-               <size>
-                <width>110</width>
-                <height>120</height>
-               </size>
-              </property>
-              <widget class="QPushButton" name="logo">
-               <property name="geometry">
-                <rect>
-                 <x>10</x>
-                 <y>10</y>
-                 <width>100</width>
-                 <height>100</height>
-                </rect>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>100</width>
-                 <height>100</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>80</width>
-                 <height>80</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color:purple;
-width:50px;
-height:50px;
-border-radius:50%;
-color:White;
-font-size:32px;
-</string>
-               </property>
-               <property name="text">
-                <string>U</string>
-               </property>
-              </widget>
-              <widget class="QPushButton" name="pushButton">
-               <property name="geometry">
-                <rect>
-                 <x>80</x>
-                 <y>70</y>
-                 <width>35</width>
-                 <height>35</height>
-                </rect>
-               </property>
-               <property name="sizePolicy">
-                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                 <horstretch>0</horstretch>
-                 <verstretch>0</verstretch>
-                </sizepolicy>
-               </property>
-               <property name="minimumSize">
-                <size>
-                 <width>35</width>
-                 <height>35</height>
-                </size>
-               </property>
-               <property name="maximumSize">
-                <size>
-                 <width>25</width>
-                 <height>25</height>
-                </size>
-               </property>
-               <property name="styleSheet">
-                <string notr="true">background-color:green;
-border-radius:17%;
-color:White;
-border:6px solid rgba(16,19,23,255);
-
-</string>
-               </property>
-               <property name="text">
-                <string/>
-               </property>
-              </widget>
-             </widget>
-            </item>
-            <item>
              <widget class="QFrame" name="verticalFrame">
               <property name="sizePolicy">
-               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>70</height>
+               </size>
               </property>
               <property name="styleSheet">
                <string notr="true">border:none;</string>
@@ -187,6 +273,9 @@ border:6px solid rgba(16,19,23,255);
                 <number>7</number>
                </property>
                <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="topMargin">
                 <number>0</number>
                </property>
                <property name="rightMargin">
@@ -217,7 +306,7 @@ margin-left:5px;</string>
                <item>
                 <widget class="QLineEdit" name="Status_input">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
@@ -225,15 +314,15 @@ margin-left:5px;</string>
                  <property name="minimumSize">
                   <size>
                    <width>0</width>
-                   <height>50</height>
+                   <height>45</height>
                   </size>
                  </property>
                  <property name="styleSheet">
                   <string notr="true">QLineEdit {
- width:250px;
-height:30px;
+width:200px;
+height:25px;
 border: 2px solid #323338;
-border-radius: 10px;
+border-radius: 15px;
 background-repeat: no-repeat;
 background-position: left;
 background-color:#323338;
@@ -256,49 +345,33 @@ color:black;
            </layout>
           </widget>
          </item>
-         <item>
-          <widget class="QLabel" name="NickName">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">font-size:24px;
-color:white;
-border:none;
-margin-left:25px;</string>
-           </property>
-           <property name="text">
-            <string>BYDLO</string>
-           </property>
-           <property name="wordWrap">
-            <bool>true</bool>
-           </property>
-          </widget>
-         </item>
         </layout>
        </widget>
       </item>
-      <item alignment="Qt::AlignHCenter|Qt::AlignTop">
+      <item alignment="Qt::AlignTop">
        <widget class="QFrame" name="SettingsAndActivity">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="minimumSize">
          <size>
-          <width>400</width>
-          <height>160</height>
+          <width>0</width>
+          <height>0</height>
          </size>
         </property>
         <property name="maximumSize">
          <size>
-          <width>400</width>
-          <height>150</height>
+          <width>16777215</width>
+          <height>120</height>
          </size>
         </property>
         <property name="styleSheet">
          <string notr="true">border:none;
 background-color:#232528;
-border-radius:25%;</string>
+border-radius:15%;</string>
         </property>
         <layout class="QVBoxLayout">
          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
@@ -311,8 +384,8 @@ border-radius:25%;</string>
            </property>
            <property name="minimumSize">
             <size>
-             <width>340</width>
-             <height>57</height>
+             <width>240</width>
+             <height>45</height>
             </size>
            </property>
            <property name="cursor">
@@ -321,10 +394,11 @@ border-radius:25%;</string>
            <property name="styleSheet">
             <string notr="true">QPushButton {
     border: none;
-	padding-left:32px;
+	padding-left:33px;
 	font-size:18px;
     color: #FFFFFF; /* Белый текст */
- 	background-image:url(:/icons/icon/edit_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg);
+ 	background-image:;
+	background-image: url(:/icons/icon/edit_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg);
 	background-repeat:no-repeat;
 	background-position: left;
 	border-radius:0;
@@ -332,7 +406,7 @@ border-radius:25%;</string>
 }
 QPushButton:hover {
  background-color:rgba(229, 229, 229, 50);
- border-radius:28%;
+ border-radius:15%;
 }
 </string>
            </property>
@@ -351,7 +425,7 @@ QPushButton:hover {
            </property>
            <property name="minimumSize">
             <size>
-             <width>270</width>
+             <width>220</width>
              <height>0</height>
             </size>
            </property>
@@ -372,21 +446,21 @@ QPushButton:hover {
          <item alignment="Qt::AlignHCenter|Qt::AlignVCenter">
           <widget class="QFrame" name="Activity">
            <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
            </property>
            <property name="minimumSize">
             <size>
-             <width>0</width>
-             <height>52</height>
+             <width>250</width>
+             <height>45</height>
             </size>
            </property>
            <property name="maximumSize">
             <size>
              <width>16777215</width>
-             <height>52</height>
+             <height>42</height>
             </size>
            </property>
            <property name="styleSheet">
@@ -441,15 +515,15 @@ color:White;
               </property>
               <property name="styleSheet">
                <string notr="true">QPushButton {
-	padding:8px;
+	padding:3px;
     border: none;
 	font-size:18px;
     color: #FFFFFF; /* Белый текст */
 	background-image:url(:/icons/icon/chevron_right_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg);
 	background-repeat:no-repeat;	
 	background-position:right;
-	padding-right:250px;
-background-color:none;
+	background-color:none;
+	text-align:left;
 }
 </string>
               </property>

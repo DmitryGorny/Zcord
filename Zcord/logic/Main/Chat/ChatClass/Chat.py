@@ -1,5 +1,4 @@
 import threading
-
 from logic.Main.Chat.ChatClass.ChatGUI import Ui_Chat
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.Message.Message import Message
@@ -68,7 +67,7 @@ class Chat(QtWidgets.QWidget):
         self.messageNumber = QtWidgets.QLabel("0", parent=parent)
         self.messageNumber.setVisible(False)
 
-    def recieveMessage(self, sender, text, date, messageIndex = 1, wasSeen:int = 0, event: threading.Event = None):
+    def recieveMessage(self, sender, text, date, messageIndex = 1, wasSeen:int = 0, event: threading.Event = None): #Нужно еще 20 аргументов
         if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
             self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
 

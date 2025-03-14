@@ -1,5 +1,6 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/icons8-green-circle-15.png</file>
     <file>icon/chevron_right_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/edit_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/edit_20dp_FFFFFF_FILL0_wght400_GRAD0_opsz20.svg</file>

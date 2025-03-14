@@ -6,6 +6,12 @@ from logic.Main.Chat.ChatClass.Chat import Chat
 from logic.db_handler.db_handler import db_handler
 from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
+from logic.Main.Parameters.Params_Window import ParamsWindow
+from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
+import threading
+import json
+import plyer
+
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
@@ -16,6 +22,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
+        self.voicepr = VoiceParamsClass()
+
+        self.parameters = ParamsWindow(self.ui, self.voicepr)
+        self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
         self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
@@ -44,7 +54,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.WindowMode.clicked.connect(self.on_click_fullscreenWindowMode)
         self.ui.AddFriends.clicked.connect(self.addFriend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
-
+        self.ui.SettingsButton.clicked.connect(self.show_parameters)
         self.ui.ScrollFriends.setVisible(False)
         self.call_chat()
 
@@ -64,6 +74,9 @@ class MainWindow(QtWidgets.QMainWindow):
            self.createChatWidget(chat, layoutFinal)
 
         self.WidgetForScroll.setLayout(layoutFinal)
+
+        self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
         self.ui.ScrollFriends.setMaximumHeight(350)
 
@@ -116,6 +129,8 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def mouseReleaseEvent(self, event):
         self.pressing = False
+
+
     def getFriends(self):
         db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
@@ -136,7 +151,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def createChats(self):
         for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user))
+            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user, self.voicepr))
         self.showFriendList()
 
 
@@ -178,6 +193,10 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def addFriendToDict(self, name, chat_id, status):
         self.__friends[name] = [chat_id, status]
+
+    def show_parameters(self):
+        self.ui.stackedWidget.setCurrentWidget(self.parameters.ui_pr.MAIN)
+
     def showFriendList(self):
         if len(self.__chats) == 0:
             if not self.ui.ScrollFriends.isVisible():
@@ -191,8 +210,6 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.ui.ScrollFriends.setVisible(False)
 
-    def cc(self):
-        print(1)
     def addFriend(self):
         if not AddFriendWindow.isOpen:
             addFriendsDialog = AddFriendWindow(self.__user)
@@ -408,4 +425,3 @@ class MainWindow(QtWidgets.QMainWindow):
             newValue = "99"
         chat.messageNumber.setText(str(newValue))
         #plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )
-

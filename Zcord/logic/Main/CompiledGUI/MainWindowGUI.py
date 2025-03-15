@@ -152,40 +152,63 @@ class Ui_Zcord(object):
 "")
         self.wrapperForUserAndGroupsAdding.setObjectName("wrapperForUserAndGroupsAdding")
         self.verticalLayout_3 = QtWidgets.QVBoxLayout(self.wrapperForUserAndGroupsAdding)
-        self.verticalLayout_3.setSpacing(10)
+        self.verticalLayout_3.setSpacing(15)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.UsersLogo = QtWidgets.QPushButton(parent=self.wrapperForUserAndGroupsAdding)
+        self.widget = QtWidgets.QWidget(parent=self.wrapperForUserAndGroupsAdding)
+        self.widget.setMinimumSize(QtCore.QSize(60, 60))
+        self.widget.setMaximumSize(QtCore.QSize(60, 60))
+        self.widget.setObjectName("widget")
+        self.UsersLogo = QtWidgets.QPushButton(parent=self.widget)
+        self.UsersLogo.setGeometry(QtCore.QRect(0, 0, 60, 70))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.UsersLogo.sizePolicy().hasHeightForWidth())
         self.UsersLogo.setSizePolicy(sizePolicy)
+        self.UsersLogo.setMinimumSize(QtCore.QSize(60, 70))
+        self.UsersLogo.setMaximumSize(QtCore.QSize(60, 60))
         self.UsersLogo.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.UsersLogo.setStyleSheet("background-color:purple;\n"
-"width:50px;\n"
-"height:50px;\n"
-"border-radius:25px;\n"
+"border-radius:30px;\n"
 "color:White;\n"
 "font-size:25px;\n"
 "")
         self.UsersLogo.setObjectName("UsersLogo")
-        self.verticalLayout_3.addWidget(self.UsersLogo, 0, QtCore.Qt.AlignmentFlag.AlignHCenter|QtCore.Qt.AlignmentFlag.AlignTop)
+        self.ActivityIndicator_Logo = QtWidgets.QPushButton(parent=self.widget)
+        self.ActivityIndicator_Logo.setGeometry(QtCore.QRect(40, 40, 20, 30))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.ActivityIndicator_Logo.sizePolicy().hasHeightForWidth())
+        self.ActivityIndicator_Logo.setSizePolicy(sizePolicy)
+        self.ActivityIndicator_Logo.setMinimumSize(QtCore.QSize(20, 30))
+        self.ActivityIndicator_Logo.setMaximumSize(QtCore.QSize(20, 30))
+        self.ActivityIndicator_Logo.setStyleSheet("background-color:#008000;\n"
+"border-radius:10px;\n"
+"color:White;\n"
+"border:3px solid rgba(34,35,39,255);\n"
+"\n"
+"")
+        self.ActivityIndicator_Logo.setText("")
+        self.ActivityIndicator_Logo.setObjectName("ActivityIndicator_Logo")
+        self.verticalLayout_3.addWidget(self.widget)
         self.AddGroup = QtWidgets.QPushButton(parent=self.wrapperForUserAndGroupsAdding)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.AddGroup.sizePolicy().hasHeightForWidth())
         self.AddGroup.setSizePolicy(sizePolicy)
+        self.AddGroup.setMinimumSize(QtCore.QSize(50, 50))
+        self.AddGroup.setMaximumSize(QtCore.QSize(50, 50))
         self.AddGroup.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.AddGroup.setStyleSheet("background-color:none;\n"
-"width:50px;\n"
-"height:50px;\n"
+"\n"
 "border-radius:25px;\n"
 "color:White;\n"
 "font-size:25px;\n"
 "")
         self.AddGroup.setObjectName("AddGroup")
-        self.verticalLayout_3.addWidget(self.AddGroup, 0, QtCore.Qt.AlignmentFlag.AlignTop)
+        self.verticalLayout_3.addWidget(self.AddGroup, 0, QtCore.Qt.AlignmentFlag.AlignHCenter|QtCore.Qt.AlignmentFlag.AlignTop)
         self.verticalLayout.addWidget(self.wrapperForUserAndGroupsAdding, 0, QtCore.Qt.AlignmentFlag.AlignHCenter|QtCore.Qt.AlignmentFlag.AlignTop)
         self.verticalFrame = QtWidgets.QFrame(parent=self.GroupsColumn)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -426,6 +449,11 @@ class Ui_Zcord(object):
         self.verticalLayout_6.addWidget(self.RoomsColumn)
         self.verticalLayout_6.setStretch(0, 3)
         self.verticalLayout_4.addWidget(self.SearchAndPeopeistButtons, 0, QtCore.Qt.AlignmentFlag.AlignTop)
+        self.bottomWidget = QtWidgets.QFrame(parent=self.DialogColumn)
+        self.bottomWidget.setObjectName("bottomWidget")
+        self.verticalLayout_7 = QtWidgets.QVBoxLayout(self.bottomWidget)
+        self.verticalLayout_7.setObjectName("verticalLayout_7")
+        self.verticalLayout_4.addWidget(self.bottomWidget)
         self.horizontalLayout.addWidget(self.DialogColumn)
         self.ChatsColumn = QtWidgets.QFrame(parent=self.Main)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Preferred, QtWidgets.QSizePolicy.Policy.Preferred)

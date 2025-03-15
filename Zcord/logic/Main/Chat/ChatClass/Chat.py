@@ -105,7 +105,7 @@ class Chat(QtWidgets.QWidget):
         self.messageNumber = QtWidgets.QLabel("0", parent=parent)
         self.messageNumber.setVisible(False)
 
-    def recieveMessage(self, sender, text, date, messageIndex = 1, wasSeen:int = 0, event: threading.Event = None):
+    def recieveMessage(self, sender, text, date, messageIndex = 1, wasSeen:int = 0, event: threading.Event = None): #Нужно еще 20 аргументов
         if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
             self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
 
@@ -152,20 +152,18 @@ class Chat(QtWidgets.QWidget):
         return True
 
     def slotForScroll(self):
-        self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
-        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/3))
-        self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
+        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/4))
     def addMessageOnTop(self, sender, text, date, index, wasSeen:int = 0, event = None): #Надубасил в код жестко
          self.recieveMessage(sender, text, date, index, wasSeen, event)
 
     def changeUnseenStatus(self, numberOfWidgets):
-        #print(numberOfWidgets, len(self.unseenMessages))
+        print(numberOfWidgets, len(self.unseenMessages))
         if numberOfWidgets >= len(self.unseenMessages):
             numberOfWidgets = len(self.unseenMessages)
         try:
             for messageWidget in range(numberOfWidgets):
                 self.unseenMessages[::-1][messageWidget].WasSeenlabel.setText("Seen")
-            del self.unseenMessages[-(numberOfWidgets + 1):]
+            del self.unseenMessages[-(numberOfWidgets):]
         except Exception:
             return
     def sendFriendRequest(self):
@@ -188,6 +186,7 @@ class Chat(QtWidgets.QWidget):
         friendAdding.acceptRequest(self.__friendNickname)
 
         message_client.MessageConnection.send_message(f"__ACCEPT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
+
         self.startMessaging()
 
     def leave_call(self):
@@ -292,7 +291,6 @@ class Chat(QtWidgets.QWidget):
     def startMessaging(self):
         self.ui.ChatInputLayout.setHidden(False)
         self.clearLayout()
-
     def clearLayout(self):
         self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
         self.ui.ChatScroll.clear()

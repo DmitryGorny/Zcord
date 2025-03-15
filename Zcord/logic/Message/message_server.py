@@ -1,9 +1,12 @@
+import json
 import socket
 import threading
 from datetime import datetime
 import msgspec
 import copy
 from logic.db_handler.db_handler import db_handler
+import select
+import re
 
 
 class MessageRoom(object):
@@ -11,7 +14,6 @@ class MessageRoom(object):
     cache_chat = {}
     allFriends = None
     unseenMessages = {}
-
 
     @staticmethod
     def set_nicknames_in_chats(arr):
@@ -49,16 +51,21 @@ class MessageRoom(object):
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
             try:
-                clients[client].send(ret)
+                clients[client].socket.send(ret)
             except KeyError:
                 continue
     @staticmethod
-    def awaitedSend(client, message, event:threading.Event):
-        client.send(message)
-        event.set()
+    def decode_multiple_json_objects(data):
+        json_pattern = re.compile(r"\{.*?\}")
+        decoded_objects = []
+        for match in json_pattern.finditer(data):
+            decoded_objects.append(json.loads(match.group()))
+        return decoded_objects
+
     @staticmethod
     def handle(client, nickname):
-        currentMessageIndex = -20
+        #Вот этот кусок говна надо переписывать, т.к. во многих запросах отпала необходимость из-за типа Client
+        #Или не надо, надо все это смотреть, пиздец полный
         db_fr = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
         db_ms = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
         pre_chat_ids = db_fr.getDataFromTableColumn("chat_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
@@ -89,175 +96,232 @@ class MessageRoom(object):
                         MessageRoom.cache_chat[chat_id].append(cachedMessage)
                 else:
                     MessageRoom.cache_chat[chat_id] = [cachedMessage]
+
         userGotCahceFlag = True
         while True:
+            buffer = ""
             try:
                 # Broadcasting Messages
                 flg = False
-                msg = client.recv(16384)
-                msg = msg.decode('utf-8').split("&+& ")
-
-                chat_code = str(msg[0])
-                nickname = msg[1]
-                message = msg[2]
-                date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
-                    "id": 0,
-                    "chat_id": chat_code,
-                    "message": message,
-                    "sender_nick": nickname,
-                    "date": date_now,
-                    "WasSeen": 0
-                }
-                if "__UPDATE-MESSAGES__" in message:
-                    try:
-                        client.send(b'2' + MessageRoom.serialize(MessageRoom.unseenMessages))
-                    except KeyError:
-                        pass
-
+                msg = client.recv(4096)
+                msg = msg.decode('utf-8')
+                buffer += msg
+                try:
+                    arr = MessageRoom.decode_multiple_json_objects(buffer)
+                    buffer = ""
+                except json.JSONDecodeError:
                     continue
 
-                if "__FRIEND-REQUEST_ACTIVITY__" in message:
-                    messageToChache["chat_id"] = message.split("&")[1]
-                    client.send(b'2' + MessageRoom.serialize({message.split("&")[1]: MessageRoom.unseenMessages[message.split("&")[1]]}))
-                    continue
+                for msg in arr: #Решение интересное, здоровья автору (мне)
+                    chat_code = str(msg["chat_id"])
+                    nickname = msg["nickname"]
+                    message = msg["message"]
+                    date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+                    messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
+                        "id": 0,
+                        "chat_id": chat_code,
+                        "message": message,
+                        "sender_nick": nickname,
+                        "date": date_now,
+                        "WasSeen": 0
+                    }
+                    if "__UPDATE-MESSAGES__" in message:
+                        try:
+                            client.send(b'2' + MessageRoom.serialize(MessageRoom.unseenMessages))
+                        except KeyError:
+                            pass
 
-                if "__FRIEND-ADDING__" in message:
-                    chats_id = settleFirstInformationAboutClients(client)[0]
-                    MessageRoom.copyCacheChat(chats_id)
-                    chat_id = message.split("&")[1]
-                    friendNick = message.split("&")[2]
-                    MessageRoom.unseenMessages[chat_id] = {nickname: 0, friendNick: 1}
-                    messageToChache["chat_id"] = chat_id
-                    messageToChache["message"] = "__FRIEND_REQUEST__"
-                    MessageRoom.cache_chat[chat_id].append(messageToChache)
-                    allFriends = db_fr.getDataFromTableColumn("chat_id, friend_one_id, friend_two_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
-                    db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
-                    db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date, WasSeen)", f"({chat_id}, '{nickname}', '{friendNick}', "
-                                                                                                      f"'__FRIEND_REQUEST__', '{date_now}', 0)")
-                    #Передавать специализированные сообщения обычным броадакстом так себе идейка
-                    try:
-                        messageWithRequest = f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}"
-                        clients[nickname].send(b'0' + messageWithRequest.encode('utf-8'))
-                        clients[friendNick].send(b'0' + messageWithRequest.encode('utf-8'))
-                    except KeyError:
-                        pass
-                    continue
+                        continue
+                    #Статусы
+                    if "__USER-ONLINE__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-ONLINE__&{nickname}".encode('utf-8'))
 
-                if "__ACCEPT-REQUEST__" in message:
-                    splitedMessage = message.split("&")
-                    try:
-                        messageToSend = f"{message}&+& []&+& {nickname}&+& {splitedMessage[1]}"
-                        clients[nickname].send(b'0' + messageToSend.encode('utf-8'))
-                        clients[splitedMessage[2]].send(b'0' + messageToSend.encode('utf-8'))
-                    except KeyError:
-                        pass
-
-                    MessageRoom.cache_chat[splitedMessage[1]] = []
-                    continue
-
-                if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
-                    splitedMessage = message.split("&")
-                    if splitedMessage[2] not in MessageRoom.nicknames_in_chats[splitedMessage[1]]:
-                        MessageRoom.nicknames_in_chats[splitedMessage[1]].append(splitedMessage[2])
-                    del MessageRoom.unseenMessages[splitedMessage[1]]
-                    MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname, 0))
-                    del MessageRoom.nicknames_in_chats[splitedMessage[1]]
-                    del MessageRoom.cache_chat[splitedMessage[1]]
-                    continue
-
-                if "__CAHCE-RECIEVED__" in message:
-                    userGotCahceFlag = True
-                    continue
-
-                if "__CACHED-REQUEST__" in message:
-                    if not userGotCahceFlag:
+                        client.send(b'4' + f"__USER-ONLINE__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["В сети", "#008000"]
                         continue
 
-                    if currentMessageIndex > 0:
-                        end = currentMessageIndex
-                        currentMessageIndex = max(0, currentMessageIndex - 10)
-                        if currentMessageIndex == 0:
-                            arrayToSend = MessageRoom.cache_chat[chat_code][:end]
+                    if "__USER-DISTRUB-BLOCK__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-DISTRUB-BLOCK__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-DISTRUB-BLOCK__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["Не беспокоить", "red"]
+                        continue
+
+                    if "__USER-HIDDEN__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["Невидимка", "grey"]
+                        continue
+
+                    if "__USER-AFK__" in message:
+                        for key in clients[nickname].friends.keys():
+                            if key not in clients:
+                                continue
+                            clients[key].socket.send(b'4' + f"__USER-AFK__&{nickname}".encode('utf-8'))
+
+                        client.send(b'4' + f"__USER-AFK__&{nickname}".encode('utf-8'))
+                        clients[nickname].status = ["Не активен", "yellow"]
+                        continue
+                    #Статусы
+
+                    if "__FRIEND-REQUEST_ACTIVITY__" in message:
+                        messageToChache["chat_id"] = message.split("&")[1]
+                        client.send(b'2' + MessageRoom.serialize({message.split("&")[1]: MessageRoom.unseenMessages[message.split("&")[1]]}))
+                        continue
+
+                    if "__FRIEND-ADDING__" in message:
+                        chats_id = settleFirstInformationAboutClients(client)[0]
+                        MessageRoom.copyCacheChat(chats_id)
+                        chat_id = message.split("&")[1]
+                        friendNick = message.split("&")[2]
+                        MessageRoom.unseenMessages[chat_id] = {nickname: 0, friendNick: 1}
+                        messageToChache["chat_id"] = chat_id
+                        messageToChache["message"] = "__FRIEND_REQUEST__"
+                        MessageRoom.cache_chat[chat_id].append(messageToChache)
+                        allFriends = db_fr.getDataFromTableColumn("chat_id, friend_one_id, friend_two_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
+                        db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
+                        db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date, WasSeen)", f"({chat_id}, '{nickname}', '{friendNick}', "
+                                                                                                          f"'__FRIEND_REQUEST__', '{date_now}', 0)")
+                        #Передавать специализированные сообщения обычным броадакстом так себе идейка
+                        try:
+                            messageWithRequest = f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}"
+                            clients[nickname].socket.send(b'0' + messageWithRequest.encode('utf-8'))
+                            clients[friendNick].socket.send(b'0' + messageWithRequest.encode('utf-8'))
+                        except KeyError:
+                            pass
+                        continue
+
+                    if "__ACCEPT-REQUEST__" in message:
+                        splitedMessage = message.split("&")
+                        try:
+                            messageToSend = f"{message}&+& []&+& {nickname}&+& {splitedMessage[1]}"
+                            clients[nickname].socket.send(b'0' + messageToSend.encode('utf-8'))
+                            clients[splitedMessage[2]].socket.send(b'0' + messageToSend.encode('utf-8'))
+                        except KeyError:
+                            pass
+
+                        MessageRoom.cache_chat[splitedMessage[1]] = []
+                        continue
+
+                    if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:#Привести в порядок
+                        splitedMessage = message.split("&")
+                        if splitedMessage[2] not in MessageRoom.nicknames_in_chats[splitedMessage[1]]:
+                            MessageRoom.nicknames_in_chats[splitedMessage[1]].append(splitedMessage[2])
+                        del MessageRoom.unseenMessages[splitedMessage[1]]
+                        MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname, 0))
+                        del MessageRoom.nicknames_in_chats[splitedMessage[1]]
+                        del MessageRoom.cache_chat[splitedMessage[1]]
+                        continue
+
+                    if "__CAHCE-RECIEVED__" in message:
+                        userGotCahceFlag = True
+                        continue
+
+                    if "__CACHED-REQUEST__" in message:
+                        if not userGotCahceFlag:
+                            continue
+
+                        if currentMessageIndex > 0:
+                            end = currentMessageIndex
+                            currentMessageIndex = max(0, currentMessageIndex - 10)
+                            if currentMessageIndex == 0:
+                                arrayToSend = MessageRoom.cache_chat[chat_code][:end]
+                            else:
+                                arrayToSend = MessageRoom.cache_chat[chat_code][currentMessageIndex:end]
                         else:
-                            arrayToSend = MessageRoom.cache_chat[chat_code][currentMessageIndex:end]
-                    else:
-                        continue
+                            continue
 
-                    arrayToSend.reverse()
-                    client.send(b'3' + MessageRoom.serialize(arrayToSend))
-                    userGotCahceFlag = False
-                    MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - len(arrayToSend))
-                    clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
-                    for i in range(len(arrayToSend)):
-                        MessageRoom.cache_chat[chat_code][i]["WasSeen"] = 1
-
-                    for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
-                        if clientNick != nickname:
-                            clients[clientNick].send(b'0' + f"__USER-JOINED__&{len(arrayToSend)}".encode('utf-8'))
-                    continue
-
-                if message == "__change_chat__":
-                    if len(MessageRoom.cache_chat[chat_code]) != 0:
-                        client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-20:]))
-                        currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - 20
-                        if MessageRoom.cache_chat[chat_code][-1]["WasSeen"] != 1:
-                            MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - 20)
-                            clients[nickname].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
-                            for message in MessageRoom.cache_chat[chat_code][::-1]:
-                                if MessageRoom.cache_chat[chat_code][::-1].index(message) == 20:
-                                    break
-                                if nickname != message["sender_nick"]:
-                                    message["WasSeen"] = 1
-
+                        arrayToSend.reverse()
+                        client.send(b'3' + MessageRoom.serialize(arrayToSend))
+                        userGotCahceFlag = False
+                        MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - len(arrayToSend))
+                        clients[nickname].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                        for i in range(len(arrayToSend)):
+                            MessageRoom.cache_chat[chat_code][i]["WasSeen"] = 1
 
                         for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
-                            clients[clientNick].send(b'0' + "__USER-JOINED__&20".encode('utf-8'))
+                            if clientNick != nickname:
+                                clients[clientNick].socket.send(b'0' + f"__USER-JOINED__&{len(arrayToSend)}".encode('utf-8'))
+                        continue
 
-                    flg = True
+                    if message == "__change_chat__":
+                        numberOfMessagesToShow = 15
+                        if len(MessageRoom.cache_chat[chat_code]) != 0:
+                            client.send(b'1' + MessageRoom.serialize(MessageRoom.cache_chat[chat_code][-numberOfMessagesToShow:]))
+                            currentMessageIndex = len(MessageRoom.cache_chat[chat_code]) - numberOfMessagesToShow
+                            if MessageRoom.cache_chat[chat_code][-1]["WasSeen"] != 1:
+                                MessageRoom.unseenMessages[chat_code][nickname] = max(0,  MessageRoom.unseenMessages[chat_code][nickname] - numberOfMessagesToShow)
+                                clients[nickname].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                for message in MessageRoom.cache_chat[chat_code][::-1]:
+                                    if MessageRoom.cache_chat[chat_code][::-1].index(message) == numberOfMessagesToShow:
+                                        break
+                                    if nickname != message["sender_nick"]:
+                                        message["WasSeen"] = 1
 
-                if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
-                    MessageRoom.nicknames_in_chats[chat_code].append(nickname)
 
-                    try:
-                        if chat_code != old_chat_cod:
-                            index = MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)
-                            MessageRoom.nicknames_in_chats[old_chat_cod].remove(nickname)
-                    except UnboundLocalError as e:
-                        print(e)
-                        pass
-                    except KeyError as e:
-                        print(e)
-                        pass
-                    old_chat_cod = str(chat_code)
+                            for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
+                                clients[clientNick].socket.send(b'0' + "__USER-JOINED__&20".encode('utf-8'))
 
-                if flg:
-                    continue
+                        flg = True
 
-                if len(MessageRoom.nicknames_in_chats[chat_code]) > 1:
-                    messageToChache["WasSeen"] = 1
+                    if nickname not in MessageRoom.nicknames_in_chats[chat_code]:
+                        MessageRoom.nicknames_in_chats[chat_code].append(nickname)
 
-                MessageRoom.cache_chat[chat_code].append(messageToChache)
-                MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
-                if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
-                    nicknameToRecive = list(filter(lambda x: x != nickname, MessageRoom.unseenMessages[chat_code].keys()))[0]
-                    if messageToChache["WasSeen"] != 1:
-                        MessageRoom.unseenMessages[chat_code][nicknameToRecive] += 1
-                    for frineds in allFriends:
-                        if frineds[0] == int(chat_code):
-                            try:
-                                if frineds[1] != nickname:
-                                    clients[frineds[1]].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                        try:
+                            if chat_code != old_chat_cod:
+                                index = MessageRoom.nicknames_in_chats[old_chat_cod].index(nickname)
+                                MessageRoom.nicknames_in_chats[old_chat_cod].remove(nickname)
+                        except UnboundLocalError as e:
+                            print(e)
+                            pass
+                        except KeyError as e:
+                            print(e)
+                            pass
+                        old_chat_cod = str(chat_code)
+
+                    if flg:
+                        continue
+
+                    if len(MessageRoom.nicknames_in_chats[chat_code]) > 1:
+                        messageToChache["WasSeen"] = 1
+
+                    MessageRoom.cache_chat[chat_code].append(messageToChache)
+                    MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
+                    if len(MessageRoom.nicknames_in_chats[chat_code]) == 1:
+                        nicknameToRecive = list(filter(lambda x: x != nickname, MessageRoom.unseenMessages[chat_code].keys()))[0]
+                        if messageToChache["WasSeen"] != 1:
+                            MessageRoom.unseenMessages[chat_code][nicknameToRecive] += 1
+                        for frineds in allFriends:
+                            if frineds[0] == int(chat_code):
+                                try:
+                                    if frineds[1] != nickname:
+                                        clients[frineds[1]].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                        break
+
+                                    if frineds[2] != nickname:
+                                        clients[frineds[2]].socket.send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
+                                        break
+                                except KeyError:
                                     break
-
-                                if frineds[2] != nickname:
-                                    clients[frineds[2]].send(b'2' + MessageRoom.serialize({chat_code: MessageRoom.unseenMessages[chat_code]}))
-                                    break
-                            except KeyError:
-                                break
 
             except ConnectionResetError:
                 # Removing And Closing Clients
+
+                for key in clients[nickname].friends.keys():
+                    if key not in clients:
+                        continue
+                    clients[key].socket.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+
                 db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
                 lastId = db.getAI_Id()[0][0]
                 if lastId == 1:
@@ -299,36 +363,86 @@ class MessageRoom(object):
                 print(f"{nickname} left!")
                 break
 
+class Client:
+    def __init__(self, nick, socket):
+        self.nick = nick
+        self.socket = socket
+        self.activtyStatus = None
+        self.__friends = None
+    @property
+    def friends(self) -> dict:
+        return self.__friends
+    @friends.setter
+    def friends(self, friends: dict) -> None:
+        self.__friends = friends
+
+    @property
+    def status(self):
+        return self.activtyStatus
+
+    @status.setter
+    def status(self, status):
+        self.activtyStatus = status
 
 def settleFirstInformationAboutClients(client):
         client.send(b'0' + '__NICK__'.encode('utf-8'))
         msg = client.recv(1024)
-        msg = msg.decode('utf-8').split("&+& ")
-        nickname = msg[0]
-        chat_id = MessageRoom.deserialize(msg[1])
-        clients[nickname] = client
+        msg = msg.decode('utf-8')
+        msg = json.loads(msg)
+        nickname = msg["nickname"]
+        chat_id = MessageRoom.deserialize(msg["message"])
+        clientObj = Client(nickname, client)
+        clients[nickname] = clientObj
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]
 
-def receive():
+def askForClientInfo(client) -> None:
+    client.send(b'0' + '__USER-INFO__'.encode('utf-8'))
+    msg = client.recv(1024)
+    msg = msg.decode('utf-8')
+    msg = json.loads(msg)
+    nickname = msg["nickname"]
+    msg = json.loads(msg["message"])
+    clients[nickname].friends = msg["friends"]
+    clients[nickname].status = msg["status"]
+
+    for key in clients[nickname].friends.keys():
+        if key not in clients:
+            continue
+        clients[key].socket.send(b'4' + f"__USER-ONLINE__&{nickname}".encode('utf-8'))
+
+        match clients[key].status[0]:
+            case "В сети":
+                client.send(b'4' + f"__USER-ONLINE__&{key}".encode('utf-8'))
+            case "Не беспокоить":
+                client.send(b'4' + f"__USER-DISTRUB-BLOCK__&{key}".encode('utf-8'))
+            case "Невидимка":
+                client.send(b'4' + f"__USER-HIDDEN__&{key}".encode('utf-8'))
+            case _: #Для кастомных статусов
+                continue
+def receive(server_socket):
     while True:
+        readable, _, _ = select.select([server_socket], [], [], 2)
         # Accept Connection
-        client, address = server_msg.accept()
-        print(f"Connected to {address}")
+        for s in readable:
+            if s is server_socket:
+                client, address = server_msg.accept()
+                print(f"Connected to {address}")
 
-        # Request And Store Nickname
-        nickAndId = settleFirstInformationAboutClients(client)
+                # Request And Store Nickname
+                nickAndId = settleFirstInformationAboutClients(client)
+                askForClientInfo(client)
 
-        client.send(b'0' + '__CONNECT__'.encode('utf-8'))
+                client.send(b'0' + '__CONNECT__'.encode('utf-8'))
 
-        MessageRoom(nickAndId[0])
-        # Start Handling Thread For Client
-        thread = threading.Thread(target=MessageRoom.handle, args=(client, nickAndId[1],))
-        thread.start()
+                MessageRoom(nickAndId[0])
+                # Start Handling Thread For Client
+                thread = threading.Thread(target=MessageRoom.handle, args=(client, nickAndId[1],))
+                thread.start()
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
+    HOST = "26.181.96.20"
     PORT = 55557
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
@@ -344,4 +458,4 @@ if __name__ == "__main__":
                 MessageRoom.cache_chat[chat_id].append(cachedMessage)
             else:
                 MessageRoom.cache_chat[chat_id] = [cachedMessage]
-    receive()
+    receive(server_msg)

@@ -4,6 +4,7 @@ import threading
 from datetime import datetime
 import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
+import json
 
 
 class SygnalChanger(QObject):
@@ -11,7 +12,7 @@ class SygnalChanger(QObject):
     friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
     dynamicInterfaceUpdate = pyqtSignal(str, object) #См. документацию dynamicUpdate
-    dynamicInterfaceUpdateAwaited = pyqtSignal(str, object, object)
+    dynamicInterfaceUpdateAwaited = pyqtSignal(str, object, object)#См. документацию dynamicUpdate + threading.event
     unblockChat = pyqtSignal()
     awaitedMessageRecieve = pyqtSignal(str, str, str, int, int, object)
     changeUnseenStatus = pyqtSignal(int)
@@ -26,10 +27,9 @@ class MainInterface:
     @staticmethod
     def change_chat(current_chat, nickname, sygnalChanger):
         MainInterface.__current_chat = current_chat
-        msg = f"{MainInterface.return_current_chat()}&+& {nickname}&+& {'__change_chat__'}".encode("utf-8")
-        MessageConnection.client_tcp.sendall(msg)
+        MessageConnection.send_message('__change_chat__', nickname)
         try:
-            sygnalChanger.clear.connect(MessageConnection.chat.clearLayout) #Атрибут чат не может постоянно строка, а не объект
+            sygnalChanger.clear.connect(MessageConnection.chat.clearLayout)
             sygnalChanger.clear.emit()
         except AttributeError:
             return
@@ -61,7 +61,6 @@ class MessageConnection(QObject):
     def set_user(user):
         MessageConnection.user = user
 
-
     @staticmethod
     def addChatToList(chatObject):
         MessageConnection.chatsList.append(chatObject)
@@ -79,17 +78,18 @@ class MessageConnection(QObject):
         MessageConnection.client_tcp = client_tcp
 
     @staticmethod
-    def send_message(message, nickname, event:threading.Event = None):
-        msg = f"{MainInterface.return_current_chat()}&+& {nickname}&+& {message}".encode("utf-8")
-        MessageConnection.client_tcp.sendall(msg)
-        if event is not None:
-            event.set()
+    def send_message(message, nickname):
+        msg = {
+            "chat_id": MainInterface.return_current_chat(),
+            "nickname": nickname,
+            "message": message}
+        MessageConnection.client_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     @staticmethod
     def recv_message(nickname_yours, reciever):
         while MessageConnection.flg:
             try:
-                msg = MessageConnection.client_tcp.recv(16384)
+                msg = MessageConnection.client_tcp.recv(4096)
                 header = msg[0:1]
                 msg = msg[1:]
                 if header == b'2':
@@ -182,11 +182,42 @@ class MessageConnection(QObject):
                     MessageConnection.send_message("__CAHCE-RECIEVED__", nickname_yours)
 
                     continue
+                if header == b'4':
+                    msg = msg.decode('utf-8')
+                    msg = msg.split("&")
+                    match msg[0]:
+                        case "__USER-ONLINE__":
+                            if msg[1] == nickname_yours:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['self', "#008000"]))
+                            else:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['friend', "#008000", msg[1]]))
+                        case "__USER-DISTRUB-BLOCK__":
+                            if msg[1] == nickname_yours:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['self', "red"]))
+                            else:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['friend', "red", msg[1]]))
+                        case  "__USER-HIDDEN__":
+                            if msg[1] == nickname_yours:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['self', "grey"]))
+                            else:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['friend', "grey", msg[1]]))
+                        case "__USER-AFK__":
+                            if msg[1] == nickname_yours:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['self', "yellow"]))
+                            else:
+                                reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['friend', "yellow", msg[1]]))
+                    continue
 
                 msg = msg.decode("utf-8").split("&+& ")
                 message = msg[0]
                 if message == '__NICK__':
-                    MessageConnection.client_tcp.send(f"{nickname_yours}&+& {MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8')}".encode('utf-8'))
+                    MessageConnection.send_message(MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8'), nickname_yours)
+                elif message == "__USER-INFO__":
+                    dictToSend = {
+                                  "friends": MessageConnection.user.getFriends(),
+                                  "status": [MessageConnection.user.status.name, MessageConnection.user.status.color]
+                                  }
+                    MessageConnection.send_message(MessageConnection.serialize(dictToSend).decode('utf-8'), nickname_yours)
                 elif message == '__CONNECT__':
                     MessageConnection.send_message("__UPDATE-MESSAGES__", nickname_yours)
                     print("Подключено к серверу!")
@@ -293,8 +324,8 @@ def thread_start(nickname, dynamicUpdateCallback):
     receive_thread.start()
 
 
-def call(nickname, chat_id, user, chats, callback):
-    SERVER_IP = "26.36.124.241"  # IP адрес сервера
+def call(user, chats, callback):
+    SERVER_IP = "26.181.96.20"  # IP адрес сервера
     SERVER_PORT = 55557  # Порт, используемый сервером
 
     try:
@@ -305,8 +336,8 @@ def call(nickname, chat_id, user, chats, callback):
         exit(0)
 
     cache_chat = {}
-    for k in chat_id:
-        cache_chat[k] = []
+    for k in user.getFriends().keys():
+        cache_chat[user.getFriends()[k][0]] = []
 
     clientClass = MessageConnection(client_tcp, cache_chat, user)
 
@@ -316,6 +347,6 @@ def call(nickname, chat_id, user, chats, callback):
     print("Старт клиента сообщений")
 
     MessageConnection.flg = True
-    thread_start(nickname, callback)
+    thread_start(user.getNickName(), callback)
 
     return [client_tcp, clientClass]

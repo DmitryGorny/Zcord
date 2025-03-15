@@ -1,6 +1,5 @@
 import queue
 from PyQt6 import QtWidgets, QtCore, QtGui
-
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
 from logic.Main.Chat.ChatClass.Chat import Chat
@@ -13,12 +12,13 @@ import threading
 import json
 import plyer
 
-
+from PyQt6.QtGui import QIcon
+from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
+from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, user):
         super(MainWindow, self).__init__()
-
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
@@ -28,15 +28,23 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
-        self.ui.pushButton.setIcon(QtGui.QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+        self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
         self.__user = user
 
         self.ui.UsersLogo.setText(self.__user.getNickName()[0]) #Установка первой буквы в лого
+        self.ui.UsersLogo.clicked.connect(self.showProfile)
 
         self.__friends = {}
 
         self.__chats = []
+
+        self.__chatOptionsFrames = []
+
+        self.friendsChatOptions = []
+
+        #ГЫГЫГЫГЫГЫГЫ Я ДОЛБАЕБ Я НАСРАЛ В КОД ГЫГЫГЫГЫГЫГЫГЫГЫ
+        self.WidgetForScroll = QtWidgets.QWidget()
 
         self.getFriends()
         self.createChats()
@@ -52,14 +60,59 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
 
+        self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
+
+        self.initializeChatsInScrollArea()
+
+    def initializeChatsInScrollArea(self):
+        layoutFinal = QtWidgets.QVBoxLayout()
+        layoutFinal.setSpacing(5)
+        layoutFinal.setContentsMargins(0,0,0,0)
+
+        for chat in self.__chats:
+           self.createChatWidget(chat, layoutFinal)
+
+        self.WidgetForScroll.setLayout(layoutFinal)
 
         self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
+        self.ui.ScrollFriends.setMaximumHeight(350)
 
+        self.ui.ScrollFriends.setStyleSheet("""QScrollArea {
+                                                        border:none;
+                                                    }
+                                                    
+                                                    QScrollBar:vertical {
+                                                        border:none;
+                                                        width:10px;
+                                                        height:20px;
+                                                        
+                                                    }
+                                                    
+                                                     QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+                                                     {
+                                                         heigth:0;
+                                                     }
+                                                     QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+                                                     {
+                                                         background: none;
+                                                     }
+                                                     QScrollBar::add-line:vertical {
+                                                            height: 0px;
+                                                     }
+                                                            
+                                                    QScrollBar::sub-line:vertical {
+                                                            height: 0px;
+                                                     }
+                                                     QScrollBar::handle:vertical {
+                                                        background: orange;
+                                                        min-height:10px;
+                                                        border-radius: 5px;
+                                                     }""")
 
-
-
+        self.ui.ScrollFriends.setWidget(self.WidgetForScroll)
     def mousePressEvent(self, event):
             self.start = self.mapToGlobal(event.pos())
             self.pressing = True
@@ -109,16 +162,34 @@ class MainWindow(QtWidgets.QMainWindow):
         return chat
 
     def call_chat(self):
-        chat_ids = []
         queueToSend = queue.Queue()
         for chat in self.__chats:
-            chat_ids.append(str(chat.getChatId()))
             queueToSend.put(chat)
 
-        self.callClient = message_client.call(self.__user.getNickName(), chat_ids, self.__user, queueToSend, self.dynamicUpdateSlot)
+        self.callClient = message_client.call(self.__user, queueToSend, self.dynamicUpdateSlot)
 
         self.__client = self.callClient[0]
         self.__messageConnection = self.callClient[1]
+
+
+    def showProfile(self):
+        self.miniProfile = MiniProfile(QtWidgets.QApplication.primaryScreen().geometry().center(), self.__user)
+        self.miniProfile.setParent(self.ui.Main)
+
+        self.overlay = Overlay(self.miniProfile, parent=self.ui.Main)
+        new_rect = QtCore.QRect(
+            self.rect().x(),
+            self.rect().y(),
+            self.width(),
+            self.height()
+        )
+        self.overlay.setGeometry(new_rect)
+        self.overlay.show()
+        self.miniProfile.raise_()
+
+        self.miniProfile.show()
+        self.miniProfile.exec()
+
 
     def addFriendToDict(self, name, chat_id, status):
         self.__friends[name] = [chat_id, status]
@@ -127,55 +198,15 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.stackedWidget.setCurrentWidget(self.parameters.ui_pr.MAIN)
 
     def showFriendList(self):
+        if len(self.__chats) == 0:
+            if not self.ui.ScrollFriends.isVisible():
+                return
+            else:
+                self.ui.ScrollFriends.setVisible(False)
+                return
+
         if not self.ui.ScrollFriends.isVisible():
             self.ui.ScrollFriends.setVisible(True)
-
-            layoutFinal = QtWidgets.QVBoxLayout()
-            layoutFinal.setSpacing(5)
-            layoutFinal.setContentsMargins(0,0,0,0)
-
-            for chat in self.__chats:
-               self.createChatWidget(chat, layoutFinal)
-
-            widget = QtWidgets.QWidget()
-
-            widget.setLayout(layoutFinal)
-
-            self.ui.ScrollFriends.setMaximumHeight(350)
-
-            self.ui.ScrollFriends.setStyleSheet("""QScrollArea {
-                                                            border:none;
-                                                        }
-                                                        
-                                                        QScrollBar:vertical {
-                                                            border:none;
-                                                            width:10px;
-                                                            height:20px;
-                                                            
-                                                        }
-                                                        
-                                                         QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
-                                                         {
-                                                             heigth:0;
-                                                         }
-                                                         QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
-                                                         {
-                                                             background: none;
-                                                         }
-                                                         QScrollBar::add-line:vertical {
-                                                                height: 0px;
-                                                         }
-                                                                
-                                                        QScrollBar::sub-line:vertical {
-                                                                height: 0px;
-                                                         }
-                                                         QScrollBar::handle:vertical {
-                                                            background: orange;
-                                                            min-height:10px;
-                                                            border-radius: 5px;
-                                                         }""")
-
-            self.ui.ScrollFriends.setWidget(widget)
         else:
             self.ui.ScrollFriends.setVisible(False)
 
@@ -225,6 +256,7 @@ class MainWindow(QtWidgets.QMainWindow):
         DELETE-FRIEND: args = 0:"никнейм друга"
         DELETE-CHAT: args = 0:"никнейм друга"
         UPDATE-MESSAGE-NUMBER: args = 0: "чат", 1: "новое значение"
+        CHANGE-ACTIVITY: args = 0: "self/friend", 1: "цвет", 2: "никнейм друга (если есть)"
         """
         match command:
             case "ADD-FRIEND":
@@ -251,6 +283,27 @@ class MainWindow(QtWidgets.QMainWindow):
                 self.unseenMessages(args[0], args[1])
                 if done_event is not None:
                     done_event.set()
+            case "CHANGE-ACTIVITY":
+                if args[0] == "self":
+                    self.change_self_activity_indicator_color(args[1])
+                elif args[0] == "friend":
+                    self.change_friend_activity_indeicator_color(args[2], args[1])
+                else:
+                    raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
+
+    def change_self_activity_indicator_color(self, color):
+        activity_indicator_qss = f"""background-color:{color};
+                                    border-radius:10px;
+                                    color:White;
+                                    border:3px solid rgba(34,35,39,255);
+                                    """
+        self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
+
+    def change_friend_activity_indeicator_color(self, friendNick, color):
+        print(self.friendsChatOptions[0].ui.user_name)
+        friend_ChatInList = list(filter(lambda x: x.chat.getNickName() == friendNick, self.friendsChatOptions))[0]
+
+        friend_ChatInList.changeIndicatorColor(color)
 
     def updateFriendshipStatus(self, friendName):
         """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
@@ -262,12 +315,13 @@ class MainWindow(QtWidgets.QMainWindow):
     def deleteChat(self, friendName):
         chat = list(filter(lambda chat: chat.getNickName() == friendName, self.__chats))[0]
         self.__chats.remove(chat)
-        self.ui.stackedWidget.setCurrentWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
         return chat
     def closeWindow(self):
         #with open("Resources/frineds/friends.json", "w") as Frineds_json:
             #Frineds_json.write(json.dumps(self.__friends))
         self.close()
+        message_client.MessageConnection.flg = False
         db_handler._engine.dispose()
 
         self.__client.close()
@@ -281,11 +335,28 @@ class MainWindow(QtWidgets.QMainWindow):
             self.showNormal()
         else:
             self.showMaximized()
+        self.updateOverlayGeometry()
+    def updateOverlayGeometry(self):
+        if hasattr(self, 'overlay'):
+            new_rect = QtCore.QRect(
+                0,
+                0,
+                self.contentsRect().width(),
+                self.contentsRect().height()
+            )
+            self.overlay.setGeometry(new_rect)
 
+    def updateMiniProfilePosition(self):
+        if hasattr(self, "miniProfile"):
+            self.miniProfile.center_child_window()
     def updateWindowMargins(self):
         if self.isMaximized():
             screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
             self.setGeometry(screen_geometry)
+            self.updateOverlayGeometry()
+            self.updateMiniProfilePosition()
+        else:
+            self.updateMiniProfilePosition()
 
     def resizeEvent(self, event):
         self.updateWindowMargins()
@@ -294,15 +365,8 @@ class MainWindow(QtWidgets.QMainWindow):
     def createChatWidget(self, chat, layoutFinal):
         self.QFr = ClikableFrame(chat.getNickName())
         self.QFr.clicked.connect(self.chooseChat)
-        layout = QtWidgets.QHBoxLayout()
-        layout.setSpacing(10)
-        user_logo = QtWidgets.QPushButton()
-        user_logo.setFixedHeight(40)
-        user_logo.setFixedWidth(40)
-        user_logo.setStyleSheet("""background-color:pink;
-                                    border-radius:15%;
-                                    color:white;
-                                    font-size:16px;""")
+        chat_option = ChatInList(chat.getNickName()[0], chat.getNickName(), chat)
+        layout = chat_option.ui.Friend
         if chat.messageNumber is None:
             chat.createUnseenMessageNumber(self.QFr)
         messagesNumber = chat.messageNumber
@@ -317,17 +381,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                     text-align:center;
                                     background-color:white;""")
 
-
-        user_name = QtWidgets.QLabel()
-        user_name.setStyleSheet("""color:white;
-                                    font-size:18px;
-                                    border:none;
-                                    background-color:none;""")
-        user_logo.setText(chat.getNickName()[0])
-        user_name.setText(chat.getNickName())
-
-        layout.addWidget(user_logo)
-        layout.addWidget(user_name)
         layout.addWidget(messagesNumber)
         messagesNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
 
@@ -343,6 +396,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
         layoutFinal.addWidget(self.QFr)
         layoutFinal.update()
+        self.friendsChatOptions.append(chat_option)
         return layoutFinal
 
     def updateChatList(self, chat):
@@ -363,10 +417,11 @@ class MainWindow(QtWidgets.QMainWindow):
         if newValue == 0:
             chat.messageNumber.setVisible(False)
             return
-
         if not chat.messageNumber.isVisible():
             chat.messageNumber.setVisible(True)
-        if newValue > 20:
-            newValue = "20"
+
+        print(chat.messageNumber.isVisible())
+        if newValue >= 99:
+            newValue = "99"
         chat.messageNumber.setText(str(newValue))
         #plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )

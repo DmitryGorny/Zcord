@@ -13,7 +13,7 @@ class VoiceServer:
         self.CLIENT_UDP_PORT = CLIENT_UDP_PORT  # Port to listen on (non-privileged ports are > 1023)
 
         self.server = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-        self.SERVER_UDP_PORT = random.randint(32000, 62000)
+        self.SERVER_UDP_PORT = self.find_free_port()
         self.server.bind((self.HOST, self.SERVER_UDP_PORT))
         client.send(b'SERVER_UDP' + str(self.SERVER_UDP_PORT).encode('utf-8'))
 
@@ -28,6 +28,13 @@ class VoiceServer:
                                          channels=1,
                                          rate=48000,
                                          output=True)
+
+    def find_free_port(self):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            s.bind(('0.0.0.0', 0))  # 0 означает, что ОС выберет свободный порт
+            s.listen(1)
+            port = s.getsockname()[1]
+            return port
 
     def read_request(self):
         while self.is_running:

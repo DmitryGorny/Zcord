@@ -29,6 +29,7 @@ class VoiceConnection(QThread):
     speech_detected_icon2 = pyqtSignal(bool)
     mute_mic_icon2 = pyqtSignal(bool)
     mute_head_icon2 = pyqtSignal(bool)
+    stop_call_animation = pyqtSignal()
 
     icon_change = pyqtSignal(bool)
     is_running = False
@@ -186,6 +187,7 @@ class VoiceConnection(QThread):
                 elif data_to_service == b'111':
                     self.icon_change.emit(True)
                     self.loop_call.stop()
+                    self.stop_call_animation.emit()
                     self.connect_call.play()
                 elif data_to_service == b'000':
                     self.icon_change.emit(False)
@@ -256,7 +258,7 @@ class VoiceConnection(QThread):
 
 def start_voice():
     HOST = "26.36.124.241"  #  Вроде как сюда данные сервера к которому мы подключаемся
-    PORT_TO_SPEAK = random.randint(32000, 65126)
+    PORT_TO_SPEAK = find_free_port()
     PORT_TO_SPEAK_TCP = 65127
     voice_conn = VoiceConnection(HOST, PORT_TO_SPEAK, PORT_TO_SPEAK_TCP)
     print("Начата передача аудио")
@@ -271,6 +273,14 @@ def start_voice():
     return voice_conn
 
 
+def find_free_port():
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        s.bind(('0.0.0.0', 0))  # 0 означает, что ОС выберет свободный порт
+        s.listen(1)
+        port = s.getsockname()[1]
+        return port
+
+
 def get_local_ip():  # можно ли как-то это использовать для общения без локалки?
     try:
         s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
@@ -281,18 +291,6 @@ def get_local_ip():  # можно ли как-то это использоват
     except Exception as e:
         print(f"Не удалось определить локальный IP: {e}")
         return "127.0.0.1"
-
-
-def get_free_port():
-    try:
-        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.bind(("", 0))
-        port = s.getsockname()[1]  # Получаем номер порта
-        s.close()
-        return port
-    except Exception as e:
-        print(f"Не удалось найти свободный порт: {e}")
-        return None
 
 
 def listen_noise(duration=5, RATE=48000, CHUNK=1440):

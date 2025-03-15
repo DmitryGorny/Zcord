@@ -9,7 +9,7 @@ from logic.Message import message_client
 from logic.Voice import audio_send
 from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.Main.Chat.DeleteFriend.DeleteFriend import DeleteFriend
-
+from logic.Main.Chat.ChatClass.AnimatedCall import AnimatedBorderButton
 
 
 class Chat(QtWidgets.QWidget):
@@ -62,6 +62,7 @@ class Chat(QtWidgets.QWidget):
         self.active_icon = f"""
                             border-color: "#3ba55d";
                             """
+        self.ui.User2_icon.setStyleSheet(self.default_icon)
 
         self.reset_timer_icon_1 = QTimer()
         self.reset_timer_icon_1.setSingleShot(True)
@@ -70,10 +71,6 @@ class Chat(QtWidgets.QWidget):
         self.reset_timer_icon_2.setSingleShot(True)
         self.reset_timer_icon_2.timeout.connect(self.reset_button_style_icon_2)
 
-        self.animation = QPropertyAnimation(self.ui.User2_icon, QByteArray(b"geometry"))
-        self.animation.setDuration(1000)
-        self.animation.setLoopCount(10)
-        self.animation.valueChanged.connect(self.update_wave_effect)
         self.ui.InfoButton.clicked.connect(self.showDeleteFriendDialog)
 
         self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.askForCachedMessages)
@@ -209,11 +206,18 @@ class Chat(QtWidgets.QWidget):
             self.voicepr.changer_input.connect(self.change_input_device)
             self.voicepr.changer_output.connect(self.change_output_device)
             self.voice_conn.icon_change.connect(self.show_friend_icon)
+            self.voice_conn.stop_call_animation.connect(self.stop_call_animate_button)
             self.ui.Call.show()
-            #self.ui.User2_icon.show()
-            #self.start_wave_effect()
+
+            self.ui.widget_2.show()
+            self.animate_call = AnimatedBorderButton(self.ui.User2_icon)
+            self.animate_call.start_animation()
         else:
             print("Вы с кем-то уже разговариваете")
+
+    def stop_call_animate_button(self):
+        self.animate_call.stop_animation()
+        self.ui.User2_icon.setStyleSheet(self.default_icon)
 
     def mute_mic_icon_2(self, flg):
         if flg:
@@ -284,36 +288,6 @@ class Chat(QtWidgets.QWidget):
     def change_input_device(self, index_input_device):
         if self.voice_conn:
             self.voice_conn.change_device_input(index_input_device)
-
-    def start_wave_effect(self):
-        self.animation.setStartValue(self.ui.User2_icon.geometry())
-        self.animation.setEndValue(self.ui.User2_icon.geometry().adjusted(-3, -3, 3, 3))
-        self.animation.start()
-        QTimer.singleShot(20000, self.stop_wave_effect)
-
-    def stop_wave_effect(self):
-        self.animation.stop()
-        self.ui.User2_icon.setStyleSheet(self.default_icon)
-        self.ui.User2_icon.hide()
-
-    def update_wave_effect(self):
-        radius = (self.animation.currentValue().width() - self.ui.User2_icon.width()) // 2
-        self.ui.User2_icon.setStyleSheet(self.get_qss(radius))
-
-    def get_qss(self, radius):
-        return f'''
-            QPushButton {{
-                border-color: "#8f8f91";
-            }}
-            QPushButton:after {{
-                content: "";
-                position: absolute;
-                width: {radius}px;
-                height: {radius}px;
-                border-radius: {radius}px;
-                background: rgba(88, 101, 242, 0.3);
-            }}
-        '''
 
     def startMessaging(self):
         self.ui.ChatInputLayout.setHidden(False)

@@ -108,7 +108,6 @@ class MessageRoom(object):
                 buffer += msg
                 try:
                     arr = MessageRoom.decode_multiple_json_objects(buffer)
-                    buffer = ""
                 except json.JSONDecodeError:
                     continue
 
@@ -192,7 +191,7 @@ class MessageRoom(object):
                         db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
                         db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date, WasSeen)", f"({chat_id}, '{nickname}', '{friendNick}', "
                                                                                                           f"'__FRIEND_REQUEST__', '{date_now}', 0)")
-                        #Передавать специализированные сообщения обычным броадакстом так себе идейка
+
                         try:
                             messageWithRequest = f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}"
                             clients[nickname].socket.send(b'0' + messageWithRequest.encode('utf-8'))
@@ -283,10 +282,8 @@ class MessageRoom(object):
                                 MessageRoom.nicknames_in_chats[old_chat_cod].remove(nickname)
                         except UnboundLocalError as e:
                             print(e)
-                            pass
                         except KeyError as e:
                             print(e)
-                            pass
                         old_chat_cod = str(chat_code)
 
                     if flg:

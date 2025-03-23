@@ -111,7 +111,6 @@ class MessageRoom(object):
                     buffer = ""
                 except json.JSONDecodeError:
                     continue
-
                 for msg in arr: #Решение интересное, здоровья автору (мне)
                     chat_code = str(msg["chat_id"])
                     nickname = msg["nickname"]
@@ -177,6 +176,22 @@ class MessageRoom(object):
                     if "__FRIEND-REQUEST_ACTIVITY__" in message:
                         messageToChache["chat_id"] = message.split("&")[1]
                         client.send(b'2' + MessageRoom.serialize({message.split("&")[1]: MessageRoom.unseenMessages[message.split("&")[1]]}))
+                        continue
+
+                    # Devil let me go
+                    if "__CALL-EVENT__" in message:
+                        splitedMessage = message.split("&")
+                        nickname_to_send = splitedMessage[2]
+                        if nickname_to_send in clients.keys():
+                            # байт-код 5 отвечает за уведомление о звонке
+                            clients[nickname_to_send].socket.send(b'5' + f"{nickname}".encode('utf-8'))
+                        continue
+
+                    if "__DECLINE-CALL__" in message:
+                        splitedMessage = message.split("&")
+                        nickname_to_send = splitedMessage[2]
+                        if nickname_to_send in clients.keys():
+                            MessageRoom.broadcast((chat_code, f"{nickname} отклонил звонок", date_now, nickname, messageToChache["WasSeen"]))
                         continue
 
                     if "__FRIEND-ADDING__" in message:
@@ -269,6 +284,8 @@ class MessageRoom(object):
                                         message["WasSeen"] = 1
 
 
+
+
                             for clientNick in MessageRoom.nicknames_in_chats[chat_code]:
                                 clients[clientNick].socket.send(b'0' + "__USER-JOINED__&20".encode('utf-8'))
 
@@ -321,6 +338,7 @@ class MessageRoom(object):
                     if key not in clients:
                         continue
                     clients[key].socket.send(b'4' + f"__USER-HIDDEN__&{nickname}".encode('utf-8'))
+                clients.pop(nickname)
 
                 db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "messages_in_chats")
                 lastId = db.getAI_Id()[0][0]
@@ -358,7 +376,7 @@ class MessageRoom(object):
                     if nickname in MessageRoom.nicknames_in_chats[j]:
                         MessageRoom.nicknames_in_chats[j].remove(nickname)
 
-                clients.pop(nickname)
+                #clients.pop(nickname)
                 client.close()
                 print(f"{nickname} left!")
                 break
@@ -442,7 +460,7 @@ def receive(server_socket):
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     PORT = 55557
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))

@@ -10,6 +10,7 @@ from logic.Voice import audio_send
 from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.Main.Chat.DeleteFriend.DeleteFriend import DeleteFriend
 from logic.Main.Chat.ChatClass.AnimatedCall import AnimatedBorderButton
+from logic.Main.Chat.ChatClass.CallGui import Call
 
 
 class Chat(QtWidgets.QWidget):
@@ -25,6 +26,8 @@ class Chat(QtWidgets.QWidget):
         self.__user = user
         self.__friendNickname = friendNick
 
+        self.call_event_form = Call(self.__chatId, self.__friendNickname, self.__user, self.voicepr)
+        self.call_event_form.ui.AcceptCall_button.clicked.connect(self.accept_call)  # просто подключение к звонку, но может зациклиться если вызывать call_voice
         self.ui.UsersNickInChat.setText(friendNick)
         self.ui.UsersLogoinChat.setText(friendNick[0])
 
@@ -207,6 +210,31 @@ class Chat(QtWidgets.QWidget):
             self.voice_conn.icon_change.connect(self.show_friend_icon)
             self.voice_conn.stop_call_animation.connect(self.stop_call_animate_button)
             self.ui.Call.show()
+
+            self.ui.widget_2.show()
+            self.animate_call = AnimatedBorderButton(self.ui.User2_icon)
+            self.animate_call.start_animation()
+
+            message_client.MessageConnection.send_message(f"__CALL-EVENT__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
+        else:
+            print("Вы с кем-то уже разговариваете")
+
+    #  Дубликат функции сверху, ещё не придумал как избавится от цикла сообщения кол_евент
+    def accept_call(self):
+        if not self.voice_conn and not audio_send.VoiceConnection.is_running:
+            self.voice_conn = audio_send.start_voice()
+            self.voice_conn.speech_detected_icon1.connect(self.update_button_style_icon_1)
+            self.voice_conn.speech_detected_icon2.connect(self.update_button_style_icon_2)
+            self.voice_conn.mute_mic_icon2.connect(self.mute_mic_icon_2)
+            self.voice_conn.mute_head_icon2.connect(self.mute_head_icon_2)
+
+            self.voicepr.changer_input.connect(self.change_input_device)
+            self.voicepr.changer_output.connect(self.change_output_device)
+            self.voice_conn.icon_change.connect(self.show_friend_icon)
+            self.voice_conn.stop_call_animation.connect(self.stop_call_animate_button)
+            self.ui.Call.show()
+
+            self.call_event_form.close()
 
             self.ui.widget_2.show()
             self.animate_call = AnimatedBorderButton(self.ui.User2_icon)

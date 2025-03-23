@@ -208,6 +208,10 @@ class MessageConnection(QObject):
                                 reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (['friend', "yellow", msg[1]]))
                     continue
 
+                if header == b'5':
+                    reciever.dynamicInterfaceUpdate.emit("CALL-EVENT", ([msg.decode('utf-8')]))
+                    continue
+
                 msg = msg.decode("utf-8").split("&+& ")
                 message = msg[0]
                 if message == '__NICK__':
@@ -325,7 +329,7 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 
 def call(user, chats, callback):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
+    SERVER_IP = "26.36.124.241"  # IP адрес сервера
     SERVER_PORT = 55557  # Порт, используемый сервером
 
     try:

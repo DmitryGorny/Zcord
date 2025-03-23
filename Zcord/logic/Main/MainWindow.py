@@ -153,7 +153,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
 
     def addChatToList(self, chatId, friendNick):
-        chat = Chat(chatId, friendNick, self.__user)
+        chat = Chat(chatId, friendNick, self.__user, self.voicepr)
         self.__chats.append(chat)
         message_client.MessageConnection.addChatToList(chat)
         return chat
@@ -288,6 +288,11 @@ class MainWindow(QtWidgets.QMainWindow):
                     self.change_friend_activity_indeicator_color(args[2], args[1])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
+            case "CALL-EVENT":
+                print(args[0])
+                for chat in self.__chats:
+                    if args[0] == chat.getNickName():
+                        chat.call_event_form.show_call_event()
 
     def change_self_activity_indicator_color(self, color):
         activity_indicator_qss = f"""background-color:{color};
@@ -298,7 +303,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
-        print(self.friendsChatOptions[0].ui.user_name)
+        print(friendNick)
         friend_ChatInList = list(filter(lambda x: x.chat.getNickName() == friendNick, self.friendsChatOptions))[0]
 
         friend_ChatInList.changeIndicatorColor(color)

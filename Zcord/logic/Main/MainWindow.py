@@ -191,8 +191,6 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.ui.ScrollFriends.setVisible(False)
 
-    def cc(self):
-        print(1)
     def addFriend(self):
         if not AddFriendWindow.isOpen:
             addFriendsDialog = AddFriendWindow(self.__user)
@@ -383,18 +381,19 @@ class MainWindow(QtWidgets.QMainWindow):
         return layoutFinal
 
     def updateChatList(self, chat):
-        if self.ui.ScrollFriends.isVisible():
-            self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
+        self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
 
     def deleteChatFromUI(self, chat):
-        if self.ui.ScrollFriends.isVisible():
-            for i in range(self.ui.ScrollFriends.widget().layout().count()):
-                widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
-                if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.getNickName():
-                    self.ui.ScrollFriends.widget().layout().takeAt(i)
-                    widgetToDelete.deleteLater()
-                    self.ui.ScrollFriends.widget().layout().update()
-                    break
+        for i in range(self.ui.ScrollFriends.widget().layout().count()):
+            widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
+            if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.getNickName():
+                self.ui.ScrollFriends.widget().layout().takeAt(i)
+                widgetToDelete.deleteLater()
+                self.ui.ScrollFriends.widget().layout().update()
+                break
+
+        if len(self.__chats) == 0:
+            self.ui.ScrollFriends.setVisible(False)
 
     def unseenMessages(self, chat:Chat, newValue:int):
         if newValue == 0:
@@ -403,7 +402,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if not chat.messageNumber.isVisible():
             chat.messageNumber.setVisible(True)
 
-        print(chat.messageNumber.isVisible())
         if newValue >= 99:
             newValue = "99"
         chat.messageNumber.setText(str(newValue))

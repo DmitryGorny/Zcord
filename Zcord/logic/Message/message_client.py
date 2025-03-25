@@ -326,7 +326,7 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 def call(user, chats, callback):
     SERVER_IP = "26.181.96.20"  # IP адрес сервера
-    SERVER_PORT = 55557  # Порт, используемый сервером
+    SERVER_PORT = 55559  # Порт, используемый сервером
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)

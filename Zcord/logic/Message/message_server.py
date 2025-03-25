@@ -440,7 +440,7 @@ def receive(server_socket):
 
 if __name__ == "__main__":
     HOST = "26.181.96.20"
-    PORT = 55557
+    PORT = 55559
     server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_msg.bind((HOST, PORT))
     server_msg.listen()

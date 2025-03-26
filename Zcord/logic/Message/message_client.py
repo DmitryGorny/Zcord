@@ -92,6 +92,7 @@ class MessageConnection(QObject):
                 msg = MessageConnection.client_tcp.recv(4096)
                 header = msg[0:1]
                 msg = msg[1:]
+                print(msg)
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
@@ -241,8 +242,9 @@ class MessageConnection(QObject):
                         reciever.dynamicInterfaceUpdate.emit("ADD-FRIEND", (message.split("&")[2]))
                     continue
                 elif "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
-                    if msg[2] != nickname_yours:
-                        reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[2]))
+                    print(msg)
+                    if msg[1] != nickname_yours:
+                        reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[1]))
                     else:
                         reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (message.split("&")[2]))
                     MainInterface.setCurrentChat(None)
@@ -272,9 +274,6 @@ class MessageConnection(QObject):
                     date_now = dt.strftime("%d.%m.%Y %H:%M")
 
                     if MainInterface.return_current_chat() != 0:
-                        #if nickname == nickname_yours:
-                            #continue
-
                         if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
                             for CertainChat in MessageConnection.chatsList:
                                 if int(CertainChat.getChatId()) == int(chat_code):

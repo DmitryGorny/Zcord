@@ -132,6 +132,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     key = friendArr[2]
 
                 self.__friends[key] = [friendArr[0], friendArr[3]]
+
         self.__user.setFrinds(self.__friends)
 
     def createChats(self):
@@ -281,7 +282,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
-        print(self.friendsChatOptions[0].ui.user_name)
+        print(self.friendsChatOptions)
         friend_ChatInList = list(filter(lambda x: x.chat.getNickName() == friendNick, self.friendsChatOptions))[0]
 
         friend_ChatInList.changeIndicatorColor(color)
@@ -296,6 +297,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def deleteChat(self, friendName):
         chat = list(filter(lambda chat: chat.getNickName() == friendName, self.__chats))[0]
         self.__chats.remove(chat)
+
+        chat_gui = list(filter(lambda x: chat is x.chat, self.friendsChatOptions))[0]
+        self.friendsChatOptions.remove(chat_gui)
+
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
         return chat
     def closeWindow(self):

@@ -181,23 +181,30 @@ class MessageRoom(object):
                     if "__FRIEND-ADDING__" in message:
                         chats_id = settleFirstInformationAboutClients(client)[0]
                         MessageRoom.copyCacheChat(chats_id)
+
                         chat_id = message.split("&")[1]
                         friendNick = message.split("&")[2]
+
                         MessageRoom.unseenMessages[chat_id] = {nickname: 0, friendNick: 1}
+
                         messageToChache["chat_id"] = chat_id
                         messageToChache["message"] = "__FRIEND_REQUEST__"
                         MessageRoom.cache_chat[chat_id].append(messageToChache)
+
                         allFriends = db_fr.getDataFromTableColumn("chat_id, friend_one_id, friend_two_id", f"WHERE friend_one_id = '{nickname}' OR friend_two_id = '{nickname}'")
                         db_fr_add = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
                         db_fr_add.insertDataInTable("(chat_id, sender_nick, friend_nick, message, date, WasSeen)", f"({chat_id}, '{nickname}', '{friendNick}', "
                                                                                                           f"'__FRIEND_REQUEST__', '{date_now}', 0)")
-
                         try:
                             messageWithRequest = f"__FRIEND_REQUEST__&{friendNick}&+& {date_now}&+& {nickname}&+& {chat_id}"
                             clients[nickname].socket.send(b'0' + messageWithRequest.encode('utf-8'))
                             clients[friendNick].socket.send(b'0' + messageWithRequest.encode('utf-8'))
                         except KeyError:
-                            pass
+                            askForClientInfo(client)
+                            continue
+
+                        askForClientInfo(client)
+                        clients[friendNick].add_friend(nickname, chat_id)
                         continue
 
                     if "__ACCEPT-REQUEST__" in message:
@@ -212,14 +219,21 @@ class MessageRoom(object):
                         MessageRoom.cache_chat[splitedMessage[1]] = []
                         continue
 
-                    if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:#Привести в порядок
+                    if "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
                         splitedMessage = message.split("&")
-                        if splitedMessage[2] not in MessageRoom.nicknames_in_chats[splitedMessage[1]]:
-                            MessageRoom.nicknames_in_chats[splitedMessage[1]].append(splitedMessage[2])
+
+                        client.send(b'0' + f'{message}&+& {nickname}&+& {splitedMessage[1]}'.encode('utf-8'))
+                        if splitedMessage[2] in clients.keys():
+                            clients[splitedMessage[2]].socket.send(b'0' + f'{message}&+& {nickname}&+& {splitedMessage[1]}'.encode('utf-8'))
+
                         del MessageRoom.unseenMessages[splitedMessage[1]]
-                        MessageRoom.broadcast((splitedMessage[1], message, "[]", nickname, 0))
                         del MessageRoom.nicknames_in_chats[splitedMessage[1]]
                         del MessageRoom.cache_chat[splitedMessage[1]]
+
+                        print(clients[nickname].friends)
+                        clients[nickname].delete_friend(splitedMessage[2])
+                        clients[splitedMessage[2]].delete_friend(nickname)
+
                         continue
 
                     if "__CAHCE-RECIEVED__" in message:
@@ -373,6 +387,12 @@ class Client:
     def friends(self, friends: dict) -> None:
         self.__friends = friends
 
+    def add_friend(self, freind_name:str, chat_id:int) -> None:
+        self.__friends[freind_name] = [chat_id, 1] #1 - статус друга (по дефолту стоит заявка в друзья)
+
+    def delete_friend(self, friend_name:str) -> None:
+        del self.__friends[friend_name]
+
     @property
     def status(self):
         return self.activtyStatus
@@ -388,8 +408,6 @@ def settleFirstInformationAboutClients(client):
         msg = json.loads(msg)
         nickname = msg["nickname"]
         chat_id = MessageRoom.deserialize(msg["message"])
-        clientObj = Client(nickname, client)
-        clients[nickname] = clientObj
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]
 
@@ -400,8 +418,10 @@ def askForClientInfo(client) -> None:
     msg = json.loads(msg)
     nickname = msg["nickname"]
     msg = json.loads(msg["message"])
-    clients[nickname].friends = msg["friends"]
-    clients[nickname].status = msg["status"]
+    clientObj = Client(nickname, client)
+    clientObj.friends = msg["friends"]
+    clientObj.status = msg["status"]
+    clients[nickname] = clientObj
 
     for key in clients[nickname].friends.keys():
         if key not in clients:

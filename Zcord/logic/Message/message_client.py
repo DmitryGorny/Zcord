@@ -45,6 +45,7 @@ class MainInterface:
 class MessageConnection(QObject):
     cache_chat = None
     client_tcp = None
+    service_tcp = None
     user = None
     chat = None
     chatsList = []
@@ -84,6 +85,14 @@ class MessageConnection(QObject):
             "nickname": nickname,
             "message": message}
         MessageConnection.client_tcp.sendall((json.dumps(msg)).encode('utf-8'))
+
+    @staticmethod
+    def send_service_message(message, nickname):
+        msg = {
+            "nickname": nickname,
+            "message": message
+        }
+        MessageConnection.service_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     @staticmethod
     def recv_message(nickname_yours, reciever):
@@ -324,14 +333,21 @@ def thread_start(nickname, dynamicUpdateCallback):
 
 
 def call(user, chats, callback):
-    SERVER_IP = "26.181.96.20"  # IP адрес сервера
-    SERVER_PORT = 55559  # Порт, используемый сервером
+    SERVER_IP = "26.181.96.20"  # IP
+    SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
+
+    try:
+        service_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        service_tcp.connect((SERVER_IP, SERVER_PORT))
+    except ConnectionRefusedError:
+        print("Не удалось подключится")
+        exit(0)
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client_tcp.connect((SERVER_IP, SERVER_PORT))
     except ConnectionRefusedError:
-        print("Не удалось подключится к серверу или сервер неактивен")
+        print("Не удалось подключится")
         exit(0)
 
     cache_chat = {}

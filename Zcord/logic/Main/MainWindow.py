@@ -225,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
         message_client.MainInterface.change_chat(chat_id, self.__user.getNickName(), message_client.SygnalChanger())
 
         chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)
-        self.ui.stackedWidget_2.addWidget(chat.ui.MAIN)
+        self.ui.stackedWidget_2.addWidget(chat.ui.MAIN) #Вот этот момент надо переписывать, т.к. постоянно наслаивать виджеты друг на друга это не есть хорошо
         self.ui.stackedWidget_2.setCurrentWidget(chat.ui.MAIN)
 
 

@@ -230,7 +230,6 @@ class MessageRoom(object):
                         del MessageRoom.nicknames_in_chats[splitedMessage[1]]
                         del MessageRoom.cache_chat[splitedMessage[1]]
 
-                        print(clients[nickname].friends)
                         clients[nickname].delete_friend(splitedMessage[2])
                         clients[splitedMessage[2]].delete_friend(nickname)
 

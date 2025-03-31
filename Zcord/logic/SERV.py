@@ -44,14 +44,15 @@ class MessageRoom(object):
     @staticmethod
     def broadcast(msg):
         chat_code = msg[0]
-        date_now = msg[1]
-        nickname = msg[2]
-        message = msg[3]
+        message = msg[1]
+        date_now = msg[2]
+        nickname = msg[3]
         wasSeen = msg[4]
+        print(message, 2132123)
         for client in MessageRoom.nicknames_in_chats[chat_code]:
-            ret = b'0' + f"{date_now}&+& {nickname}&+& {message}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
+            ret = f"{message}&+& {date_now}&+& {nickname}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
             try:
-                clients[client].socket.send(ret)
+                clients[client].send(ret)
             except KeyError:
                 continue
 
@@ -72,7 +73,6 @@ class MessageRoom(object):
                 # Broadcasting Messages
                 flg = False
                 msg = client.recv(4096)
-
                 msg = msg.decode('utf-8')
                 buffer += msg
                 try:
@@ -94,6 +94,9 @@ class MessageRoom(object):
                         "WasSeen": 0
                     }
 
+                    MessageRoom.cache_chat[chat_code].append(messageToChache)
+                    MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
+
             except ConnectionResetError:
                 clients.pop(nickname)
                 client.close()
@@ -103,18 +106,20 @@ class MessageRoom(object):
     @staticmethod
     def handle_server(main_server_socket):
         while True:
-            print(MessageRoom.nicknames_in_chats)
             buffer = ''
             try:
                 server_msg = main_server_socket.recv(1024)
                 server_msg = server_msg.decode('utf-8')
-
                 if server_msg == "DISCOVER":
                     main_server_socket.send(b'MESSAGE-SERVER')
                     continue
 
                 if "USER-INFO" in server_msg:
-                    MessageRoom.copyCacheChat(json.loads(server_msg.split("&-&")[2]))
+                    msg = server_msg.split("&-&")
+                    MessageRoom.copyCacheChat(json.loads(msg[2]))
+
+                    msg = json.loads(msg[3])
+                    clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
                     continue
 
                 if "__change_chat__" in server_msg:
@@ -124,6 +129,8 @@ class MessageRoom(object):
                         if server_msg[2] != server_msg[3]:
                             MessageRoom.nicknames_in_chats[server_msg[2]].remove(server_msg[1])
                         MessageRoom.nicknames_in_chats[server_msg[3]].append(server_msg[1])
+
+                        print(MessageRoom.nicknames_in_chats, 33132)
                     except ValueError:
                         print(1111111) #Дописать запрос на сервер для синхронизации
                     continue
@@ -142,25 +149,32 @@ def receive(server_socket):
         readable, _, _ = select.select([server_socket], [], [], 2)
         # Accept Connection
         for s in readable:
-            client, address = server_msg.accept()
+            client, address = server_socket.accept()
             print(f"Connected to {address}")
-            if s is client:
 
-                m = MessageRoom()
-                thread = threading.Thread(target=MessageRoom.handle, args=(client,))
-                thread.start()
+            m = MessageRoom()
+            for key in clients.keys():
+                if not isinstance(clients[key], str):
+                    continue
+
+                if clients[key] == client.getpeername()[0]:
+                    clients[key] = client
+
+            thread = threading.Thread(target=MessageRoom.handle, args=(client,))
+            thread.start()
+
 
 
 if __name__ == "__main__":
     HOST = "26.181.96.20"
     PORT = 55557
-    server_msg = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    server_msg.bind((HOST, PORT))
-    server_msg.listen()
+    server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server_socket.bind((HOST, PORT))
+    server_socket.listen()
     clients = {}
 
     main_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     main_server_socket.connect((HOST, 55569))
 
     recieve_service_comands(main_server_socket)
-    receive(main_server_socket)
+    receive(server_socket)

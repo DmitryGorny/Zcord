@@ -27,7 +27,7 @@ class MainInterface:
     @staticmethod
     def change_chat(current_chat, nickname, sygnalChanger):
         MainInterface.__current_chat = current_chat
-        MessageConnection.send_message('__change_chat__', nickname)
+        MessageConnection.send_service_message('__change_chat__', nickname)
         try:
             sygnalChanger.clear.connect(MessageConnection.chat.clearLayout)
             sygnalChanger.clear.emit()
@@ -51,11 +51,15 @@ class MessageConnection(QObject):
     chatsList = []
     queueOfCahcedMessages = []
     flg = False
+    MS_IP = None
+    MS_PORT = None
 
-    def __init__(self, client_tcp, cache_chat, user):
+
+    def __init__(self, client_tcp, service_tcp, cache_chat, user):
         super(MessageConnection, self).__init__()
         MessageConnection.set_cache_chat(cache_chat)
         MessageConnection.set_client_tcp(client_tcp)
+        MessageConnection.set_service_tcp(service_tcp)
         MessageConnection.set_user(user)
 
     @staticmethod
@@ -79,6 +83,10 @@ class MessageConnection(QObject):
         MessageConnection.client_tcp = client_tcp
 
     @staticmethod
+    def set_service_tcp(service_tcp):
+        MessageConnection.service_tcp = service_tcp
+
+    @staticmethod
     def send_message(message, nickname):
         msg = {
             "chat_id": MainInterface.return_current_chat(),
@@ -89,16 +97,59 @@ class MessageConnection(QObject):
     @staticmethod
     def send_service_message(message, nickname):
         msg = {
+            "chat_id": MainInterface.return_current_chat(),
             "nickname": nickname,
             "message": message
         }
-        MessageConnection.service_tcp.sendall((json.dumps(msg)).encode('utf-8'))
-
+        MessageConnection.service_tcp.send((json.dumps(msg)).encode('utf-8'))
     @staticmethod
     def recv_message(nickname_yours, reciever):
         while MessageConnection.flg:
             try:
                 msg = MessageConnection.client_tcp.recv(4096)
+                msg = msg.decode("utf-8").split("&+& ")
+
+                try:
+                    date_now = msg[1]
+                    nickname = msg[2]
+                    chat_code = msg[3]
+                    wasSeen = msg[4]
+                except IndexError:
+                    continue
+                dt = datetime.strptime(date_now, "%Y-%m-%d %H:%M:%S")
+                date_now = dt.strftime("%d.%m.%Y %H:%M")
+
+                if MainInterface.return_current_chat() != 0: #Проверить необходимость инициализации чата
+                    if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
+                        for CertainChat in MessageConnection.chatsList:
+                            if int(CertainChat.getChatId()) == int(chat_code):
+                                MessageConnection.chat = CertainChat
+                                break
+
+                    try:
+                        reciever.sygnal.disconnect()
+                    except TypeError:
+                        pass
+
+                    message = msg[0]
+                    print(msg)
+                    reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                    reciever.sygnal.emit(nickname, message, date_now, 1, int(wasSeen))
+            except os.error as e:
+                if not MessageConnection.flg:
+                    print("Сокет закрылся корректно")
+                else:
+                    print(e)
+            except ConnectionResetError:
+                print("Ошибка, конец соединения")
+                MessageConnection.client_tcp.close()
+                break
+    @staticmethod
+    def recv_server(nickname_yours, reciever):
+        while MessageConnection.flg:
+            try:
+                print(1111)
+                msg = MessageConnection.service_tcp.recv(4096)
                 header = msg[0:1]
                 msg = msg[1:]
                 print(msg)
@@ -221,15 +272,16 @@ class MessageConnection(QObject):
                 msg = msg.decode("utf-8").split("&+& ")
                 message = msg[0]
                 if message == '__NICK__':
-                    MessageConnection.send_message(MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8'), nickname_yours)
+                    MessageConnection.send_service_message(MessageConnection.serialize(MessageConnection.cache_chat).decode('utf-8'), nickname_yours)
                 elif message == "__USER-INFO__":
                     dictToSend = {
                                   "friends": MessageConnection.user.getFriends(),
                                   "status": [MessageConnection.user.status.name, MessageConnection.user.status.color]
                                   }
-                    MessageConnection.send_message(MessageConnection.serialize(dictToSend).decode('utf-8'), nickname_yours)
+                    MessageConnection.send_service_message(MessageConnection.serialize(dictToSend).decode('utf-8'), nickname_yours)
                 elif message == '__CONNECT__':
-                    MessageConnection.send_message("__UPDATE-MESSAGES__", nickname_yours)
+                    MessageConnection.send_service_message("__UPDATE-MESSAGES__", nickname_yours)
+                    MessageConnection.client_tcp.connect((MessageConnection.MS_IP, MessageConnection.MS_PORT))
                     print("Подключено к серверу!")
                 elif "__FRIEND_REQUEST__" in message:
                     if message.split("&")[1] == nickname_yours:
@@ -272,30 +324,7 @@ class MessageConnection(QObject):
                     reciever.changeUnseenStatus.emit(int(message.split("&")[1]))
                     continue
                 else:
-                    try:
-                        date_now = msg[1]
-                        nickname = msg[2]
-                        chat_code = msg[3]
-                        wasSeen = msg[4]
-                    except IndexError:
-                        continue
-                    dt = datetime.strptime(date_now, "%Y-%m-%d %H:%M:%S")
-                    date_now = dt.strftime("%d.%m.%Y %H:%M")
-
-                    if MainInterface.return_current_chat() != 0:
-                        if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
-                            for CertainChat in MessageConnection.chatsList:
-                                if int(CertainChat.getChatId()) == int(chat_code):
-                                    MessageConnection.chat = CertainChat
-                                    break
-
-                        try:
-                            reciever.sygnal.disconnect()
-                        except TypeError:
-                            pass
-
-                        reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                        reciever.sygnal.emit(nickname, message, date_now, 1, int(wasSeen))
+                    pass
             except os.error as e:
                 if not MessageConnection.flg:
                     print("Сокет закрылся корректно")
@@ -328,13 +357,19 @@ def thread_start(nickname, dynamicUpdateCallback):
     reciever = SygnalChanger()
     reciever.dynamicInterfaceUpdate.connect(dynamicUpdateCallback)
     reciever.dynamicInterfaceUpdateAwaited.connect(dynamicUpdateCallback)
-    receive_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, ))
-    receive_thread.start()
 
+    #Слушаем сервисный порт
+    receive_service_thread = threading.Thread(target=MessageConnection.recv_server, args=(nickname, reciever, ))
+    receive_service_thread.start()
+
+    #Слушаем чат
+    recieve_message_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, reciever, ))
+    recieve_message_thread.start()
 
 def call(user, chats, callback):
     SERVER_IP = "26.181.96.20"  # IP
     SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
+    MESSAGE_SERVER_PORT = 55557
 
     try:
         service_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -345,16 +380,16 @@ def call(user, chats, callback):
 
     try:
         client_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        client_tcp.connect((SERVER_IP, SERVER_PORT))
     except ConnectionRefusedError:
         print("Не удалось подключится")
         exit(0)
-
+    MessageConnection.MS_IP = SERVER_IP
+    MessageConnection.MS_PORT = MESSAGE_SERVER_PORT
     cache_chat = {}
     for k in user.getFriends().keys():
         cache_chat[user.getFriends()[k][0]] = []
 
-    clientClass = MessageConnection(client_tcp, cache_chat, user)
+    clientClass = MessageConnection(client_tcp, service_tcp, cache_chat, user)
 
     while not chats.empty():
         MessageConnection.addChatToList(chats.get())#достаем объекты chat из очереди и пихаем их в массив

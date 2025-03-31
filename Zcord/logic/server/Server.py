@@ -2,6 +2,7 @@ import asyncio
 import json
 import msgspec
 import re
+import socket
 
 class Client:
     def __init__(self, nick, socket):
@@ -57,6 +58,7 @@ class Server:
     def send_decorator(self, server:asyncio.StreamWriter):
         server_obj = server
         async def send_data_to_server(data):
+            print(data)
             server_obj.write(data.encode('utf-8'))
 
         return send_data_to_server
@@ -74,10 +76,10 @@ class Server:
         nickname = first_info[1]
         await self.get_client_info(reader, writer)
         writer.write(b'0' + '__CONNECT__'.encode('utf-8'))
-
         send_to_message_server = self.send_decorator(Server.servers["message-server"]) #Чтобы не насиловать голову и
                                                                                           # не обращаться каждый раз к Server.servers
-        await send_to_message_server(f"USER-INFO&-&{nickname}&-&{self.serialize(first_info[0]).decode('utf-8')}")
+        client_ip = writer.transport.get_extra_info('socket').getpeername()
+        await send_to_message_server(f"USER-INFO&-&{nickname}&-&{self.serialize(first_info[0]).decode('utf-8')}&-&{self.serialize({nickname:client_ip[0]}).decode('utf-8')}")
 
         client_obj = Server.clients[nickname]
 
@@ -90,15 +92,15 @@ class Server:
                 try:
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:
+                    print(111111111)
                     continue
 
                 for msg in arr:
                     message = msg["message"]
-                    print(message)
-                    if "__change_chat__" in message:
+                    print("__change_chat__" == message)
+                    if "__change_chat__" == message:
                         chat_code = msg["chat_id"]
                         nickname = msg["nickname"]
-
                         if client_obj.message_chat_id == 0:
                             client_obj.message_chat_id = chat_code
                             await send_to_message_server(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
@@ -106,7 +108,6 @@ class Server:
 
                         if nickname not in Server.nicknames_in_chats[client_obj.message_chat_id]:
                             Server.nicknames_in_chats[client_obj.message_chat_id].append(nickname)
-
                         try:
                             if chat_code != client_obj.message_chat_id:
                                 index = Server.nicknames_in_chats[client_obj.message_chat_id].index(nickname)
@@ -183,8 +184,11 @@ async def main():
         PORT_FOR_SERVERS
     )
 
-    async with server_service:
-        await server_user.serve_forever()
-        await server_service.serve_forever()
+    async with server_service, server_user:
+        await asyncio.gather(
+            server_service.serve_forever(),
+            server_user.serve_forever()
+        )
+
 
 asyncio.run(main())

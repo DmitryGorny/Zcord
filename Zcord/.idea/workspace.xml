@@ -6,10 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="39da55f4-b775-4731-ba93-c1a2cb57c851" name="Changes" comment="Работающий ЛС">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/SERV.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/SERV.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -187,8 +185,8 @@
         <item itemvalue="Python.zcord" />
         <item itemvalue="Python.SERV" />
         <item itemvalue="Python.Server" />
-        <item itemvalue="Python.message_server" />
         <item itemvalue="Python.message_client" />
+        <item itemvalue="Python.message_server" />
       </list>
     </recent_temporary>
   </component>
@@ -295,7 +293,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/FriendAdding" />
+                        <option value="TCP-server" />
                       </list>
                     </value>
                   </entry>

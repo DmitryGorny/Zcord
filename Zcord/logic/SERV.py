@@ -48,7 +48,6 @@ class MessageRoom(object):
         date_now = msg[2]
         nickname = msg[3]
         wasSeen = msg[4]
-        print(message, 2132123)
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             ret = f"{message}&+& {date_now}&+& {nickname}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
             try:
@@ -122,6 +121,7 @@ class MessageRoom(object):
                     clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
                     continue
 
+                print(server_msg)
                 if "__change_chat__" in server_msg:
                     server_msg = server_msg.split("&-&")
 

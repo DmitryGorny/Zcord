@@ -1,4 +1,5 @@
 import asyncio
+import copy
 import json
 import msgspec
 import re
@@ -54,12 +55,14 @@ class Server:
     def serialize(self, data):
         ser = msgspec.json.encode(data)
         return ser
-
+    @staticmethod
+    def copy_nicknames_in_chat(chats):
+        Server.nicknames_in_chats = {**copy.deepcopy(chats), **Server.nicknames_in_chats}
     def send_decorator(self, server:asyncio.StreamWriter):
         server_obj = server
         async def send_data_to_server(data):
-            print(data)
             server_obj.write(data.encode('utf-8'))
+            #await server_obj.drain()
 
         return send_data_to_server
 
@@ -72,8 +75,11 @@ class Server:
 
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        #Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         first_info = await self.settle_first_info(reader, writer)
         nickname = first_info[1]
+        chats = first_info[0]
+        Server.copy_nicknames_in_chat(chats)
         await self.get_client_info(reader, writer)
         writer.write(b'0' + '__CONNECT__'.encode('utf-8'))
         send_to_message_server = self.send_decorator(Server.servers["message-server"]) #Чтобы не насиловать голову и
@@ -92,12 +98,10 @@ class Server:
                 try:
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:
-                    print(111111111)
                     continue
 
                 for msg in arr:
                     message = msg["message"]
-                    print("__change_chat__" == message)
                     if "__change_chat__" == message:
                         chat_code = msg["chat_id"]
                         nickname = msg["nickname"]
@@ -106,17 +110,18 @@ class Server:
                             await send_to_message_server(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
                             continue
 
-                        if nickname not in Server.nicknames_in_chats[client_obj.message_chat_id]:
-                            Server.nicknames_in_chats[client_obj.message_chat_id].append(nickname)
+                        client_chatID = str(client_obj.message_chat_id)
+                        if nickname not in Server.nicknames_in_chats[client_chatID]:
+                            Server.nicknames_in_chats[client_chatID].append(nickname)
+
                         try:
-                            if chat_code != client_obj.message_chat_id:
-                                index = Server.nicknames_in_chats[client_obj.message_chat_id].index(nickname)
-                                Server.nicknames_in_chats[client_obj.message_chat_id].pop(index)
+                            if chat_code != client_chatID:
+                                index = Server.nicknames_in_chats[client_chatID].index(nickname)
+                                Server.nicknames_in_chats[client_chatID].pop(index)
                         except UnboundLocalError as e:
                             print(e)
                         except KeyError as e:
                             print(e)
-
                         await send_to_message_server(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
 
                         client_obj.message_chat_id = chat_code

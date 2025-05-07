@@ -97,7 +97,8 @@ class MessageRoom(object):
                     MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
 
             except ConnectionResetError:
-                clients.pop(nickname)
+                print(clients)
+                #clients.pop(nickname)
                 client.close()
                 print(f"{nickname} left!")
                 break
@@ -121,7 +122,6 @@ class MessageRoom(object):
                     clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
                     continue
 
-                print(server_msg)
                 if "__change_chat__" in server_msg:
                     server_msg = server_msg.split("&-&")
 
@@ -129,8 +129,6 @@ class MessageRoom(object):
                         if server_msg[2] != server_msg[3]:
                             MessageRoom.nicknames_in_chats[server_msg[2]].remove(server_msg[1])
                         MessageRoom.nicknames_in_chats[server_msg[3]].append(server_msg[1])
-
-                        print(MessageRoom.nicknames_in_chats, 33132)
                     except ValueError:
                         print(1111111) #Дописать запрос на сервер для синхронизации
                     continue
@@ -158,6 +156,7 @@ def receive(server_socket):
                     continue
 
                 if clients[key] == client.getpeername()[0]:
+                    print(clients)
                     clients[key] = client
 
             thread = threading.Thread(target=MessageRoom.handle, args=(client,))

@@ -5,6 +5,9 @@ import msgspec
 import re
 import socket
 
+from logic.server.StrategyForService.ServeiceStrats import ChooseStrategy
+
+
 class Client:
     def __init__(self, nick, socket):
         self.nick = nick
@@ -102,31 +105,15 @@ class Server:
 
                 for msg in arr:
                     message = msg["message"]
-                    if "__change_chat__" == message:
-                        chat_code = msg["chat_id"]
-                        nickname = msg["nickname"]
-                        if client_obj.message_chat_id == 0:
-                            client_obj.message_chat_id = chat_code
-                            await send_to_message_server(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
-                            continue
+                    chat_code = msg["chat_id"]
+                    nickname = msg["nickname"]
 
-                        client_chatID = str(client_obj.message_chat_id)
-                        if nickname not in Server.nicknames_in_chats[client_chatID]:
-                            Server.nicknames_in_chats[client_chatID].append(nickname)
-
-                        try:
-                            if chat_code != client_chatID:
-                                index = Server.nicknames_in_chats[client_chatID].index(nickname)
-                                Server.nicknames_in_chats[client_chatID].pop(index)
-                        except UnboundLocalError as e:
-                            print(e)
-                        except KeyError as e:
-                            print(e)
-                        await send_to_message_server(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
-
-                        client_obj.message_chat_id = chat_code
-
-                        continue
+                    strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
+                    try:
+                        await strategy.execute(msg)
+                    except AttributeError as e: #Пока чисто для отладки, т.к. незнакомых команд быть не может????
+                        print(e)
+                    continue
 
             except ConnectionResetError:
                 del Server.clients[nickname]
@@ -139,7 +126,6 @@ class Server:
             try:
                 msg = await reader.read(4096)
                 msg = msg.decode('utf-8')
-                print(msg, "srv")
                 if msg == 'MESSAGE-SERVER':
                     Server.servers["message-server"] = writer
                     continue

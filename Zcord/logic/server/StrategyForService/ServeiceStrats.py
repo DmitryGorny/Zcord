@@ -12,13 +12,12 @@ class ChooseStrategy:
         if self.__current_strategy is not None:
             if self.__current_strategy.command_name == command:
                 return self.__current_strategy
-        print(ServiceStrategy.commands)
-        print(command)
+
         if command not in ServiceStrategy.commands.keys():
             return None
 
         self.__current_strategy = ServiceStrategy.commands[command]()
-        self.__current_strategy.set_data(sender, Server)
+        self.__current_strategy.set_data(sender=sender, Server_pointer=Server)
         return self.__current_strategy  # Возвращается именно объект, а не ссылка на класс
 
 
@@ -34,12 +33,12 @@ class ServiceStrategy(Strategy):
         self._sender_func = None
         self._server_pointer = None
 
-    def set_data(self, sender: Callable, Server_pointer):
-        self._sender_func = sender
-        self._server_pointer = Server_pointer
+    def set_data(self, **kwargs):
+        self._sender_func = kwargs.get("sender")
+        self._server_pointer = kwargs.get("Server_pointer")
 
     @abstractmethod
-    async def execute(self, **kwargs) -> None:
+    async def execute(self,  msg: dict) -> None:
         pass
 
 
@@ -56,7 +55,7 @@ class ChangeChatStrategy(ServiceStrategy):
 
         if client_obj.message_chat_id == 0:
             client_obj.message_chat_id = chat_code
-            await self._sender_func(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
+            await self._sender_func("__change_chat__", f"{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
             return
 
         client_chatID = str(client_obj.message_chat_id)
@@ -71,7 +70,7 @@ class ChangeChatStrategy(ServiceStrategy):
             print(e)
         except KeyError as e:
             print(e)
-        await self._sender_func(f"__change_chat__&-&{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
+        await self._sender_func("__change_chat__", f"{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
 
         client_obj.message_chat_id = chat_code
         return
@@ -86,4 +85,4 @@ class EndSessionStrategy(ServiceStrategy):
     async def execute(self, msg: dict) -> None:
         nickname = msg["nickname"]
         del self._server_pointer.clients[nickname]
-        await self._sender_func(f"__END-SESSION__&-&{nickname}")
+        await self._sender_func("__END-SESSION__", f"{nickname}")

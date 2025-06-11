@@ -7,13 +7,13 @@ import copy
 from logic.db_handler.db_handler import db_handler
 import select
 import re
-
+from Message.Strategies.StratsForServer import ChooseStrategy
 
 class MessageRoom(object):
     nicknames_in_chats = {}
     cache_chat = {}
     unseenMessages = {}
-
+    clients = {}
 
     @staticmethod
     def set_nicknames_in_chats(arr):
@@ -51,18 +51,24 @@ class MessageRoom(object):
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             ret = f"{message}&+& {date_now}&+& {nickname}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
             try:
-                clients[client].send(ret)
+                MessageRoom.clients[client].send(ret)
             except KeyError:
                 continue
 
 
     @staticmethod
     def decode_multiple_json_objects(data):
-        json_pattern = re.compile(r"\{.*?\}")
-        decoded_objects = []
-        for match in json_pattern.finditer(data):
-            decoded_objects.append(json.loads(match.group()))
-        return decoded_objects
+        decoder = json.JSONDecoder()
+        idx = 0
+        results = []
+        while idx < len(data):
+            try:
+                obj, idx_new = decoder.raw_decode(data[idx:])
+                results.append(obj)
+                idx += idx_new
+            except json.JSONDecodeError:
+                idx += 1
+        return results
 
     @staticmethod
     def handle(client):
@@ -97,7 +103,7 @@ class MessageRoom(object):
                     MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
 
             except ConnectionResetError:
-                print(clients)
+                 #Вот здесь еще момент с удалением из списка клиентов, нужно дописать окончание сессии через сообщение
                 #clients.pop(nickname)
                 client.close()
                 print(f"{nickname} left!")
@@ -107,31 +113,30 @@ class MessageRoom(object):
     def handle_server(main_server_socket):
         while True:
             buffer = ''
+            server_msg = main_server_socket.recv(1024)
+            server_msg = server_msg.decode('utf-8')
+
             try:
-                server_msg = main_server_socket.recv(1024)
-                server_msg = server_msg.decode('utf-8')
                 if server_msg == "DISCOVER":
                     main_server_socket.send(b'MESSAGE-SERVER')
                     continue
 
-                if "USER-INFO" in server_msg:
-                    msg = server_msg.split("&-&")
-                    MessageRoom.copyCacheChat(json.loads(msg[2]))
-
-                    msg = json.loads(msg[3])
-                    clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
+                buffer += server_msg
+                try:
+                    arr = MessageRoom.decode_multiple_json_objects(buffer)
+                except json.JSONDecodeError:
                     continue
 
-                if "__change_chat__" in server_msg:
-                    server_msg = server_msg.split("&-&")
+                for server_msg in arr:
+                    type = server_msg["type"]
+                    print(type)
+                    print(MessageRoom)
+                    strategy = ChooseStrategy().get_strategy(type, MessageRoom)
 
-                    try: #Я боюсь какого-нибудь неотловленного рассинхрона nicknames_in_chats здесь и с сервером, поэтому будем это отлавливать
-                        if server_msg[2] != server_msg[3]:
-                            MessageRoom.nicknames_in_chats[server_msg[2]].remove(server_msg[1])
-                        MessageRoom.nicknames_in_chats[server_msg[3]].append(server_msg[1])
-                    except ValueError:
-                        print(1111111) #Дописать запрос на сервер для синхронизации
-                    continue
+                    try:
+                        strategy.execute(server_msg)
+                    except AttributeError as e:
+                        print(e)
             except ConnectionResetError:
                 print("Сервер сдох")
                 break
@@ -151,13 +156,12 @@ def receive(server_socket):
             print(f"Connected to {address}")
 
             m = MessageRoom()
-            for key in clients.keys():
-                if not isinstance(clients[key], str):
+            for key in MessageRoom.clients.keys():
+                if not isinstance(MessageRoom.clients[key], str):
                     continue
 
-                if clients[key] == client.getpeername()[0]:
-                    print(clients)
-                    clients[key] = client
+                if MessageRoom.clients[key] == client.getpeername()[0]:
+                    MessageRoom.clients[key] = client
 
             thread = threading.Thread(target=MessageRoom.handle, args=(client,))
             thread.start()
@@ -170,7 +174,6 @@ if __name__ == "__main__":
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen()
-    clients = {}
 
     main_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     main_server_socket.connect((HOST, 55569))

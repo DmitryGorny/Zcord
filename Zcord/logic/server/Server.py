@@ -4,7 +4,6 @@ import json
 import msgspec
 import re
 import socket
-
 from logic.server.StrategyForService.ServeiceStrats import ChooseStrategy
 
 
@@ -63,9 +62,13 @@ class Server:
         Server.nicknames_in_chats = {**copy.deepcopy(chats), **Server.nicknames_in_chats}
     def send_decorator(self, server:asyncio.StreamWriter):
         server_obj = server
-        async def send_data_to_server(data):
-            server_obj.write(data.encode('utf-8'))
-            #await server_obj.drain()
+        async def send_data_to_server(msg_type, data):
+            message = {
+                "message": data,
+                "type": msg_type
+            }
+            server_obj.write(json.dumps(message).encode('utf-8'))
+            await server_obj.drain()
 
         return send_data_to_server
 
@@ -88,7 +91,7 @@ class Server:
         send_to_message_server = self.send_decorator(Server.servers["message-server"]) #Чтобы не насиловать голову и
                                                                                           # не обращаться каждый раз к Server.servers
         client_ip = writer.transport.get_extra_info('socket').getpeername()
-        await send_to_message_server(f"USER-INFO&-&{nickname}&-&{self.serialize(first_info[0]).decode('utf-8')}&-&{self.serialize({nickname:client_ip[0]}).decode('utf-8')}")
+        await send_to_message_server("USER-INFO", f"{nickname}&-&{self.serialize(first_info[0]).decode('utf-8')}&-&{self.serialize({nickname:client_ip[0]}).decode('utf-8')}")
 
         client_obj = Server.clients[nickname]
 
@@ -105,9 +108,7 @@ class Server:
 
                 for msg in arr:
                     message = msg["message"]
-                    chat_code = msg["chat_id"]
                     nickname = msg["nickname"]
-
                     strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
                     try:
                         await strategy.execute(msg)

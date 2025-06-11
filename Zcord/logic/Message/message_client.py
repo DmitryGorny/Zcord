@@ -132,7 +132,6 @@ class MessageConnection(QObject):
                         pass
 
                     message = msg[0]
-                    print(msg)
                     reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
                     reciever.sygnal.emit(nickname, message, date_now, 1, int(wasSeen))
             except os.error as e:
@@ -148,11 +147,9 @@ class MessageConnection(QObject):
     def recv_server(nickname_yours, reciever):
         while MessageConnection.flg:
             try:
-                print(1111)
                 msg = MessageConnection.service_tcp.recv(4096)
                 header = msg[0:1]
                 msg = msg[1:]
-                print(msg)
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
@@ -200,7 +197,7 @@ class MessageConnection(QObject):
                         else:
                             reciever.awaitedMessageRecieve.connect(MessageConnection.chat.recieveMessage)
 
-                            global WasSeen
+                            global WasSeen ##############################################################
                             WasSeen = int(i["WasSeen"])
                             if i["sender_nick"] != nickname_yours:
                                 WasSeen = 1
@@ -280,7 +277,7 @@ class MessageConnection(QObject):
                                   }
                     MessageConnection.send_service_message(MessageConnection.serialize(dictToSend).decode('utf-8'), nickname_yours)
                 elif message == '__CONNECT__':
-                    MessageConnection.send_service_message("__UPDATE-MESSAGES__", nickname_yours)
+                    #MessageConnection.send_service_message("__UPDATE-MESSAGES__", nickname_yours)
                     MessageConnection.client_tcp.connect((MessageConnection.MS_IP, MessageConnection.MS_PORT))
                     print("Подключено к серверу!")
                 elif "__FRIEND_REQUEST__" in message:

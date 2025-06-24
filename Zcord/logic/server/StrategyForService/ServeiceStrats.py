@@ -84,5 +84,10 @@ class EndSessionStrategy(ServiceStrategy):
 
     async def execute(self, msg: dict) -> None:
         nickname = msg["nickname"]
+        if not self._server_pointer.clients[nickname].writer.is_closing():
+            self._server_pointer.clients[nickname].writer.close()
+            await self._server_pointer.clients[nickname].writer.wait_closed()
         del self._server_pointer.clients[nickname]
-        await self._sender_func("__END-SESSION__", f"{nickname}")
+        await self._sender_func("END-SESSION", f"{nickname}")
+        raise ConnectionResetError #Чтобы задача стопалась
+

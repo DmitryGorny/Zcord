@@ -308,7 +308,7 @@ class MainWindow(QtWidgets.QMainWindow):
             #Frineds_json.write(json.dumps(self.__friends))
         self.close()
         message_client.MessageConnection.flg = False
-        message_client.MessageConnection.send_service_message(b"END-SESSION", self.__user.getNickName())
+        message_client.MessageConnection.send_service_message("END-SESSION", self.__user.getNickName())
         db_handler._engine.dispose()
 
         self.__client.close()

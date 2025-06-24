@@ -103,10 +103,7 @@ class MessageRoom(object):
                     MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
 
             except ConnectionResetError:
-                 #Вот здесь еще момент с удалением из списка клиентов, нужно дописать окончание сессии через сообщение
-                #clients.pop(nickname)
                 client.close()
-                print(f"{nickname} left!")
                 break
 
     @staticmethod
@@ -128,11 +125,8 @@ class MessageRoom(object):
                     continue
 
                 for server_msg in arr:
-                    type = server_msg["type"]
-                    print(type)
-                    print(MessageRoom)
-                    strategy = ChooseStrategy().get_strategy(type, MessageRoom)
-
+                    type_msg = server_msg["type"]
+                    strategy = ChooseStrategy().get_strategy(type_msg, MessageRoom)
                     try:
                         strategy.execute(server_msg)
                     except AttributeError as e:

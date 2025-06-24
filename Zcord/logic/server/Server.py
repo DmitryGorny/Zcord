@@ -51,15 +51,19 @@ class Server:
 
     nicknames_in_chats = {}
     cache_chat = {}
+
     def deserialize(self, msg):
         cache = msgspec.json.decode(msg)
         return cache
+
     def serialize(self, data):
         ser = msgspec.json.encode(data)
         return ser
+
     @staticmethod
     def copy_nicknames_in_chat(chats):
         Server.nicknames_in_chats = {**copy.deepcopy(chats), **Server.nicknames_in_chats}
+
     def send_decorator(self, server:asyncio.StreamWriter):
         server_obj = server
         async def send_data_to_server(msg_type, data):
@@ -67,6 +71,7 @@ class Server:
                 "message": data,
                 "type": msg_type
             }
+
             server_obj.write(json.dumps(message).encode('utf-8'))
             await server_obj.drain()
 
@@ -117,8 +122,6 @@ class Server:
                     continue
 
             except ConnectionResetError:
-                del Server.clients[nickname]
-                writer.close()
                 break
 
     async def handle_server(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
@@ -164,9 +167,9 @@ async def main():
     server_user = await asyncio.start_server(
         lambda r, w: Server().handle(r, w),
         IP,
-        PORT_FO_USERS
+        PORT_FO_USERS,
+        reuse_address=True,
     )
-
 
     PORT_FOR_SERVERS = 55569
 

@@ -56,8 +56,20 @@ class UserInfoStrategy(MessageStrategy):
 
     def execute(self,  msg: dict) -> None:
         msg = msg["message"].split("&-&")
-        print(msg)
         self._messageRoom_pointer.copyCacheChat(json.loads(msg[1]))
         msg = json.loads(msg[2])
         self._messageRoom_pointer.clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
+
+
+class EndSession(MessageStrategy):
+    command_name = "END-SESSION"
+
+    def __init__(self):
+        super(EndSession, self).__init__()
+
+    def execute(self,  msg: dict) -> None:
+        nickname = msg["message"]
+        self._messageRoom_pointer.clients[nickname].close()
+        self._messageRoom_pointer.clients.pop(nickname)
+
 

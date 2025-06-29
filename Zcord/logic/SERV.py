@@ -4,10 +4,8 @@ import threading
 from datetime import datetime
 import msgspec
 import copy
-from logic.db_handler.db_handler import db_handler
 import select
-import re
-from Message.Strategies.StratsForServer import ChooseStrategy
+from logic.server.Strategies.StratsForServer import ChooseStrategy
 
 class MessageRoom(object):
     nicknames_in_chats = {}

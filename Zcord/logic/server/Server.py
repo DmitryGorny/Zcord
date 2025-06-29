@@ -8,9 +8,9 @@ from logic.server.StrategyForService.ServeiceStrats import ChooseStrategy
 
 
 class Client:
-    def __init__(self, nick, socket):
+    def __init__(self, nick, writer: asyncio.StreamWriter):
         self.nick = nick
-        self.writer = socket
+        self._writer = writer
         self.activtyStatus = None
         self.__friends = None
         self.__message_chat_id = 0 #id чата, в котором сейчас пользователь (аналог old_chat_code из message_server)
@@ -19,19 +19,24 @@ class Client:
     def message_chat_id(self) -> int:
         return self.__message_chat_id
     @message_chat_id.setter
-    def message_chat_id(self, val:int) -> None:
+    def message_chat_id(self, val: int) -> None:
         self.__message_chat_id = val
     @property
     def friends(self) -> dict:
         return self.__friends
+
     @friends.setter
     def friends(self, friends: dict) -> None:
         self.__friends = friends
 
-    def add_friend(self, freind_name:str, chat_id:int) -> None:
+    @property
+    def writer(self) -> asyncio.StreamWriter:
+        return self._writer
+
+    def add_friend(self, freind_name: str, chat_id: int) -> None:
         self.__friends[freind_name] = [chat_id, 1] #1 - статус друга (по дефолту стоит заявка в друзья)
 
-    def delete_friend(self, friend_name:str) -> None:
+    def delete_friend(self, friend_name: str) -> None:
         del self.__friends[friend_name]
 
     @property
@@ -41,6 +46,16 @@ class Client:
     @status.setter
     def status(self, status):
         self.activtyStatus = status
+
+    def send_message(self, mes_type: str, mes_data: dict) -> None:
+        message_header = {
+            "message_type": mes_type,
+        }
+        message = message_header | mes_data
+
+        self._writer.write(json.dumps(message).encode('utf-8'))
+        await self._writer.drain()
+
 
 class Server:
     clients = {}
@@ -84,21 +99,21 @@ class Server:
             decoded_objects.append(json.loads(match.group()))
         return decoded_objects
 
-
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         #Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         first_info = await self.settle_first_info(reader, writer)
         nickname = first_info[1]
         chats = first_info[0]
+        client_obj = Server.clients[nickname]
         Server.copy_nicknames_in_chat(chats)
         await self.get_client_info(reader, writer)
-        writer.write(b'0' + '__CONNECT__'.encode('utf-8'))
+        client_obj.send_message("__CONNECT__", "LDJSFIOPJDF") ################################
+        #writer.write(b'0' + '__CONNECT__'.encode('utf-8'))
         send_to_message_server = self.send_decorator(Server.servers["message-server"]) #Чтобы не насиловать голову и
                                                                                           # не обращаться каждый раз к Server.servers
         client_ip = writer.transport.get_extra_info('socket').getpeername()
         await send_to_message_server("USER-INFO", f"{nickname}&-&{self.serialize(first_info[0]).decode('utf-8')}&-&{self.serialize({nickname:client_ip[0]}).decode('utf-8')}")
 
-        client_obj = Server.clients[nickname]
 
         while True:
             buffer = ''
@@ -149,7 +164,7 @@ class Server:
         print(f"Nickname is {nickname}")
         return [chat_id, nickname]
 
-    async def get_client_info(self, reader:asyncio.StreamReader, writer:asyncio.StreamWriter):
+    async def get_client_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         writer.write(b'0' + '__USER-INFO__'.encode('utf-8'))
         msg = await reader.read(1024)
         msg = json.loads(msg)
@@ -159,6 +174,17 @@ class Server:
         clientObj.friends = msg["friends"]
         clientObj.status = msg["status"]
         Server.clients[nickname] = clientObj
+
+    async def send_status(self, nikcname: str) -> None:
+        for friend in Server.clients[nikcname].friends.keys():
+            if friend not in Server.clients:
+                continue
+
+            friend = Server.clients[friend]
+            friend.send_message('USER-STATUS', {
+                "user-status": "__USER-ONLINE__",
+                "nickname": friend,
+            })
 
 async def main():
     IP = "26.181.96.20"

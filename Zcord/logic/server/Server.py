@@ -47,12 +47,12 @@ class Client:
     def status(self, status):
         self.activtyStatus = status
 
-    def send_message(self, mes_type: str, mes_data: dict) -> None:
+    async def send_message(self, mes_type: str, mes_data: dict) -> None:
         message_header = {
             "message_type": mes_type,
         }
         message = message_header | mes_data
-
+        print(message)
         self._writer.write(json.dumps(message).encode('utf-8'))
         await self._writer.drain()
 
@@ -79,7 +79,7 @@ class Server:
     def copy_nicknames_in_chat(chats):
         Server.nicknames_in_chats = {**copy.deepcopy(chats), **Server.nicknames_in_chats}
 
-    def send_decorator(self, server:asyncio.StreamWriter):
+    def send_decorator(self, server: asyncio.StreamWriter):
         server_obj = server
         async def send_data_to_server(msg_type, data):
             message = {
@@ -102,13 +102,16 @@ class Server:
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         #Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         first_info = await self.settle_first_info(reader, writer)
+        await self.get_client_info(reader, writer)
         nickname = first_info[1]
         chats = first_info[0]
         client_obj = Server.clients[nickname]
         Server.copy_nicknames_in_chat(chats)
-        await self.get_client_info(reader, writer)
-        client_obj.send_message("__CONNECT__", "LDJSFIOPJDF") ################################
-        #writer.write(b'0' + '__CONNECT__'.encode('utf-8'))
+        await client_obj.send_message("__CONNECT__", {
+            "connect": 1
+        })
+        await self.send_status(nickname)
+        await self.get_friends_statuses(nickname)
         send_to_message_server = self.send_decorator(Server.servers["message-server"]) #Чтобы не насиловать голову и
                                                                                           # не обращаться каждый раз к Server.servers
         client_ip = writer.transport.get_extra_info('socket').getpeername()
@@ -154,7 +157,8 @@ class Server:
                 break
 
     async def settle_first_info(self, reader:asyncio.StreamReader, writer:asyncio.StreamWriter):
-        writer.write(b'0' + '__NICK__'.encode('utf-8'))
+        writer.write(json.dumps({"message_type": '__NICK__'}).encode('utf-8'))
+        await writer.drain()
         msg = await reader.read(4096)
         msg = json.loads(msg)
 
@@ -165,7 +169,7 @@ class Server:
         return [chat_id, nickname]
 
     async def get_client_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        writer.write(b'0' + '__USER-INFO__'.encode('utf-8'))
+        writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
         msg = await reader.read(1024)
         msg = json.loads(msg)
         nickname = msg["nickname"]
@@ -175,16 +179,28 @@ class Server:
         clientObj.status = msg["status"]
         Server.clients[nickname] = clientObj
 
-    async def send_status(self, nikcname: str) -> None:
-        for friend in Server.clients[nikcname].friends.keys():
+    async def send_status(self, nickname: str) -> None:
+        for friend in Server.clients[nickname].friends.keys():
             if friend not in Server.clients:
                 continue
 
-            friend = Server.clients[friend]
-            friend.send_message('USER-STATUS', {
+            friend_obj = Server.clients[friend]
+
+            await friend_obj.send_message('USER-STATUS', {
+                "user-status": "__USER-ONLINE__",
+                "nickname": nickname,
+            })
+
+    async def get_friends_statuses(self, nickname: str) -> None:
+        for friend in Server.clients[nickname].friends.keys():
+            if friend not in Server.clients:
+                continue
+                
+            await Server.clients[nickname].send_message('USER-STATUS', {
                 "user-status": "__USER-ONLINE__",
                 "nickname": friend,
             })
+
 
 async def main():
     IP = "26.181.96.20"

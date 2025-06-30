@@ -5,6 +5,7 @@ from datetime import datetime
 import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
 import json
+from logic.Message.ClientStrategies.Strats import ChooseStrategy
 
 
 class SygnalChanger(QObject):
@@ -148,9 +149,20 @@ class MessageConnection(QObject):
     def recv_server(nickname_yours):
         while MessageConnection.flg:
             try:
-                msg = MessageConnection.service_tcp.recv(4096)
+                buffer = ''
+                msg = MessageConnection.service_tcp.recv(4096).decode('utf-8')
                 header = msg[0:1]
-                msg = msg[1:]
+                buffer += msg
+                try:
+                    arr = MessageConnection.decode_multiple_json_objects(buffer)
+                except json.JSONDecodeError:
+                    continue
+                for msg in arr:
+                    print(msg)
+                    strategy = ChooseStrategy().get_strategy(msg["message_type"], MessageConnection, nickname_yours)
+                    strategy.execute(msg)
+                continue
+
                 if header == b'2':
                     number = MessageConnection.deserialize(msg)
                     for key in number:
@@ -274,7 +286,6 @@ class MessageConnection(QObject):
                         MessageConnection.reciever.dynamicInterfaceUpdate.emit("ADD-FRIEND", (message.split("&")[2]))
                     continue
                 elif "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
-                    print(msg)
                     if msg[1] != nickname_yours:
                         MessageConnection.reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[1]))
                     else:
@@ -307,6 +318,20 @@ class MessageConnection(QObject):
                 break
 
     @staticmethod
+    def decode_multiple_json_objects(data):
+        decoder = json.JSONDecoder()
+        idx = 0
+        results = []
+        while idx < len(data):
+            try:
+                obj, idx_new = decoder.raw_decode(data[idx:])
+                results.append(obj)
+                idx += idx_new
+            except json.JSONDecodeError:
+                idx += 1
+        return results
+
+    @staticmethod
     def get_tcp_server(self):
         return self.client_tcp
 
@@ -336,8 +361,8 @@ def thread_start(nickname, dynamicUpdateCallback):
     receive_service_thread.start()
 
     #Слушаем чат
-    recieve_message_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
-    recieve_message_thread.start()
+    #recieve_message_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
+    #recieve_message_thread.start()
 
 def call(user, chats, callback):
     SERVER_IP = "26.181.96.20"  # IP

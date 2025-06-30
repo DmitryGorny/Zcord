@@ -1,7 +1,23 @@
 from abc import ABC, abstractmethod
+from typing import Callable
 
 from logic.Message.ClientStrategies.Strategy import Strategy
 
+class ChooseStrategy:
+    def __init__(self):
+        self.__current_strategy = None
+
+    def get_strategy(self, header: str, mconnection_obj, nickname_yours: str) -> Strategy:
+        if self.__current_strategy is not None:
+            if self.__current_strategy.command_name == header:
+                return self.__current_strategy
+
+        if header not in ClientsStrategies.headers.keys():
+            return None
+
+        self.__current_strategy = ClientsStrategies.headers[header]()
+        self.__current_strategy.set_data(message_connection=mconnection_obj, nick=nickname_yours)
+        return self.__current_strategy
 
 class ClientsStrategies(Strategy):
     headers = {}
@@ -13,11 +29,11 @@ class ClientsStrategies(Strategy):
 
     def __init__(self):
         self._message_connection_point = None
-        self._sender_func = None
+        self._nickname_yours: str = None
 
     def set_data(self, **kwargs):
         self._message_connection_point = kwargs.get("message_connection")
-        self._sender_func = kwargs.get("sender")
+        self._nickname_yours = kwargs.get("nick")
 
     @abstractmethod
     def execute(self,  msg: dict) -> None:
@@ -45,10 +61,37 @@ class UserStatusRecieve(ClientsStrategies):
         color = STATUS_COLORS.get(sender_status)
         target = "self" if sender_nickname == reciever_nickname else "friend"
         args = ([target, color] + ([sender_nickname] if target == "friend" else []))
+        print(args)
         self._message_connection_point.reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (args))
 
 
- #Нужно теперь тестировать в message_client
+class SendChatsData(ClientsStrategies):
+    header_name = "__NICK__"
+    
+    def __init__(self):
+        super(SendChatsData, self).__init__()
+
+    def execute(self,  msg: dict) -> None:
+        self._message_connection_point.send_service_message(self._message_connection_point.serialize(self._message_connection_point.cache_chat).decode('utf-8'), self._nickname_yours)
 
 
+class SendFirstInfo(ClientsStrategies):
+    header_name = "__USER-INFO__"
 
+    def __init__(self):
+        super(SendFirstInfo, self).__init__()
+
+    def execute(self,  msg: dict) -> None:
+        dictToSend = {
+            "friends":  self._message_connection_point.user.getFriends(),
+            "status": [self._message_connection_point.user.status.name,  self._message_connection_point.user.status.color]
+        }
+        self._message_connection_point.send_service_message( self._message_connection_point.serialize(dictToSend).decode('utf-8'), self._nickname_yours)
+
+class ConnectToMessageServer(ClientsStrategies):
+    header_name = "__CONNECT__"
+    def __init__(self):
+        super(ConnectToMessageServer, self).__init__()
+
+    def execute(self,  msg: dict) -> None:
+        self._message_connection_point.client_tcp.connect((self._message_connection_point.MS_IP,  self._message_connection_point.MS_PORT))

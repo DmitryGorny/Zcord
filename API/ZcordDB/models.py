@@ -37,8 +37,8 @@ class Friendship(models.Model):
         (BLOCKED, 'Blocked'),
     )
 
-    user1_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='friendships_initiated')
-    user2_id = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='friendships_received')
+    user1 = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='friendships_initiated')
+    user2 = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='friendships_received')
     status = models.PositiveSmallIntegerField(choices=STATUS_CHOICES, default=REQUESTED)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -57,7 +57,7 @@ class Message(models.Model):
         (SEEN, 'SEEN'),
     )
 
-    chat_id = models.OneToOneField(Friendship, on_delete=models.CASCADE)
+    chat = models.OneToOneField(Friendship, on_delete=models.CASCADE)
     sender = models.ForeignKey(Users, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

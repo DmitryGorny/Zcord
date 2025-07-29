@@ -1,7 +1,10 @@
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
 from logic.Message.message_client import MessageConnection
+
+
 class User:
-    def __init__(self, nickname, password):
+    def __init__(self, user_id, nickname, password):
+        self.__id = user_id
         self.__nickname = nickname
         self.__friends = {}
         self.__password = password
@@ -43,6 +46,9 @@ class User:
 
     def getNickName(self):
         return self.__nickname
+
+    def get_user_id(self):
+        return self.__id
 
     def setFrinds(self, friends):
         self.__friends = friends

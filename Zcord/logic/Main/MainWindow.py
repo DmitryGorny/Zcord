@@ -147,6 +147,7 @@ class MainWindow(QtWidgets.QMainWindow):
                     key = friendArr[2]
 
                 self.__friends[key] = [friendArr[0], friendArr[3]]
+
         self.__user.setFrinds(self.__friends)
 
     def createChats(self):
@@ -243,7 +244,7 @@ class MainWindow(QtWidgets.QMainWindow):
         message_client.MainInterface.change_chat(chat_id, self.__user.getNickName(), message_client.SygnalChanger())
 
         chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)
-        self.ui.stackedWidget_2.addWidget(chat.ui.MAIN)
+        self.ui.stackedWidget_2.addWidget(chat.ui.MAIN) #Вот этот момент надо переписывать, т.к. постоянно наслаивать виджеты друг на друга это не есть хорошо
         self.ui.stackedWidget_2.setCurrentWidget(chat.ui.MAIN)
 
 
@@ -300,7 +301,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
-        print(self.friendsChatOptions[0].ui.user_name)
+        print(self.friendsChatOptions)
         friend_ChatInList = list(filter(lambda x: x.chat.getNickName() == friendNick, self.friendsChatOptions))[0]
 
         friend_ChatInList.changeIndicatorColor(color)
@@ -315,6 +316,10 @@ class MainWindow(QtWidgets.QMainWindow):
     def deleteChat(self, friendName):
         chat = list(filter(lambda chat: chat.getNickName() == friendName, self.__chats))[0]
         self.__chats.remove(chat)
+
+        chat_gui = list(filter(lambda x: chat is x.chat, self.friendsChatOptions))[0]
+        self.friendsChatOptions.remove(chat_gui)
+
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
         return chat
     def closeWindow(self):
@@ -322,6 +327,7 @@ class MainWindow(QtWidgets.QMainWindow):
             #Frineds_json.write(json.dumps(self.__friends))
         self.close()
         message_client.MessageConnection.flg = False
+        message_client.MessageConnection.send_service_message("END-SESSION", self.__user.getNickName())
         db_handler._engine.dispose()
 
         self.__client.close()
@@ -400,18 +406,19 @@ class MainWindow(QtWidgets.QMainWindow):
         return layoutFinal
 
     def updateChatList(self, chat):
-        if self.ui.ScrollFriends.isVisible():
-            self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
+        self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
 
     def deleteChatFromUI(self, chat):
-        if self.ui.ScrollFriends.isVisible():
-            for i in range(self.ui.ScrollFriends.widget().layout().count()):
-                widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
-                if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.getNickName():
-                    self.ui.ScrollFriends.widget().layout().takeAt(i)
-                    widgetToDelete.deleteLater()
-                    self.ui.ScrollFriends.widget().layout().update()
-                    break
+        for i in range(self.ui.ScrollFriends.widget().layout().count()):
+            widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
+            if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.getNickName():
+                self.ui.ScrollFriends.widget().layout().takeAt(i)
+                widgetToDelete.deleteLater()
+                self.ui.ScrollFriends.widget().layout().update()
+                break
+
+        if len(self.__chats) == 0:
+            self.ui.ScrollFriends.setVisible(False)
 
     def unseenMessages(self, chat:Chat, newValue:int):
         if newValue == 0:
@@ -420,7 +427,6 @@ class MainWindow(QtWidgets.QMainWindow):
         if not chat.messageNumber.isVisible():
             chat.messageNumber.setVisible(True)
 
-        print(chat.messageNumber.isVisible())
         if newValue >= 99:
             newValue = "99"
         chat.messageNumber.setText(str(newValue))

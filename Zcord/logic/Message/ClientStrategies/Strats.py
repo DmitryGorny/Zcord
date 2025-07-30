@@ -61,7 +61,6 @@ class UserStatusRecieve(ClientsStrategies):
         color = STATUS_COLORS.get(sender_status)
         target = "self" if sender_nickname == reciever_nickname else "friend"
         args = ([target, color] + ([sender_nickname] if target == "friend" else []))
-        print(args)
         self._message_connection_point.reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (args))
 
 

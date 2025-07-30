@@ -52,7 +52,6 @@ class Client:
             "message_type": mes_type,
         }
         message = message_header | mes_data
-        print(message)
         self._writer.write(json.dumps(message).encode('utf-8'))
         await self._writer.drain()
 
@@ -156,7 +155,7 @@ class Server:
                 writer.close()
                 break
 
-    async def settle_first_info(self, reader:asyncio.StreamReader, writer:asyncio.StreamWriter):
+    async def settle_first_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         writer.write(json.dumps({"message_type": '__NICK__'}).encode('utf-8'))
         await writer.drain()
         msg = await reader.read(4096)

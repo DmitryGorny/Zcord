@@ -34,7 +34,7 @@ class FriendAdding:
 
         # Проверка на наличие дружбы
         if not friendship:
-            self.db.create_friendship_request(self.__user.get_user_id(), userToSendId)
+            self.db.create_friendship_request(self.__user.id, userToSendId)
             return True
 
         return False

@@ -142,15 +142,18 @@ class Chat(QtWidgets.QWidget):
     def acceptFriendRequest(self):
         friendAdding = FriendAdding(self.__user)
 
-        friendAdding.acceptRequest(self.__friendNickname)
+        if friendAdding.acceptRequest(self.__friendNickname):
 
-        message_client.MessageConnection.send_message(f"__ACCEPT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
+            message_client.MessageConnection.send_message(f"__ACCEPT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
 
-        self.startMessaging()
+            self.startMessaging()
+        else:
+            print("Ошибка целостности бд: в таблице friendship не существует запроса в друзья")
 
     def startMessaging(self):
         self.ui.ChatInputLayout.setHidden(False)
         self.clearLayout()
+
     def clearLayout(self):
         self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
         self.ui.ChatScroll.clear()
@@ -159,9 +162,10 @@ class Chat(QtWidgets.QWidget):
     def rejectRequest(self, deleteFriend:bool = False):
         friendAdding = FriendAdding(self.__user)
         friendAdding.deleteFriendRequest(self.__friendNickname)
-        friendAdding.rejectReques(self.__friendNickname, deleteFriend)
-
-        message_client.MessageConnection.send_message(f"__REJECT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
+        if friendAdding.rejectRequest(self.__friendNickname, deleteFriend):
+            message_client.MessageConnection.send_message(f"__REJECT-REQUEST__&{self.__chatId}&{self.__friendNickname}", self.__user.getNickName())
+        else:
+            print("Ошибка целостности бд: в таблице friendship не существует запроса в друзья")
 
     def showDeleteFriendDialog(self):
         if not DeleteFriend.isOpen:

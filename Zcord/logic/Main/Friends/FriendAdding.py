@@ -1,4 +1,6 @@
-from logic.db_handler.db_handler import db_handler
+from ...db_handler.api_client import APIClient
+
+
 class FriendAdding:
     """
     Статус 1 - неподтвержденный запрос
@@ -7,80 +9,83 @@ class FriendAdding:
     """
     def __init__(self, user):
         self.__user = user
-
+        self.db = APIClient()
 
     def sendRequest(self, nickToSend) -> bool:
         if nickToSend == self.__user.getNickName():
             return False
-        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
 
-        db_users = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "users")
+        userToSend = self.db.get_user(nickToSend)
 
-        userToSend = db_users.getCertainRow("nickname", nickToSend, "id, nickname, firstname, password")
-
+        # Проверка на существование в базе пользователя, которому отправляется запрос
         if len(userToSend) == 0:
             return False
+        else:
+            userToSendNickname = userToSend[0]['nickname']
+            userToSendId = userToSend[0]['id']
 
-        #Код проверки наличия дружбы перед отправкой запроса. Может работать медленно при большом количестве данных
-        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
-                                                       f"or friend_two_id = '{self.__user.getNickName()}'")
+        friendship = self.db.get_friendship_by_nicknames(self.__user.getNickName(), userToSendNickname)
+        try:
+            # Проверка на блокировку дружбы
+            if friendship[0]['status'] != 3:
+                return False
+        except Exception as e:
+            pass
 
-        friendshipRow = list(filter(lambda x: nickToSend in x, rowWithFriend))
-
-        if len(friendshipRow) == 0 or friendshipRow[0][len(friendshipRow[0]) - 1] != 3:
-
-            addFriends = db.insertDataInTable("(`friend_one_id`,`friend_two_id`, `status`)",
-                                                            f"('{self.__user.getNickName()}', '{nickToSend}', '1')" )
-
-            return addFriends
+        # Проверка на наличие дружбы
+        if not friendship:
+            self.db.create_friendship_request(self.__user.get_user_id(), userToSendId)
+            return True
 
         return False
 
     def acceptRequest(self, NickToAnswer) -> bool:
         """Метод меняет статус в БД с 1 на 2, клиентские части не затрагиваются"""
-        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
-        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
-                                                       f"or friend_two_id = '{self.__user.getNickName()}'")
+        friendship = self.db.get_friendship_by_nicknames(self.__user.getNickName(), NickToAnswer)
 
-        friendshipRow = list(filter(lambda x: NickToAnswer in x, rowWithFriend))
+        if friendship:
+            friendship_id = friendship['id']
+        else:
+            return False
 
-        updatingStatus = db.UpdateRequest("`status`", "2", f"WHERE `chat_id` = {friendshipRow[0][0]}")
+        self.db.patch_friendship_status(friendship_id, status=2)
 
         self.deleteFriendRequest(NickToAnswer)
 
-        return updatingStatus
+        return True
 
+    def rejectRequest(self, FriendToDelete, deleteFriend:bool = False):
+        friendship = self.db.get_friendship_by_nicknames(self.__user.getNickName(), FriendToDelete)
 
-    def rejectReques(self, FriendToDelete, deleteFriend:bool = False):
-        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
+        if friendship:
+            friendship_id = friendship['id']
+        else:
+            return False
 
-        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
-                                                       f"or friend_two_id = '{self.__user.getNickName()}'")
-
-        friendshipRow = list(filter(lambda x: FriendToDelete in x, rowWithFriend))
-
-        db.DeleteRequest("`chat_id`", friendshipRow[0][0])
+        self.db.delete_friendship(friendship_id)
 
         if not deleteFriend:
             self.deleteFriendRequest(FriendToDelete)
 
-
     def deleteFriendRequest(self, friendNick):
-        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friends_adding")
-        id = db.getDataFromTableColumn("`id`", f"WHERE sender_nick = '{self.__user.getNickName()}' AND friend_nick = '{friendNick}' "
-                                        f"OR sender_nick = '{friendNick}' AND friend_nick = '{self.__user.getNickName()}'")
-        try:
-            db.DeleteRequest("id", id[0][0])
-        except IndexError:
-            pass
+        friend_request = self.db.get_friend_request(self.__user.getNickName(), friendNick)
+        if friend_request:
+            friend_requests_id = friend_request['id']
+        else:
+            return False
+
+        self.db.delete_friend_requests(friend_requests_id)
+        return True
 
     def BlockUser(self, userToBlock):
+        """Метод меняет статус в БД на 3, клиентские части не затрагиваются"""
+        friendship = self.db.get_friendship_by_nicknames(self.__user.getNickName(), userToBlock)
 
-        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
-        rowWithFriend = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' "
-                                                        f"or friend_two_id = '{self.__user.getNickName()}'")
+        if friendship:
+            friendship_id = friendship['id']
+        else:
+            return False
 
-        friendshipRow = list(filter(lambda x: userToBlock in x, rowWithFriend))
+        self.db.patch_friendship_status(friendship_id, status=3)
 
-        db.UpdateRequest("`status`", "3", f"WHERE `chat_id` = {friendshipRow[0][0]}")
-
+        return True

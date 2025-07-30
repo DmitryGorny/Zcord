@@ -8,13 +8,10 @@ from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
 from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
-import threading
-import json
-import plyer
-
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
+
 
 class MainWindow(QtWidgets.QMainWindow):
     def __init__(self, user):

@@ -1,7 +1,7 @@
 from logic.Authorization.User.chat.UserChats import UserChats
 from logic.Authorization.User.friend.UserFriends import UserFriends
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
-from logic.Message.message_client import MessageConnection
+
 
 class BaseUser:
     def __init__(self, user_id, nickname):
@@ -51,6 +51,7 @@ class BaseUser:
 
     def getNickName(self):
         return self._nickname
+
 
 class User(BaseUser):
     def __init__(self, user_id, nickname, password):

@@ -39,14 +39,18 @@ class Chat(QtWidgets.QWidget):
 
         self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
 
-        if self.__user.getFriends()[self.__friendNickname][1] == 1:
-            self.ui.ChatInputLayout.setHidden(True)
+        #if self.__user.getFriends()[self.__friendNickname][1] == 1: TODO: Вернуть после переработки
+            #self.ui.ChatInputLayout.setHidden(True)
 
         self.messageNumber = None
 
         self.unseenMessages = []
 
         self.scroll_pos = 0
+
+
+    def __str__(self):
+        return f'{self.__chatId} {self.__friendNickname}'
 
     def askForCachedMessages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum()/4):

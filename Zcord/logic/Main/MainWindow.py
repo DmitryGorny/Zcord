@@ -152,7 +152,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     def createChats(self):
         for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user, self.voicepr))
+            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user))
         self.showFriendList()
 
 
@@ -420,7 +420,7 @@ class MainWindow(QtWidgets.QMainWindow):
         if len(self.__chats) == 0:
             self.ui.ScrollFriends.setVisible(False)
 
-    def unseenMessages(self, chat:Chat, newValue:int):
+    def unseenMessages(self, chat: Chat, newValue:int):
         if newValue == 0:
             chat.messageNumber.setVisible(False)
             return

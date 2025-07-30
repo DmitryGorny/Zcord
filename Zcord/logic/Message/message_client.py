@@ -158,7 +158,6 @@ class MessageConnection(QObject):
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
-                    print(msg)
                     strategy = ChooseStrategy().get_strategy(msg["message_type"], MessageConnection, nickname_yours)
                     strategy.execute(msg)
                 continue

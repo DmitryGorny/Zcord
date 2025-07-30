@@ -19,7 +19,7 @@ class Ui_Form(object):
         self.Friend = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget)
         self.Friend.setContentsMargins(11, 0, 11, 0)
         self.Friend.setSpacing(10)
-        self.Friend.setObjectName("Friend")
+        self.Friend.setObjectName("friend")
         self.wrapp = QtWidgets.QWidget(parent=self.horizontalLayoutWidget)
         self.wrapp.setMaximumSize(QtCore.QSize(40, 40))
         self.wrapp.setStyleSheet("QWidget {\n"

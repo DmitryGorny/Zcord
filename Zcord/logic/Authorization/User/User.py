@@ -1,20 +1,16 @@
+from logic.Authorization.User.chat.UserChats import UserChats
+from logic.Authorization.User.friend.UserFriends import UserFriends
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
 from logic.Message.message_client import MessageConnection
 
-
-class User:
-    def __init__(self, user_id, nickname, password):
-        self.__id = user_id
-        self.__nickname = nickname
-        self.__friends = {}
-        self.__password = password
+class BaseUser:
+    def __init__(self, user_id, nickname):
+        self._id = user_id
+        self._nickname = nickname
         self._status = None
         self._statuses = []
         self.create_default_statuses()
 
-    @property
-    def statuses(self):
-        return self._statuses
     def create_default_statuses(self):
         status_director = Director()
         status_director.builder = CreateStatus()
@@ -40,19 +36,40 @@ class User:
     @property
     def status(self):
         return self._status
+
     @status.setter
     def status(self, status) -> None:
         self._status = status
 
-    def getNickName(self):
-        return self.__nickname
+    @property
+    def id(self):
+        return self._id
 
-    def get_user_id(self):
-        return self.__id
+    @property
+    def statuses(self):
+        return self._statuses
+
+    def getNickName(self):
+        return self._nickname
+
+class User(BaseUser):
+    def __init__(self, user_id, nickname, password):
+        super(User, self).__init__(user_id, nickname)
+        self.__friends = {}
+        self.__password = password
+        self._friends_model = UserFriends(self)
+        self._chats_model = UserChats(self)
+
+        self.init_friends_and_chats()
+
+    def init_friends_and_chats(self) -> None:
+        self._friends_model.init_friends()
+
+        for friend in self._friends_model.friends_props():
+            self._chats_model.init_dm_chats(friend)
 
     def setFrinds(self, friends):
         self.__friends = friends
 
     def getFriends(self):
         return self.__friends
-

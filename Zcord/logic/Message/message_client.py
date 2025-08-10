@@ -5,7 +5,8 @@ from datetime import datetime
 import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
 import json
-from logic.Message.ClientStrategies.Strats import ChooseStrategy
+
+from logic.client.Strats.Strats import ChooseStrategy
 
 
 class SygnalChanger(QObject):
@@ -19,19 +20,35 @@ class SygnalChanger(QObject):
     changeUnseenStatus = pyqtSignal(int)
     blockAndUnblockScrollBar = pyqtSignal()
 
+
+class Chat:
+    def __init__(self, chat_id: int, friend_nick: str, socket_controller):
+        self._chat_id = chat_id
+        self._friend_nick = friend_nick
+        self.socket_controller = socket_controller
+
+    @property
+    def friend_nick(self):
+        return self._friend_nick
+
+    @property
+    def chat_id(self):
+        return self._chat_id
+
 class MainInterface:
     __current_chat = 1
-
     def __init__(self):
         pass
 
     @staticmethod
-    def change_chat(current_chat, nickname, sygnalChanger):
-        MainInterface.__current_chat = current_chat
-        MessageConnection.send_service_message('__change_chat__', nickname)
+    def change_chat(current_chat, sygnalChanger=SygnalChanger()):
+        MainInterface.__current_chat = int(current_chat)
+        MessageConnection.send_service_message('__change_chat__')
         try:
-            sygnalChanger.clear.connect(MessageConnection.chat.clearLayout)
-            sygnalChanger.clear.emit()
+            #sygnalChanger.clear.connect(MessageConnection.chat.clearLayout)
+            #sygnalChanger.clear.emit()
+            print(MessageConnection.chat)
+            MessageConnection.chat.socket_controller.clearLayout(str(current_chat))
         except AttributeError:
             return
 
@@ -89,18 +106,18 @@ class MessageConnection(QObject):
         MessageConnection.service_tcp = service_tcp
 
     @staticmethod
-    def send_message(message, nickname):
+    def send_message(message):
         msg = {
             "chat_id": MainInterface.return_current_chat(),
-            "nickname": nickname,
+            "nickname": MessageConnection.user.getNickName(),
             "message": message}
         MessageConnection.client_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     @staticmethod
-    def send_service_message(message, nickname):
+    def send_service_message(message):
         msg = {
             "chat_id": MainInterface.return_current_chat(),
-            "nickname": nickname,
+            "nickname": MessageConnection.user.getNickName(),
             "message": message
         }
         MessageConnection.service_tcp.send((json.dumps(msg)).encode('utf-8'))
@@ -110,7 +127,7 @@ class MessageConnection(QObject):
             try:
                 msg = MessageConnection.client_tcp.recv(4096)
                 msg = msg.decode("utf-8").split("&+& ")
-
+                print("prohlo sms")
                 try:
                     date_now = msg[1]
                     nickname = msg[2]
@@ -121,10 +138,11 @@ class MessageConnection(QObject):
                 dt = datetime.strptime(date_now, "%Y-%m-%d %H:%M:%S")
                 date_now = dt.strftime("%d.%m.%Y %H:%M")
 
-                if MainInterface.return_current_chat() != 0: #Проверить необходимость инициализации чата
-                    if MessageConnection.chat is None or MessageConnection.chat.getNickName() != nickname:
+                if MainInterface.return_current_chat() == 1: #Проверить необходимость инициализации чата
+                    if MessageConnection.chat is None or MessageConnection.chat._friend_nick != nickname:
                         for CertainChat in MessageConnection.chatsList:
-                            if int(CertainChat.getChatId()) == int(chat_code):
+                            if int(CertainChat.chat_id) == int(chat_code):
+                                print(CertainChat)
                                 MessageConnection.chat = CertainChat
                                 break
 
@@ -134,8 +152,9 @@ class MessageConnection(QObject):
                         pass
 
                     message = msg[0]
-                    MessageConnection.reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
-                    MessageConnection.reciever.sygnal.emit(nickname, message, date_now, 1, int(wasSeen))
+                    #MessageConnection.reciever.sygnal.connect(MessageConnection.chat.recieveMessage)
+                    #MessageConnection.reciever.sygnal.emit(nickname, message, date_now, 1, int(wasSeen))
+                    MessageConnection.chat.socket_controller.recieve_message(MessageConnection.chat.chat_id, nickname, message, date_now, 1, int(wasSeen))
             except os.error as e:
                 if not MessageConnection.flg:
                     print("Сокет закрылся корректно")
@@ -166,8 +185,8 @@ class MessageConnection(QObject):
                     number = MessageConnection.deserialize(msg)
                     for key in number:
                         try:
-                            chat = list(filter(lambda x: int(x.getChatId()) == int(key), MessageConnection.chatsList))[0]
-                            MessageConnection.reciever.dynamicInterfaceUpdate.emit("UPDATE-MESSAGE-NUMBER", (chat, number[key][nickname_yours]))
+                            chat = list(filter(lambda x: int(x.chat_id) == int(key), MessageConnection.chatsList))[0]
+                            MessageConnection.reciever.dynamicInterfaceUpdate.emit("UPDATE-MESSAGE-NUMBER", (chat.chat_id, number[key][nickname_yours]))
                         except IndexError:
                             pass
                     continue
@@ -178,13 +197,13 @@ class MessageConnection(QObject):
                         event = threading.Event()
                         if MessageConnection.chat is None:
                             for chat in MessageConnection.chatsList:
-                                if int(chat.getChatId()) == int(i["chat_id"]):
+                                if int(chat.chat_id) == int(i["chat_id"]):
                                     MessageConnection.chat = chat
                                     break
                         else:
-                            if MessageConnection.chat.getChatId() != int(i["chat_id"]):
+                            if MessageConnection.chat.chat_id != int(i["chat_id"]):
                                 for chat in MessageConnection.chatsList:
-                                    if int(chat.getChatId()) == int(i["chat_id"]):
+                                    if int(chat.chat_id) == int(i["chat_id"]):
                                         MessageConnection.chat = chat
                                         break
 
@@ -278,7 +297,7 @@ class MessageConnection(QObject):
                 elif "__ACCEPT-REQUEST__" in message:
                     if msg[2] != nickname_yours:
                          MessageConnection.reciever.dynamicInterfaceUpdate.emit("ADD-FRIEND", (msg[2]))
-                         MessageConnection.chat = list(filter(lambda chat: chat.getChatId() == int(message.split("&")[1]), MessageConnection.chatsList))[0]
+                         MessageConnection.chat = list(filter(lambda chat: chat.chat_id == int(message.split("&")[1]), MessageConnection.chatsList))[0]
                          MessageConnection.reciever.unblockChat.connect(MessageConnection.chat.startMessaging)
                          MessageConnection.reciever.unblockChat.emit()
                     else:
@@ -286,12 +305,12 @@ class MessageConnection(QObject):
                     continue
                 elif "__REJECT-REQUEST__" in message or "__DELETE-REQUEST__" in message:
                     if msg[1] != nickname_yours:
-                        MessageConnection.reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[1]))
+                        MessageConnection.reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (msg[1])) #TODO:msg[1] должен быть chat_id!!!!!!!!!!!!!
                     else:
-                        MessageConnection.reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (message.split("&")[2]))
+                        MessageConnection.reciever.dynamicInterfaceUpdate.emit("DELETE-CHAT", (message.split("&")[2]))#TODO:message.split("&")[2] должен быть chat_id!!!!!!!!!!!!!
                     MainInterface.setCurrentChat(None)
                     for chat in MessageConnection.chatsList:
-                        if int(chat.getChatId()) == int(message.split("&")[1]):
+                        if int(chat.chat_id) == int(message.split("&")[1]):
                             MessageConnection.chatsList.remove(chat)
                             MessageConnection.cache_chat.pop(message.split("&")[1], None)
                             break
@@ -360,8 +379,8 @@ def thread_start(nickname, dynamicUpdateCallback):
     receive_service_thread.start()
 
     #Слушаем чат
-    #recieve_message_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
-    #recieve_message_thread.start()
+    recieve_message_thread = threading.Thread(target=MessageConnection.recv_message, args=(nickname, ))
+    recieve_message_thread.start()
 
 def call(user, chats, callback):
     SERVER_IP = "26.181.96.20"  # IP
@@ -383,14 +402,16 @@ def call(user, chats, callback):
     MessageConnection.MS_IP = SERVER_IP
     MessageConnection.MS_PORT = MESSAGE_SERVER_PORT
     cache_chat = {}
-    for k in user.getFriends().keys():
-        cache_chat[user.getFriends()[k][0]] = []
-
-    clientClass = MessageConnection(client_tcp, service_tcp, cache_chat, user)
 
     while not chats.empty():
-        MessageConnection.addChatToList(chats.get())#достаем объекты chat из очереди и пихаем их в массив
+        attrs = chats.get()
+        chat = Chat(attrs["chat_id"], attrs["nickname"], user.get_socket_controller())
+        MessageConnection.addChatToList(chat)
+
+        cache_chat[attrs["chat_id"]] = []
         chats.task_done()
+
+    clientClass = MessageConnection(client_tcp, service_tcp, cache_chat, user)
     print("Старт клиента сообщений")
 
     MessageConnection.flg = True

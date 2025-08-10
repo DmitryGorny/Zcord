@@ -23,4 +23,4 @@ class UserFriends:
     def friends_props(self) -> dict:
         """Поочередно возвращает атрибуты каждого класса"""
         for friend in self._friends:
-            yield {"id": friend.id, "chat_id": friend.chat_id, "nickname": friend.getNickName(), "status": friend.status}
+            yield {"id": str(friend.id), "chat_id": str(friend.chat_id), "nickname": friend.getNickName(), "status": str(friend.status)}

@@ -1,7 +1,9 @@
+from typing import List, Dict
+from logic.Main.Chat.Controller.ChatController import ChatController
 from logic.Authorization.User.chat.UserChats import UserChats
 from logic.Authorization.User.friend.UserFriends import UserFriends
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
-from logic.Message.message_client import MessageConnection
+from logic.Message.message_client import MainInterface
 
 class BaseUser:
     def __init__(self, user_id, nickname):
@@ -67,9 +69,26 @@ class User(BaseUser):
 
         for friend in self._friends_model.friends_props():
             self._chats_model.init_dm_chats(friend)
+        self._chats_model.init_controller_views_list()
 
-    def setFrinds(self, friends):
-        self.__friends = friends
+    def get_chats(self) -> List[dict]:
+        attrs_list: List[dict] = []
+        for chat_attrs in self._chats_model.chats_props():
+            attrs_list.append(chat_attrs)
+        return attrs_list
 
-    def getFriends(self):
-        return self.__friends
+    def delete_chat(self, chat_id: str, is_dm: bool) -> None:
+        if is_dm:
+            self._chats_model.delete_DM_chat(chat_id)
+
+    def change_chat(self, chat_id: str) -> None:
+        MainInterface.change_chat(chat_id, self._nickname)
+
+    def get_socket_controller(self) -> ChatController.SocketController:
+        return self._chats_model.get_socket_controller()
+
+    def getFriends(self) -> List[Dict[str, str]]:
+        friends: List[Dict[str, str]] = []
+        for friend in self._friends_model.friends_props():
+            friends.append(friend)
+        return friends

@@ -5,19 +5,31 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
-      <change beforePath="$PROJECT_DIR$/../API/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_30_07_2025_12_10_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_30_07_2025_12_10__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]5/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_5.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInListGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInListGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/fabric.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/fabric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/ChatGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/DeleteFriend/DeleteFriend.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriend.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/DeleteFriend/DeleteFriendGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriendGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/FriendRequestMessage/FriendReauestMessage.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendReauestMessage.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/FriendRequestMessage/FriendRequest.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendRequest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Message/Message.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/Message/Message.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Message/MessageWidget.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/Message/MessageWidget.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendAdding.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendAdding.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/ClientStrategies/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/ClientStrategies/Strats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Message/ClientStrategies/Strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strategy.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Message/ClientStrategies/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/db_handler/api_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/db_handler/api_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/SERV.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/SERV.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/req.txt" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -56,33 +68,34 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "RunOnceActivity.OpenProjectViewOnStart": "true",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "WebServerToolWindowFactoryState": "false",
-    "git-widget-placeholder": "FriendAdding",
-    "ignore.virus.scanning.warn.message": "true",
-    "kotlin-language-version-configured": "true",
-    "last_opened_file_path": "C:/Users/Dmitriy/Desktop/Zcord/API",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "settings.editor.selected.configurable": "preferences.pluginManager",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;FriendAdding&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitriy/Desktop/Zcord/API&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\View" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\client\Strats" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI\Helpers" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\miniProfile" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\Message" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.zcord">
+  <component name="RunManager" selected="Python.SERV">
     <configuration name="SERV" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -191,9 +204,9 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.zcord" />
-        <item itemvalue="Python.Server" />
         <item itemvalue="Python.SERV" />
+        <item itemvalue="Python.Server" />
+        <item itemvalue="Python.zcord" />
         <item itemvalue="Python.ServeiceStrats" />
         <item itemvalue="Python.message_client" />
       </list>

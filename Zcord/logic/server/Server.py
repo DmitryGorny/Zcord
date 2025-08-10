@@ -3,57 +3,8 @@ import copy
 import json
 import msgspec
 import re
-import socket
+from logic.server.Client import Client
 from logic.server.StrategyForService.ServeiceStrats import ChooseStrategy
-
-
-class Client:
-    def __init__(self, nick, writer: asyncio.StreamWriter):
-        self.nick = nick
-        self._writer = writer
-        self.activtyStatus = None
-        self.__friends = None
-        self.__message_chat_id = 0 #id чата, в котором сейчас пользователь (аналог old_chat_code из message_server)
-
-    @property
-    def message_chat_id(self) -> int:
-        return self.__message_chat_id
-    @message_chat_id.setter
-    def message_chat_id(self, val: int) -> None:
-        self.__message_chat_id = val
-    @property
-    def friends(self) -> dict:
-        return self.__friends
-
-    @friends.setter
-    def friends(self, friends: dict) -> None:
-        self.__friends = friends
-
-    @property
-    def writer(self) -> asyncio.StreamWriter:
-        return self._writer
-
-    def add_friend(self, freind_name: str, chat_id: int) -> None:
-        self.__friends[freind_name] = [chat_id, 1] #1 - статус друга (по дефолту стоит заявка в друзья)
-
-    def delete_friend(self, friend_name: str) -> None:
-        del self.__friends[friend_name]
-
-    @property
-    def status(self):
-        return self.activtyStatus
-
-    @status.setter
-    def status(self, status):
-        self.activtyStatus = status
-
-    async def send_message(self, mes_type: str, mes_data: dict) -> None:
-        message_header = {
-            "message_type": mes_type,
-        }
-        message = message_header | mes_data
-        self._writer.write(json.dumps(message).encode('utf-8'))
-        await self._writer.drain()
 
 
 class Server:
@@ -173,11 +124,12 @@ class Server:
         msg = json.loads(msg)
         nickname = msg["nickname"]
         msg = json.loads(msg["message"])
-        clientObj = Client(nickname, writer)
+        clientObj = Client(msg["id"], nickname, writer)
         clientObj.friends = msg["friends"]
         clientObj.status = msg["status"]
         Server.clients[nickname] = clientObj
 
+    #TODO:Переделать
     async def send_status(self, nickname: str) -> None:
         for friend in Server.clients[nickname].friends.keys():
             if friend not in Server.clients:

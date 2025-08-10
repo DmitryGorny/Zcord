@@ -54,7 +54,7 @@ class FriendAdding:
 
         return True
 
-    def rejectRequest(self, FriendToDelete, deleteFriend:bool = False):
+    def rejectRequest(self, FriendToDelete, deleteFriend: bool = False):
         friendship = self.db.get_friendship_by_nicknames(self.__user.getNickName(), FriendToDelete)
 
         if friendship:

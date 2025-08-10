@@ -78,6 +78,7 @@ class MessageRoom(object):
                 msg = client.recv(4096)
                 msg = msg.decode('utf-8')
                 buffer += msg
+                print(msg)
                 try:
                     arr = MessageRoom.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:

@@ -101,9 +101,14 @@ class Server:
                 if msg == 'MESSAGE-SERVER':
                     Server.servers["message-server"] = writer
                     continue
+                elif msg == 'VOICE-SERVER':
+                    Server.servers["voice-server"] = writer
+                    print("Подключен войс")
+                    continue
 
             except ConnectionResetError:
                 writer.close()
+                print("Отключён")
                 break
 
     async def settle_first_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
@@ -154,7 +159,7 @@ class Server:
 
 
 async def main():
-    IP = "26.181.96.20"
+    IP = "26.36.207.48"
     PORT_FO_USERS = 55558
 
     server_user = await asyncio.start_server(

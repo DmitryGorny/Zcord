@@ -1,0 +1,64 @@
+from typing import List, Dict
+
+
+class Chat:
+    def __init__(self, chat_id: int, friend_nick: str, socket_controller):
+        self._chat_id = chat_id
+        self._friend_nick = friend_nick
+        self.socket_controller = socket_controller
+
+    @property
+    def friend_nick(self) -> str:
+        return self._friend_nick
+
+    @property
+    def chat_id(self) -> int:
+        return self._chat_id
+
+
+class ChatInterface:
+    def __init__(self):
+        self._chat: Chat = None
+        self._current_chat_id = 0
+        self._chats: List[Chat] = []
+
+    def change_chat(self, chat_id: str) -> Chat:
+        try:
+            self._chat.socket_controller.clear_layout(str(chat_id))
+        except AttributeError:
+            pass
+
+        self._current_chat_id = int(chat_id)
+        self._chat_setter(int(chat_id))
+
+        return self._chat
+
+    @property
+    def current_chat_id(self):
+        return self._current_chat_id
+
+    @property
+    def chat_id(self):
+        return self._chat.chat_id
+
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
+    def _chat_setter(self, chat_id: int) -> None:
+        if self._current_chat_id == 0:
+            raise ValueError("Ошибка в self._curent_chat_id: id не был присвоен во время chage_chat")
+
+        chat_filter = filter(lambda x: x.chat_id == chat_id, self._chats)
+        chat = next(chat_filter, None)
+
+        if chat is None:
+            raise ValueError(f"Нет такого Chat() с id {chat_id}")
+
+        self._chat = chat
+
+    def chats(self, attrs: Dict[str, str]):
+        chat = Chat(int(attrs["chat_id"]), attrs["nickname"], attrs["socket_controller"])
+        self._chats.append(chat)
+
+    chats = property(fset=chats)

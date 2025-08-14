@@ -9,8 +9,8 @@ import json
 from logic.client.Strats.Strats import ChooseStrategy
 
 
-class SygnalChanger(QObject):
-    sygnal = pyqtSignal(str, str, str, int, int)
+class SygnalChanger(QObject): #TODO: Избавиться по возможности
+    sygnal = pyqtSignal(str, str, str, int, int) #не нужен
     friendRequestShow = pyqtSignal(str)
     clear = pyqtSignal()
     dynamicInterfaceUpdate = pyqtSignal(str, object) #См. документацию dynamicUpdate
@@ -41,7 +41,7 @@ class MainInterface:
         pass
 
     @staticmethod
-    def change_chat(current_chat, sygnalChanger=SygnalChanger()):
+    def change_chat(current_chat):
         MainInterface.__current_chat = int(current_chat)
         MessageConnection.send_service_message('__change_chat__')
         try:

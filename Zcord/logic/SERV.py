@@ -42,14 +42,19 @@ class MessageRoom(object):
     @staticmethod
     def broadcast(msg):
         chat_code = msg[0]
-        message = msg[1]
-        date_now = msg[2]
-        nickname = msg[3]
-        wasSeen = msg[4]
+
+        messaghe_to_send = {
+            "chat_code": msg[0],
+            "message": msg[1],
+            "date_now": msg[2],
+            "nickname": msg[3],
+            "was_seen": msg[4]
+
+        }
+        print(MessageRoom.nicknames_in_chats[chat_code])
         for client in MessageRoom.nicknames_in_chats[chat_code]:
-            ret = f"{message}&+& {date_now}&+& {nickname}&+& {chat_code}&+& {wasSeen}".encode('utf-8')
             try:
-                MessageRoom.clients[client].send(ret)
+                MessageRoom.clients[client].send(json.dumps(messaghe_to_send).encode('utf-8'))
             except KeyError:
                 continue
 
@@ -78,12 +83,10 @@ class MessageRoom(object):
                 msg = client.recv(4096)
                 msg = msg.decode('utf-8')
                 buffer += msg
-                print(msg)
                 try:
                     arr = MessageRoom.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:
                     continue
-
                 for msg in arr:
                     chat_code = str(msg["chat_id"])
                     nickname = msg["nickname"]
@@ -97,7 +100,6 @@ class MessageRoom(object):
                         "date": date_now,
                         "WasSeen": 0
                     }
-
                     MessageRoom.cache_chat[chat_code].append(messageToChache)
                     MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
 

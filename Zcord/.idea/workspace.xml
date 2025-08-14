@@ -5,31 +5,18 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_30_07_2025_12_10_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Merge_at_30_07_2025_12_10__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]5/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_5.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/fabric.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/fabric.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/ChatGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatGUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/DeleteFriend/DeleteFriend.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriend.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/DeleteFriend/DeleteFriendGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriendGUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/FriendRequestMessage/FriendReauestMessage.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendReauestMessage.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/FriendRequestMessage/FriendRequest.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendRequest.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Message/Message.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/Message/Message.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Message/MessageWidget.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/Message/MessageWidget.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendAdding.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendAdding.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/ClientStrategies/Strategy.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strategy.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/ClientStrategies/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/SERV.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/SERV.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/message_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/service_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/service_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Strategies/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Strategies/StratsForServer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -95,7 +82,7 @@
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.SERV">
+  <component name="RunManager" selected="Python.zcord">
     <configuration name="SERV" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -159,7 +146,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="message_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="message_client (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -167,11 +154,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Message" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/client" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Message/message_client.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/client/message_client.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -204,11 +191,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.zcord" />
         <item itemvalue="Python.SERV" />
         <item itemvalue="Python.Server" />
-        <item itemvalue="Python.zcord" />
+        <item itemvalue="Python.message_client (1)" />
         <item itemvalue="Python.ServeiceStrats" />
-        <item itemvalue="Python.message_client" />
       </list>
     </recent_temporary>
   </component>

@@ -4,6 +4,8 @@ from logic.Authorization.User.chat.UserChats import UserChats
 from logic.Authorization.User.friend.UserFriends import UserFriends
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
 from logic.Message.message_client import MainInterface
+from logic.client.ClientConnections.ClientConnections import ClientConnections
+
 
 class BaseUser:
     def __init__(self, user_id, nickname):
@@ -82,7 +84,7 @@ class User(BaseUser):
             self._chats_model.delete_DM_chat(chat_id)
 
     def change_chat(self, chat_id: str) -> None:
-        MainInterface.change_chat(chat_id, self._nickname)
+        ClientConnections.change_chat(chat_id)
 
     def get_socket_controller(self) -> ChatController.SocketController:
         return self._chats_model.get_socket_controller()

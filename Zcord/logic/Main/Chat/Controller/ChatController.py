@@ -42,7 +42,8 @@ class ChatController:
         def clear_layout(self, chat_id: str):
             self._views[chat_id].clearLayout()
 
-        # TODO:Пересмотреть метод
+        #TODO:Пересмотреть метод в view
+        #TODO: Сделать еще awaited версию см. SygnalReciever
         def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: int = 0,
                             event: threading.Event = None):
             self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)

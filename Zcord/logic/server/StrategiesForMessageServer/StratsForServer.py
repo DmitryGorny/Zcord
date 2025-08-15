@@ -4,7 +4,7 @@ import json
 from logic.server.Strategy import Strategy
 from abc import abstractmethod, ABC
 from typing import Callable
-from logic.server.StrategyForService.ServeiceStrats import ServiceStrategy
+from logic.server.StrategyForServiceServer.ServeiceStrats import ServiceStrategy
 
 class ChooseStrategy:
     def __init__(self):

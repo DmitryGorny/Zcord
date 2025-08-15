@@ -9,7 +9,6 @@ from logic.client.IConnection.IConnection import IConnection, BaseConnection
 
 class MessageConnection(IConnection, BaseConnection):
     def __init__(self, message_server_tcp: socket.socket, user):
-        # self._cache_chat: Dict[str, list] = cache_chat #############################################################
         self._user = user
 
         # Сокет
@@ -17,7 +16,7 @@ class MessageConnection(IConnection, BaseConnection):
 
         self._chat: Chat = None
 
-        self._flg = True  # TODO: Сделать флаг false, когда закрывается сокет
+        self._flg = True
 
     def send_message(self, message, current_chat_id: int):
         msg = {
@@ -50,7 +49,7 @@ class MessageConnection(IConnection, BaseConnection):
 
                     if self._chat is None:
                         raise ValueError("chat = None, не прошла инициализация")
-                    print(msg, "SERVER")
+
                     self._chat.socket_controller.recieve_message(str(self._chat.chat_id), msg["nickname"],
                                                                  msg["message"], date_now, 1, int(msg["was_seen"]))
                 continue

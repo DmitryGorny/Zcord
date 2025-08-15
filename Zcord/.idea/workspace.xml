@@ -6,11 +6,9 @@
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/SERV.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/SERV.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/Strats/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strats.py" afterDir="false" />
@@ -83,7 +81,7 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.zcord">
-    <configuration name="SERV" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="MessageServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -95,7 +93,7 @@
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/SERV.py" />
+      <option name="SCRIPT_NAME" value="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server\MessageServer\MessageServer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -192,7 +190,7 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.zcord" />
-        <item itemvalue="Python.SERV" />
+        <item itemvalue="Python.MessageServer" />
         <item itemvalue="Python.Server" />
         <item itemvalue="Python.message_client (1)" />
         <item itemvalue="Python.ServeiceStrats" />

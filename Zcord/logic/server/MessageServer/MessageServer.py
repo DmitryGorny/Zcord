@@ -5,7 +5,7 @@ from datetime import datetime
 import msgspec
 import copy
 import select
-from logic.server.Strategies.StratsForServer import ChooseStrategy
+from logic.server.StrategiesForMessageServer.StratsForServer import ChooseStrategy
 
 class MessageRoom(object):
     nicknames_in_chats = {}

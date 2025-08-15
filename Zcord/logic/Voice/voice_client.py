@@ -2,8 +2,31 @@ import asyncio
 import json
 
 import pyaudio
-from aiortc import RTCPeerConnection, RTCSessionDescription, RTCConfiguration, RTCIceServer
+from aiortc import RTCPeerConnection, RTCSessionDescription, RTCConfiguration, RTCIceServer, MediaStreamTrack
 from aiortc.contrib.media import MediaPlayer, MediaRecorder
+
+
+class SilenceStreamTrack(MediaStreamTrack):
+    kind = "audio"
+
+    def __init__(self):
+        super().__init__()  # инициализация базового трека
+        self.sample_rate = 48000
+        self.samples_per_frame = int(self.sample_rate / 100)  # 10мс на фрейм
+
+    async def recv(self):
+        # timestamp и pts для корректной синхронизации
+        pts, time_base = await self.next_timestamp()
+
+        # пустой аудиофрейм
+        frame = av.AudioFrame(format="s16", layout="mono", samples=self.samples_per_frame)
+        for plane in frame.planes:
+            plane.update(b"\x00" * plane.buffer_size)
+
+        frame.pts = pts
+        frame.sample_rate = self.sample_rate
+        frame.time_base = time_base
+        return frame
 
 
 class VoiceClient:
@@ -89,11 +112,8 @@ class VoiceClient:
                 print("Создаю оффер для P2P соединения...")
                 # Захват аудио с микрофона
 
-                player = MediaPlayer("audio=Микрофон (USB PnP Audio Device)", format="dshow", options={
-                    "channels": "1", "sample_rate": "48000"
-                })
-                self.pc.addTrack(player.audio)
-
+                silence_track = SilenceStreamTrack()
+                self.audio_sender = self.pc.addTrack(silence_track)
                 offer = await self.pc.createOffer()
                 await self.pc.setLocalDescription(offer)
 
@@ -110,11 +130,8 @@ class VoiceClient:
                     RTCSessionDescription(sdp=message["sdp"], type="offer")
                 )
 
-                player = MediaPlayer("audio=Микрофон (USB PnP Audio Device)", format="dshow", options={
-                    "channels": "1", "sample_rate": "48000"
-                })  # Windows
-                self.pc.addTrack(player.audio)
-
+                silence_track = SilenceStreamTrack()
+                self.audio_sender = self.pc.addTrack(silence_track)
                 answer = await self.pc.createAnswer()
                 await self.pc.setLocalDescription(answer)
 
@@ -125,16 +142,37 @@ class VoiceClient:
                 }).encode())
                 await self.writer.drain()
 
+                # Готовы к старту (второй клиент)
+                self.writer.write(json.dumps({
+                    "type": "ready_for_voice",
+                    "room_id": self.room_id
+                }).encode())
+                await self.writer.drain()
+
             elif message["type"] == "answer":
                 print("Получен answer, устанавливаем...")
                 await self.pc.setRemoteDescription(
                     RTCSessionDescription(sdp=message["sdp"], type="answer")
                 )
+                # Готовы к старту (первый клиент)
+                self.writer.write(json.dumps({
+                    "type": "ready_for_voice",
+                    "room_id": self.room_id
+                }).encode())
+                await self.writer.drain()
 
             elif message["type"] == "candidate":
                 print("Получен ICE candidate...")
                 await self.pc.addIceCandidate(message["candidate"])
 
+            elif message["type"] == "start_voice":
+                print("Старт войса")
+                mic = MediaPlayer(
+                    "audio=Микрофон (USB PnP Audio Device)",
+                    format="dshow",
+                    options={"channels": "1", "sample_rate": "48000"}
+                )
+                self.audio_sender.replaceTrack(mic.audio)
 
 async def main():
     client = VoiceClient()

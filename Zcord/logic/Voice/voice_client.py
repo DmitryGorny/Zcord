@@ -1,5 +1,7 @@
 import asyncio
 import json
+
+import pyaudio
 from aiortc import RTCPeerConnection, RTCSessionDescription, RTCConfiguration, RTCIceServer
 from aiortc.contrib.media import MediaPlayer, MediaRecorder
 
@@ -16,10 +18,31 @@ class VoiceClient:
         def on_track(track):
             if track.kind == "audio":
                 print("Аудио получено!")
+
+                async def play_audio(track):
+                    p = pyaudio.PyAudio()
+                    stream = p.open(format=pyaudio.paInt16,  # 16-бит PCM
+                                    channels=2,  # моно, если надо стерео — поставь 2
+                                    rate=48000,  # WebRTC обычно 48 kHz
+                                    output=True)
+
+                    try:
+                        while True:
+                            frame = await track.recv()
+                            pcm = frame.to_ndarray()
+
+                            # Если стерео нужно:
+                            # if pcm.ndim == 1:
+                            #     pcm = np.stack([pcm, pcm], axis=-1)
+
+                            # Преобразуем в bytes
+                            stream.write(pcm.tobytes())
+                    finally:
+                        stream.stop_stream()
+                        stream.close()
+                        p.terminate()
                 # Запускаем воспроизведение через MediaRecorder
-                self.recorder = MediaRecorder("out.wav", format="wav")
-                self.recorder.addTrack(track)
-                asyncio.create_task(self.recorder.start())
+                asyncio.create_task(play_audio(track))
 
         @self.pc.on("icecandidate")
         def on_ice_candidate(candidate):

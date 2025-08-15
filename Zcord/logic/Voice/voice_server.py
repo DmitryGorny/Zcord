@@ -1,10 +1,9 @@
 import asyncio
 import json
 
-
 class VoiceServer:
     def __init__(self):
-        self.clients = {}  # {client_id: {"writer": writer, "pc": pc}}
+        self.clients = {}  # {client_id: {"writer": writer}}
         self.rooms = {}    # {room_id: [client_id1, client_id2]}
 
     async def handle_connection(self, reader, writer):
@@ -28,7 +27,7 @@ class VoiceServer:
                     self.rooms[room_id].append(client_id)
                     print(f"Клиент {client_id} вошёл в комнату {room_id}")
 
-                    # Если в комнате уже есть кто-то, начинаем соединение
+                    # Если в комнате есть кто-то, сигнализируем ждать соединения
                     if len(self.rooms[room_id]) == 2:
                         other_client_id = self.rooms[room_id][0]
                         await self.send_message(other_client_id, {
@@ -81,11 +80,11 @@ class VoiceServer:
 async def main():
     server = VoiceServer()
     voice_service = await asyncio.start_server(
-        server.handle_connection,
-        "0.0.0.0", 55559
+        server.handle_connection, "0.0.0.0", 55559
     )
-
+    print("Сервер запущен на порту 55559")
     async with voice_service:
         await voice_service.serve_forever()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

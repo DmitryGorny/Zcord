@@ -46,6 +46,7 @@ class Friendship(models.Model):
     class Meta:
         verbose_name = 'Друг'
         verbose_name_plural = 'Друзья'
+        unique_together = ('user1', 'user2')
 
 
 class Message(models.Model):

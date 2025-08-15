@@ -3,8 +3,8 @@ import copy
 import json
 import msgspec
 import re
-from logic.server.Client import Client
-from logic.server.StrategyForService.ServeiceStrats import ChooseStrategy
+from logic.server.Client.Client import Client
+from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy
 
 
 class Server:

@@ -1,89 +1,67 @@
 import asyncio
 import json
 
-class VoiceServer:
+# Простейший UDP-сервер сигнализации и обмена peer-адресами.
+# Протокол сообщений (JSON, в каждом datagram):
+#  - {"t":"register","room":"<room_id>","token":"<client_token>"}
+#  - {"t":"peer","addr":["ip",port]} — ответ с адресом напарника
+
+class UdpSignalServer(asyncio.DatagramProtocol):
     def __init__(self):
-        self.clients = {}  # {client_id: {"writer": writer, "ready": False}}
-        self.rooms = {}    # {room_id: [client_id1, client_id2]}
+        self.transport = None
+        # room_id -> list of dicts: {"token": str, "addr": (ip, port)}
+        self.rooms = {}
 
-    async def handle_connection(self, reader, writer):
-        client_id = writer.get_extra_info('peername')
-        self.clients[client_id] = {"writer": writer, "ready": False}
-        print(f"Новый клиент: {client_id}")
+    def connection_made(self, transport):
+        self.transport = transport
+        print("UDP signal server started")
 
+    def datagram_received(self, data, addr):
         try:
-            while True:
-                data = await reader.read(4096)
-                if not data:
+            msg = json.loads(data.decode("utf-8"))
+        except Exception:
+            return
+        typ = msg.get("t")
+        if typ == "register":
+            room = msg.get("room", "default_room")
+            token = msg.get("token")
+            if not token:
+                return
+
+            lst = self.rooms.setdefault(room, [])
+            # обновим/добавим
+            for e in lst:
+                if e["token"] == token:
+                    e["addr"] = addr
                     break
+            else:
+                lst.append({"token": token, "addr": addr})
 
-                message = json.loads(data.decode())
-                msg_type = message.get("type")
-                print(f"Сообщение от {client_id}: {msg_type}")
+            print(f"[{room}] register from {addr}, total={len(lst)}")
 
-                if msg_type == "join":
-                    room_id = message["room_id"]
-                    self.rooms.setdefault(room_id, []).append(client_id)
-                    print(f"Клиент {client_id} вошёл в комнату {room_id}")
+            # как только стало двое — рассылаем адреса друг друга
+            if len(lst) >= 2:
+                a, b = lst[0], lst[1]
+                self.send_peer(a["addr"], b["addr"])
+                self.send_peer(b["addr"], a["addr"])
 
-                    if len(self.rooms[room_id]) == 2:
-                        other_client_id = self.rooms[room_id][0]
-                        await self.send_message(other_client_id, {"type": "wait_peer"})
+        # можно расширять протокол по необходимости
 
-                elif msg_type in ("offer", "answer", "candidate"):
-                    room_id = message["room_id"]
-                    other_client_id = self.get_other_client(room_id, client_id)
-                    await self.send_message(other_client_id, message)
-
-                elif msg_type == "ready_for_voice":
-                    self.clients[client_id]["ready"] = True
-                    room_id = message["room_id"]
-                    await self.check_and_start_voice(room_id)
-
-        except Exception as e:
-            print(f"Ошибка у {client_id}: {e}")
-        finally:
-            print(f"Клиент отключён: {client_id}")
-            self.remove_client(client_id)
-            writer.close()
-            await writer.wait_closed()
-
-    def get_other_client(self, room_id, client_id):
-        clients = self.rooms.get(room_id, [])
-        return clients[0] if clients and clients[0] != client_id else clients[1]
-
-    def remove_client(self, client_id):
-        self.clients.pop(client_id, None)
-        for room_id, members in list(self.rooms.items()):
-            if client_id in members:
-                members.remove(client_id)
-                if not members:
-                    del self.rooms[room_id]
-
-    async def send_message(self, client_id, message):
-        if client_id in self.clients:
-            writer = self.clients[client_id]["writer"]
-            writer.write(json.dumps(message).encode())
-            await writer.drain()
-
-    async def check_and_start_voice(self, room_id):
-        members = self.rooms.get(room_id, [])
-        if len(members) == 2 and all(self.clients[m]["ready"] for m in members):
-            print(f"Оба клиента в комнате {room_id} готовы, отправляем start_voice")
-            for m in members:
-                await self.send_message(m, {"type": "start_voice"})
-            # Сбрасываем ready, чтобы не переслать снова
-            for m in members:
-                self.clients[m]["ready"] = False
-
+    def send_peer(self, to_addr, peer_addr):
+        payload = json.dumps({"t": "peer", "addr": [peer_addr[0], peer_addr[1]]}).encode("utf-8")
+        self.transport.sendto(payload, to_addr)
 
 async def main():
-    server = VoiceServer()
-    voice_service = await asyncio.start_server(
-        server.handle_connection,
-        "0.0.0.0", 55559
+    loop = asyncio.get_running_loop()
+    # слушаем на 0.0.0.0:55559/UDP
+    transport, protocol = await loop.create_datagram_endpoint(
+        lambda: UdpSignalServer(),
+        local_addr=("0.0.0.0", 55559)
     )
-    async with voice_service:
-        await voice_service.serve_forever()
+    try:
+        await asyncio.Future()
+    finally:
+        transport.close()
 
-asyncio.run(main())
+if __name__ == "__main__":
+    asyncio.run(main())

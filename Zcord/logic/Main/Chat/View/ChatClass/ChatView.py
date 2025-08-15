@@ -10,6 +10,7 @@ from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 class ChatView(QtWidgets.QWidget):
     messageReceived = QtCore.pyqtSignal(str, str, str, int, int)
     clear_layout = QtCore.pyqtSignal()
+
     def __init__(self, chatId, friend_nick, user, controller):
         super(ChatView, self).__init__()
         #Сигналы
@@ -151,11 +152,10 @@ class ChatView(QtWidgets.QWidget):
         self.clearLayout()
 
     def clearLayout(self):
-        print(2312312312123123123123123123123121)
         self.ui.ChatScroll.verticalScrollBar().blockSignals(True)
         self.ui.ChatScroll.clear()
 
-    def rejectRequest(self, deleteFriend:bool = False):
+    def rejectRequest(self, deleteFriend: bool = False):
         self._controller.reject_request(self.__user, self.__friendNickname, deleteFriend)
 
     def showDeleteFriendDialog(self):

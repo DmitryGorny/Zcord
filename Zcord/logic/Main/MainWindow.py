@@ -6,9 +6,8 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.User.User import User
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
-from logic.Main.Chat.View.ChatClass.ChatView import ChatView
+from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.db_handler.db_handler import db_handler
-from logic.Message import message_client
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
 from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
@@ -77,15 +76,12 @@ class MainWindow(QtWidgets.QMainWindow):
         pass
 
     def call_chat(self):
-        #Подумать как привльно передать SocketController в клиент
         queueToSend = queue.Queue()
         for chat in self.__user.get_chats():
+            chat["socket_controller"] = self.__user.get_socket_controller()
             queueToSend.put(chat)
 
-        self.call_client = message_client.call(self.__user, queueToSend, self.dynamicUpdateSlot)
-
-        self.__client = self.call_client[0]
-        self.__messageConnection = self.call_client[1]
+        ClientConnections.start_client(self.__user, queueToSend)
 
 
     def initializeChatsInScrollArea(self):
@@ -363,10 +359,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # with open("Resources/frineds/friends.json", "w") as Frineds_json:
         # Frineds_json.write(json.dumps(self.__friends))
         self.close()
-        message_client.MessageConnection.flg = False
-        message_client.MessageConnection.send_service_message("END-SESSION")
-
-        self.__client.close()
+        ClientConnections.close()
 
     def on_click_hide(self):
         self.showMinimized()

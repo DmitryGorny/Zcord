@@ -72,4 +72,8 @@ class EndSession(MessageStrategy):
         self._messageRoom_pointer.clients[nickname].close()
         self._messageRoom_pointer.clients.pop(nickname)
 
+        print(self._messageRoom_pointer.nicknames_in_chats)
+        for id_chat in self._messageRoom_pointer.nicknames_in_chats.keys():  #TODO: Слишком медленно
+            if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
+                self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
 

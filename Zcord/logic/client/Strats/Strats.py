@@ -6,16 +6,16 @@ class ChooseStrategy:
     def __init__(self):
         self.__current_strategy = None
 
-    def get_strategy(self, header: str, mconnection_obj, nickname_yours: str) -> Strategy:
+    def get_strategy(self, header: str, service_conn_obj, nickname_yours: str) -> Strategy:
         if self.__current_strategy is not None:
-            if self.__current_strategy.command_name == header:
+            if self.__current_strategy.header_name == header:
                 return self.__current_strategy
 
         if header not in ClientsStrategies.headers.keys():
             return None
 
         self.__current_strategy = ClientsStrategies.headers[header]()
-        self.__current_strategy.set_data(message_connection=mconnection_obj, nick=nickname_yours)
+        self.__current_strategy.set_data(service_connection=service_conn_obj, nick=nickname_yours)
         return self.__current_strategy
 
 class ClientsStrategies(Strategy):
@@ -27,11 +27,11 @@ class ClientsStrategies(Strategy):
             cls.headers[cls.header_name] = cls
 
     def __init__(self):
-        self._message_connection_point = None
+        self.service_connection_pointer = None
         self._nickname_yours: str = None
 
     def set_data(self, **kwargs):
-        self._message_connection_point = kwargs.get("message_connection")
+        self.service_connection_pointer = kwargs.get("service_connection")
         self._nickname_yours = kwargs.get("nick")
 
     @abstractmethod
@@ -48,7 +48,7 @@ class UserStatusRecieve(ClientsStrategies):
     def execute(self,  msg: dict) -> None:
         sender_status = msg["user-status"]
         sender_nickname = msg["nickname"]
-        reciever_nickname = self._message_connection_point.user.getNickName()
+        reciever_nickname = self.service_connection_pointer.user.getNickName()
 
         STATUS_COLORS = {
             "__USER-ONLINE__": "#008000",
@@ -60,7 +60,7 @@ class UserStatusRecieve(ClientsStrategies):
         color = STATUS_COLORS.get(sender_status)
         target = "self" if sender_nickname == reciever_nickname else "friend"
         args = ([target, color] + ([sender_nickname] if target == "friend" else []))
-        self._message_connection_point.reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (args))
+        self.service_connection_pointer.reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (args))
 
 
 class SendChatsData(ClientsStrategies):
@@ -70,7 +70,7 @@ class SendChatsData(ClientsStrategies):
         super(SendChatsData, self).__init__()
 
     def execute(self,  msg: dict) -> None:
-        self._message_connection_point.send_service_message(self._message_connection_point.serialize(self._message_connection_point.cache_chat).decode('utf-8'))
+        self.service_connection_pointer.send_message(self.service_connection_pointer.serialize(self.service_connection_pointer._cache_chat).decode('utf-8'))
 
 
 class SendFirstInfo(ClientsStrategies):
@@ -81,12 +81,12 @@ class SendFirstInfo(ClientsStrategies):
 
     def execute(self,  msg: dict) -> None:
         dictToSend = {
-            "friends":  self._message_connection_point.user.getFriends(),
-            "status": [self._message_connection_point.user.status.name,  self._message_connection_point.user.status.color],
-            "id": self._message_connection_point.user.id
+            "friends":  self.service_connection_pointer.user.getFriends(),
+            "status": [self.service_connection_pointer.user.status.name, self.service_connection_pointer.user.status.color],
+            "id": self.service_connection_pointer.user.id
         }
         print(dictToSend)
-        self._message_connection_point.send_service_message( self._message_connection_point.serialize(dictToSend).decode('utf-8'))
+        self.service_connection_pointer.send_message(self.service_connection_pointer.serialize(dictToSend).decode('utf-8'))
 
 class ConnectToMessageServer(ClientsStrategies):
     header_name = "__CONNECT__"
@@ -94,4 +94,4 @@ class ConnectToMessageServer(ClientsStrategies):
         super(ConnectToMessageServer, self).__init__()
 
     def execute(self,  msg: dict) -> None:
-        self._message_connection_point.client_tcp.connect((self._message_connection_point.MS_IP,  self._message_connection_point.MS_PORT))
+        self.service_connection_pointer.connect_to_msg_server()

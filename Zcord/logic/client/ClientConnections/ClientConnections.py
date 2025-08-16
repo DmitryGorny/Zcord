@@ -6,6 +6,7 @@ import queue
 from logic.client.Chat.ClientChat import ChatInterface
 from logic.client.message_client import MessageConnection
 from logic.client.service_client import ServiceConnection
+from logic.client.voice_client import VoiceConnection
 
 
 class ClientConnections:
@@ -27,6 +28,9 @@ class ClientConnections:
     def start_client(user, chats: queue.Queue):
         sockets = ClientConnections._create_sockets()
         ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
+        # TODO: преобразовать правильно
+        ClientConnections._service_connection = ClientConnections._init_voice_connection(user)
+
         ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"], sockets["message_tcp"])
         ClientConnections._init_chats(chats)
         ClientConnections._create_threads()
@@ -76,6 +80,11 @@ class ClientConnections:
                                  msg_socket,
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
                                  user)
+
+    # TODO: преобразовать правильно
+    @staticmethod
+    def _init_voice_connection(user, socket_pointer: socket.socket) -> VoiceConnection:
+        return VoiceConnection(socket_pointer, user)
 
     @staticmethod
     def _init_chats(chats_queue: queue.Queue):

@@ -4,13 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Сделал переподключение, а также сообщения keep_alive (но пока не готовы до конца)">
       <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_16_03__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_16_03__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_21_39__Changes_.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_21_39__Changes_.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/voice_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/voice_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/voice_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -208,7 +207,8 @@
       <workItem from="1729970824543" duration="58000" />
       <workItem from="1729971049684" duration="13258000" />
       <workItem from="1737818850690" duration="5421000" />
-      <workItem from="1755342846976" duration="15848000" />
+      <workItem from="1755342846976" duration="16676000" />
+      <workItem from="1755606829716" duration="6242000" />
     </task>
     <task id="LOCAL-00001" summary="Zcord терпит изменения">
       <option name="closed" value="true" />
@@ -284,7 +284,15 @@
       <option name="project" value="LOCAL" />
       <updated>1730303250977</updated>
     </task>
-    <option name="localTasksCounter" value="11" />
+    <task id="LOCAL-00011" summary="Сделал переподключение, а также сообщения keep_alive (но пока не готовы до конца)">
+      <option name="closed" value="true" />
+      <created>1755359851660</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1755359851660</updated>
+    </task>
+    <option name="localTasksCounter" value="12" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -321,7 +329,8 @@
     <MESSAGE value="Попытка запустить чат" />
     <MESSAGE value="Первая рабочая версия чата" />
     <MESSAGE value="Работающий ЛС" />
-    <option name="LAST_COMMIT_MESSAGE" value="Работающий ЛС" />
+    <MESSAGE value="Сделал переподключение, а также сообщения keep_alive (но пока не готовы до конца)" />
+    <option name="LAST_COMMIT_MESSAGE" value="Сделал переподключение, а также сообщения keep_alive (но пока не готовы до конца)" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
@@ -339,11 +348,11 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Zcord$message_client.coverage" NAME="message_client Coverage Results" MODIFIED="1729973828182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
     <SUITE FILE_PATH="coverage/Zcord$audio_server.coverage" NAME="audio_server Coverage Results" MODIFIED="1729971140087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
-    <SUITE FILE_PATH="coverage/zcord_py$voice_client.coverage" NAME="voice_client Coverage Results" MODIFIED="1755359524245" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/client" />
+    <SUITE FILE_PATH="coverage/zcord_py$voice_client.coverage" NAME="voice_client Coverage Results" MODIFIED="1755613607478" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/client" />
     <SUITE FILE_PATH="coverage/zcord_py$Server.coverage" NAME="Server Coverage Results" MODIFIED="1755090868777" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server" />
     <SUITE FILE_PATH="coverage/Zcord$UserAuthorization.coverage" NAME="UserAuthorization Coverage Results" MODIFIED="1729971150493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Authorization" />
     <SUITE FILE_PATH="coverage/Zcord$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1729984270097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
-    <SUITE FILE_PATH="coverage/zcord_py$VoiceServer.coverage" NAME="VoiceServer Coverage Results" MODIFIED="1755359522444" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server/VoiceServer" />
+    <SUITE FILE_PATH="coverage/zcord_py$VoiceServer.coverage" NAME="VoiceServer Coverage Results" MODIFIED="1755613042638" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server/VoiceServer" />
     <SUITE FILE_PATH="coverage/zcord_py$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1737824200103" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/zcord_py$voice_server.coverage" NAME="voice_server Coverage Results" MODIFIED="1755285906357" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
     <SUITE FILE_PATH="coverage/Zcord$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1729984269127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />

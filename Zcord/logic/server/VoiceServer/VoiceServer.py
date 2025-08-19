@@ -14,7 +14,7 @@ class UdpSignalServer(asyncio.DatagramProtocol):
     def __init__(self):
         self.transport = None
         self.rooms = {}  # {room_id: {addr: (ip, port), ...}}
-        self.last_seen = {}  # [addr, timestamp, room_id]
+        self.last_seen = {}
 
         asyncio.create_task(self.cleanup_task())
 
@@ -45,16 +45,15 @@ class UdpSignalServer(asyncio.DatagramProtocol):
                 lst[addr] = token
                 print(f"[VoiceServer] {addr} присоединился к комнате {room}, всего участников в комнате={len(lst)}"
                       f" dt={datetime.datetime.now()}")
-                print(lst)
 
             # как только стало двое — рассылаем адреса друг друга
             if len(lst) >= 2:
-                # 1) новому клиенту отправляем список всех существующих пиров
+                # 1) новому клиенту отправляем список всех существующих пиров TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
                 for peer in lst:
                     if peer != addr:
                         self.send_json(addr, {"t": "peer", "addr": peer})
 
-                # 2) всем остальным сообщаем про нового
+                # 2) всем остальным сообщаем про нового # TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
                 for peer in lst:
                     if peer != addr:
                         self.send_json(peer, {"t": "peer", "addr": addr})
@@ -73,7 +72,7 @@ class UdpSignalServer(asyncio.DatagramProtocol):
 
                 print(f"[VoiceServer] {addr} вышел из комнаты {room}, всего участников в комнате={len(lst)}")
                 for peer in lst:
-                    self.send_json(peer, {"t": "peer_left", "addr": addr})
+                    self.send_json(peer, {"t": "peer_left", "addr": addr}) # TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
 
         elif typ == "keep_alive":
             room = msg.get("room", "default_room")
@@ -85,6 +84,8 @@ class UdpSignalServer(asyncio.DatagramProtocol):
 
             print(f"Пришел пакет keep_alive от {addr}")
 
+        self.send_json(addr, {"t": "keep_alive", "addr": addr})  # не уверен что addr может пригодиться здесь
+
     def send_json(self, addr, obj):
         try:
             self.transport.sendto(json.dumps(obj).encode("utf-8"), addr)
@@ -93,11 +94,30 @@ class UdpSignalServer(asyncio.DatagramProtocol):
 
     async def cleanup_task(self):
         """Периодическая очистка неактивных клиентов"""
+        #  Подумать, нахождение клиента таким образом может быть очень долгим
         while True:
             now = time.time()
-            for addr, ts in list(self.last_seen.items()):
+            to_remove = []
+
+            # Собираем всех клиентов, кто отвалился
+            for timeout_addr, ts in list(self.last_seen.items()):
                 if now - ts > 20:
-                    print(f"[VoiceServer] timeout for {addr}")
+                    to_remove.append(timeout_addr)
+
+            for client_addr in to_remove:
+                # Удаляем из комнат
+                for room, members in list(self.rooms.items()):
+                    if client_addr in members:
+                        print(f"[VoiceServer] timeout for {client_addr}")
+                        members.pop(client_addr, None)
+
+                        lst = self.rooms[room]
+                        print(f"[VoiceServer] {client_addr} вышел из комнаты {room}, всего участников в комнате={len(lst)}")
+                        for peer in lst:
+                            self.send_json(peer, {"t": "peer_left", "addr": client_addr}) # TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
+
+                # Удаляем из last_seen
+                self.last_seen.pop(client_addr, None)
 
             await asyncio.sleep(5)
 

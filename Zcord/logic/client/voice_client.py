@@ -3,6 +3,7 @@ import json
 import socket
 import struct
 import threading
+import time
 import uuid
 from IConnection.IConnection import IConnection, BaseConnection
 import pyaudio
@@ -39,12 +40,27 @@ class VoiceConnection(IConnection, BaseConnection):
         self._punch_task = None
         self._keep_alive_task = None
 
+        self.server_timeout = None
+
         self.pa = pyaudio.PyAudio()
         self.in_stream = None
         self.out_stream = None
 
         # очень маленький «джиттер-буфер» по последовательности (опционально)
         self.play_queue = asyncio.Queue(maxsize=5)
+
+        self.cleanup = None
+
+    async def cleanup_task(self):
+        """Периодическая проверка таймаута сервера"""
+        while True:
+            if self.server_timeout:
+                now = time.time()
+                if now - self.server_timeout > 20:
+                    print(f"[VoiceClient] Таймаут сервера")
+                    await self.close()
+
+            await asyncio.sleep(5)
 
     async def register(self):
         msg = json.dumps({"t": "register", "room": self.room, "token": self.token}).encode("utf-8")
@@ -55,6 +71,8 @@ class VoiceConnection(IConnection, BaseConnection):
 
     async def recv_server(self):
         loop = asyncio.get_running_loop()
+        self.cleanup = asyncio.create_task(self.cleanup_task())
+
         while self._flg:
             try:
                 data, addr = await loop.run_in_executor(None, self.udp.recvfrom, 65536)
@@ -66,19 +84,24 @@ class VoiceConnection(IConnection, BaseConnection):
 
             # сообщения сигналинга (JSON)
             if data[:1] in (b"{", b"["):
+                self.update_server_timeout()
                 try:
                     j = json.loads(data.decode("utf-8"))
                     msg_type = j.get("t")
                     if msg_type == "peer":
                         ip, port = j["addr"][0], int(j["addr"][1])
                         self.peer = (ip, port)
-                        print(f"PEER: {self.peer}")
+                        print(f"Собеседник: {self.peer}")
                         # начнём «панчить» адрес напарника
                         if not self._punch_task or self._punch_task.done():
                             self._punch_task = asyncio.create_task(self.punch_loop())
                     elif msg_type == "peer_left":
                         print(f"Собеседник {j.get('addr')} вышел из комнаты")
                         self.peer = None
+                    elif msg_type == "keep_alive":
+                        #  Может быть реализация какой-то логики, но по факту пока не нужно потому что при каждом
+                        #  получении вызывается self.update_server_timeout()
+                        print("Пришел KP от сервера")
 
                 except Exception:
                     pass
@@ -93,6 +116,9 @@ class VoiceConnection(IConnection, BaseConnection):
                     payload = data[HDR_STRUCT.size:]
                     # чуть-чуть упорядочим (без жёсткого ожидания)
                     await self._play_enqueue(seq, payload)
+
+    def update_server_timeout(self):
+        self.server_timeout = time.time()
 
     async def keep_alive(self):
         # TODO: Надо как-то сделать так чтобы если keep alive сдох, то мы выходим или сигнализируем об этом
@@ -184,8 +210,9 @@ class VoiceConnection(IConnection, BaseConnection):
         except Exception as e:
             print(f"[VoiceConnection] Ошибка при disconnect: {e}")
         finally:
-            self.udp.close()
-            print("[VoiceConnection] Соединение закрыто")
+            if self.cleanup:
+                self.cleanup.cancel()
+            self.cleanup = None
 
         try:
             self.in_stream.stop_stream()
@@ -200,6 +227,7 @@ class VoiceConnection(IConnection, BaseConnection):
             pass
         self.pa.terminate()
         self.udp.close()
+        print("[VoiceConnection] Соединение закрыто")
 
     def send_message(self, payload: bytes, msg_type: str = "audio") -> None:
         """

@@ -15,6 +15,7 @@ class ClientConnections:
     # Объекты классов подключений
     _service_connection: ServiceConnection = None
     _message_connection: MessageConnection = None
+    _voice_connection: VoiceConnection = None
 
     # Объект ChatInterface
     _chat_interface: ChatInterface = ChatInterface()
@@ -23,14 +24,12 @@ class ClientConnections:
     _SERVER_IP = "26.36.207.48"  # IP
     _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
+    _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса
 
     @staticmethod
     def start_client(user, chats: queue.Queue):
         sockets = ClientConnections._create_sockets()
         ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
-        # TODO: преобразовать правильно
-        #ClientConnections._service_connection = ClientConnections._init_voice_connection(user)
-
         ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"], sockets["message_tcp"])
         ClientConnections._init_chats(chats)
         ClientConnections._create_threads()

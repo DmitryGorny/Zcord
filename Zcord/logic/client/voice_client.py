@@ -19,7 +19,6 @@ FRAME_BYTES = SAMPLES_PER_FRAME * BYTES_PER_SAMPLE  # 1920 bytes
 # Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | payload...
 PKT_HDR = b"V1"
 PKT_AUDIO = b"A"
-PKT_PUNCH = b"P"
 HDR_STRUCT = struct.Struct("!2s1sI")  # magic, type, seq
 
 
@@ -67,10 +66,11 @@ class VoiceConnection(IConnection, BaseConnection):
                 if not line:
                     print("[Client] TCP соединение потеряно (EOF)")
                     print("Сейчас клиент не сможет увидеть все сервисные сообщения (например мута)")
+                    await CallManager().stop_call()  # TODO Наверное временная мера
                     break
                 msg = json.loads(line.decode("utf-8"))
                 t = msg.get("t")
-                print(msg)
+
                 if t == "peer":
                     # сервер может прислать список пиров
                     peers = msg.get("peers", [])
@@ -261,9 +261,18 @@ class VoiceConnection(IConnection, BaseConnection):
 
 
 class CallManager:
+    _instance = None
+
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super(CallManager, cls).__new__(cls)
+        return cls._instance
+
     def __init__(self):
-        self.client = None
-        self._task = None
+        if not hasattr(self, "_initialized"):
+            self.client = None
+            self._task = None
+            self._initialized = True
 
     async def start_call(self, user, host="127.0.0.1", port=55559, room="room1"):
         if self.client is not None:

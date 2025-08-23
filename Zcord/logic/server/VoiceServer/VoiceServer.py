@@ -76,8 +76,6 @@ class TcpSignalServer:
         except Exception as e:
             print(f"[TCP] ошибка {client.addr_str()}: {e}")
         finally:  # Управление переходит сюда при любом отключении клиента (грязный/чистый)
-            print("Сработал finally")
-
             await self._leave_room(client)
             try:
                 writer.close()
@@ -85,7 +83,6 @@ class TcpSignalServer:
             except Exception:
                 pass
             self.client_by_writer.pop(writer, None)
-            print(f"[TCP] отключился {client.addr_str()}")
 
     async def handle_message(self, client: ClientInfo, msg: dict):
         typ = msg.get("t")

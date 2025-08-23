@@ -78,6 +78,7 @@ class VoiceConnection(IConnection, BaseConnection):
                         # для простоты — берём первого (или последовательно всех)
                         p = peers[0]
                         self.peer = (p["ip"], int(p["udp_port"]))
+                        self.last_seq = None
                         print(f"[Client] peer: {self.peer}")
 
                 elif t == "peer_left":
@@ -133,36 +134,35 @@ class VoiceConnection(IConnection, BaseConnection):
     def _audio_input_thread(self):
         # читаем микрофон и шлём UDP
         while self._flg:
-            if self.peer:
-                try:
-                    data = self.in_stream.read(SAMPLES_PER_FRAME, exception_on_overflow=False)
-                except Exception:
-                    data = b"\x00" * FRAME_BYTES
-                pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, self.seq) + data
-                self.seq = (self.seq + 1) & 0xFFFFFFFF
-                try:
-                    self._udp_send(pkt, msg_type="audio")
-                except Exception:
-                    pass
+            try:
+                data = self.in_stream.read(SAMPLES_PER_FRAME, exception_on_overflow=False)
+            except Exception:
+                data = b"\x00" * FRAME_BYTES
+            pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, self.seq) + data
+            self.seq = (self.seq + 1) & 0xFFFFFFFF
+            try:
+                self._udp_send(pkt, msg_type="audio")
+            except Exception:
+                pass
 
     async def _audio_output_loop(self):
         # минимальная «сортировка» по seq: берём всегда самое свежее, старьё выбрасываем
-        last_seq = None
+        self.last_seq = None
         while self._flg:
             try:
                 seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
             except asyncio.TimeoutError:
                 continue
             # если пришёл «старый» — пропускаем
-            if last_seq is not None:
+            if self.last_seq is not None:
                 # учтём переполнение uint32
-                diff = (seq - last_seq) & 0xFFFFFFFF
+                diff = (seq - self.last_seq) & 0xFFFFFFFF
                 if diff > 0x80000000:
                     # это «очень старый» пакет — дроп
                     continue
                 if diff == 0:
                     continue
-            last_seq = seq
+            self.last_seq = seq
             try:
                 self.out_stream.write(payload)
             except Exception:
@@ -274,7 +274,7 @@ class CallManager:
             self._task = None
             self._initialized = True
 
-    async def start_call(self, user, host="127.0.0.1", port=55559, room="room1"):
+    async def start_call(self, user, host="26.36.207.48", port=55559, room="room1"):
         if self.client is not None:
             print("Клиент уже запущен")
             return

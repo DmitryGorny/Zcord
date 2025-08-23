@@ -2,137 +2,175 @@ import asyncio
 import json
 import datetime
 import time
+from dataclasses import dataclass, field
+from typing import Dict, List, Optional
+
+# Протокол сообщений по TCP (NDJSON: JSON + "\n"):
+# 1) Регистрация/вход в комнату:
+#    {"t":"join_room","room":"room1","token":"<uuid>","user":"user1","udp_port":54321}
+#
+# 2) Сервер сообщает о найденном пиро(ах):
+#    {"t":"peer","peers":[{"ip":"1.2.3.4","udp_port":55555},{"ip":"5.6.7.8","udp_port":55556}]}
+#
+# 3) Клиент уходит:
+#    {"t":"leave","room":"room1","token":"<uuid>"}
+#
+# 4) Сервисные команды (ретранслируются на пиров комнаты, кроме отправителя):
+#    {"t":"svc","room":"room1","cmd":"mute","target":"mic","value":true}
+#    {"t":"svc","room":"room1","cmd":"mute","target":"spk","value":true}
+#
+# 5) Уведомления сервера:
+#    {"t":"peer_left","addr":"ip:port"}     # когда кто-то ушёл
+#    {"t":"peer_joined","count":2}          # стало участников в комнате
+#
+# Примечание: TCP-соединение само по себе является keep-alive'ом, отдельные UDP keep-alive не нужны.
 
 
-# Простейший UDP-сервер сигнализации и обмена peer-адресами.
-# Протокол сообщений (JSON, в каждом datagram):
-#  - {"t":"register","room":"<room_id>","token":"<client_token>"}
-#  - {"t":"peer","addr":["ip",port]} — ответ с адресом напарника
+@dataclass
+class ClientInfo:
+    reader: asyncio.StreamReader
+    writer: asyncio.StreamWriter
+    ip: str
+    tcp_port: int
+    user: Optional[str] = None
+    token: Optional[str] = None
+    room: Optional[str] = None
+    udp_port: Optional[int] = None
+    last_seen: float = field(default_factory=time.time)
+
+    def addr_str(self) -> str:
+        return f"{self.ip}:{self.tcp_port}"
 
 
-class UdpSignalServer(asyncio.DatagramProtocol):
+class TcpSignalServer:
     def __init__(self):
-        self.transport = None
-        self.rooms = {}  # {room_id: {addr: (ip, port), ...}}
-        self.last_seen = {}
+        # комнаты: room -> список клиентов
+        self.rooms: Dict[str, List[ClientInfo]] = {}
+        # быстрый поиск по writer
+        self.client_by_writer: Dict[asyncio.StreamWriter, ClientInfo] = {}
 
-        asyncio.create_task(self.cleanup_task())
+    async def serve(self, host="0.0.0.0", port=55559):
+        server = await asyncio.start_server(self.handle_client, host, port)
+        addr = ", ".join(str(sock.getsockname()) for sock in server.sockets or [])
+        print(f"[TCP] сервер запущен на {addr}")
+        async with server:
+            await server.serve_forever()
 
-    def connection_made(self, transport):
-        self.transport = transport
-        print("Старт UDP сигнального сервера")
+    async def handle_client(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        peername = writer.get_extra_info("peername")
+        ip, tcp_port = peername[0], int(peername[1])
+        client = ClientInfo(reader=reader, writer=writer, ip=ip, tcp_port=tcp_port)
+        self.client_by_writer[writer] = client
+        print(f"[TCP] подключился {client.addr_str()}")
 
-    def datagram_received(self, data, addr):
         try:
-            msg = json.loads(data.decode("utf-8"))
-        except Exception:
-            return
-        typ = msg.get("t")
-
-        self.last_seen[addr] = time.time()
-        if typ == "register":
-            room = msg.get("room", "default_room")
-            token = msg.get("token")
-            if not token:
-                return
-
-            if room not in self.rooms:
-                self.rooms[room] = {}
-            lst = self.rooms[room]
-
-            # добавим
-            if addr not in lst:
-                lst[addr] = token
-                print(f"[VoiceServer] {addr} присоединился к комнате {room}, всего участников в комнате={len(lst)}"
-                      f" dt={datetime.datetime.now()}")
-
-            # как только стало двое — рассылаем адреса друг друга
-            if len(lst) >= 2:
-                # 1) новому клиенту отправляем список всех существующих пиров TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
-                for peer in lst:
-                    if peer != addr:
-                        self.send_json(addr, {"t": "peer", "addr": peer})
-
-                # 2) всем остальным сообщаем про нового # TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
-                for peer in lst:
-                    if peer != addr:
-                        self.send_json(peer, {"t": "peer", "addr": addr})
-
-        elif typ == "disconnect":
-            room = msg.get("room", "default_room")
-            token = msg.get("token")
-
-            lst = self.rooms[room]
-
-            if not token:
-                return
-            if addr in lst and token == lst[addr]:
-                del lst[addr]
-                del self.last_seen[addr]
-
-                print(f"[VoiceServer] {addr} вышел из комнаты {room}, всего участников в комнате={len(lst)}")
-                for peer in lst:
-                    self.send_json(peer, {"t": "peer_left", "addr": addr}) # TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
-
-        elif typ == "keep_alive":
-            room = msg.get("room", "default_room")
-            token = msg.get("token")
-
-            lst = self.rooms[room]
-            if addr in lst and token == lst[addr]:
-                self.last_seen[addr] = time.time()
-
-            print(f"Пришел пакет keep_alive от {addr}")
-
-        self.send_json(addr, {"t": "keep_alive", "addr": addr})  # не уверен что addr может пригодиться здесь
-
-    def send_json(self, addr, obj):
-        try:
-            self.transport.sendto(json.dumps(obj).encode("utf-8"), addr)
+            while True:
+                line = await reader.readline()
+                if not line:
+                    break
+                client.last_seen = time.time()
+                msg = json.loads(line.decode("utf-8"))
+                await self.handle_message(client, msg)
+        except asyncio.CancelledError:
+            pass
         except Exception as e:
-            print(f"[VoiceServer] send error: {e}")
+            print(f"[TCP] ошибка {client.addr_str()}: {e}")
+        finally:  # Управление переходит сюда при любом отключении клиента (грязный/чистый)
+            print("Сработал finally")
 
-    async def cleanup_task(self):
-        """Периодическая очистка неактивных клиентов"""
-        #  Подумать, нахождение клиента таким образом может быть очень долгим
-        while True:
-            now = time.time()
-            to_remove = []
+            await self._leave_room(client)
+            try:
+                writer.close()
+                await writer.wait_closed()
+            except Exception:
+                pass
+            self.client_by_writer.pop(writer, None)
+            print(f"[TCP] отключился {client.addr_str()}")
 
-            # Собираем всех клиентов, кто отвалился
-            for timeout_addr, ts in list(self.last_seen.items()):
-                if now - ts > 20:
-                    to_remove.append(timeout_addr)
+    async def handle_message(self, client: ClientInfo, msg: dict):
+        typ = msg.get("t")
+        if typ == "join_room":
+            await self._join_room(client, msg)
+        elif typ == "leave":  # btw информационное сообщение, что с ним делать не ебу, управление всё равно отдаётся finally
+            print("Клиент сообщил о выходе с сервера")
+        else:
+            print(f"Неизвестный тип сообщения: {typ}")
 
-            for client_addr in to_remove:
-                # Удаляем из комнат
-                for room, members in list(self.rooms.items()):
-                    if client_addr in members:
-                        print(f"[VoiceServer] timeout for {client_addr}")
-                        members.pop(client_addr, None)
+    async def _join_room(self, client: ClientInfo, msg: dict):
+        room = msg.get("room") or "default_room"
+        token = msg.get("token")
+        user = msg.get("user")
+        udp_port = msg.get("udp_port")
 
-                        lst = self.rooms[room]
-                        print(f"[VoiceServer] {client_addr} вышел из комнаты {room}, всего участников в комнате={len(lst)}")
-                        for peer in lst:
-                            self.send_json(peer, {"t": "peer_left", "addr": client_addr}) # TODO ВОЗМОЖНО ТРЕБУЕТСЯ СДЕЛАТЬ ДОЛБЕЖКУ НЕСКОЛЬКИХ КАДРОВ
+        client.room = room
+        client.token = token
+        client.user = user
+        client.udp_port = udp_port
 
-                # Удаляем из last_seen
-                self.last_seen.pop(client_addr, None)
+        lst = self.rooms.setdefault(room, [])
 
-            await asyncio.sleep(5)
+        if client not in lst:
+            lst.append(client)
+
+        print(f"[TCP] {client.addr_str()} присоединился к комнате '{room}', участников={len(lst)}")
+
+        # Сообщаем остальным, что кто-то присоединился к комнате
+        await self._broadcast_room(room, {"t": "peer_joined", "count": len(lst)}, skip=client)
+
+        # Новому клиенту отправляем список уже присутствующих пиров
+        peers = [
+            {"ip": c.ip, "udp_port": c.udp_port}
+            for c in lst if c is not client and c.udp_port
+        ]
+        if peers:
+            await self._send(client, {"t": "peer", "peers": peers})
+
+        # И существующим участникам разошлём адрес нового
+        newcomer = {"ip": client.ip, "udp_port": client.udp_port}
+        await self._broadcast_room(room, {"t": "peer", "peers": [newcomer]}, skip=client)
+
+    async def _leave_room(self, client: ClientInfo):
+        if not client.room:
+            print("Клиент уже вышел")
+            return
+        room = client.room
+        lst = self.rooms.get(room, [])
+        if client in lst:
+            lst.remove(client)
+            print(f"[TCP] {client.addr_str()} вышел из комнаты '{room}', участников={len(lst)}")
+
+            await self._broadcast_room(room, {"t": "peer_left", "addr": client.addr_str()}, skip=client)
+
+        # чистка комнаты если пустая TODO: Не знаю нужно ли??
+        if not lst:
+            self.rooms.pop(room, None)
+        client.room = None
+
+    async def _broadcast_room(self, room: str, obj: dict, skip: Optional[ClientInfo] = None):
+        lst = self.rooms.get(room, [])
+        data = (json.dumps(obj) + "\n").encode("utf-8")
+
+        #  Отправляем всем кроме типа который = skip
+        for c in list(lst):
+            if skip and c is skip:
+                continue
+            try:
+                c.writer.write(data)
+                await c.writer.drain()
+            except Exception as e:
+                print(f"[TCP] ошибка отправки {c.addr_str()}: {e}")
+
+    async def _send(self, client: ClientInfo, obj: dict):
+        try:
+            client.writer.write((json.dumps(obj) + "\n").encode("utf-8"))
+            await client.writer.drain()
+        except Exception as e:
+            print(f"[TCP] ошибка send {client.addr_str()}: {e}")
 
 
 async def main():
-    loop = asyncio.get_running_loop()
-    # слушаем на 0.0.0.0:55559/UDP
-    transport, protocol = await loop.create_datagram_endpoint(
-        lambda: UdpSignalServer(),
-        local_addr=("0.0.0.0", 55559)
-    )
-    try:
-        await asyncio.Future()
-    finally:
-        transport.close()
+    srv = TcpSignalServer()
+    await srv.serve("0.0.0.0", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

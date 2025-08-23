@@ -20,7 +20,7 @@ class ClientConnections:
     _chat_interface: ChatInterface = ChatInterface()
 
     # Данные сервеа
-    _SERVER_IP = "26.181.96.20"  # IP
+    _SERVER_IP = "26.36.207.48"  # IP
     _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
 
@@ -29,7 +29,7 @@ class ClientConnections:
         sockets = ClientConnections._create_sockets()
         ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
         # TODO: преобразовать правильно
-        ClientConnections._service_connection = ClientConnections._init_voice_connection(user)
+        #ClientConnections._service_connection = ClientConnections._init_voice_connection(user)
 
         ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"], sockets["message_tcp"])
         ClientConnections._init_chats(chats)

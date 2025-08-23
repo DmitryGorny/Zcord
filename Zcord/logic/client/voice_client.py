@@ -28,20 +28,23 @@ class VoiceConnection(IConnection, BaseConnection):
         self.server = (server_host, server_port)
         self.room = room
         self.token = uuid.uuid4().hex
+        self._user = user
+        self._flg = True
 
+        # TCP
+        self.reader: asyncio.StreamReader | None = None
+        self.writer: asyncio.StreamWriter | None = None
+        self._tcp_task: asyncio.Task | None = None
+
+        # UDP
         self.udp = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
         self.udp.bind(("0.0.0.0", 0))
         self.udp.setblocking(False)
-
+        self.local_udp_port = self.udp.getsockname()[1]
         self.peer = None  # (ip, port) после сигналинга
         self.seq = 0
-        self._user = user
-        self._flg = True
-        self._punch_task = None
-        self._keep_alive_task = None
 
-        self.server_timeout = None
-
+        # Аудио
         self.pa = pyaudio.PyAudio()
         self.in_stream = None
         self.out_stream = None
@@ -49,29 +52,55 @@ class VoiceConnection(IConnection, BaseConnection):
         # очень маленький «джиттер-буфер» по последовательности (опционально)
         self.play_queue = asyncio.Queue(maxsize=5)
 
-        self.cleanup = None
-
-    async def cleanup_task(self):
-        """Периодическая проверка таймаута сервера"""
-        while True:
-            if self.server_timeout:
-                now = time.time()
-                if now - self.server_timeout > 20:
-                    print(f"[VoiceClient] Таймаут сервера")
-                    await self.close()
-
-            await asyncio.sleep(5)
-
     async def register(self):
-        msg = json.dumps({"t": "register", "room": self.room, "token": self.token}).encode("utf-8")
-        # отправляем периодически, пока не придёт ответ peer
-        for _ in range(50):
-            self.send_message(msg, msg_type="server")
-            await asyncio.sleep(0.2)
+        msg = {"t": "join_room", "room": self.room, "token": self.token, "user": self.user,
+               "udp_port": self.local_udp_port}
+        print("Отправлено сообщение о входе на сервер")
+        await self.send_message(msg, current_chat_id=0)
 
     async def recv_server(self):
+        """Читает уведомления сервера: peers, сервисные команды и т.п."""
+        assert self.reader is not None
+        try:
+            while self._flg:
+                line = await self.reader.readline()
+                if not line:
+                    print("[Client] TCP соединение потеряно (EOF)")
+                    print("Сейчас клиент не сможет увидеть все сервисные сообщения (например мута)")
+                    break
+                msg = json.loads(line.decode("utf-8"))
+                t = msg.get("t")
+                print(msg)
+                if t == "peer":
+                    # сервер может прислать список пиров
+                    peers = msg.get("peers", [])
+                    if peers:
+                        # для простоты — берём первого (или последовательно всех)
+                        p = peers[0]
+                        self.peer = (p["ip"], int(p["udp_port"]))
+                        print(f"[Client] peer: {self.peer}")
+
+                elif t == "peer_left":
+                    print(f"[Client] peer_left: {msg.get('addr')}")
+                    self.peer = None
+
+                elif t == "peer_joined":
+                    # просто информационное событие
+                    pass
+
+                elif t == "svc":  # Реализация мутов
+                    # сервисная команда от другого клиента
+                    pass
+                else:
+                    # прочие сообщения сервера
+                    print(f"Неизвестное сообщение с сервера: {t}")
+        except asyncio.CancelledError:
+            pass
+        except Exception as e:
+            print(f"[Client] TCP loop error: {e}")
+
+    async def recv_udp(self):
         loop = asyncio.get_running_loop()
-        self.cleanup = asyncio.create_task(self.cleanup_task())
 
         while self._flg:
             try:
@@ -82,31 +111,6 @@ class VoiceConnection(IConnection, BaseConnection):
             except Exception:
                 break
 
-            # сообщения сигналинга (JSON)
-            if data[:1] in (b"{", b"["):
-                self.update_server_timeout()
-                try:
-                    j = json.loads(data.decode("utf-8"))
-                    msg_type = j.get("t")
-                    if msg_type == "peer":
-                        ip, port = j["addr"][0], int(j["addr"][1])
-                        self.peer = (ip, port)
-                        print(f"Собеседник: {self.peer}")
-                        # начнём «панчить» адрес напарника
-                        if not self._punch_task or self._punch_task.done():
-                            self._punch_task = asyncio.create_task(self.punch_loop())
-                    elif msg_type == "peer_left":
-                        print(f"Собеседник {j.get('addr')} вышел из комнаты")
-                        self.peer = None
-                    elif msg_type == "keep_alive":
-                        #  Может быть реализация какой-то логики, но по факту пока не нужно потому что при каждом
-                        #  получении вызывается self.update_server_timeout()
-                        print("Пришел KP от сервера")
-
-                except Exception:
-                    pass
-                continue
-
             # аудио-пакеты
             if len(data) >= HDR_STRUCT.size:
                 magic, typ, seq = HDR_STRUCT.unpack_from(data, 0)
@@ -116,34 +120,6 @@ class VoiceConnection(IConnection, BaseConnection):
                     payload = data[HDR_STRUCT.size:]
                     # чуть-чуть упорядочим (без жёсткого ожидания)
                     await self._play_enqueue(seq, payload)
-
-    def update_server_timeout(self):
-        self.server_timeout = time.time()
-
-    async def keep_alive(self):
-        # TODO: Надо как-то сделать так чтобы если keep alive сдох, то мы выходим или сигнализируем об этом
-        while self._flg:
-            msg = json.dumps({"t": "keep_alive", "room": self.room, "token": self.token}).encode("utf-8")
-            self.send_message(msg, msg_type="keep_alive")
-            print("Отсылаю KP")
-            await asyncio.sleep(5)
-
-    async def punch_loop(self):
-        # отправляем "punch" пакеты напарнику и параллельно аудио как только есть поток
-        """
-        UDP hole punching + keep-alive.
-        1) первые 1.5 сек — часто долбим, чтобы пробить NAT
-        2) потом каждые 10 сек отправляем keep-alive
-        """
-        if not self.peer:
-            return
-        for _ in range(15):  # 1.5 сек
-            pkt = HDR_STRUCT.pack(PKT_HDR, PKT_PUNCH, self.seq)
-            self.send_message(pkt, msg_type="peer")
-            await asyncio.sleep(0.1)
-
-        if not self._keep_alive_task:
-            self._keep_alive_task = asyncio.create_task(self.keep_alive())
 
     async def _play_enqueue(self, seq, payload):
         # если очередь забита — не ждём (минимальная задержка важнее)
@@ -156,8 +132,8 @@ class VoiceConnection(IConnection, BaseConnection):
 
     def _audio_input_thread(self):
         # читаем микрофон и шлём UDP
-        while True:
-            if self._flg and self.peer:
+        while self._flg:
+            if self.peer:
                 try:
                     data = self.in_stream.read(SAMPLES_PER_FRAME, exception_on_overflow=False)
                 except Exception:
@@ -165,7 +141,7 @@ class VoiceConnection(IConnection, BaseConnection):
                 pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, self.seq) + data
                 self.seq = (self.seq + 1) & 0xFFFFFFFF
                 try:
-                    self.send_message(pkt, msg_type="audio")
+                    self._udp_send(pkt, msg_type="audio")
                 except Exception:
                     pass
 
@@ -203,16 +179,11 @@ class VoiceConnection(IConnection, BaseConnection):
     async def close(self) -> None:
         self._flg = False
         try:
-            msg = json.dumps({"t": "disconnect", "room": self.room, "token": self.token}).encode("utf-8")
-            for _ in range(5):  # несколько раз для надёжности
-                self.send_message(msg, msg_type="server")
-                await asyncio.sleep(0.1)
+            msg = {"t": "leave", "room": self.room, "token": self.token}
+            print("Отправил дисконект")
+            await self.send_message(msg, current_chat_id=0)
         except Exception as e:
             print(f"[VoiceConnection] Ошибка при disconnect: {e}")
-        finally:
-            if self.cleanup:
-                self.cleanup.cancel()
-            self.cleanup = None
 
         try:
             self.in_stream.stop_stream()
@@ -229,20 +200,14 @@ class VoiceConnection(IConnection, BaseConnection):
         self.udp.close()
         print("[VoiceConnection] Соединение закрыто")
 
-    def send_message(self, payload: bytes, msg_type: str = "audio") -> None:
+    def _udp_send(self, payload: bytes, msg_type: str = "audio") -> None:
         """
         Универсальная отправка сообщений по UDP.
         msg_type:
-          - "server" → отправляем на voice_server
-          - "peer"   → отправляем на peer (только если есть)
           - "audio"  → отправляем аудио кадры на peer (только если есть)
         """
         try:
-            if msg_type == "server":
-                self.udp.sendto(payload, self.server)
-            elif msg_type == "keep_alive":
-                self.udp.sendto(payload, self.server)
-            elif msg_type in ("peer", "audio"):
+            if msg_type == "audio":
                 if self.peer:
                     self.udp.sendto(payload, self.peer)
             else:
@@ -250,10 +215,20 @@ class VoiceConnection(IConnection, BaseConnection):
         except Exception as e:
             print(f"[VoiceConnection] ошибка send_message: {e}")
 
+    async def send_message(self, obj: dict, current_chat_id: int):
+        if not self.writer:
+            return
+        data = (json.dumps(obj) + "\n").encode("utf-8")
+        self.writer.write(data)
+        await self.writer.drain()
+
     async def run(self):
-        # читаем ответ сервера и аудио
-        recv_task = asyncio.create_task(self.recv_server())
-        reg_task = asyncio.create_task(self.register())
+        # TCP connect
+        self.reader, self.writer = await asyncio.open_connection(self.server[0], self.server[1])
+
+        self.tcp_recv_task = asyncio.create_task(self.recv_server())
+
+        await self.register()
 
         # создаём аудио потоки
         self.in_stream = self.pa.open(format=FORMAT,
@@ -272,28 +247,54 @@ class VoiceConnection(IConnection, BaseConnection):
             await asyncio.sleep(0.05)
 
         # стартуем прием/воспроизведение
-        out_task = asyncio.create_task(self._audio_output_loop())
+        self.out_task = asyncio.create_task(self._audio_output_loop())
+        self.udp_recv_task = asyncio.create_task(self.recv_udp())
 
         # стартуем поток отправки микрофона
         microphone_thread = threading.Thread(target=self._audio_input_thread, daemon=True)
         microphone_thread.start()
 
         try:
-            await asyncio.gather(recv_task, reg_task, out_task)
+            await asyncio.gather(self.tcp_recv_task, self.udp_recv_task, self.out_task)
         except asyncio.CancelledError:
             pass
-        finally:
-            await self.close()
+
+
+class CallManager:
+    def __init__(self):
+        self.client = None
+        self._task = None
+
+    async def start_call(self, user, host="127.0.0.1", port=55559, room="room1"):
+        if self.client is not None:
+            print("Клиент уже запущен")
+            return
+        self.client = VoiceConnection(user=user, server_host=host, server_port=port, room=room)
+        # запускаем клиент в фоне
+        self._task = asyncio.create_task(self.client.run())
+        print("[CallManager] Звонок запущен")
+        await self._task
+
+    async def stop_call(self):
+        if self.client is None:
+            print("Нет активного звонка")
+            return
+        await self.client.close()
+        if self._task:
+            self._task.cancel()
+            try:
+                await self._task
+            except asyncio.CancelledError:
+                pass
+        self.client = None
+        self._task = None
+        print("[CallManager] Звонок остановлен")
+
+
+async def main():
+    runner = CallManager()
+    await runner.start_call(user=None)
 
 
 if __name__ == "__main__":
-    import argparse
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--server", default="localhost:55559", help="host:port of UDP signal server")
-    parser.add_argument("--room", default="room1")
-    args = parser.parse_args()
-
-    host, port = args.server.split(":")
-    client = VoiceConnection(user=None, server_host=host, server_port=int(port), room=args.room)
-    asyncio.run(client.run())
-
+    asyncio.run(main())

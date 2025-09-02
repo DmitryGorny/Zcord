@@ -1,4 +1,6 @@
 from rest_framework import viewsets, filters
+
+from .Paginations import LimitPagination
 from .models import Users, Friendship, Message, FriendsAdding
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
@@ -41,3 +43,6 @@ class FriendsAddingView(viewsets.ModelViewSet):
 class MessageView(viewsets.ModelViewSet):
     queryset = Message.objects.all()
     serializer_class = MessageSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["chat__id"]
+    pagination_class = LimitPagination

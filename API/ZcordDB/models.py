@@ -6,6 +6,7 @@ class Users(models.Model):
     firstname = models.CharField(max_length=50, null=True, blank=True)
     secondname = models.CharField(max_length=50, null=True, blank=True)
     lastname = models.CharField(max_length=50, null=True, blank=True)
+    last_online = models.DateTimeField(auto_now_add=True, null=True)
     password = models.CharField(max_length=255)
 
     class Meta:
@@ -58,11 +59,10 @@ class Message(models.Model):
         (SEEN, 'SEEN'),
     )
 
-    chat = models.OneToOneField(Friendship, on_delete=models.CASCADE)
+    chat = models.ForeignKey(Friendship, on_delete=models.CASCADE)
     sender = models.ForeignKey(Users, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
     was_seen = models.BooleanField(choices=CHOICES, default=UNSEEN)
 
     class Meta:

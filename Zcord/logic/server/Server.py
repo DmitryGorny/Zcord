@@ -1,6 +1,8 @@
 import asyncio
 import copy
 import json
+from typing import Dict, List
+
 import msgspec
 import re
 from logic.server.Client.Client import Client
@@ -8,14 +10,14 @@ from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy
 
 
 class Server:
-    clients = {}
-    servers = {
-            "message-server": None,
-            "voice-server": None
-            }
+    clients: Dict[str, Client] = {}
+    servers: Dict[str, asyncio.StreamWriter] = {
+        "message-server": None,
+        "voice-server": None
+    }
 
-    nicknames_in_chats = {}
-    cache_chat = {}
+    nicknames_in_chats: Dict[str, List[str]] = {} # TODO: Подумать над необходимостью хранить и работать с этими данными здесь \
+                                                    # а не в MessageServer
 
     def deserialize(self, msg):
         cache = msgspec.json.decode(msg)
@@ -31,11 +33,12 @@ class Server:
 
     def send_decorator(self, server: asyncio.StreamWriter):
         server_obj = server
-        async def send_data_to_server(msg_type, data):
-            message = {
-                "message": data,
+
+        async def send_data_to_server(msg_type, mes_data: Dict[str, str]):
+            message_header = {
                 "type": msg_type
             }
+            message = message_header | mes_data
 
             server_obj.write(json.dumps(message).encode('utf-8'))
             await server_obj.drain()
@@ -50,23 +53,25 @@ class Server:
         return decoded_objects
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        #Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
+        # Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         first_info = await self.settle_first_info(reader, writer)
         await self.get_client_info(reader, writer)
         nickname = first_info[1]
         chats = first_info[0]
         client_obj = Server.clients[nickname]
         Server.copy_nicknames_in_chat(chats)
+
         await client_obj.send_message("__CONNECT__", {
             "connect": 1
         })
-        await self.send_status(nickname)
-        await self.get_friends_statuses(nickname)
-        send_to_message_server = self.send_decorator(Server.servers["message-server"]) #Чтобы не насиловать голову и
-                                                                                          # не обращаться каждый раз к Server.servers
-        client_ip = writer.transport.get_extra_info('socket').getpeername()
-        await send_to_message_server("USER-INFO", f"{nickname}&-&{self.serialize(first_info[0]).decode('utf-8')}&-&{self.serialize({nickname:client_ip[0]}).decode('utf-8')}")
 
+        send_to_message_server = self.send_decorator(Server.servers["message-server"])
+
+        client_ip = writer.transport.get_extra_info('socket').getpeername()
+        await send_to_message_server("USER-INFO", {"nickname": nickname,
+                                                   "serialize_1": self.serialize(first_info[0]).decode('utf-8'),
+                                                   "serialize_2": self.serialize({nickname: client_ip[0]}).decode('utf-8')
+                                                   })
 
         while True:
             buffer = ''
@@ -85,7 +90,7 @@ class Server:
                     strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
                     try:
                         await strategy.execute(msg)
-                    except AttributeError as e: #Пока чисто для отладки, т.к. незнакомых команд быть не может????
+                    except AttributeError as e:  # Пока чисто для отладки, т.к. незнакомых команд быть не может????
                         print(e)
                     continue
 
@@ -93,7 +98,7 @@ class Server:
                 break
 
     async def handle_server(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        writer.write(b'DISCOVER') #Запрос на информацию о сервере
+        writer.write(b'DISCOVER')  # Запрос на информацию о сервере
         while True:
             try:
                 msg = await reader.read(4096)
@@ -124,12 +129,12 @@ class Server:
         msg = json.loads(msg)
         nickname = msg["nickname"]
         msg = json.loads(msg["message"])
-        clientObj = Client(msg["id"], nickname, writer)
+        clientObj = Client(msg["id"], nickname, msg["last_online"], writer)
         clientObj.friends = msg["friends"]
         clientObj.status = msg["status"]
         Server.clients[nickname] = clientObj
 
-    #TODO:Переделать
+    # TODO: Переделать
     async def send_status(self, nickname: str) -> None:
         for friend in Server.clients[nickname].friends.keys():
             if friend not in Server.clients:
@@ -146,7 +151,7 @@ class Server:
         for friend in Server.clients[nickname].friends.keys():
             if friend not in Server.clients:
                 continue
-                
+
             await Server.clients[nickname].send_message('USER-STATUS', {
                 "user-status": "__USER-ONLINE__",
                 "nickname": friend,

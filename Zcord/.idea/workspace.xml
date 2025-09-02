@@ -5,16 +5,37 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
+      <change beforePath="$PROJECT_DIR$/../API/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/.idea/API.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.idea/API.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_16_03_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_16_03__Changes_.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_21_39_[Changes]/shelved.patch" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_15_08_2025_21_39__Changes_.xml" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/Friend.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/Friend.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/fabric.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/fabric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/SERV.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/SERV.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/Strats/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/Strats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/Strats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/message_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/service_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/service_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/Strategies/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Strategies/StratsForServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/db_handler/api_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/db_handler/api_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Client/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Client/Client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -53,34 +74,55 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;FriendAdding&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitriy/Desktop/Zcord/API&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "FriendAdding",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Dmitriy/Desktop/Zcord/API",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server\Client" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server\MessageServer" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\View" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\client\Strats" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI\Helpers" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.zcord">
+  <component name="RunManager" selected="Python.MessageServer (1)">
+    <configuration name="MessageServer (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/MessageServer" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="MessageServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -94,27 +136,6 @@
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
       <option name="SCRIPT_NAME" value="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server\MessageServer\MessageServer.py" />
-      <option name="PARAMETERS" value="" />
-      <option name="SHOW_COMMAND_LINE" value="false" />
-      <option name="EMULATE_TERMINAL" value="false" />
-      <option name="MODULE_MODE" value="false" />
-      <option name="REDIRECT_INPUT" value="false" />
-      <option name="INPUT_FILE" value="" />
-      <method v="2" />
-    </configuration>
-    <configuration name="ServeiceStrats" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
-      <module name="Zcord" />
-      <option name="INTERPRETER_OPTIONS" value="" />
-      <option name="PARENT_ENVS" value="true" />
-      <envs>
-        <env name="PYTHONUNBUFFERED" value="1" />
-      </envs>
-      <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/StrategyForService" />
-      <option name="IS_MODULE_SDK" value="true" />
-      <option name="ADD_CONTENT_ROOTS" value="true" />
-      <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/StrategyForService/ServeiceStrats.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -144,7 +165,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="message_client (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="StratsForServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -152,11 +173,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/client" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/StrategiesForMessageServer" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/client/message_client.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -189,11 +210,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.MessageServer (1)" />
+        <item itemvalue="Python.Server" />
+        <item itemvalue="Python.StratsForServer" />
         <item itemvalue="Python.zcord" />
         <item itemvalue="Python.MessageServer" />
-        <item itemvalue="Python.Server" />
-        <item itemvalue="Python.message_client (1)" />
-        <item itemvalue="Python.ServeiceStrats" />
       </list>
     </recent_temporary>
   </component>

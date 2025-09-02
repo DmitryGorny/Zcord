@@ -5,10 +5,12 @@ import json
 
 from logic.client.Chat.ClientChat import Chat
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
+from logic.client.Strats.MessageStrats import ChooseStrategy
 
 
 class MessageConnection(IConnection, BaseConnection):
     def __init__(self, message_server_tcp: socket.socket, user):
+        self._choose_strategy: ChooseStrategy = ChooseStrategy()
         self._user = user
 
         # Сокет
@@ -18,8 +20,9 @@ class MessageConnection(IConnection, BaseConnection):
 
         self._flg = True
 
-    def send_message(self, message, current_chat_id: int):
+    def send_message(self, message, current_chat_id: int, msg_type: str = "CHAT-MESSAGE") -> None:
         msg = {
+            "type": msg_type,
             "chat_id": current_chat_id,
             "nickname": self._user.getNickName(),
             "message": message}
@@ -43,15 +46,10 @@ class MessageConnection(IConnection, BaseConnection):
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:
                     continue
+
                 for msg in arr:
-                    dt = datetime.strptime(msg["date_now"], "%Y-%m-%d %H:%M:%S")
-                    date_now = dt.strftime("%d.%m.%Y %H:%M")
-
-                    if self._chat is None:
-                        raise ValueError("chat = None, не прошла инициализация")
-
-                    self._chat.socket_controller.recieve_message(str(self._chat.chat_id), msg["nickname"],
-                                                                 msg["message"], date_now, 1, int(msg["was_seen"]))
+                    strategy = self._choose_strategy.get_strategy(msg["type"], self)
+                    strategy.execute(msg)
                 continue
             except os.error as e:
                 if not self._flg:
@@ -62,8 +60,6 @@ class MessageConnection(IConnection, BaseConnection):
                 print("Ошибка, конец соединения")
                 self._message_server_tcp.close()
                 break
-
-
 
     @property
     def user(self):

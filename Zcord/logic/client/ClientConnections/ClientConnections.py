@@ -81,6 +81,7 @@ class ClientConnections:
     def _init_chats(chats_queue: queue.Queue):
         if ClientConnections._service_connection is None:
             raise ValueError("_init_chats должен быть вызван после инициализации объекта сервисных сообщений")
+
         while not chats_queue.empty():
             attrs = chats_queue.get()
             ClientConnections._service_connection.cache_chat = attrs["chat_id"]
@@ -100,7 +101,6 @@ class ClientConnections:
 
     @staticmethod
     def send_chat_message(message: str) -> None:
-        print(11)
         current_chat = ClientConnections._chat_interface.current_chat_id
         ClientConnections._message_connection.send_message(message, current_chat)
 

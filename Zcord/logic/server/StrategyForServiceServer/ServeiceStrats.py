@@ -1,4 +1,9 @@
 # Реализации интерфейса Strategy для сервера сервисных сообщений (Server)
+from datetime import timedelta
+
+import msgspec
+
+from logic.server.Client.Client import Client
 from logic.server.Strategy import Strategy
 from abc import abstractmethod
 from typing import Callable
@@ -7,7 +12,7 @@ from typing import Callable
 class ChooseStrategy:
     def __init__(self):
         self.__current_strategy = None
-
+    #sender сейчас только для message_server
     def get_strategy(self, command: str, sender: Callable, Server) -> Strategy:
         if self.__current_strategy is not None:
             if self.__current_strategy.command_name == command:
@@ -17,7 +22,7 @@ class ChooseStrategy:
             return None
 
         self.__current_strategy = ServiceStrategy.commands[command]()
-        self.__current_strategy.set_data(sender=sender, Server_pointer=Server)
+        self.__current_strategy.set_data(sender_to_msg_server=sender, Server_pointer=Server)
         return self.__current_strategy  # Возвращается именно объект, а не ссылка на класс
 
 
@@ -30,11 +35,11 @@ class ServiceStrategy(Strategy):
             cls.commands[cls.command_name] = cls
 
     def __init__(self):
-        self._sender_func = None
+        self._sender_to_msg_server_func = None
         self._server_pointer = None
 
     def set_data(self, **kwargs):
-        self._sender_func = kwargs.get("sender")
+        self._sender_to_msg_server_func = kwargs.get("sender_to_msg_server")
         self._server_pointer = kwargs.get("Server_pointer")
 
     @abstractmethod
@@ -55,22 +60,26 @@ class ChangeChatStrategy(ServiceStrategy):
 
         if client_obj.message_chat_id == 0:
             client_obj.message_chat_id = chat_code
-            await self._sender_func("__change_chat__", f"{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
+            await self._sender_to_msg_server_func("__change_chat__", {"nickname": nickname,
+                                                                      "current_chat_id": 0,
+                                                                      "chat_code": chat_code})
             return
 
         client_chatID = str(client_obj.message_chat_id)
         if nickname not in self._server_pointer.nicknames_in_chats[client_chatID]:
             self._server_pointer.nicknames_in_chats[client_chatID].append(nickname)
 
-        try:
-            if chat_code != client_chatID:
+        try: #Здесь остановился, переделать change_chat на обоих серверах + пофиксить баг
+            if int(chat_code) != int(client_chatID): #TODO: баг при клике на один и тот же чат
                 index = self._server_pointer.nicknames_in_chats[client_chatID].index(nickname)
                 self._server_pointer.nicknames_in_chats[client_chatID].pop(index)
         except UnboundLocalError as e:
             print(e)
         except KeyError as e:
             print(e)
-        await self._sender_func("__change_chat__", f"{nickname}&-&{client_obj.message_chat_id}&-&{chat_code}")
+        await self._sender_to_msg_server_func("__change_chat__", {"nickname": nickname,
+                                                                      "current_chat_id": client_obj.message_chat_id,
+                                                                      "chat_code": chat_code})
 
         client_obj.message_chat_id = chat_code
         return
@@ -88,6 +97,24 @@ class EndSessionStrategy(ServiceStrategy):
             self._server_pointer.clients[nickname].writer.close()
             await self._server_pointer.clients[nickname].writer.wait_closed()
         del self._server_pointer.clients[nickname]
-        await self._sender_func("END-SESSION", f"{nickname}")
+        await self._sender_to_msg_server_func("END-SESSION", {"nickname": nickname})
         raise ConnectionResetError #Чтобы задача стопалась
 
+
+class RequestCacheStrategy(ServiceStrategy):
+    command_name = "CACHE-REQUEST"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        nickname = msg["nickname"]
+        client: Client = self._server_pointer.clients[nickname]
+
+        chats_ids = []
+        for chat_id in client.friends:
+            time_period = timedelta(days=7)
+            if client.last_online - client.friends[chat_id].last_online < time_period:
+                chats_ids.append(chat_id)
+
+        await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids)})

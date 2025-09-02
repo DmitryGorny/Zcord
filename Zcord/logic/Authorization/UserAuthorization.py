@@ -8,6 +8,7 @@ class UserAuthorization:
         self.__nick_name = nick_name
         self.__password = password
         self.__user_id = None
+        self.__last_online = None
 
     def login(self):
         users_table = APIClient()
@@ -23,6 +24,7 @@ class UserAuthorization:
 
         if valid:
             self.__user_id = user[0]['id']
+            self.__last_online = user[0]['last_online']
             return True
 
         return False
@@ -35,3 +37,6 @@ class UserAuthorization:
 
     def get_valid_id(self):
         return self.__user_id
+
+    def get_last_online(self):
+        return self.__last_online

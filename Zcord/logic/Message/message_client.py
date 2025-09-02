@@ -6,7 +6,7 @@ import msgspec
 from PyQt6.QtCore import pyqtSignal, QObject
 import json
 
-from logic.client.Strats.Strats import ChooseStrategy
+from logic.client.Strats.ClientServiceStrats import ChooseStrategy
 
 
 class SygnalChanger(QObject): #TODO: Избавиться по возможности

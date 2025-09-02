@@ -8,7 +8,7 @@ from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 
 
 class ChatView(QtWidgets.QWidget):
-    messageReceived = QtCore.pyqtSignal(str, str, str, int, int)
+    messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
     clear_layout = QtCore.pyqtSignal()
 
     def __init__(self, chatId, friend_nick, user, controller):
@@ -70,8 +70,8 @@ class ChatView(QtWidgets.QWidget):
         self._controller.send_message(message_text)
         self.ui.Chat_input_.clear()
 
-    @QtCore.pyqtSlot(str, str, str, int, int)
-    def recieveMessage(self, sender, text, date, messageIndex=1, wasSeen:int = 0, event: threading.Event = None): #Нужно еще 20 аргументов
+    @QtCore.pyqtSlot(str, str, str, int, bool)
+    def recieveMessage(self, sender, text, date, messageIndex=1, wasSeen: bool = False, event: threading.Event = None): #Нужно еще 20 аргументов
         if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
             self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
 
@@ -89,7 +89,7 @@ class ChatView(QtWidgets.QWidget):
                     border:2px solid white;
                     }
                     }"""
-        if wasSeen == 0:
+        if not wasSeen:
             message.ui.WasSeenlabel.setText("Unseen")
             self.unseenMessages.append(message.ui)
 

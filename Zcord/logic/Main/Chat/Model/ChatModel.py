@@ -1,5 +1,4 @@
 from logic.Main.Friends.FriendAdding import FriendAdding
-from logic.Message import message_client
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 

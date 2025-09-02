@@ -44,6 +44,6 @@ class ChatController:
 
         #TODO:Пересмотреть метод в view
         #TODO: Сделать еще awaited версию см. SygnalReciever
-        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: int = 0,
+        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: bool = False,
                             event: threading.Event = None):
             self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)

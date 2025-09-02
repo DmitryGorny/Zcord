@@ -2,16 +2,19 @@ import json
 import socket
 import threading
 from datetime import datetime
+from typing import Dict, List
+
 import msgspec
 import copy
 import select
 from logic.server.StrategiesForMessageServer.StratsForServer import ChooseStrategy
 
 class MessageRoom(object):
-    nicknames_in_chats = {}
+    nicknames_in_chats:  Dict[str, List[str]] = {}
     cache_chat = {}
     unseenMessages = {}
-    clients = {}
+    clients: dict[str, socket.socket] = {}
+    _strat_choose = ChooseStrategy()
 
     @staticmethod
     def set_nicknames_in_chats(arr):
@@ -44,19 +47,27 @@ class MessageRoom(object):
         chat_code = msg[0]
 
         messaghe_to_send = {
-            "chat_code": msg[0],
+            "type": "CHAT-MESSAGE",
+            "chat": msg[0],
             "message": msg[1],
-            "date_now": msg[2],
-            "nickname": msg[3],
+            "created_at": msg[2],
+            "sender": msg[3],
             "was_seen": msg[4]
-
         }
-        print(MessageRoom.nicknames_in_chats[chat_code])
+
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             try:
                 MessageRoom.clients[client].send(json.dumps(messaghe_to_send).encode('utf-8'))
             except KeyError:
                 continue
+
+    @staticmethod
+    def send_cache(cache_list: list[dict[str, str]], nickname_to_recv: str):
+        message = {
+            "type": "RECEIVE-CACHE",
+            "cache": cache_list
+        }
+        MessageRoom.clients[nickname_to_recv].send(MessageRoom.serialize(message))
 
 
     @staticmethod
@@ -88,22 +99,15 @@ class MessageRoom(object):
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
-                    chat_code = str(msg["chat_id"])
-                    nickname = msg["nickname"]
-                    message = msg["message"]
-                    date_now = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-                    messageToChache = { #id 0, потом когда доабвляем в базу AI сам его назначит
-                        "id": 0,
-                        "chat_id": chat_code,
-                        "message": message,
-                        "sender_nick": nickname,
-                        "date": date_now,
-                        "WasSeen": 0
-                    }
-                    MessageRoom.cache_chat[chat_code].append(messageToChache)
-                    MessageRoom.broadcast((chat_code, message, date_now, nickname, messageToChache["WasSeen"]))
-
+                    strategy = MessageRoom._strat_choose.get_strategy(msg["type"], MessageRoom)
+                    try:
+                        strategy.execute(msg)
+                    except AttributeError as e:
+                        print(e)
             except ConnectionResetError:
+                client.close()
+                break
+            except ConnectionAbortedError:
                 client.close()
                 break
 
@@ -127,7 +131,7 @@ class MessageRoom(object):
 
                 for server_msg in arr:
                     type_msg = server_msg["type"]
-                    strategy = ChooseStrategy().get_strategy(type_msg, MessageRoom)
+                    strategy = MessageRoom._strat_choose.get_strategy(type_msg, MessageRoom)
                     try:
                         strategy.execute(server_msg)
                     except AttributeError as e:

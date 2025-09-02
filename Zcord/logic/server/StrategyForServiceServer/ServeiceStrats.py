@@ -65,18 +65,7 @@ class ChangeChatStrategy(ServiceStrategy):
                                                                       "chat_code": chat_code})
             return
 
-        client_chatID = str(client_obj.message_chat_id)
-        if nickname not in self._server_pointer.nicknames_in_chats[client_chatID]:
-            self._server_pointer.nicknames_in_chats[client_chatID].append(nickname)
 
-        try: #Здесь остановился, переделать change_chat на обоих серверах + пофиксить баг
-            if int(chat_code) != int(client_chatID): #TODO: баг при клике на один и тот же чат
-                index = self._server_pointer.nicknames_in_chats[client_chatID].index(nickname)
-                self._server_pointer.nicknames_in_chats[client_chatID].pop(index)
-        except UnboundLocalError as e:
-            print(e)
-        except KeyError as e:
-            print(e)
         await self._sender_to_msg_server_func("__change_chat__", {"nickname": nickname,
                                                                       "current_chat_id": client_obj.message_chat_id,
                                                                       "chat_code": chat_code})
@@ -113,7 +102,7 @@ class RequestCacheStrategy(ServiceStrategy):
 
         chats_ids = []
         for chat_id in client.friends:
-            time_period = timedelta(days=7)
+            time_period = timedelta(days=72)
             if client.last_online - client.friends[chat_id].last_online < time_period:
                 chats_ids.append(chat_id)
 

@@ -71,9 +71,8 @@ class ReceiveCacheStrat(ClientsStrategies):
         for message in msg["cache"]:
             try:
                 nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
-            except StopIteration as err:
-                print(err)
-                return
+            except StopIteration:
+                nickname = self._message_connection_pointer.user.getNickName()
 
             message["sender"] = nickname
 

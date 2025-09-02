@@ -47,17 +47,18 @@ class ChangeChatStrategy(MessageStrategy):
         current_chat_id = str(msg["current_chat_id"])
         chat_code = str(msg["chat_code"])
 
-        try:  # Я боюсь какого-нибудь неотловленного рассинхрона nicknames_in_chats здесь и с сервером, поэтому будем это отлавливать
+        try:
             self._messageRoom_pointer.nicknames_in_chats[current_chat_id].remove(nickname)
         except ValueError:
-            print(1111111)  # Дописать запрос на сервер для синхронизации
-
+            print(1111111)
+        except KeyError:
+            print("Клик по тому же чату")
         self._messageRoom_pointer.nicknames_in_chats[chat_code].append(nickname)
-
+        print(self._messageRoom_pointer.nicknames_in_chats[chat_code])
         if len(self._messageRoom_pointer.cache_chat[chat_code]) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(self._messageRoom_pointer.cache_chat[chat_code], nickname)
+        self._messageRoom_pointer.send_cache(self._messageRoom_pointer.cache_chat[chat_code][-20:], nickname)
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -126,7 +127,6 @@ class RequestCacheStrategy(MessageStrategy):
 
     def execute(self, msg: dict[str, str]) -> None:
         chats_ids = msg["chats_ids"].split(',')
-
         if len(chats_ids) == 0:
             return
 

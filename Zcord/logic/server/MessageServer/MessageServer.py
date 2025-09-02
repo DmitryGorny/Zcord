@@ -67,6 +67,7 @@ class MessageRoom(object):
             "type": "RECEIVE-CACHE",
             "cache": cache_list
         }
+        m = MessageRoom.serialize(message)
         MessageRoom.clients[nickname_to_recv].send(MessageRoom.serialize(message))
 
 

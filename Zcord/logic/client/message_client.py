@@ -46,10 +46,15 @@ class MessageConnection(IConnection, BaseConnection):
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:
                     continue
-
                 for msg in arr:
-                    strategy = self._choose_strategy.get_strategy(msg["type"], self)
-                    strategy.execute(msg)
+                    try:
+                        strategy = self._choose_strategy.get_strategy(msg["type"], self)
+                        strategy.execute(msg)
+                    except TypeError:
+                        print(1111)
+                    except KeyError:
+                        print(123)
+                        pass
                 continue
             except os.error as e:
                 if not self._flg:

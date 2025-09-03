@@ -24,7 +24,7 @@ class MessageConnection(IConnection, BaseConnection):
         msg = {
             "type": msg_type,
             "chat_id": current_chat_id,
-            "nickname": self._user.getNickName(),
+            "user_id": self._user.id,
             "message": message}
         self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 

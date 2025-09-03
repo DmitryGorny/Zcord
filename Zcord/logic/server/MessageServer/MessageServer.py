@@ -2,16 +2,18 @@ import json
 import socket
 import threading
 from datetime import datetime
-from typing import Dict, List
+from typing import Dict, List, Any, Union
 
 import msgspec
 import copy
 import select
+
+from logic.server.MessageServer.Cache.Cache import CacheManager
 from logic.server.StrategiesForMessageServer.StratsForServer import ChooseStrategy
 
-class MessageRoom(object):
+class MessageRoom(object): #TODO: Когда-нибудь переделать
     nicknames_in_chats:  Dict[str, List[str]] = {}
-    cache_chat = {}
+    cache_chat: CacheManager = CacheManager()
     unseenMessages = {}
     clients: dict[str, socket.socket] = {}
     _strat_choose = ChooseStrategy()
@@ -20,16 +22,11 @@ class MessageRoom(object):
     def set_nicknames_in_chats(arr):
         MessageRoom.nicknames_in_chats = {**arr, **MessageRoom.nicknames_in_chats}
 
-    @staticmethod
-    def set_cache_chat(arr):
-        MessageRoom.cache_chat = {**arr, **MessageRoom.cache_chat}
-
     def __init__(self):
         pass
 
     @staticmethod
     def copyCacheChat(chat_id):
-        MessageRoom.set_cache_chat(copy.deepcopy(chat_id))
         MessageRoom.set_nicknames_in_chats(copy.deepcopy(chat_id))
 
     @staticmethod
@@ -67,7 +64,6 @@ class MessageRoom(object):
             "type": "RECEIVE-CACHE",
             "cache": cache_list
         }
-        m = MessageRoom.serialize(message)
         MessageRoom.clients[nickname_to_recv].send(MessageRoom.serialize(message))
 
 

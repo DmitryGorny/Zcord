@@ -3,6 +3,7 @@ import json
 from datetime import datetime
 
 from logic.db_handler.api_client import APIClient
+from logic.server.MessageServer.Cache.Cache import CacheOverloadError
 from logic.server.Strategy import Strategy
 from abc import abstractmethod, ABC
 from typing import Callable
@@ -54,11 +55,11 @@ class ChangeChatStrategy(MessageStrategy):
         except KeyError:
             print("Клик по тому же чату")
         self._messageRoom_pointer.nicknames_in_chats[chat_code].append(nickname)
-        print(self._messageRoom_pointer.nicknames_in_chats[chat_code])
-        if len(self._messageRoom_pointer.cache_chat[chat_code]) == 0:
+
+        if len(self._messageRoom_pointer.cache_chat.get_cache(chat_code)) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(self._messageRoom_pointer.cache_chat[chat_code][-20:], nickname)
+        self._messageRoom_pointer.send_cache(self._messageRoom_pointer.cache_chat.get_cache(chat_code), nickname)
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -69,11 +70,13 @@ class UserInfoStrategy(MessageStrategy):
         super(UserInfoStrategy, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        nickname = msg["nickname"]
-        serialize_1 = msg["serialize_1"]
+        serialize_1 = json.loads(msg["serialize_1"])
         serialize_2 = msg["serialize_2"]
 
-        self._messageRoom_pointer.copyCacheChat(json.loads(serialize_1))
+        self._messageRoom_pointer.copyCacheChat(serialize_1)
+        for chat_id in serialize_1.keys():
+            self._messageRoom_pointer.cache_chat.init_cache(chat_id)
+
         msg = json.loads(serialize_2)
         self._messageRoom_pointer.clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
 
@@ -102,20 +105,25 @@ class EndSession(MessageStrategy):
 
     def execute(self, msg: dict) -> None:
         chat_code = str(msg["chat_id"])
-        nickname = msg["nickname"]
+        user_id = str(msg["user_id"])
         message = msg["message"]
         date_now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
         message_to_send = {  # id 0, потом когда доабвляем в базу AI сам его назначит
-            "id": 0,
+            "id": '0',
             "chat": chat_code,
             "message": message,
-            "sender": nickname,
+            "sender": user_id,
             "created_at": date_now,
             "was_seen": False
         }
 
-        self._messageRoom_pointer.cache_chat[chat_code].append(message_to_send)
-        self._messageRoom_pointer.broadcast((chat_code, message, date_now, nickname, message_to_send["was_seen"]))
+        result = self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
+
+        if result is not None:
+            self._api_client.send_messages_bulk(result)
+            self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
+
+        self._messageRoom_pointer.broadcast((chat_code, message, date_now, user_id, message_to_send["was_seen"]))
 
 
 class RequestCacheStrategy(MessageStrategy):
@@ -131,8 +139,8 @@ class RequestCacheStrategy(MessageStrategy):
             return
 
         for chat_id in chats_ids:
-            if len(self._messageRoom_pointer.cache_chat[chat_id]) != 0:
+            if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)) != 0:
                 continue
 
-            self._messageRoom_pointer.cache_chat[chat_id] = self._api_client.get_messages_limit(chat_id,
-                                                                                                self._cache_limit).copy()
+            self._messageRoom_pointer.cache_chat.add_cache(chat_id, self._api_client.get_messages_limit(chat_id,
+                                                                                                        self._cache_limit).copy())

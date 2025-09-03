@@ -129,3 +129,9 @@ class APIClient:
             "limit": limit
         }
         return self._request("GET", "messages/", params=data)['results']
+
+    def send_messages_bulk(self, messages_list):
+        data = {
+            "messages": messages_list
+        }
+        return self._request('POST', 'messages-bulk/', json=data)

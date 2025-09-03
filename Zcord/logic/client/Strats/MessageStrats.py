@@ -50,13 +50,22 @@ class ReceiveChatMessageStrat(ClientsStrategies):
         dt = datetime.strptime(msg["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
         date_now = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
+        friends = self._message_connection_pointer.user.getFriends()
+
         if self._message_connection_pointer.chat is None:
             raise ValueError("chat = None, не прошла инициализация")
 
+        try:
+            nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(msg["sender"])))
+        except StopIteration:
+            nickname = self._message_connection_pointer.user.getNickName()
+
         self._message_connection_pointer.chat.socket_controller.recieve_message(
             str(self._message_connection_pointer.chat.chat_id),
-            msg["sender"],
-            msg["message"], date_now, 1,
+            nickname,
+            msg["message"],
+            date_now,
+            1,
             msg["was_seen"])
 
 

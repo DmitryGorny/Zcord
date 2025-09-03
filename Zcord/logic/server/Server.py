@@ -16,9 +16,6 @@ class Server:
         "voice-server": None
     }
 
-    nicknames_in_chats: Dict[str, List[str]] = {} # TODO: Подумать над необходимостью хранить и работать с этими данными здесь \
-                                                    # а не в MessageServer
-
     def deserialize(self, msg):
         cache = msgspec.json.decode(msg)
         return cache
@@ -26,10 +23,6 @@ class Server:
     def serialize(self, data):
         ser = msgspec.json.encode(data)
         return ser
-
-    @staticmethod
-    def copy_nicknames_in_chat(chats):
-        Server.nicknames_in_chats = {**copy.deepcopy(chats), **Server.nicknames_in_chats}
 
     def send_decorator(self, server: asyncio.StreamWriter):
         server_obj = server
@@ -59,7 +52,6 @@ class Server:
         nickname = first_info[1]
         chats = first_info[0]
         client_obj = Server.clients[nickname]
-        Server.copy_nicknames_in_chat(chats)
 
         await client_obj.send_message("__CONNECT__", {
             "connect": 1

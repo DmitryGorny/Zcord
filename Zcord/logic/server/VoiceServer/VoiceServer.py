@@ -167,7 +167,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("0.0.0.0", 55559)
+    await srv.serve("26.36.207.48", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

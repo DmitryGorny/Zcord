@@ -35,6 +35,13 @@ class ChatController:
     def accept_request(self, user, friend_nick):
         self._model.accept_friend_request(user, friend_nick)
 
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self, user, chat_id):
+        self._model.start_call(user, chat_id)
+
+    def stop_call(self):
+        self._model.stop_call()
+
     class SocketController:
         def __init__(self, views: Dict[str, ChatView]):
             self._views = views

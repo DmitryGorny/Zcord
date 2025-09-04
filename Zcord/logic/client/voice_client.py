@@ -5,7 +5,7 @@ import struct
 import threading
 import time
 import uuid
-from IConnection.IConnection import IConnection, BaseConnection
+from logic.client.IConnection.IConnection import IConnection, BaseConnection
 import pyaudio
 
 # Параметры аудио: 48kHz mono, 20ms кадры

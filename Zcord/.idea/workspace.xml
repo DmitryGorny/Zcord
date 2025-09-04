@@ -4,8 +4,12 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Изменение класса Call_Voice на синглтон">
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Фикс старья пакетов last_seq">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/voice_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/voice_client.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" afterDir="false" />
     </list>
@@ -73,7 +77,7 @@
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI\Helpers" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.voice_client">
+  <component name="RunManager" selected="Python.MessageServer">
     <configuration name="MessageServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -186,11 +190,11 @@
     </configuration>
     <recent_temporary>
       <list>
+        <item itemvalue="Python.MessageServer" />
+        <item itemvalue="Python.zcord" />
+        <item itemvalue="Python.Server" />
         <item itemvalue="Python.voice_client" />
         <item itemvalue="Python.VoiceServer" />
-        <item itemvalue="Python.zcord" />
-        <item itemvalue="Python.MessageServer" />
-        <item itemvalue="Python.Server" />
       </list>
     </recent_temporary>
   </component>
@@ -208,7 +212,9 @@
       <workItem from="1755342846976" duration="16676000" />
       <workItem from="1755606829716" duration="8228000" />
       <workItem from="1755619026423" duration="5942000" />
-      <workItem from="1755947294919" duration="15774000" />
+      <workItem from="1755947294919" duration="19512000" />
+      <workItem from="1756799674167" duration="3517000" />
+      <workItem from="1756888276483" duration="649000" />
     </task>
     <task id="LOCAL-00001" summary="Zcord терпит изменения">
       <option name="closed" value="true" />
@@ -316,7 +322,15 @@
       <option name="project" value="LOCAL" />
       <updated>1755962682577</updated>
     </task>
-    <option name="localTasksCounter" value="15" />
+    <task id="LOCAL-00015" summary="Фикс старья пакетов last_seq">
+      <option name="closed" value="true" />
+      <created>1755966405341</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1755966405341</updated>
+    </task>
+    <option name="localTasksCounter" value="16" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -357,7 +371,8 @@
     <MESSAGE value="Вроде рабочий keep_alive для клиента и сервера" />
     <MESSAGE value="Переделал на гибридную работу voice_client.py, сервер переписал на tcp" />
     <MESSAGE value="Изменение класса Call_Voice на синглтон" />
-    <option name="LAST_COMMIT_MESSAGE" value="Изменение класса Call_Voice на синглтон" />
+    <MESSAGE value="Фикс старья пакетов last_seq" />
+    <option name="LAST_COMMIT_MESSAGE" value="Фикс старья пакетов last_seq" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>
@@ -375,13 +390,13 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/Zcord$message_client.coverage" NAME="message_client Coverage Results" MODIFIED="1729973828182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
     <SUITE FILE_PATH="coverage/Zcord$audio_server.coverage" NAME="audio_server Coverage Results" MODIFIED="1729971140087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
-    <SUITE FILE_PATH="coverage/zcord_py$voice_client.coverage" NAME="voice_client Coverage Results" MODIFIED="1755965946310" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/client" />
-    <SUITE FILE_PATH="coverage/zcord_py$Server.coverage" NAME="Server Coverage Results" MODIFIED="1755622599203" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server" />
+    <SUITE FILE_PATH="coverage/zcord_py$voice_client.coverage" NAME="voice_client Coverage Results" MODIFIED="1755966785524" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/client" />
+    <SUITE FILE_PATH="coverage/zcord_py$Server.coverage" NAME="Server Coverage Results" MODIFIED="1755967786107" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server" />
     <SUITE FILE_PATH="coverage/Zcord$UserAuthorization.coverage" NAME="UserAuthorization Coverage Results" MODIFIED="1729971150493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Authorization" />
     <SUITE FILE_PATH="coverage/Zcord$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1729984270097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
-    <SUITE FILE_PATH="coverage/zcord_py$VoiceServer.coverage" NAME="VoiceServer Coverage Results" MODIFIED="1755965877982" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server/VoiceServer" />
-    <SUITE FILE_PATH="coverage/zcord_py$MessageServer.coverage" NAME="MessageServer Coverage Results" MODIFIED="1755622601289" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server/MessageServer" />
-    <SUITE FILE_PATH="coverage/zcord_py$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1755622602985" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/zcord_py$VoiceServer.coverage" NAME="VoiceServer Coverage Results" MODIFIED="1755966754095" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server/VoiceServer" />
+    <SUITE FILE_PATH="coverage/zcord_py$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1755967793672" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/zcord_py$MessageServer.coverage" NAME="MessageServer Coverage Results" MODIFIED="1755968159396" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/server/MessageServer" />
     <SUITE FILE_PATH="coverage/zcord_py$voice_server.coverage" NAME="voice_server Coverage Results" MODIFIED="1755285906357" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
     <SUITE FILE_PATH="coverage/Zcord$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1729984269127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/zcord_py$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1737824198904" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />

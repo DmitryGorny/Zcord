@@ -1,6 +1,7 @@
 from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.Message import message_client
 from logic.client.ClientConnections.ClientConnections import ClientConnections
+from logic.client.voice_client import CallManager
 
 
 class ChatModel:
@@ -38,3 +39,12 @@ class ChatModel:
         friendAdding.deleteFriendRequest(friend_nick)
         friendAdding.BlockUser(friend_nick)
         ClientConnections.send_service_message(f"__DELETE-REQUEST__&{friend_nick}")
+
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self, user, chat_id):
+        call = CallManager()
+        call.start_call(user, host="26.36.207.48", port=55559, room=chat_id)  # хост и порт от сервера, то есть пк где стоит войс сервер
+
+    def stop_call(self):
+        call = CallManager()
+        call.stop_call()

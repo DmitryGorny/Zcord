@@ -55,11 +55,17 @@ class ChatView(QtWidgets.QWidget):
 
         self.scroll_pos = 0
 
+        # Войс GUI
+        self.ui.Call.hide()
+        self.ui.user1_micMute.hide()
+        self.ui.user2_micMute.hide()
+
+        self.ui.user2_micMute.hide()
+        self.ui.user2_headphonesMute.hide()
 
     def askForCachedMessages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum()/4):
             self._controller.ask_for_cached_message()
-
 
     def sendMessage(self):
         message_text = self.ui.Chat_input_.text()
@@ -176,3 +182,38 @@ class ChatView(QtWidgets.QWidget):
 
     def getChatId(self):
         return self.__chatId
+
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self):
+        self.ui.Call.show()
+        self._controller.start_call(self.__user, self.__chatId)
+
+    def stop_call(self):
+        self.ui.Call.hide()
+        self._controller.stop_call()
+
+    # Микрофон
+    def mute_mic_self(self):
+        self.ui.user1_micMute.show()
+
+    def unmute_mic_self(self):
+        self.ui.user1_micMute.hide()
+
+    def mute_mic_friend(self):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        pass
+
+    def unmute_mic_friend(self):
+        pass
+
+    # Наушники
+    def mute_head_self(self):
+        self.ui.user1_headphonesMute.show()
+
+    def unmute_head_self(self):
+        self.ui.user1_headphonesMute.hide()
+
+    def mute_head_friend(self):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        pass
+
+    def unmute_head_friend(self):
+        pass

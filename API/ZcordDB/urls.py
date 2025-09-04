@@ -45,4 +45,5 @@ urlpatterns = [
         'put': 'update',
         'patch': 'partial_update'
     }), name='messages-detail'),
+    path('messages-bulk/', MessageView.add_messages, name='messages_bulk')
 ]

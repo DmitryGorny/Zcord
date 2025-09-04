@@ -1,4 +1,5 @@
 from rest_framework import viewsets, filters
+from rest_framework.decorators import action
 
 from .Paginations import LimitPagination
 from .models import Users, Friendship, Message, FriendsAdding
@@ -46,3 +47,17 @@ class MessageView(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     search_fields = ["chat__id"]
     pagination_class = LimitPagination
+
+    @action(detail=True, methods=['post'])
+    def add_messages(self, request, pk=None):
+        serializer = MessageSerializer(data=request.data)
+        if serializer.is_valid():
+            objects = []
+            for message in serializer.data:
+                mes = Message(chat=message["chat"],
+                              sender=message["sender"],
+                              message=message["message"],
+                              created_at=message["created_at"],
+                              was_seen=message["was_seen"])
+                objects.append(mes)
+            Message.objects.bulk_create(objects)

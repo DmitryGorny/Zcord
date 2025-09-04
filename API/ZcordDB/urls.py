@@ -45,5 +45,8 @@ urlpatterns = [
         'put': 'update',
         'patch': 'partial_update'
     }), name='messages-detail'),
-    path('messages-bulk/', MessageView.add_messages, name='messages_bulk')
+    path('messages-bulk/', MessageView.as_view({
+        'get': 'list',
+        'post': 'bulk_create'
+    }), name='message_bulk_create')
 ]

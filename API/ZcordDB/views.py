@@ -1,11 +1,13 @@
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
+from rest_framework import generics, status
+from rest_framework.response import Response
 
 from .Paginations import LimitPagination
 from .models import Users, Friendship, Message, FriendsAdding
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
-from .serializers.MessageSerializer import MessageSerializer
+from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer
 from .serializers.FriendsAddingSerializer import FriendsAddingSerializer
 from django.db.models import Q
 
@@ -43,21 +45,31 @@ class FriendsAddingView(viewsets.ModelViewSet):
 
 class MessageView(viewsets.ModelViewSet):
     queryset = Message.objects.all()
-    serializer_class = MessageSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ["chat__id"]
     pagination_class = LimitPagination
 
-    @action(detail=True, methods=['post'])
-    def add_messages(self, request, pk=None):
-        serializer = MessageSerializer(data=request.data)
-        if serializer.is_valid():
-            objects = []
-            for message in serializer.data:
-                mes = Message(chat=message["chat"],
-                              sender=message["sender"],
-                              message=message["message"],
-                              created_at=message["created_at"],
-                              was_seen=message["was_seen"])
-                objects.append(mes)
-            Message.objects.bulk_create(objects)
+    def get_serializer_class(self):
+        if self.action == 'bulk_create':
+            return MessageBulkSerializer
+        return MessageSerializer
+
+    @action(detail=False, methods=['post'], url_path='messages-bulk/')
+    def bulk_create(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        messages_data = serializer.validated_data.get('messages', [])
+        messages_to_create = [
+            Message(
+                chat=msg['chat'],
+                sender=msg['sender'],
+                message=msg['message'],
+                was_seen=msg.get('was_seen', False)
+            ) for msg in messages_data
+        ]
+        Message.objects.bulk_create(messages_to_create)
+
+        return Response({
+            "status": "success",
+            "count": len(messages_to_create)
+        }, status=status.HTTP_201_CREATED)

@@ -6,7 +6,7 @@ class CacheManager:
         self._limit = max_cache_messages
         self._main_cache: Dict[str, List[Dict[str, Union[str, bool]]]] = {}
 
-        self._cache_to_send = self.SendCache(max_cache_messages * 2)
+        self._cache_to_send = self.SendCache(max_cache_messages * 4)
 
     def add_value(self, chat_id: str,
                   message: Dict[str, Union[str, bool]]) -> None:  # По идее не должен ловить CacheOverloadError, но хз
@@ -22,6 +22,7 @@ class CacheManager:
                     del self._main_cache[chat_id][0:i]
                     break
                 except CacheOverloadError as e:
+                    self._cache_to_send.clear_cache(chat_id)
                     return e.return_value
         self._main_cache[chat_id].append(message)
         return None
@@ -48,9 +49,8 @@ class CacheManager:
             self._current_free_space[chat_id] = self._max_messages
 
         def add_value(self, chat_id: str, message: Dict[str, Union[str, bool]]):
-            print(self._current_free_space[chat_id], self._current_free_space[chat_id] <= 0)
             if self._current_free_space[chat_id] <= 0:
-                raise CacheOverloadError("Кэш перегружен", return_value=self._cache[chat_id])
+                raise CacheOverloadError("Кэш перегружен", return_value=self._cache[chat_id].copy())
             self._cache[chat_id].append(message)
             self._current_free_space[chat_id] -= 1
 

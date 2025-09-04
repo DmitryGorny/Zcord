@@ -56,10 +56,12 @@ class ChangeChatStrategy(MessageStrategy):
             print("Клик по тому же чату")
         self._messageRoom_pointer.nicknames_in_chats[chat_code].append(nickname)
 
-        if len(self._messageRoom_pointer.cache_chat.get_cache(chat_code)) == 0:
+        cache = self._messageRoom_pointer.cache_chat.get_cache(chat_code)
+
+        if len(cache) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(self._messageRoom_pointer.cache_chat.get_cache(chat_code), nickname)
+        self._messageRoom_pointer.send_cache(cache, nickname)
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -87,7 +89,7 @@ class EndSessionStrat(MessageStrategy):
     def __init__(self):
         super(EndSessionStrat, self).__init__()
 
-    def execute(self, msg: dict) -> None:
+    def execute(self, msg: dict) -> None: #TODO: Дублируется хуйня при добавлении в базу из добавочного кэша
         nickname = msg["nickname"]
         self._messageRoom_pointer.clients[nickname].close()
         self._messageRoom_pointer.clients.pop(nickname)
@@ -96,6 +98,7 @@ class EndSessionStrat(MessageStrategy):
             if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
                 self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
 
+            self._api_client.send_messages_bulk(self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
 
 class EndSession(MessageStrategy):
     command_name = "CHAT-MESSAGE"
@@ -131,7 +134,7 @@ class RequestCacheStrategy(MessageStrategy):
 
     def __init__(self):
         super(RequestCacheStrategy, self).__init__()
-        self._cache_limit = '20'  # Ограничение по единоразовой загрузке сообщений
+        self._cache_limit = '15'  # Ограничение по единоразовой загрузке сообщений
 
     def execute(self, msg: dict[str, str]) -> None:
         chats_ids = msg["chats_ids"].split(',')

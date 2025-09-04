@@ -15,7 +15,7 @@ class CacheManager:
         При необходимости выгруза кэша в БД выбросит CacheOverloadError
         """
         if len(self._main_cache[chat_id]) >= self._limit:
-            for i in range(self._cache_to_send.current_free_space(chat_id) + 1): #TODO: Почему нужен + 1
+            for i in range(self._cache_to_send.current_free_space(chat_id) + 1):  # TODO: Почему нужен + 1
                 try:
                     self._cache_to_send.add_value(chat_id, self._main_cache[chat_id][i])
                 except IndexError:
@@ -31,12 +31,25 @@ class CacheManager:
         self._main_cache[chat_id] = []
         self._cache_to_send.init_cache(chat_id)
 
-    def get_cache(self, chat_id: str,) -> List[Dict[str, Union[str, bool]]]:
-        return self._main_cache[chat_id][-self._limit:]
+    def get_cache(self, chat_id: str, user_out: bool = False) -> List[Dict[str, Union[str, bool]]]:
+        if len(self._main_cache[chat_id]) < self._limit:  # Добавочный кэш
+            extra_cache = [message for message in
+                           self._cache_to_send.get_cache(chat_id, self._limit - len(self._main_cache[chat_id]))]
+            if len(extra_cache) > 0:
+                return [*extra_cache, *self._main_cache[chat_id]]
+
+        if user_out:
+            un_handled_cache = [*[message for message in
+                                  self._cache_to_send.get_cache(chat_id, self._limit*4)], *self._main_cache[chat_id]]
+            final_cache = [message for message in un_handled_cache if message["id"] == '0']
+            return final_cache
+
+        print(self._main_cache[chat_id])
+        return self._main_cache[chat_id]
 
     def add_cache(self, chat_id: str, message_list: List[Dict[str, Union[str, bool]]]) -> None:
-        for message in message_list: #TODO: Добавить провреку на дублерование сообщений ????
-            self._main_cache[chat_id].append(message)
+        for message in message_list:  # TODO: Добавить провреку на дублерование сообщений ????
+            self.add_value(chat_id, message)
 
     class SendCache:
         def __init__(self, max_massages: int = 60):
@@ -56,10 +69,24 @@ class CacheManager:
 
         def clear_cache(self, chat_id: str) -> None:
             self._cache[chat_id].clear()
-            self._current_free_space[chat_id] = 60
+            self._current_free_space[chat_id] = self._max_messages
 
         def current_free_space(self, chat_id: str) -> int:
             return self._current_free_space[chat_id]
+
+        def get_cache(self, chat_id: str, number_of_messages: int) -> List[Dict[str, Union[str, bool]]]:
+            cache = []
+
+            if number_of_messages >= len(self._cache):
+                cache = self._cache[chat_id].copy()
+                return cache
+
+            for index in range(number_of_messages):
+                try:
+                    cache.insert(0, self._cache[chat_id][::-1][index])
+                except IndexError:
+                    break
+            return cache
 
 
 class CacheOverloadError(Exception):

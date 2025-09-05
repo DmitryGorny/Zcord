@@ -1,12 +1,18 @@
+import asyncio
+import threading
+
+from PyQt6.QtCore import QThread, pyqtSignal, QObject
+
 from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.Message import message_client
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.client.voice_client import CallManager
 
 
-class ChatModel:
+class ChatModel(QObject):
     def __init__(self):
-        pass
+        super().__init__()
+        self.call_manager = CallManager()
 
     def ask_for_cached_messages(self):
         ClientConnections.send_service_message(f"__CACHED-REQUEST__")
@@ -42,9 +48,15 @@ class ChatModel:
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id):
-        call = CallManager()
-        call.start_call(user, host="26.36.207.48", port=55559, room=chat_id)  # хост и порт от сервера, то есть пк где стоит войс сервер
+        """Запуск звонка - синхронный вызов"""
+        success = self.call_manager.start_call(
+            user=None,
+            host="26.36.207.48",
+            port=55559,
+            room=chat_id
+        )
 
     def stop_call(self):
-        call = CallManager()
-        call.stop_call()
+        """Остановка звонка - синхронный вызов"""
+        success = self.call_manager.stop_call()
+

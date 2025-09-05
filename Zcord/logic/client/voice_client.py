@@ -177,28 +177,72 @@ class VoiceConnection(IConnection, BaseConnection):
         return self._flg
 
     async def close(self) -> None:
-        self._flg = False
+        self._flg = False  # Это остановит поток микрофона и UDP прием
+
+        # 1. Сначала отменяем все asyncio задачи
+        tasks_to_cancel = []
+        if hasattr(self, 'tcp_recv_task') and self.tcp_recv_task:
+            tasks_to_cancel.append(self.tcp_recv_task)
+        if hasattr(self, 'udp_recv_task') and self.udp_recv_task:
+            tasks_to_cancel.append(self.udp_recv_task)
+        if hasattr(self, 'out_task') and self.out_task:
+            tasks_to_cancel.append(self.out_task)
+
+        for task in tasks_to_cancel:
+            if not task.done():
+                task.cancel()
+
+        # 2. Ждем завершения всех задач
+        if tasks_to_cancel:
+            try:
+                await asyncio.gather(*tasks_to_cancel, return_exceptions=True)
+            except asyncio.CancelledError:
+                pass
+
+        # 3. Отправляем сообщение о выходе (если TCP еще жив)
         try:
-            msg = {"t": "leave", "room": self.room, "token": self.token}
-            print("Отправил дисконект")
-            await self.send_message(msg, current_chat_id=0)
+            if self.writer and not self.writer.is_closing():
+                msg = {"t": "leave", "room": self.room, "token": self.token}
+                await self.send_message(msg, current_chat_id=0)
         except Exception as e:
             print(f"[VoiceConnection] Ошибка при disconnect: {e}")
 
+        # 4. Закрываем аудио потоки
         try:
-            self.in_stream.stop_stream()
-            self.in_stream.close()
+            if self.in_stream and self.in_stream.is_active():
+                self.in_stream.stop_stream()
+                self.in_stream.close()
         except Exception as e:
             pass
 
         try:
-            self.out_stream.stop_stream()
-            self.out_stream.close()
+            if self.out_stream and self.out_stream.is_active():
+                self.out_stream.stop_stream()
+                self.out_stream.close()
         except Exception as e:
             pass
-        self.pa.terminate()
-        self.udp.close()
-        print("[VoiceConnection] Соединение закрыто")
+
+        # 5. Закрываем TCP соединение
+        try:
+            if self.writer:
+                self.writer.close()
+                await self.writer.wait_closed()
+        except Exception as e:
+            pass
+
+        # 6. Закрываем UDP сокет
+        try:
+            self.udp.close()
+        except Exception as e:
+            pass
+
+        # 7. Terminate PyAudio (только если больше нет потоков)
+        try:
+            self.pa.terminate()
+        except Exception as e:
+            pass
+
+        print("[VoiceConnection] Соединение полностью закрыто")
 
     def _udp_send(self, payload: bytes, msg_type: str = "audio") -> None:
         """
@@ -272,32 +316,63 @@ class CallManager:
         if not hasattr(self, "_initialized"):
             self.client = None
             self._task = None
+            self._loop = None
+            self._thread = None
             self._initialized = True
 
-    async def start_call(self, user, host="26.36.207.48", port=55559, room="room1"):
+    def start_call(self, user, host="26.36.207.48", port=55559, room="room1"):
         if self.client is not None:
             print("Клиент уже запущен")
             return
-        self.client = VoiceConnection(user=user, server_host=host, server_port=port, room=room)
-        # запускаем клиент в фоне
-        self._task = asyncio.create_task(self.client.run())
-        print("[CallManager] Звонок запущен")
-        await self._task
 
-    async def stop_call(self):
-        if self.client is None:
-            print("Нет активного звонка")
-            return
-        await self.client.close()
-        if self._task:
-            self._task.cancel()
+        self._thread = threading.Thread(
+            target=self._run_call,
+            args=(user, host, port, room),
+            daemon=True
+        )
+        self._thread.start()
+        print("Звонок запущен")
+
+    def _run_call(self, user, host, port, room):
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+        self._loop = loop
+
+        try:
+            self.client = VoiceConnection(user=user, server_host=host, server_port=port, room=room)
+            self._task = loop.create_task(self.client.run())
+            loop.run_until_complete(self._task)
+        except asyncio.CancelledError:
+            print("Звонок отменен")
+        except Exception as e:
+            print(f"Ошибка: {e}")
+        finally:
+            self.client = None
+            self._task = None
+
+    def stop_call(self):
+        if self.client is not None and self._loop is not None:
+            # Создаем задачу для асинхронного закрытия
+            async def _close_async():
+                try:
+                    await self.client.close()
+                except Exception as e:
+                    print(f"Ошибка при закрытии: {e}")
+                finally:
+                    # НЕ останавливаем loop здесь - он остановится сам
+                    pass
+
+            # Запускаем закрытие и ждем завершения
+            future = asyncio.run_coroutine_threadsafe(_close_async(), self._loop)
             try:
-                await self._task
-            except asyncio.CancelledError:
-                pass
-        self.client = None
-        self._task = None
-        print("[CallManager] Звонок остановлен")
+                future.result(timeout=5)  # Ждем до 5 секунд
+                print("Звонок остановлен")
+            except TimeoutError:
+                print("Таймаут при остановке звонка")
+            except Exception as e:
+                print(f"Ошибка: {e}")
+        else:
+            print("Нет активного звонка")
 
 
 async def main():

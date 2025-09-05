@@ -1,10 +1,10 @@
 import threading
 from logic.Main.Chat.View.ChatClass.ChatGUI import Ui_Chat
+from logic.Main.Chat.View.CallDialog.CallView import Call
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
 from logic.Main.Chat.View.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
 from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
-
 
 
 class ChatView(QtWidgets.QWidget):
@@ -18,9 +18,11 @@ class ChatView(QtWidgets.QWidget):
 
         #Сигналы
 
+        # интерфейс чата
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
 
+        # контроллер
         self._controller = controller
 
         self.__chatId = chatId
@@ -60,8 +62,16 @@ class ChatView(QtWidgets.QWidget):
         self.ui.user1_micMute.hide()
         self.ui.user2_micMute.hide()
 
-        self.ui.user2_micMute.hide()
+        self.ui.user1_headphonesMute.hide()
         self.ui.user2_headphonesMute.hide()
+
+        # Подключение кнопок войса
+        """Окно чата"""
+        self.ui.CallButton.clicked.connect(self.start_call)
+        self.ui.leaveCall.clicked.connect(self.stop_call)
+
+        """Окно приходящего звонка"""
+        self.call_dialog = Call()
 
     def askForCachedMessages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum()/4):
@@ -191,6 +201,9 @@ class ChatView(QtWidgets.QWidget):
     def stop_call(self):
         self.ui.Call.hide()
         self._controller.stop_call()
+
+    def show_call_dialog(self):
+        self.call_dialog.show_call_event()
 
     # Микрофон
     def mute_mic_self(self):

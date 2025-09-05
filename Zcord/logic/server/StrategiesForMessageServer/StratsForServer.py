@@ -89,7 +89,7 @@ class EndSessionStrat(MessageStrategy):
     def __init__(self):
         super(EndSessionStrat, self).__init__()
 
-    def execute(self, msg: dict) -> None: #TODO: Дублируется хуйня при добавлении в базу из добавочного кэша
+    def execute(self, msg: dict) -> None:
         nickname = msg["nickname"]
         self._messageRoom_pointer.clients[nickname].close()
         self._messageRoom_pointer.clients.pop(nickname)
@@ -97,8 +97,9 @@ class EndSessionStrat(MessageStrategy):
         for id_chat in self._messageRoom_pointer.nicknames_in_chats.keys():  # TODO: Слишком медленно
             if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
                 self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
-
-            self._api_client.send_messages_bulk(self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
+                print(11111)
+                self._api_client.send_messages_bulk(self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
+                self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
 
 class EndSession(MessageStrategy):
     command_name = "CHAT-MESSAGE"

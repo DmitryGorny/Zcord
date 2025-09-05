@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
       <change beforePath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
     </list>

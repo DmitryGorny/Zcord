@@ -32,20 +32,24 @@ class CacheManager:
         self._cache_to_send.init_cache(chat_id)
 
     def get_cache(self, chat_id: str, user_out: bool = False) -> List[Dict[str, Union[str, bool]]]:
+        if user_out: #TODO: Нужна ли полная очистка кэша??????
+            un_handled_cache = [*[message for message in
+                                  self._cache_to_send.get_cache(chat_id, self._limit*4)], *self._main_cache[chat_id]]
+            final_cache = [message for message in un_handled_cache if str(message["id"]) == '0']
+            self._cache_to_send.clear_cache(chat_id)
+
+            return final_cache
+
         if len(self._main_cache[chat_id]) < self._limit:  # Добавочный кэш
             extra_cache = [message for message in
                            self._cache_to_send.get_cache(chat_id, self._limit - len(self._main_cache[chat_id]))]
             if len(extra_cache) > 0:
                 return [*extra_cache, *self._main_cache[chat_id]]
 
-        if user_out:
-            un_handled_cache = [*[message for message in
-                                  self._cache_to_send.get_cache(chat_id, self._limit*4)], *self._main_cache[chat_id]]
-            final_cache = [message for message in un_handled_cache if message["id"] == '0']
-            return final_cache
-
-        print(self._main_cache[chat_id])
         return self._main_cache[chat_id]
+
+    def clear_cache(self, chat_id: str) -> None:
+        self._main_cache[chat_id].clear()
 
     def add_cache(self, chat_id: str, message_list: List[Dict[str, Union[str, bool]]]) -> None:
         for message in message_list:  # TODO: Добавить провреку на дублерование сообщений ????

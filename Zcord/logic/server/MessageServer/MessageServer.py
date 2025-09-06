@@ -153,7 +153,6 @@ def receive(server_socket):
             print(f"Connected to {address}")
 
             socket_connected = MessageRoom.clients.replace_ip_with_socket(client.getpeername()[0], client)
-            #TODO: Зациклить в случае None????
 
             thread = threading.Thread(target=MessageRoom.handle, args=(client,))
             thread.start()

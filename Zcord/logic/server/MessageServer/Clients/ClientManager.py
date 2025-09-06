@@ -10,6 +10,7 @@ class ClientManager:
     def add_client(self, client_id: str, nickname: str, ip: str):
         self._clients[(client_id, nickname)] = ip
         self._clients_with_sockets[(client_id, nickname)] = None
+        print(self._clients_with_sockets)
 
     def _find_client(self, client_identent: str) -> Tuple[str, str] | None:
         try:
@@ -21,7 +22,9 @@ class ClientManager:
 
     def replace_ip_with_socket(self, ip, socket_object: socket.socket):
         try:
+            print(self._clients)
             key = next((key for key in self._clients.keys() if self._clients[key] == ip))
+            self._clients[key] = ''
         except StopIteration:
             return None
 
@@ -30,6 +33,7 @@ class ClientManager:
 
     def send(self, client_identent: str, message: Any) -> None:
         try:
+            print(self._clients_with_sockets)
             self._clients_with_sockets[self._find_client(client_identent)].send(message)
         except KeyError:
             return None

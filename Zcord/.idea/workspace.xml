@@ -5,9 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
-      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/models.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
     </list>
@@ -48,24 +48,24 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;FriendAdding&quot;,
-    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
-    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitriy/Desktop/Zcord/Zcord&quot;,
-    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
-    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
-    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
-    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
-    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
-    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "WebServerToolWindowFactoryState": "false",
+    "git-widget-placeholder": "FriendAdding",
+    "ignore.virus.scanning.warn.message": "true",
+    "kotlin-language-version-configured": "true",
+    "last_opened_file_path": "C:/Users/Dmitriy/Desktop/Zcord/API",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
+    "run.code.analysis.last.selected.profile": "pProject Default",
+    "settings.editor.selected.configurable": "preferences.pluginManager",
+    "vue.rearranger.settings.migration": "true"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server\Client" />
@@ -75,7 +75,7 @@
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.zcord">
+  <component name="RunManager" selected="Python.MessageServer (1)">
     <configuration name="MessageServer (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -318,6 +318,15 @@
     <option name="LAST_COMMIT_MESSAGE" value="Работающий ЛС" />
   </component>
   <component name="XDebuggerManager">
+    <breakpoint-manager>
+      <breakpoints>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py</url>
+          <line>149</line>
+          <option name="timeStamp" value="3" />
+        </line-breakpoint>
+      </breakpoints>
+    </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
         <watch expression="MessageConnection.chatsList" language="Python" />
@@ -327,6 +336,8 @@
         <watch expression="self.friendsChatOptions[0].ui.user_name" language="Python" />
         <watch expression="self.friendsChatOptions[0].ui.user_name.text()" language="Python" />
         <watch expression="self.friendsChatOptions" language="Python" />
+        <watch expression="self._messageRoom_pointer.cache_chat" language="Python" />
+        <watch expression="self._messageRoom_pointer.cache_chat._main_cache" language="Python" />
       </configuration>
     </watches-manager>
   </component>

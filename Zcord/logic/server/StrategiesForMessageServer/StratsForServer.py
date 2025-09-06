@@ -97,9 +97,9 @@ class EndSessionStrat(MessageStrategy):
         for id_chat in self._messageRoom_pointer.nicknames_in_chats.keys():  # TODO: Слишком медленно
             if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
                 self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
-                print(11111)
-                self._api_client.send_messages_bulk(self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
-                self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
+                if len(self._messageRoom_pointer.nicknames_in_chats[id_chat]) == 1:
+                    self._api_client.send_messages_bulk(self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
+                    self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
 
 class EndSession(MessageStrategy):
     command_name = "CHAT-MESSAGE"
@@ -143,8 +143,8 @@ class RequestCacheStrategy(MessageStrategy):
             return
 
         for chat_id in chats_ids:
-            if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)) != 0:
+            print(self._messageRoom_pointer.cache_chat.get_cache(chat_id))
+            if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)) > 0:
                 continue
-
-            self._messageRoom_pointer.cache_chat.add_cache(chat_id, self._api_client.get_messages_limit(chat_id,
-                                                                                                        self._cache_limit).copy())
+            cache = self._api_client.get_messages_limit(chat_id, self._cache_limit).copy()
+            self._messageRoom_pointer.cache_chat.add_cache(chat_id, cache)

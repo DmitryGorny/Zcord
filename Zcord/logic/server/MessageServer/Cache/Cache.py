@@ -27,16 +27,20 @@ class CacheManager:
         self._main_cache[chat_id].append(message)
         return None
 
-    def init_cache(self, chat_id: str):
+    def init_cache(self, chat_id: str) -> None:
+        if chat_id in self._main_cache.keys():
+            return
         self._main_cache[chat_id] = []
         self._cache_to_send.init_cache(chat_id)
 
     def get_cache(self, chat_id: str, user_out: bool = False) -> List[Dict[str, Union[str, bool]]]:
+        if chat_id not in self._main_cache.keys():
+            raise KeyError
+
         if user_out: #TODO: Нужна ли полная очистка кэша??????
             un_handled_cache = [*[message for message in
                                   self._cache_to_send.get_cache(chat_id, self._limit*4)], *self._main_cache[chat_id]]
             final_cache = [message for message in un_handled_cache if str(message["id"]) == '0']
-            self._cache_to_send.clear_cache(chat_id)
 
             return final_cache
 
@@ -50,6 +54,7 @@ class CacheManager:
 
     def clear_cache(self, chat_id: str) -> None:
         self._main_cache[chat_id].clear()
+        self._cache_to_send.clear_cache(chat_id)
 
     def add_cache(self, chat_id: str, message_list: List[Dict[str, Union[str, bool]]]) -> None:
         for message in message_list:  # TODO: Добавить провреку на дублерование сообщений ????

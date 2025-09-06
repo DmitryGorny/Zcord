@@ -12,7 +12,8 @@ from typing import Callable
 class ChooseStrategy:
     def __init__(self):
         self.__current_strategy = None
-    #sender сейчас только для message_server
+
+    # sender сейчас только для message_server
     def get_strategy(self, command: str, sender: Callable, Server) -> Strategy:
         if self.__current_strategy is not None:
             if self.__current_strategy.command_name == command:
@@ -43,7 +44,7 @@ class ServiceStrategy(Strategy):
         self._server_pointer = kwargs.get("Server_pointer")
 
     @abstractmethod
-    async def execute(self,  msg: dict) -> None:
+    async def execute(self, msg: dict) -> None:
         pass
 
 
@@ -65,10 +66,9 @@ class ChangeChatStrategy(ServiceStrategy):
                                                                       "chat_code": chat_code})
             return
 
-
         await self._sender_to_msg_server_func("__change_chat__", {"nickname": nickname,
-                                                                      "current_chat_id": client_obj.message_chat_id,
-                                                                      "chat_code": chat_code})
+                                                                  "current_chat_id": client_obj.message_chat_id,
+                                                                  "chat_code": chat_code})
 
         client_obj.message_chat_id = chat_code
         return
@@ -87,7 +87,7 @@ class EndSessionStrategy(ServiceStrategy):
             await self._server_pointer.clients[nickname].writer.wait_closed()
         del self._server_pointer.clients[nickname]
         await self._sender_to_msg_server_func("END-SESSION", {"nickname": nickname})
-        raise ConnectionResetError #Чтобы задача стопалась
+        raise ConnectionResetError  # Чтобы задача стопалась
 
 
 class RequestCacheStrategy(ServiceStrategy):

@@ -2,20 +2,22 @@ import json
 import socket
 import threading
 from datetime import datetime
-from typing import Dict, List, Any, Union
+from typing import Dict, List, Any, Union, Tuple
 
 import msgspec
 import copy
 import select
 
 from logic.server.MessageServer.Cache.Cache import CacheManager
+from logic.server.MessageServer.Clients.ClientManager import ClientManager
 from logic.server.StrategiesForMessageServer.StratsForServer import ChooseStrategy
 
-class MessageRoom(object): #TODO: Когда-нибудь переделать
-    nicknames_in_chats:  Dict[str, List[str]] = {}
+
+class MessageRoom(object):  # TODO: Когда-нибудь переделать
+    nicknames_in_chats: Dict[str, List[str]] = {}
     cache_chat: CacheManager = CacheManager()
     unseenMessages = {}
-    clients: dict[str, socket.socket] = {}
+    clients: ClientManager = ClientManager()
     _strat_choose = ChooseStrategy()
 
     @staticmethod
@@ -54,18 +56,17 @@ class MessageRoom(object): #TODO: Когда-нибудь переделать
 
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             try:
-                MessageRoom.clients[client].send(json.dumps(messaghe_to_send).encode('utf-8'))
+                MessageRoom.clients.send(client, json.dumps(messaghe_to_send).encode('utf-8'))
             except KeyError:
                 continue
 
     @staticmethod
-    def send_cache(cache_list: list[dict[str, str]], nickname_to_recv: str):
+    def send_cache(cache_list: list[dict[str, str]], client_identent: str):
         message = {
             "type": "RECEIVE-CACHE",
             "cache": cache_list
         }
-        MessageRoom.clients[nickname_to_recv].send(MessageRoom.serialize(message))
-
+        MessageRoom.clients.send(client_identent, MessageRoom.serialize(message))
 
     @staticmethod
     def decode_multiple_json_objects(data):
@@ -151,17 +152,11 @@ def receive(server_socket):
             client, address = server_socket.accept()
             print(f"Connected to {address}")
 
-            m = MessageRoom()
-            for key in MessageRoom.clients.keys():
-                if not isinstance(MessageRoom.clients[key], str):
-                    continue
-
-                if MessageRoom.clients[key] == client.getpeername()[0]:
-                    MessageRoom.clients[key] = client
+            socket_connected = MessageRoom.clients.replace_ip_with_socket(client.getpeername()[0], client)
+            #TODO: Зациклить в случае None????
 
             thread = threading.Thread(target=MessageRoom.handle, args=(client,))
             thread.start()
-
 
 
 if __name__ == "__main__":

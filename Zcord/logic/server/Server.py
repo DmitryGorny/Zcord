@@ -61,9 +61,10 @@ class Server:
 
         client_ip = writer.transport.get_extra_info('socket').getpeername()
         await send_to_message_server("USER-INFO", {"nickname": nickname,
-                                                   "serialize_1": self.serialize(first_info[0]).decode('utf-8'),
-                                                   "serialize_2": self.serialize({nickname: client_ip[0]}).decode('utf-8')
-                                                   })
+                                                   "serialize_1": self.serialize(chats).decode('utf-8'),
+                                                   "serialize_2": self.serialize({'nickname': nickname,
+                                                                                  'user_id': str(client_obj.id),
+                                                                                  "IP": client_ip[0]}).decode('utf-8')})
 
         while True:
             buffer = ''

@@ -7,7 +7,7 @@ class ChatModel:
         pass
 
     def ask_for_cached_messages(self):
-        ClientConnections.send_service_message(f"__CACHED-REQUEST__")
+        ClientConnections.send_chat_message(f"SCROLL-CACHE-REQUEST")
 
     def send_message(self, text: str):
         ClientConnections.send_chat_message(text)

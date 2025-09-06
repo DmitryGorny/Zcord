@@ -80,7 +80,12 @@ class UserInfoStrategy(MessageStrategy):
             self._messageRoom_pointer.cache_chat.init_cache(chat_id)
 
         msg = json.loads(serialize_2)
-        self._messageRoom_pointer.clients[list(msg.keys())[0]] = msg[list(msg.keys())[0]]
+
+        nickname = msg["nickname"]
+        user_id = msg["user_id"]
+        IP = msg["IP"]
+
+        self._messageRoom_pointer.clients.add_client(client_id=user_id, ip=IP, nickname=nickname)
 
 
 class EndSessionStrat(MessageStrategy):
@@ -91,15 +96,16 @@ class EndSessionStrat(MessageStrategy):
 
     def execute(self, msg: dict) -> None:
         nickname = msg["nickname"]
-        self._messageRoom_pointer.clients[nickname].close()
-        self._messageRoom_pointer.clients.pop(nickname)
+        self._messageRoom_pointer.clients.remove_client(client_identent=nickname)
 
         for id_chat in self._messageRoom_pointer.nicknames_in_chats.keys():  # TODO: Слишком медленно
             if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
                 self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
                 if len(self._messageRoom_pointer.nicknames_in_chats[id_chat]) == 1:
-                    self._api_client.send_messages_bulk(self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
+                    self._api_client.send_messages_bulk(
+                        self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
                     self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
+
 
 class EndSession(MessageStrategy):
     command_name = "CHAT-MESSAGE"
@@ -143,8 +149,21 @@ class RequestCacheStrategy(MessageStrategy):
             return
 
         for chat_id in chats_ids:
-            print(self._messageRoom_pointer.cache_chat.get_cache(chat_id))
             if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)) > 0:
                 continue
             cache = self._api_client.get_messages_limit(chat_id, self._cache_limit).copy()
             self._messageRoom_pointer.cache_chat.add_cache(chat_id, cache)
+
+
+class ScrollRequestCacheStrategy(MessageStrategy):
+    command_name = "SCROLL-CACHE-REQUEST"
+
+    def __init__(self):
+        super(ScrollRequestCacheStrategy, self).__init__()
+        self._cache_limit = '15'  # Ограничение по единоразовой загрузке сообщений
+
+    def execute(self, msg: dict[str, str]) -> None:
+        chat_id = msg["chat_id"]
+
+        cache = self._messageRoom_pointer.cache_chat.get_cache(chat_id)
+        self._messageRoom_pointer.send_cache(cache, msg["user_id"])

@@ -61,7 +61,7 @@ class ChangeChatStrategy(MessageStrategy):
         if len(cache) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(cache, nickname)
+        self._messageRoom_pointer.send_cache(cache["cache"], cache["index"], nickname)
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -87,7 +87,6 @@ class UserInfoStrategy(MessageStrategy):
 
         self._messageRoom_pointer.clients.add_client(client_id=user_id, ip=IP, nickname=nickname)
 
-
 class EndSessionStrat(MessageStrategy):
     command_name = "END-SESSION"
 
@@ -101,9 +100,9 @@ class EndSessionStrat(MessageStrategy):
         for id_chat in self._messageRoom_pointer.nicknames_in_chats.keys():  # TODO: Слишком медленно
             if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
                 self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
-                if len(self._messageRoom_pointer.nicknames_in_chats[id_chat]) == 1:
+                if len(self._messageRoom_pointer.nicknames_in_chats[id_chat]) == 0:
                     self._api_client.send_messages_bulk(
-                        self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True))
+                        self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True)["cache"])
                     self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
 
 
@@ -149,7 +148,7 @@ class RequestCacheStrategy(MessageStrategy):
             return
 
         for chat_id in chats_ids:
-            if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)) > 0:
+            if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)["cache"]) > 0:
                 continue
             cache = self._api_client.get_messages_limit(chat_id, self._cache_limit).copy()
             self._messageRoom_pointer.cache_chat.add_cache(chat_id, cache)
@@ -160,10 +159,16 @@ class ScrollRequestCacheStrategy(MessageStrategy):
 
     def __init__(self):
         super(ScrollRequestCacheStrategy, self).__init__()
-        self._cache_limit = '15'  # Ограничение по единоразовой загрузке сообщений
 
     def execute(self, msg: dict[str, str]) -> None:
-        chat_id = msg["chat_id"]
+        chat_id = str(msg["chat_id"])
+        user_id = msg["user_id"]
+        index = msg["index"]
 
-        cache = self._messageRoom_pointer.cache_chat.get_cache(chat_id)
-        self._messageRoom_pointer.send_cache(cache, msg["user_id"])
+        cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
+
+        if cache is not None:
+            self._messageRoom_pointer.send_cache(cache["cache"], cache["index"], str(user_id), True)
+        else:
+            raise ValueError("DB")
+            #TODO: Запрос в бд для кэша

@@ -20,7 +20,7 @@ class ChatController:
         self._model.send_message(text)
 
     def get_socket_controller(self) -> 'ChatController.SocketController':
-        return self.SocketController(self._views)
+        return self.SocketController(self._views, self._model)
 
     # TODO: Переделать вместе с ситемой добавления друзей + ChatModel
     def send_friend_request(self, chat_id, friend_nick):
@@ -36,14 +36,22 @@ class ChatController:
         self._model.accept_friend_request(user, friend_nick)
 
     class SocketController:
-        def __init__(self, views: Dict[str, ChatView]):
+        def __init__(self, views: Dict[str, ChatView], model: ChatModel):
             self._views = views
+            self._model = model
 
         def clear_layout(self, chat_id: str):
             self._views[chat_id].clearLayout()
 
-        #TODO:Пересмотреть метод в view
-        #TODO: Сделать еще awaited версию см. SygnalReciever
-        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: bool = False,
-                            event: threading.Event = None):
+        # TODO:Пересмотреть метод в view
+        # TODO: Сделать еще awaited версию см. SygnalReciever
+        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: bool = False):
             self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)
+
+        def awaited_receive_message(self, chat_id: str, sender, text, date, messageIndex=1,
+                                    wasSeen: bool = False, event: threading.Event = None):
+            self._views[chat_id].awaitedMessageReceive.emit(sender, text, date, messageIndex, wasSeen, event)
+
+        def enable_scroll_bar(self, chat_id: str):
+            self._views[chat_id].enable_scroll_bar.emit()
+            self._model.enable_scroll_cache()

@@ -27,7 +27,8 @@ class ClientConnections:
     def start_client(user, chats: queue.Queue):
         sockets = ClientConnections._create_sockets()
         ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
-        ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"], sockets["message_tcp"])
+        ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"],
+                                                                                           sockets["message_tcp"])
         ClientConnections._init_chats(chats)
         ClientConnections._create_threads()
 
@@ -100,10 +101,20 @@ class ClientConnections:
         ClientConnections._service_connection.send_message(message, current_chat)
 
     @staticmethod
-    def send_chat_message(message: str) -> None:
+    def send_chat_message(message: str = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._message_connection.send_message(message, current_chat)
+        ClientConnections._message_connection.send_message(current_chat, message=message)
 
+    @staticmethod
+    def send_message_server_message(msg_type: str, extra_data: dict):
+        current_chat = ClientConnections._chat_interface.current_chat_id
+        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data=extra_data)
+
+    @staticmethod
+    def ask_for_scroll_cache(msg_type: str):
+        current_chat = ClientConnections._chat_interface.current_chat_id
+        index = ClientConnections._chat_interface.chat.scroll_index
+        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data={"index": index})
     @staticmethod
     def close() -> None:
         ClientConnections.send_service_message("END-SESSION")

@@ -20,12 +20,21 @@ class MessageConnection(IConnection, BaseConnection):
 
         self._flg = True
 
-    def send_message(self, message, current_chat_id: int, msg_type: str = "CHAT-MESSAGE") -> None:
+        self._block_scroll_cache = False
+
+    def send_message(self, current_chat_id: int, message=None, msg_type: str = "CHAT-MESSAGE",
+                     extra_data: dict = None) -> None:
         msg = {
             "type": msg_type,
             "chat_id": current_chat_id,
             "user_id": self._user.id,
-            "message": message}
+        }
+
+        if extra_data is None:
+            msg["message"] = message
+        else:
+            msg = msg | extra_data
+
         self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     @property
@@ -50,10 +59,11 @@ class MessageConnection(IConnection, BaseConnection):
                     try:
                         strategy = self._choose_strategy.get_strategy(msg["type"], self)
                         strategy.execute(msg)
-                    except TypeError:
-                        print(1111)
-                    except KeyError:
-                        print(123)
+                    except TypeError as e:
+                        print(e)
+                        pass
+                    except KeyError as i:
+                        print(i)
                         pass
                 continue
             except os.error as e:

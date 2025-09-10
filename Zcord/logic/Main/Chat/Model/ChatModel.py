@@ -4,10 +4,14 @@ from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 class ChatModel:
     def __init__(self):
-        pass
+        self._block_scroll_cache = False
 
     def ask_for_cached_messages(self):
-        ClientConnections.send_chat_message(f"SCROLL-CACHE-REQUEST")
+        if not self._block_scroll_cache:
+            ClientConnections.ask_for_scroll_cache(msg_type=f"SCROLL-CACHE-REQUEST")
+
+    def enable_scroll_cache(self):
+        self._block_scroll_cache = False
 
     def send_message(self, text: str):
         ClientConnections.send_chat_message(text)

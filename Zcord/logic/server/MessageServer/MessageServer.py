@@ -45,7 +45,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
     def broadcast(msg):
         chat_code = msg[0]
 
-        messaghe_to_send = {
+        message_to_send = {
             "type": "CHAT-MESSAGE",
             "chat": msg[0],
             "message": msg[1],
@@ -56,16 +56,23 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
 
         for client in MessageRoom.nicknames_in_chats[chat_code]:
             try:
-                MessageRoom.clients.send(client, json.dumps(messaghe_to_send).encode('utf-8'))
+                MessageRoom.clients.send(client, json.dumps(message_to_send).encode('utf-8'))
             except KeyError:
                 continue
 
     @staticmethod
-    def send_cache(cache_list: list[dict[str, str]], client_identent: str):
+    def send_cache(cache_list: list[dict[str, str]], index: int, client_identent: str, scroll_cache: bool = False):
+        msg_type = "RECEIVE-CACHE"
+
+        if scroll_cache:
+            msg_type = "RECEIVE-CACHE-SCROLL"
+
         message = {
-            "type": "RECEIVE-CACHE",
-            "cache": cache_list
+            "type": msg_type,
+            "cache": cache_list,
+            "index": index,
         }
+
         MessageRoom.clients.send(client_identent, MessageRoom.serialize(message))
 
     @staticmethod

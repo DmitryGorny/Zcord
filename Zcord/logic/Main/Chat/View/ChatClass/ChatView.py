@@ -6,17 +6,19 @@ from logic.Main.Chat.View.FriendRequestMessage.FriendReauestMessage import Frien
 from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 
 
-
 class ChatView(QtWidgets.QWidget):
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
+    awaitedMessageReceive = QtCore.pyqtSignal(str, str, str, int, bool, object)
     clear_layout = QtCore.pyqtSignal()
+    enable_scroll_bar = QtCore.pyqtSignal()
 
     def __init__(self, chatId, friend_nick, user, controller):
         super(ChatView, self).__init__()
-        #Сигналы
+        # Сигналы
         self.messageReceived.connect(self.recieveMessage)
-
-        #Сигналы
+        self.awaitedMessageReceive.connect(self.recieveMessage)
+        self.enable_scroll_bar.connect(self.enable_scroll)
+        # Сигналы
 
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
@@ -26,6 +28,9 @@ class ChatView(QtWidgets.QWidget):
         self.__chatId = chatId
         self.__user = user
         self.__friendNickname = friend_nick
+
+        self._old_max_scroll = None
+        self._old_value_scroll = None
 
         self.ui.UsersNickInChat.setText(friend_nick)
         self.ui.UsersLogoinChat.setText(friend_nick[0])
@@ -42,12 +47,12 @@ class ChatView(QtWidgets.QWidget):
 
         self.ui.InfoButton.clicked.connect(self.showDeleteFriendDialog)
 
-        self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.askForCachedMessages)
+        self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.ask_for_cached_messages)
 
         self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
 
-        #if self.__user.getFriends()[self.__friendNickname][1] == 1: TODO: Вернуть после переработки
-            #self.ui.ChatInputLayout.setHidden(True)
+        # if self.__user.getFriends()[self.__friendNickname][1] == 1: TODO: Вернуть после переработки
+        # self.ui.ChatInputLayout.setHidden(True)
 
         self.messageNumber = None
 
@@ -55,10 +60,24 @@ class ChatView(QtWidgets.QWidget):
 
         self.scroll_pos = 0
 
-
-    def askForCachedMessages(self, val):
-        if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum()/4):
+    def ask_for_cached_messages(self, val):
+        if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
             self._controller.ask_for_cached_message()
+            self._block_scroll_cache = True
+
+            self._old_max_scroll = self.ui.ChatScroll.verticalScrollBar().maximum()
+            self._old_value_scroll = self.ui.ChatScroll.verticalScrollBar().value()
+
+
+    @QtCore.pyqtSlot()
+    def enable_scroll(self):
+        scrollbar = self.ui.ChatScroll.verticalScrollBar()
+
+        new_max = scrollbar.maximum()
+        scroll_delta = new_max - self._old_max_scroll
+
+        if scroll_delta > 0:
+            scrollbar.setValue(self._old_value_scroll + scroll_delta)
 
 
     def sendMessage(self):
@@ -71,7 +90,8 @@ class ChatView(QtWidgets.QWidget):
         self.ui.Chat_input_.clear()
 
     @QtCore.pyqtSlot(str, str, str, int, bool)
-    def recieveMessage(self, sender, text, date, messageIndex=1, wasSeen: bool = False, event: threading.Event = None): #Нужно еще 20 аргументов
+    def recieveMessage(self, sender, text, date, messageIndex=1, wasSeen: bool = False,
+                       event: threading.Event = None):  # Нужно еще 20 аргументов
         if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
             self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
 
@@ -103,7 +123,7 @@ class ChatView(QtWidgets.QWidget):
             self.ui.ChatScroll.addItem(widget)
         else:
             self.ui.ChatScroll.insertItem(0, widget)
-            #self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
+            # self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
 
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
 
@@ -116,10 +136,10 @@ class ChatView(QtWidgets.QWidget):
         return True
 
     def slotForScroll(self):
-        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/4))
+        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4))
 
-    def addMessageOnTop(self, sender, text, date, index, wasSeen:int = 0, event = None): #Надубасил в код жестко
-         self.recieveMessage(sender, text, date, index, wasSeen, event)
+    def addMessageOnTop(self, sender, text, date, wasSeen: int = 0, event=None):  # Надубасил в код жестко
+        self.recieveMessage(sender, text, date, wasSeen, event)
 
     def changeUnseenStatus(self, numberOfWidgets):
         if numberOfWidgets >= len(self.unseenMessages):
@@ -130,6 +150,7 @@ class ChatView(QtWidgets.QWidget):
             del self.unseenMessages[-(numberOfWidgets):]
         except Exception:
             return
+
     def sendFriendRequest(self):
         self._controller.send_friend_request(self.__chatId, self.__friendNickname)
 

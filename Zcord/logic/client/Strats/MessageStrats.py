@@ -1,3 +1,5 @@
+import threading
+import time
 from abc import abstractmethod
 from datetime import datetime
 
@@ -77,6 +79,8 @@ class ReceiveCacheStrat(ClientsStrategies):
 
     def execute(self, msg: dict) -> None:
         friends = self._message_connection_pointer.user.getFriends()
+        index = msg["index"]
+        self._message_connection_pointer.chat.scroll_index = index
         for message in msg["cache"]:
             try:
                 nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
@@ -95,4 +99,42 @@ class ReceiveCacheStrat(ClientsStrategies):
                 str(self._message_connection_pointer.chat.chat_id),
                 message["sender"],
                 message["message"], date_now, 1,
-                message["was_seen"]) #пофиксить и переделать change_chat
+                message["was_seen"])  # пофиксить и переделать change_chat
+
+
+class ReceiveScrollCache(ClientsStrategies):
+    header_name = "RECEIVE-CACHE-SCROLL"
+
+    def __init__(self):
+        super(ReceiveScrollCache, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        friends = self._message_connection_pointer.user.getFriends()
+        index = msg["index"]
+        self._message_connection_pointer.chat.scroll_index = index
+        for message in msg["cache"]:
+            try:
+                nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
+            except StopIteration:
+                nickname = self._message_connection_pointer.user.getNickName()
+
+            message["sender"] = nickname
+
+            dt = datetime.strptime(message["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
+            date_now = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+            if self._message_connection_pointer.chat is None:
+                raise ValueError("chat = None, не прошла инициализация")
+
+            event = threading.Event()
+            self._message_connection_pointer.chat.socket_controller.awaited_receive_message(
+                str(self._message_connection_pointer.chat.chat_id),
+                message["sender"],
+                message["message"],
+                date_now,
+                0,
+                message["was_seen"],
+                event)
+
+        self._message_connection_pointer.chat.socket_controller.enable_scroll_bar(
+                chat_id=str(self._message_connection_pointer.chat.chat_id))

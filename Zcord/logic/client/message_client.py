@@ -20,8 +20,6 @@ class MessageConnection(IConnection, BaseConnection):
 
         self._flg = True
 
-        self._block_scroll_cache = False
-
     def send_message(self, current_chat_id: int, message=None, msg_type: str = "CHAT-MESSAGE",
                      extra_data: dict = None) -> None:
         msg = {
@@ -62,7 +60,7 @@ class MessageConnection(IConnection, BaseConnection):
                     except TypeError as e:
                         print(e)
                     except KeyError as i:
-                        print(i, 22222)
+                        print(i)
                 continue
             except os.error as e:
                 if not self._flg:

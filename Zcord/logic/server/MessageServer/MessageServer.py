@@ -78,6 +78,17 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
         MessageRoom.clients.send(client_identent, MessageRoom.serialize(message))
 
     @staticmethod
+    def send_info_message(client_identent: str, msg_type: str, data: Dict[str, str] = None):
+        message = {
+            "type": msg_type,
+        }
+
+        if data is not None:
+            message = message | data
+
+        MessageRoom.clients.send(client_identent, MessageRoom.serialize(message))
+
+    @staticmethod
     def decode_multiple_json_objects(data):
         decoder = json.JSONDecoder()
         idx = 0

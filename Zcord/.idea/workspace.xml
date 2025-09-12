@@ -9,6 +9,7 @@
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/message_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -318,15 +319,6 @@
     <option name="LAST_COMMIT_MESSAGE" value="Работающий ЛС" />
   </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py</url>
-          <line>46</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
     <watches-manager>
       <configuration name="PythonConfigurationType">
         <watch expression="self._main_cache" language="Python" />

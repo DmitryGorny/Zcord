@@ -83,7 +83,6 @@ class ReceiveCacheStrat(ClientsStrategies):
         friends = self._message_connection_pointer.user.getFriends()
         try:
             index = msg["index"]
-            print(index)
             self._message_connection_pointer.chat.scroll_index = index
         except KeyError:
             self._message_connection_pointer.chat.scroll_index = 0
@@ -113,7 +112,6 @@ class ReceiveCacheStrat(ClientsStrategies):
                 scroll_db_counter += 1
 
         if scroll_db_counter > 0:
-            print(scroll_db_counter, 1111113421)
             self._message_connection_pointer.chat.scroll_db_index = scroll_db_counter
 
 
@@ -135,7 +133,6 @@ class ReceiveScrollCache(ClientsStrategies):
             if len(msg["cache"]) >= CACHE_LIMIT:
                 self._message_connection_pointer.chat.scroll_db_index = len(msg["cache"])
             else:
-                print(23324321)
                 self._message_connection_pointer.chat.socket_controller.stop_requesting_cache()
                 flg = False
 
@@ -168,9 +165,19 @@ class ReceiveScrollCache(ClientsStrategies):
                 counter_for_db_scroll_index += 1
 
         if not message_from_db:
-            print(counter_for_db_scroll_index, 2)
             self._message_connection_pointer.chat.scroll_db_index = counter_for_db_scroll_index
 
         if flg:
             self._message_connection_pointer.chat.socket_controller.enable_scroll_bar(
                 chat_id=str(self._message_connection_pointer.chat.chat_id))
+
+
+class CacheSentToDB(ClientsStrategies):
+    header_name = "CACHE-SENT-TO-DB"
+
+    def __init__(self):
+        super(CacheSentToDB, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        self._message_connection_pointer.chat.scroll_index = 0
+        self._message_connection_pointer.chat.scroll_db_index = 0

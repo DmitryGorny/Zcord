@@ -56,8 +56,8 @@ class ChangeChatStrategy(MessageStrategy):
 
         try:
             self._messageRoom_pointer.nicknames_in_chats[current_chat_id].remove(nickname)
-        except ValueError:
-            print(1111111)
+        except ValueError as e:
+            print(e)
         except KeyError:
             print("Клик по тому же чату")
         self._messageRoom_pointer.nicknames_in_chats[chat_code].append(nickname)
@@ -138,6 +138,7 @@ class EndSession(MessageStrategy):
         if result is not None:
             self._api_client.send_messages_bulk(result)
             self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
+            self._messageRoom_pointer.send_info_message(user_id, "CACHE-SENT-TO-DB")
 
         self._messageRoom_pointer.broadcast((chat_code, message, date_now, user_id, message_to_send["was_seen"]))
 
@@ -172,7 +173,6 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         user_id = msg["user_id"]
         index = msg["index"]
         db_index = msg["db_index"]
-
         cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
 
         if cache is not None and len(cache["cache"]) > 0:
@@ -183,16 +183,13 @@ class ScrollRequestCacheStrategy(MessageStrategy):
             return
 
         last_message = self._messageRoom_pointer.cache_chat.get_extra_cache_last_message(chat_id)
-        if last_message["id"] != '0':
-            cache = self._api_client.get_messages_limit_offset(chat_id, CACHE_LIMIT, db_index)
-            print(cache)
-        else:
-            cache = self._api_client.get_messages_limit(chat_id, CACHE_LIMIT)
+
+
+        cache = self._api_client.get_messages_limit_offset(chat_id, CACHE_LIMIT, db_index)
+
 
         if cache is None:
-            #Добавить сообщение, чтобы клиент не спамил запросами кэша
             return
-        print(len(cache), db_index)
         self._messageRoom_pointer.send_cache(cache[::-1], str(user_id), scroll_cache=True)
 
 

@@ -61,17 +61,19 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
                 continue
 
     @staticmethod
-    def send_cache(cache_list: list[dict[str, str]], index: int, client_identent: str, scroll_cache: bool = False):
+    def send_cache(cache_list: list[dict[str, str]], client_identent: str, index: int = 0, scroll_cache: bool = False):
         msg_type = "RECEIVE-CACHE"
-
         if scroll_cache:
             msg_type = "RECEIVE-CACHE-SCROLL"
 
         message = {
             "type": msg_type,
             "cache": cache_list,
-            "index": index,
+            "index": index
         }
+
+        if index == 0:
+            del message["index"]  # TODO: НЕНАВИЖУ СЕБЯ
 
         MessageRoom.clients.send(client_identent, MessageRoom.serialize(message))
 

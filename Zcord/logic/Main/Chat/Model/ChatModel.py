@@ -9,6 +9,10 @@ class ChatModel:
     def ask_for_cached_messages(self):
         if not self._block_scroll_cache:
             ClientConnections.ask_for_scroll_cache(msg_type=f"SCROLL-CACHE-REQUEST")
+            self._block_scroll_cache = True
+
+    def stop_requesting_cache(self):
+        self._block_scroll_cache = True
 
     def enable_scroll_cache(self):
         self._block_scroll_cache = False

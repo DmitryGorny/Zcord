@@ -6,15 +6,17 @@ from logic.db_handler.api_client import APIClient
 from logic.server.MessageServer.Cache.Cache import CacheOverloadError
 from logic.server.Strategy import Strategy
 from abc import abstractmethod, ABC
-from typing import Callable
+from typing import Callable, List, Dict, Union
 from logic.server.StrategyForServiceServer.ServeiceStrats import ServiceStrategy
+
+CACHE_LIMIT = '15'
 
 
 class ChooseStrategy:
     def __init__(self):
         self.__current_strategy = None
 
-    def get_strategy(self, command: str, Server) -> Strategy:
+    def get_strategy(self, command: str, Server) -> Strategy | None:
         if self.__current_strategy is not None:
             if self.__current_strategy.command_name == command:
                 return self.__current_strategy
@@ -35,6 +37,10 @@ class MessageStrategy(ServiceStrategy):
 
     def set_data(self, **kwargs):
         self._messageRoom_pointer = kwargs.get("messageRoom_pointer")
+
+    @abstractmethod
+    def execute(self, msg: dict) -> None:
+        pass
 
 
 class ChangeChatStrategy(MessageStrategy):
@@ -61,7 +67,7 @@ class ChangeChatStrategy(MessageStrategy):
         if len(cache) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(cache["cache"], cache["index"], nickname)
+        self._messageRoom_pointer.send_cache(cache["cache"], nickname, index=cache["index"])
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -86,6 +92,7 @@ class UserInfoStrategy(MessageStrategy):
         IP = msg["IP"]
 
         self._messageRoom_pointer.clients.add_client(client_id=user_id, ip=IP, nickname=nickname)
+
 
 class EndSessionStrat(MessageStrategy):
     command_name = "END-SESSION"
@@ -140,7 +147,6 @@ class RequestCacheStrategy(MessageStrategy):
 
     def __init__(self):
         super(RequestCacheStrategy, self).__init__()
-        self._cache_limit = '15'  # Ограничение по единоразовой загрузке сообщений
 
     def execute(self, msg: dict[str, str]) -> None:
         chats_ids = msg["chats_ids"].split(',')
@@ -150,7 +156,8 @@ class RequestCacheStrategy(MessageStrategy):
         for chat_id in chats_ids:
             if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)["cache"]) > 0:
                 continue
-            cache = self._api_client.get_messages_limit(chat_id, self._cache_limit).copy()
+
+            cache = self._api_client.get_messages_limit(chat_id, CACHE_LIMIT).copy()
             self._messageRoom_pointer.cache_chat.add_cache(chat_id, cache)
 
 
@@ -164,11 +171,28 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         chat_id = str(msg["chat_id"])
         user_id = msg["user_id"]
         index = msg["index"]
+        db_index = msg["db_index"]
 
         cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
 
-        if cache is not None:
-            self._messageRoom_pointer.send_cache(cache["cache"], cache["index"], str(user_id), True)
+        if cache is not None and len(cache["cache"]) > 0:
+            self._messageRoom_pointer.send_cache(cache_list=cache["cache"],
+                                                 client_identent=str(user_id),
+                                                 scroll_cache=True,
+                                                 index=cache["index"])
+            return
+
+        last_message = self._messageRoom_pointer.cache_chat.get_extra_cache_last_message(chat_id)
+
+        if last_message["id"] != '0':
+            cache = self._api_client.get_messages_limit_offset(chat_id, CACHE_LIMIT, db_index)
         else:
-            raise ValueError("DB")
-            #TODO: Запрос в бд для кэша
+            cache = self._api_client.get_messages_limit(chat_id, CACHE_LIMIT)
+
+        if cache is None:
+            #Добавить сообщение, чтобы клиент не спамил запросами кэша
+            return
+        print(len(cache), db_index)
+        self._messageRoom_pointer.send_cache(cache[::-1], str(user_id), scroll_cache=True)
+
+

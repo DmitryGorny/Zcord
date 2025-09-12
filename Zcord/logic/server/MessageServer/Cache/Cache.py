@@ -25,7 +25,7 @@ class CacheManager:
         При необходимости выгруза кэша в БД выбросит CacheOverloadError
         """
         if len(self._main_cache[chat_id]) >= self._limit:
-            for i in range(self._cache_to_send.current_free_space(chat_id) + 1):  # TODO: Почему нужен + 1
+            for i in range(self._cache_to_send.current_free_space(chat_id) + 1):
                 try:
                     self._cache_to_send.add_value(chat_id, self._main_cache[chat_id][i])
                 except IndexError:
@@ -88,6 +88,13 @@ class CacheManager:
         for message in message_list:  # TODO: Добавить провреку на дублерование сообщений ????
             self.add_value(chat_id, message)
 
+    def get_extra_cache_last_message(self, chat_id: str) -> Message:
+        message = self._cache_to_send.get_last_message(chat_id)
+
+        if message is None:
+            message = self._main_cache[chat_id][-1]
+
+        return message
     class SendCache:
         def __init__(self, max_massages: int = 60):
             self._current_free_space: Dict[str, int] = {}
@@ -129,15 +136,16 @@ class CacheManager:
             if current_index > self._max_messages:
                 return None
 
-            if self._max_messages / MAX_MESSAGES_INDEX > len(self._cache[chat_id]) - current_index: #TODO: А нужно ли?
-                if len(self._cache[chat_id]) - int(current_index) < 0:
-                    # current_index = len(self._cache) - current_index
-                    return None
-
             end = int(self._max_messages / MAX_MESSAGES_INDEX)
             next_index = min(current_index + end, len(self._cache[chat_id]))
-
+            #print(self._cache[chat_id], current_index)
             return self._cache[chat_id][::-1][int(current_index):next_index], next_index
+
+        def get_last_message(self, chat_id: str) -> Message | None:
+            try:
+                return self._cache[chat_id][-1]
+            except IndexError:
+                return None
 
 
 class CacheOverloadError(Exception):

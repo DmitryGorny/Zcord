@@ -130,6 +130,14 @@ class APIClient:
         }
         return self._request("GET", "messages/", params=data)['results']
 
+    def get_messages_limit_offset(self, chat_id, limit, offset):
+        data = {
+            "search": chat_id,
+            "limit": limit,
+            "offset": offset
+        }
+        return self._request("GET", "messages/", params=data)['results']
+
     def send_messages_bulk(self, messages_list):
         data = {
             "messages": messages_list

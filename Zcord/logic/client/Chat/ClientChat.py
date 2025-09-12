@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 
 
 class Chat:
@@ -8,7 +8,7 @@ class Chat:
         self.socket_controller = socket_controller
 
         self._scroll_index: int = 0
-
+        self._scroll_db_index: int = 0
         self._max_scroll_index: int = scroll_index
 
     @property
@@ -25,13 +25,21 @@ class Chat:
 
     @scroll_index.setter
     def scroll_index(self, ind: int):
-        if ind > self._max_scroll_index:
-            raise ValueError("index is too big")
-
         if ind < 0:
             raise ValueError("index cant be smaller than 0")
-
         self._scroll_index = ind
+
+    @property
+    def scroll_db_index(self) -> int:
+        return self._scroll_db_index
+
+    @scroll_db_index.setter
+    def scroll_db_index(self, ind: int):
+        if ind < 0:
+            raise ValueError("index cant be smaller than 0")
+        if ind == 0:
+            self._scroll_db_index = 0
+        self._scroll_db_index += ind
 
 
 class ChatInterface:
@@ -69,6 +77,8 @@ class ChatInterface:
 
         if self._chat is not None:
             self._chat.scroll_index = 0
+            self._chat.scroll_db_index = 0
+            self._chat.socket_controller.enable_model_scroll_bar_requesting()
 
         chat_filter = filter(lambda x: x.chat_id == chat_id, self._chats)
         chat = next(chat_filter, None)

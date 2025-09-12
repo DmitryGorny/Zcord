@@ -5,6 +5,8 @@ from datetime import datetime
 
 from logic.client.Strats.Strategy import Strategy
 
+CACHE_LIMIT = 15
+
 
 class ChooseStrategy:
     def __init__(self):
@@ -79,8 +81,14 @@ class ReceiveCacheStrat(ClientsStrategies):
 
     def execute(self, msg: dict) -> None:
         friends = self._message_connection_pointer.user.getFriends()
-        index = msg["index"]
-        self._message_connection_pointer.chat.scroll_index = index
+        try:
+            index = msg["index"]
+            print(index)
+            self._message_connection_pointer.chat.scroll_index = index
+        except KeyError:
+            self._message_connection_pointer.chat.scroll_index = 0
+
+        scroll_db_counter = 0
         for message in msg["cache"]:
             try:
                 nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
@@ -101,6 +109,13 @@ class ReceiveCacheStrat(ClientsStrategies):
                 message["message"], date_now, 1,
                 message["was_seen"])  # пофиксить и переделать change_chat
 
+            if message["id"] != "0":
+                scroll_db_counter += 1
+
+        if scroll_db_counter > 0:
+            print(scroll_db_counter, 1111113421)
+            self._message_connection_pointer.chat.scroll_db_index = scroll_db_counter
+
 
 class ReceiveScrollCache(ClientsStrategies):
     header_name = "RECEIVE-CACHE-SCROLL"
@@ -109,9 +124,22 @@ class ReceiveScrollCache(ClientsStrategies):
         super(ReceiveScrollCache, self).__init__()
 
     def execute(self, msg: dict) -> None:
+        flg = True
+        message_from_db = False
         friends = self._message_connection_pointer.user.getFriends()
-        index = msg["index"]
-        self._message_connection_pointer.chat.scroll_index = index
+        try:
+            index = msg["index"]
+            self._message_connection_pointer.chat.scroll_index = index
+        except KeyError:
+            message_from_db = True
+            if len(msg["cache"]) >= CACHE_LIMIT:
+                self._message_connection_pointer.chat.scroll_db_index = 0
+                self._message_connection_pointer.chat.scroll_db_index = len(msg["cache"])
+            else:
+                self._message_connection_pointer.chat.socket_controller.stop_requesting_cache()
+                flg = False
+
+        counter_for_db_scroll_index = 0
         for message in msg["cache"]:
             try:
                 nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
@@ -136,5 +164,13 @@ class ReceiveScrollCache(ClientsStrategies):
                 message["was_seen"],
                 event)
 
-        self._message_connection_pointer.chat.socket_controller.enable_scroll_bar(
+            if message["id"] != "0":
+                counter_for_db_scroll_index += 1
+
+        if not message_from_db:
+            print(counter_for_db_scroll_index)
+            self._message_connection_pointer.chat.scroll_db_index = counter_for_db_scroll_index
+
+        if flg:
+            self._message_connection_pointer.chat.socket_controller.enable_scroll_bar(
                 chat_id=str(self._message_connection_pointer.chat.chat_id))

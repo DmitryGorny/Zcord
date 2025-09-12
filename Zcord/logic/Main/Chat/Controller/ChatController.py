@@ -55,3 +55,9 @@ class ChatController:
         def enable_scroll_bar(self, chat_id: str):
             self._views[chat_id].enable_scroll_bar.emit()
             self._model.enable_scroll_cache()
+
+        def stop_requesting_cache(self):
+            self._model.stop_requesting_cache()
+
+        def enable_model_scroll_bar_requesting(self):
+            self._model.enable_scroll_cache()

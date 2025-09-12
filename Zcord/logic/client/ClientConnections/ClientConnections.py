@@ -114,7 +114,10 @@ class ClientConnections:
     def ask_for_scroll_cache(msg_type: str):
         current_chat = ClientConnections._chat_interface.current_chat_id
         index = ClientConnections._chat_interface.chat.scroll_index
-        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data={"index": index})
+        db_index = ClientConnections._chat_interface.chat.scroll_db_index
+        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data={"index": index,
+                                                                                                        "db_index": db_index})
+
     @staticmethod
     def close() -> None:
         ClientConnections.send_service_message("END-SESSION")

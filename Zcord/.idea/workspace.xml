@@ -5,18 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
-      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/Paginations.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/Chat/ClientChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Chat/ClientChat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/db_handler/api_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/db_handler/api_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/Cache/Cache.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

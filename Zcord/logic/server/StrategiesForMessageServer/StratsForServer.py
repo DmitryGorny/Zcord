@@ -183,9 +183,9 @@ class ScrollRequestCacheStrategy(MessageStrategy):
             return
 
         last_message = self._messageRoom_pointer.cache_chat.get_extra_cache_last_message(chat_id)
-
         if last_message["id"] != '0':
             cache = self._api_client.get_messages_limit_offset(chat_id, CACHE_LIMIT, db_index)
+            print(cache)
         else:
             cache = self._api_client.get_messages_limit(chat_id, CACHE_LIMIT)
 

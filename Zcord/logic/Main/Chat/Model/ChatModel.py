@@ -12,6 +12,7 @@ class ChatModel:
             self._block_scroll_cache = True
 
     def stop_requesting_cache(self):
+        print(42342342343223)
         self._block_scroll_cache = True
 
     def enable_scroll_cache(self):

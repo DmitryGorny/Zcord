@@ -133,9 +133,9 @@ class ReceiveScrollCache(ClientsStrategies):
         except KeyError:
             message_from_db = True
             if len(msg["cache"]) >= CACHE_LIMIT:
-                self._message_connection_pointer.chat.scroll_db_index = 0
                 self._message_connection_pointer.chat.scroll_db_index = len(msg["cache"])
             else:
+                print(23324321)
                 self._message_connection_pointer.chat.socket_controller.stop_requesting_cache()
                 flg = False
 
@@ -168,7 +168,7 @@ class ReceiveScrollCache(ClientsStrategies):
                 counter_for_db_scroll_index += 1
 
         if not message_from_db:
-            print(counter_for_db_scroll_index)
+            print(counter_for_db_scroll_index, 2)
             self._message_connection_pointer.chat.scroll_db_index = counter_for_db_scroll_index
 
         if flg:

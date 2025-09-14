@@ -6,7 +6,7 @@ import queue
 from logic.client.Chat.ClientChat import ChatInterface
 from logic.client.message_client import MessageConnection
 from logic.client.service_client import ServiceConnection
-from logic.client.voice_client import VoiceConnection
+#from logic.client.voice_client import VoiceConnection
 
 
 class ClientConnections:
@@ -15,7 +15,7 @@ class ClientConnections:
     # Объекты классов подключений
     _service_connection: ServiceConnection = None
     _message_connection: MessageConnection = None
-    _voice_connection: VoiceConnection = None
+    #_voice_connection: VoiceConnection = None
 
     # Объект ChatInterface
     _chat_interface: ChatInterface = ChatInterface()
@@ -81,9 +81,9 @@ class ClientConnections:
                                  user)
 
     # TODO: преобразовать правильно
-    @staticmethod
-    def _init_voice_connection(user, socket_pointer: socket.socket) -> VoiceConnection:
-        return VoiceConnection(socket_pointer, user)
+    #@staticmethod
+    #def _init_voice_connection(user, socket_pointer: socket.socket) -> VoiceConnection:
+        #return VoiceConnection(socket_pointer, user)
 
     @staticmethod
     def _init_chats(chats_queue: queue.Queue):
@@ -108,9 +108,12 @@ class ClientConnections:
 
     @staticmethod
     def send_chat_message(message: str) -> None:
-        print(11)
         current_chat = ClientConnections._chat_interface.current_chat_id
         ClientConnections._message_connection.send_message(message, current_chat)
+
+    @staticmethod
+    def get_chat_id() -> object:
+        return ClientConnections._chat_interface.chat
 
     @staticmethod
     def close() -> None:

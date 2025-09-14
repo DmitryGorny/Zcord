@@ -42,6 +42,14 @@ class ChatController:
     def stop_call(self):
         self._model.stop_call()
 
+    # Микрофон
+    def mute_mic_self(self, flg):
+        self._model.mute_mic_self(flg)
+
+    # Наушники
+    def mute_head_self(self, flg):
+        self._model.mute_head_self(flg)
+
     class SocketController:
         def __init__(self, views: Dict[str, ChatView]):
             self._views = views
@@ -54,3 +62,6 @@ class ChatController:
         def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: int = 0,
                             event: threading.Event = None):
             self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)
+
+        def receive_mic_mute(self, device: str, chat_id: str, mute_pos: bool):
+            self._views[chat_id].muteDevice.emit(device, mute_pos)

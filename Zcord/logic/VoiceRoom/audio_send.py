@@ -9,7 +9,7 @@ import webrtcvad as wb
 import time
 from PyQt6.QtCore import QThread, pyqtSignal
 import json
-from logic.Voice.Sound_Notifications import SoundPlayer
+from logic.VoiceRoom.Sound_Notifications import SoundPlayer
 #from cryptography.fernet import Fernet
 
 

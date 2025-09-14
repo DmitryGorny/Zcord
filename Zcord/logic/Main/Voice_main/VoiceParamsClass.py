@@ -1,6 +1,6 @@
 from logic.Main.Voice_main.VoiceParameters import Ui_VoiceParams
 from PyQt6 import QtWidgets, QtCore
-from logic.Voice import audio_send
+from logic.VoiceRoom import audio_send
 import threading
 import pyaudio
 import json

@@ -60,3 +60,13 @@ class ChatModel(QObject):
         """Остановка звонка - синхронный вызов"""
         success = self.call_manager.stop_call()
 
+    # Микрофон
+    def mute_mic_self(self, flg):
+        voice_client_cls = self.call_manager.get_voice_handler_class()
+        voice_client_cls.send_mute_mic(flg)
+
+    # Наушники
+    def mute_head_self(self, flg):
+        voice_client_cls = self.call_manager.get_voice_handler_class()
+        voice_client_cls.send_mute_mic(flg)
+

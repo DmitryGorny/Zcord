@@ -90,8 +90,18 @@ class TcpSignalServer:
             await self._join_room(client, msg)
         elif typ == "leave":  # btw информационное сообщение, что с ним делать не ебу, управление всё равно отдаётся finally
             print("Клиент сообщил о выходе с сервера")
+        elif typ == "mic_mute":
+            pass
+        elif typ == "head_mute":
+            pass
         else:
             print(f"Неизвестный тип сообщения: {typ}")
+
+    async def _mute_msg(self, client: ClientInfo, msg: dict):
+        room = msg.get("room") or "default_room"
+        token = msg.get("token")
+        if client.token == token:
+            await self._broadcast_room(room, {"t": "mic_mute", "client": client}, skip=client)
 
     async def _join_room(self, client: ClientInfo, msg: dict):
         room = msg.get("room") or "default_room"

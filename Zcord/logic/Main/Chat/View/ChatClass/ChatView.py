@@ -9,12 +9,14 @@ from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 
 class ChatView(QtWidgets.QWidget):
     messageReceived = QtCore.pyqtSignal(str, str, str, int, int)
+    muteDevice = QtCore.pyqtSignal(str, bool)
     clear_layout = QtCore.pyqtSignal()
 
     def __init__(self, chatId, friend_nick, user, controller):
         super(ChatView, self).__init__()
         #Сигналы
         self.messageReceived.connect(self.recieveMessage)
+        self.muteDevice.connect(self.mute_device_friend)
 
         #Сигналы
 
@@ -65,10 +67,15 @@ class ChatView(QtWidgets.QWidget):
         self.ui.user1_headphonesMute.hide()
         self.ui.user2_headphonesMute.hide()
 
+        # Переменные мутов
+        self.microphone_mute = False
+        self.headphone_mute = False
+
         # Подключение кнопок войса
         """Окно чата"""
         self.ui.CallButton.clicked.connect(self.start_call)
         self.ui.leaveCall.clicked.connect(self.stop_call)
+        self.ui.user1_micMute.clicked.connect(self.mute_mic_self)
 
         """Окно приходящего звонка"""
         self.call_dialog = Call()
@@ -205,28 +212,39 @@ class ChatView(QtWidgets.QWidget):
     def show_call_dialog(self):
         self.call_dialog.show_call_event()
 
+    # Функция чередования для девайса мута друга
+    def mute_device_friend(self, device, flg):
+        if device == "mic":
+            self.mute_mic_friend(flg)
+        elif device == "head":
+            self.mute_head_friend(flg)
+
     # Микрофон
     def mute_mic_self(self):
-        self.ui.user1_micMute.show()
+        self.microphone_mute = not self.microphone_mute
+        if self.microphone_mute:
+            self.ui.user1_micMute.show()
+        else:
+            self.ui.user1_micMute.hide()
+        self._controller.mute_mic_self(self.microphone_mute)
 
-    def unmute_mic_self(self):
-        self.ui.user1_micMute.hide()
-
-    def mute_mic_friend(self):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
-        pass
-
-    def unmute_mic_friend(self):
-        pass
+    def mute_mic_friend(self, flg):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        if flg:
+            self.ui.user2_micMute.show()
+        else:
+            self.ui.user2_micMute.hide()
 
     # Наушники
     def mute_head_self(self):
-        self.ui.user1_headphonesMute.show()
+        self.headphone_mute = not self.headphone_mute
+        if self.headphone_mute:
+            self.ui.user1_headphonesMute.show()
+        else:
+            self.ui.user1_headphonesMute.hide()
+        self._controller.mute_head_self(self.headphone_mute)
 
-    def unmute_head_self(self):
-        self.ui.user1_headphonesMute.hide()
-
-    def mute_head_friend(self):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
-        pass
-
-    def unmute_head_friend(self):
-        pass
+    def mute_head_friend(self, flg):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        if flg:
+            self.ui.user2_headphonesMute.show()
+        else:
+            self.ui.user2_headphonesMute.hide()

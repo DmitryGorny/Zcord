@@ -49,9 +49,9 @@ class Server:
         # Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         first_info = await self.settle_first_info(reader, writer)
         await self.get_client_info(reader, writer)
-        nickname = first_info[1]
+        user_id = first_info[1]
         chats = first_info[0]
-        client_obj = Server.clients[nickname]
+        client_obj = Server.clients[user_id]
 
         await client_obj.send_message("__CONNECT__", {
             "connect": 1
@@ -60,10 +60,8 @@ class Server:
         send_to_message_server = self.send_decorator(Server.servers["message-server"])
 
         client_ip = writer.transport.get_extra_info('socket').getpeername()
-        await send_to_message_server("USER-INFO", {"nickname": nickname,
-                                                   "serialize_1": self.serialize(chats).decode('utf-8'),
-                                                   "serialize_2": self.serialize({'nickname': nickname,
-                                                                                  'user_id': str(client_obj.id),
+        await send_to_message_server("USER-INFO", {"serialize_1": self.serialize(chats).decode('utf-8'),
+                                                   "serialize_2": self.serialize({'user_id': str(client_obj.id),
                                                                                   "IP": client_ip[0]}).decode('utf-8')})
 
         while True:
@@ -79,7 +77,6 @@ class Server:
 
                 for msg in arr:
                     message = msg["message"]
-                    nickname = msg["nickname"]
                     strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
                     try:
                         await strategy.execute(msg)
@@ -109,12 +106,11 @@ class Server:
         await writer.drain()
         msg = await reader.read(4096)
         msg = json.loads(msg)
-
-        nickname = msg["nickname"]
+        user_id = msg["user_id"]
         chat_id = self.deserialize(msg["message"])
 
-        print(f"Nickname is {nickname}")
-        return [chat_id, nickname]
+        print(f"user_id is {user_id}")
+        return [chat_id, user_id]
 
     async def get_client_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
@@ -125,7 +121,7 @@ class Server:
         clientObj = Client(msg["id"], nickname, msg["last_online"], writer)
         clientObj.friends = msg["friends"]
         clientObj.status = msg["status"]
-        Server.clients[nickname] = clientObj
+        Server.clients[msg["id"]] = clientObj
 
     # TODO: Переделать
     async def send_status(self, nickname: str) -> None:

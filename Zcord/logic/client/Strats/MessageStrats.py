@@ -12,7 +12,7 @@ class ChooseStrategy:
     def __init__(self):
         self.__current_strategy = None
 
-    def get_strategy(self, header: str, message_conn_obj) -> Strategy:
+    def get_strategy(self, header: str, message_conn_obj) -> Strategy | None:
         if self.__current_strategy is not None:
             if self.__current_strategy.header_name == header:
                 return self.__current_strategy
@@ -153,6 +153,7 @@ class ReceiveScrollCache(ClientsStrategies):
 
             event = threading.Event()
             self._message_connection_pointer.chat.socket_controller.awaited_receive_message(
+                # TODO: Нужна ли awaited версия?
                 str(self._message_connection_pointer.chat.chat_id),
                 message["sender"],
                 message["message"],
@@ -172,12 +173,24 @@ class ReceiveScrollCache(ClientsStrategies):
                 chat_id=str(self._message_connection_pointer.chat.chat_id))
 
 
-class CacheSentToDB(ClientsStrategies):
+class CacheSentToDBStrat(ClientsStrategies):
     header_name = "CACHE-SENT-TO-DB"
 
     def __init__(self):
-        super(CacheSentToDB, self).__init__()
+        super(CacheSentToDBStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
         self._message_connection_pointer.chat.scroll_index = 0
         self._message_connection_pointer.chat.scroll_db_index = 0
+
+
+class UserJoinedStrat(ClientsStrategies):
+    header_name = "USER-JOINED-CHAT"
+
+    def __init__(self):
+        super(UserJoinedStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        self._message_connection_pointer.chat.socket_controller.change_unseen_status(
+            msg["chat_id"],
+            int(msg["messages_number"]))

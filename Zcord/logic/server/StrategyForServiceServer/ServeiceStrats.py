@@ -56,17 +56,17 @@ class ChangeChatStrategy(ServiceStrategy):
 
     async def execute(self, msg: dict) -> None:
         chat_code = msg["chat_id"]
-        nickname = msg["nickname"]
-        client_obj = self._server_pointer.clients[nickname]
+        user_id = msg["user_id"]
+        client_obj = self._server_pointer.clients[user_id]
 
         if client_obj.message_chat_id == 0:
             client_obj.message_chat_id = chat_code
-            await self._sender_to_msg_server_func("__change_chat__", {"nickname": nickname,
+            await self._sender_to_msg_server_func("__change_chat__", {"user_id": user_id,
                                                                       "current_chat_id": 0,
                                                                       "chat_code": chat_code})
             return
 
-        await self._sender_to_msg_server_func("__change_chat__", {"nickname": nickname,
+        await self._sender_to_msg_server_func("__change_chat__", {"user_id": user_id,
                                                                   "current_chat_id": client_obj.message_chat_id,
                                                                   "chat_code": chat_code})
 
@@ -81,12 +81,12 @@ class EndSessionStrategy(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        nickname = msg["nickname"]
-        if not self._server_pointer.clients[nickname].writer.is_closing():
-            self._server_pointer.clients[nickname].writer.close()
-            await self._server_pointer.clients[nickname].writer.wait_closed()
-        del self._server_pointer.clients[nickname]
-        await self._sender_to_msg_server_func("END-SESSION", {"nickname": nickname})
+        user_id = msg["user_id"]
+        if not self._server_pointer.clients[user_id].writer.is_closing():
+            self._server_pointer.clients[user_id].writer.close()
+            await self._server_pointer.clients[user_id].writer.wait_closed()
+        del self._server_pointer.clients[user_id]
+        await self._sender_to_msg_server_func("END-SESSION", {"user_id": user_id})
         raise ConnectionResetError  # Чтобы задача стопалась
 
 
@@ -97,8 +97,8 @@ class RequestCacheStrategy(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        nickname = msg["nickname"]
-        client: Client = self._server_pointer.clients[nickname]
+        user_id = msg["user_id"]
+        client: Client = self._server_pointer.clients[user_id]
 
         chats_ids = []
         for chat_id in client.friends:

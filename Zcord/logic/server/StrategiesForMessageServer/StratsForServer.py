@@ -50,24 +50,36 @@ class ChangeChatStrategy(MessageStrategy):
         super(ChangeChatStrategy, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        nickname = msg["nickname"]
+        user_id = str(msg["user_id"])
         current_chat_id = str(msg["current_chat_id"])
         chat_code = str(msg["chat_code"])
 
         try:
-            self._messageRoom_pointer.nicknames_in_chats[current_chat_id].remove(nickname)
+            self._messageRoom_pointer.ids_in_chats[current_chat_id].remove(user_id)
         except ValueError as e:
             print(e)
         except KeyError:
             print("Клик по тому же чату")
-        self._messageRoom_pointer.nicknames_in_chats[chat_code].append(nickname)
+        self._messageRoom_pointer.ids_in_chats[chat_code].append(user_id)
 
         cache = self._messageRoom_pointer.cache_chat.get_cache(chat_code)
 
         if len(cache) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(cache["cache"], nickname, index=cache["index"])
+        self._messageRoom_pointer.send_cache(cache["cache"], user_id, index=cache["index"])
+
+        print(cache["index"])
+        self._messageRoom_pointer.cache_chat.mark_as_seen(chat_code, user_id, int(cache["index"]))
+
+        if len(self._messageRoom_pointer.ids_in_chats[chat_code]) <= 1:
+            return
+
+        count = len([x for x in cache["cache"] if x["was_seen"] == False])
+        for user_id in self._messageRoom_pointer.ids_in_chats[chat_code]:
+            self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
+                                                        data={"messages_number": count,
+                                                              "chat_id": chat_code})
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -87,11 +99,10 @@ class UserInfoStrategy(MessageStrategy):
 
         msg = json.loads(serialize_2)
 
-        nickname = msg["nickname"]
-        user_id = msg["user_id"]
+        user_id = str(msg["user_id"])
         IP = msg["IP"]
 
-        self._messageRoom_pointer.clients.add_client(client_id=user_id, ip=IP, nickname=nickname)
+        self._messageRoom_pointer.clients.add_client(client_id=user_id, ip=IP)
 
 
 class EndSessionStrat(MessageStrategy):
@@ -101,19 +112,20 @@ class EndSessionStrat(MessageStrategy):
         super(EndSessionStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        nickname = msg["nickname"]
-        self._messageRoom_pointer.clients.remove_client(client_identent=nickname)
+        user_id = str(msg["user_id"])
+        self._messageRoom_pointer.clients.remove_client(client_identent=user_id)
 
-        for id_chat in self._messageRoom_pointer.nicknames_in_chats.keys():  # TODO: Слишком медленно
-            if nickname in self._messageRoom_pointer.nicknames_in_chats[id_chat]:
-                self._messageRoom_pointer.nicknames_in_chats[id_chat].remove(nickname)
-                if len(self._messageRoom_pointer.nicknames_in_chats[id_chat]) == 0:
+        for id_chat in self._messageRoom_pointer.ids_in_chats.keys():  # TODO: Слишком медленно
+            if user_id in self._messageRoom_pointer.ids_in_chats[id_chat]:
+                self._messageRoom_pointer.ids_in_chats[id_chat].remove(user_id)
+                if len(self._messageRoom_pointer.ids_in_chats[id_chat]) == 0:
                     self._api_client.send_messages_bulk(
                         self._messageRoom_pointer.cache_chat.get_cache(chat_id=id_chat, user_out=True)["cache"])
                     self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
 
 
-class EndSession(MessageStrategy):
+class EndSession(
+    MessageStrategy):  # TODO: Для групп ввести метку is_group = msg["is_group"], придумать что-то для was_seen
     command_name = "CHAT-MESSAGE"
 
     def __init__(self):
@@ -139,6 +151,9 @@ class EndSession(MessageStrategy):
             self._api_client.send_messages_bulk(result)
             self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
             self._messageRoom_pointer.send_info_message(user_id, "CACHE-SENT-TO-DB")
+
+        if len(self._messageRoom_pointer.ids_in_chats[chat_code]) > 1:
+            message_to_send["was_seen"] = True
 
         self._messageRoom_pointer.broadcast((chat_code, message, date_now, user_id, message_to_send["was_seen"]))
 
@@ -170,26 +185,39 @@ class ScrollRequestCacheStrategy(MessageStrategy):
 
     def execute(self, msg: dict[str, str]) -> None:
         chat_id = str(msg["chat_id"])
-        user_id = msg["user_id"]
+        user_id = str(msg["user_id"])
         index = msg["index"]
         db_index = msg["db_index"]
         cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
 
         if cache is not None and len(cache["cache"]) > 0:
             self._messageRoom_pointer.send_cache(cache_list=cache["cache"],
-                                                 client_identent=str(user_id),
+                                                 client_identent=user_id,
                                                  scroll_cache=True,
                                                  index=cache["index"])
+
+            count = len([x for x in cache["cache"] if x["was_seen"] == False])
+            for user_id in self._messageRoom_pointer.ids_in_chats[chat_id]:
+                self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
+                                                            data={"messages_number": count,
+                                                                  "chat_id": chat_id})
+
+            self._messageRoom_pointer.cache_chat.mark_as_seen(chat_id, user_id, int(index))
+
             return
 
-        last_message = self._messageRoom_pointer.cache_chat.get_extra_cache_last_message(chat_id)
-
-
+        # Ниже логика запроса кеша и отслыки клиенту кэша из БД
         cache = self._api_client.get_messages_limit_offset(chat_id, CACHE_LIMIT, db_index)
-
 
         if cache is None:
             return
-        self._messageRoom_pointer.send_cache(cache[::-1], str(user_id), scroll_cache=True)
+        self._messageRoom_pointer.send_cache(cache[::-1], user_id, scroll_cache=True)
 
+        if len(self._messageRoom_pointer.ids_in_chats[chat_id]) <= 1:
+            return
 
+        count = len([x for x in cache if x["was_seen"] == False])
+        for user_id in self._messageRoom_pointer.ids_in_chats[chat_id]:
+            self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
+                                                        data={"messages_number": count,
+                                                              "chat_id": chat_id})

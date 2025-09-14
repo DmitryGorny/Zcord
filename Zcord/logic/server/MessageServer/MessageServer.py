@@ -14,7 +14,7 @@ from logic.server.StrategiesForMessageServer.StratsForServer import ChooseStrate
 
 
 class MessageRoom(object):  # TODO: Когда-нибудь переделать
-    nicknames_in_chats: Dict[str, List[str]] = {}
+    ids_in_chats: Dict[str, List[str]] = {}
     cache_chat: CacheManager = CacheManager()
     unseenMessages = {}
     clients: ClientManager = ClientManager()
@@ -22,7 +22,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
 
     @staticmethod
     def set_nicknames_in_chats(arr):
-        MessageRoom.nicknames_in_chats = {**arr, **MessageRoom.nicknames_in_chats}
+        MessageRoom.ids_in_chats = {**arr, **MessageRoom.ids_in_chats}
 
     def __init__(self):
         pass
@@ -54,7 +54,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
             "was_seen": msg[4]
         }
 
-        for client in MessageRoom.nicknames_in_chats[chat_code]:
+        for client in MessageRoom.ids_in_chats[chat_code]:
             try:
                 MessageRoom.clients.send(client, json.dumps(message_to_send).encode('utf-8'))
             except KeyError:

@@ -44,7 +44,6 @@ class ChatController:
             self._views[chat_id].clearLayout()
 
         # TODO:Пересмотреть метод в view
-        # TODO: Сделать еще awaited версию см. SygnalReciever
         def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: bool = False):
             self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)
 
@@ -61,3 +60,9 @@ class ChatController:
 
         def enable_model_scroll_bar_requesting(self):
             self._model.enable_scroll_cache()
+
+        def change_unseen_status(self, chat_id: str, number_of_messages: int):
+            self._views[chat_id].change_unseen_status_signal.emit(number_of_messages)
+
+        def clear_unseen_messages_in_view(self, chat_id: str):
+            self._views[chat_id].clear_unseen.emit()

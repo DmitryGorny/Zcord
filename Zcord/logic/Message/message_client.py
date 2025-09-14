@@ -317,11 +317,11 @@ class MessageConnection(QObject):
                     continue
                 elif "__USER-JOINED__" in message:
                     try:
-                        MessageConnection.reciever.changeUnseenStatus.disconnect()
+                        MessageConnection.reciever.change_unseen_status.disconnect()
                     except TypeError:
                         pass
-                    MessageConnection.reciever.changeUnseenStatus.connect(MessageConnection.chat.changeUnseenStatus)
-                    MessageConnection.reciever.changeUnseenStatus.emit(int(message.split("&")[1]))
+                    MessageConnection.reciever.change_unseen_status.connect(MessageConnection.chat.change_unseen_status)
+                    MessageConnection.reciever.change_unseen_status.emit(int(message.split("&")[1]))
                     continue
                 else:
                     pass

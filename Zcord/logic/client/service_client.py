@@ -25,7 +25,8 @@ class ServiceConnection(IConnection, BaseConnection):
     def send_message(self, message, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
         msg = {
             "chat_id": current_chat_id,
-            "nickname": self._user.getNickName(),
+            "user_id": self._user.id,
+            "nickname": self.user.getNickName(),
             "message": message}
 
         if extra_data is not None:

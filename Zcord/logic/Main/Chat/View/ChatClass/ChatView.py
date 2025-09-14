@@ -11,6 +11,8 @@ class ChatView(QtWidgets.QWidget):
     awaitedMessageReceive = QtCore.pyqtSignal(str, str, str, int, bool, object)
     clear_layout = QtCore.pyqtSignal()
     enable_scroll_bar = QtCore.pyqtSignal()
+    change_unseen_status_signal = QtCore.pyqtSignal(int)
+    clear_unseen = QtCore.pyqtSignal()
 
     def __init__(self, chatId, friend_nick, user, controller):
         super(ChatView, self).__init__()
@@ -18,6 +20,8 @@ class ChatView(QtWidgets.QWidget):
         self.messageReceived.connect(self.recieveMessage)
         self.awaitedMessageReceive.connect(self.recieveMessage)
         self.enable_scroll_bar.connect(self.enable_scroll)
+        self.change_unseen_status_signal.connect(self.change_unseen_status)
+        self.clear_unseen.connect(self.clear_unseen_messages)
         # Сигналы
 
         self.ui = Ui_Chat()
@@ -63,11 +67,9 @@ class ChatView(QtWidgets.QWidget):
     def ask_for_cached_messages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
             self._controller.ask_for_cached_message()
-            self._block_scroll_cache = True
 
             self._old_max_scroll = self.ui.ChatScroll.verticalScrollBar().maximum()
             self._old_value_scroll = self.ui.ChatScroll.verticalScrollBar().value()
-
 
     @QtCore.pyqtSlot()
     def enable_scroll(self):
@@ -78,7 +80,6 @@ class ChatView(QtWidgets.QWidget):
 
         if scroll_delta > 0:
             scrollbar.setValue(self._old_value_scroll + scroll_delta)
-
 
     def sendMessage(self):
         message_text = self.ui.Chat_input_.text()
@@ -141,15 +142,20 @@ class ChatView(QtWidgets.QWidget):
     def addMessageOnTop(self, sender, text, date, wasSeen: int = 0, event=None):  # Надубасил в код жестко
         self.recieveMessage(sender, text, date, wasSeen, event)
 
-    def changeUnseenStatus(self, numberOfWidgets):
-        if numberOfWidgets >= len(self.unseenMessages):
-            numberOfWidgets = len(self.unseenMessages)
+    @QtCore.pyqtSlot(int)
+    def change_unseen_status(self, number_of_widgets):
+        if number_of_widgets >= len(self.unseenMessages):
+            number_of_widgets = len(self.unseenMessages)
         try:
-            for messageWidget in range(numberOfWidgets):
-                self.unseenMessages[::-1][messageWidget].WasSeenlabel.setText("Seen")
-            del self.unseenMessages[-(numberOfWidgets):]
+            for messageWidget in range(number_of_widgets):
+                self.unseenMessages[messageWidget].WasSeenlabel.setText("Seen")
+            del self.unseenMessages[:number_of_widgets]
         except Exception:
             return
+
+    @QtCore.pyqtSlot()
+    def clear_unseen_messages(self):
+        self.unseenMessages.clear()
 
     def sendFriendRequest(self):
         self._controller.send_friend_request(self.__chatId, self.__friendNickname)

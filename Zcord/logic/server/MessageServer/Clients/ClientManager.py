@@ -4,20 +4,12 @@ from typing import Tuple, Union, Any
 
 class ClientManager:
     def __init__(self):
-        self._clients: dict[Tuple[str, str], str] = {}
-        self._clients_with_sockets: dict[Tuple[str, str], socket.socket | None] = {}
+        self._clients: dict[str, str] = {}
+        self._clients_with_sockets: dict[str, socket.socket | None] = {}
 
-    def add_client(self, client_id: str, nickname: str, ip: str):
-        self._clients[(client_id, nickname)] = ip
-        self._clients_with_sockets[(client_id, nickname)] = None
-
-    def _find_client(self, client_identent: str) -> Tuple[str, str] | None:
-        try:
-            client_key = next(filter(lambda x: client_identent in x, self._clients))
-        except StopIteration:
-            return None
-
-        return client_key
+    def add_client(self, client_id: str, ip: str):
+        self._clients[client_id] = ip
+        self._clients_with_sockets[client_id] = None
 
     def replace_ip_with_socket(self, ip, socket_object: socket.socket):
         try:
@@ -31,22 +23,23 @@ class ClientManager:
 
     def send(self, client_identent: str, message: Any) -> None:
         try:
-            self._clients_with_sockets[self._find_client(client_identent)].send(message)
+            self._clients_with_sockets[client_identent].send(message)
         except KeyError:
             return None
 
     def remove_client(self, client_identent: str) -> None:
         try:
-            client = self._find_client(client_identent)
+
+            client = self._clients[str(client_identent)]
         except KeyError:
             return None
 
-        del self._clients[client]
-        self._clients_with_sockets[client].close()
-        del self._clients_with_sockets[client]
+        del self._clients[str(client_identent)]
+        self._clients_with_sockets[str(client_identent)].close()
+        del self._clients_with_sockets[str(client_identent)]
 
     def get_client(self, client_identent: str) -> socket.socket | str | None:
         try:
-            return self._clients_with_sockets[self._find_client(client_identent)]
+            return self._clients_with_sockets[client_identent]
         except KeyError:
             return None

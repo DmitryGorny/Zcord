@@ -92,6 +92,7 @@ class ClientConnections:
     @staticmethod
     def change_chat(chat_id: str) -> None:
         chat = ClientConnections._chat_interface.change_chat(chat_id)
+        chat.socket_controller.clear_unseen_messages_in_view(chat_id)
         ClientConnections.send_service_message("__change_chat__")
         ClientConnections._message_connection.chat = chat
 

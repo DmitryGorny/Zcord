@@ -88,13 +88,16 @@ class CacheManager:
         for message in message_list:  # TODO: Добавить провреку на дублерование сообщений ????
             self.add_value(chat_id, message)
 
-    def get_extra_cache_last_message(self, chat_id: str) -> Message:
-        message = self._cache_to_send.get_last_message(chat_id)
+    def mark_as_seen(self, chat_id: str, sender_id: str, current_index: int = 0):
+        for message in self._main_cache[chat_id][:current_index]:
+            if not message["was_seen"] and str(message["sender"]) != sender_id:
+                message["was_seen"] = True
 
-        if message is None:
-            message = self._main_cache[chat_id][-1]
+        if current_index <= 0:
+            return
 
-        return message
+        self._cache_to_send.mark_as_seen(chat_id, sender_id, current_index)
+
     class SendCache:
         def __init__(self, max_massages: int = 60):
             self._current_free_space: Dict[str, int] = {}
@@ -138,14 +141,14 @@ class CacheManager:
 
             end = int(self._max_messages / MAX_MESSAGES_INDEX)
             next_index = min(current_index + end, len(self._cache[chat_id]))
-            #print(self._cache[chat_id], current_index)
-            return self._cache[chat_id][::-1][int(current_index):next_index], next_index
 
-        def get_last_message(self, chat_id: str) -> Message | None:
-            try:
-                return self._cache[chat_id][-1]
-            except IndexError:
-                return None
+            return self._cache[chat_id][::-1][int(current_index):next_index], next_index
+        
+        #TODO: Пересмотерть методы пометки
+        def mark_as_seen(self, chat_id: str, sender_id: str, messages_number: int) -> None:
+            for message in self._cache[chat_id][::-1][messages_number:]:
+                if not message["was_seen"] and message["sender"] != sender_id:
+                    message["was_seen"] = True
 
 
 class CacheOverloadError(Exception):

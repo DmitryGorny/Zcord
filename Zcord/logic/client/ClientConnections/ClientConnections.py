@@ -21,7 +21,7 @@ class ClientConnections:
     _chat_interface: ChatInterface = ChatInterface()
 
     # Данные сервеа
-    _SERVER_IP = "26.36.207.48"  # IP
+    _SERVER_IP = "26.36.124.241"  # IP
     _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
     _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса

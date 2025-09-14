@@ -51,7 +51,7 @@ class ChatModel(QObject):
         """Запуск звонка - синхронный вызов"""
         success = self.call_manager.start_call(
             user=None,
-            host="26.36.207.48",
+            host="26.36.124.241",
             port=55559,
             room=chat_id
         )
@@ -62,11 +62,16 @@ class ChatModel(QObject):
 
     # Микрофон
     def mute_mic_self(self, flg):
-        voice_client_cls = self.call_manager.get_voice_handler_class()
-        voice_client_cls.send_mute_mic(flg)
+        self.call_manager.client.voice_handler.mute_mic_self(flg)
+        asyncio.run_coroutine_threadsafe(
+            self.call_manager.client.send_mute_mic(flg),
+            self.call_manager.loop
+        )
 
     # Наушники
     def mute_head_self(self, flg):
-        voice_client_cls = self.call_manager.get_voice_handler_class()
-        voice_client_cls.send_mute_mic(flg)
-
+        self.call_manager.client.voice_handler.mute_head_self(flg)
+        asyncio.run_coroutine_threadsafe(
+            self.call_manager.client.send_mute_head(flg),
+            self.call_manager.loop
+        )

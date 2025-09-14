@@ -77,13 +77,17 @@ class VoiceConnection(IConnection, BaseConnection):
                 elif t == "peer_joined":
                     # просто информационное событие
                     pass
+                elif "mute" in t:  # Реализация мутов
+                    client = msg.get("client")
 
-                elif t == "mic_mute":  # Реализация мутов
-                    client = msg.get("client")
-                    self.chat_obj.socket_controller.receive_mute("mic")
-                elif t == "head_mute":
-                    client = msg.get("client")
-                    self.chat_obj.socket_controller.receive_mute("head")
+                    lst = t.split("_")
+                    device = lst[0]
+                    action = lst[1]
+                    if action == "mute":
+                        self.chat_obj.socket_controller.receive_mute(device, chat_id=self.room, mute_pos=True)
+                    elif action == "unmute":
+                        self.chat_obj.socket_controller.receive_mute(device, chat_id=self.room, mute_pos=False)
+
                 else:
                     # прочие сообщения сервера
                     print(f"Неизвестное сообщение с сервера: {t}")
@@ -327,6 +331,6 @@ class CallManager:
         else:
             print("Нет активного звонка")
 
-    def get_voice_handler_class(self):
-        return self.client.voice_handler if self.client else None
-
+    @property
+    def loop(self):
+        return self._loop

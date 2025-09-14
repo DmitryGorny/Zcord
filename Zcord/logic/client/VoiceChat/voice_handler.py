@@ -1,6 +1,7 @@
 import asyncio
 import struct
 import pyaudio
+import time
 
 RATE = 48000
 CHANNELS = 1
@@ -41,41 +42,21 @@ class VoiceHandler:
     def audio_input_thread(self, seq):
         # читаем микрофон и шлём UDP
         try:
-            if not self.is_mic_mute:
-                data = self.in_stream.read(SAMPLES_PER_FRAME, exception_on_overflow=False)
-            else:
-                data = b"\x00" * FRAME_BYTES
+            data = self.in_stream.read(SAMPLES_PER_FRAME, exception_on_overflow=False)
+            if self.is_mic_mute:
+                data = b"\x00" * len(data)
         except Exception:
-            data = b"\x00" * FRAME_BYTES
+            data = b"\x00" * len(data)
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq) + data
         seq = (seq + 1) & 0xFFFFFFFF
         return pkt, seq
 
     # селф мьюты
-    def mute_mic_self(self):
-        self.is_mic_mute = True
+    def mute_mic_self(self, flg):
+        self.is_mic_mute = flg
 
-    def unmute_mic_self(self):
-        self.is_mic_mute = False
-
-    def mute_head_self(self):
-        self.is_head_mute = True
-
-    def unmute_head_self(self):
-        self.is_head_mute = False
-
-    # френд мьюты TODO нахер оно тут надо????
-    def mute_mic_friend(self):
-        pass
-
-    def unmute_mic_friend(self):
-        pass
-
-    def mute_head_friend(self):
-        pass
-
-    def unmute_head_friend(self):
-        pass
+    def mute_head_self(self, flg):
+        self.is_head_mute = flg
 
     @property
     def get_last_seq(self):
@@ -93,8 +74,8 @@ class VoiceHandler:
                 seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
             except asyncio.TimeoutError:
                 continue
-            if payload is None:
-                print("audio_output_loop вышел")
+            except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
+                # но хотелось бы более понятный флажок
                 break
             # если пришёл «старый» — пропускаем
             if self.last_seq is not None:
@@ -106,6 +87,7 @@ class VoiceHandler:
                 if diff == 0:
                     continue
             self.last_seq = seq
+            print(self.last_seq)
             try:
                 if not self.is_head_mute:
                     self.out_stream.write(payload)

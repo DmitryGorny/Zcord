@@ -75,7 +75,8 @@ class ChatView(QtWidgets.QWidget):
         """Окно чата"""
         self.ui.CallButton.clicked.connect(self.start_call)
         self.ui.leaveCall.clicked.connect(self.stop_call)
-        self.ui.user1_micMute.clicked.connect(self.mute_mic_self)
+        self.ui.muteMic.clicked.connect(self.mute_mic_self)
+        self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
         """Окно приходящего звонка"""
         self.call_dialog = Call()

@@ -16,8 +16,10 @@ from typing import Dict, List, Optional
 #    {"t":"leave","room":"room1","token":"<uuid>"}
 #
 # 4) Сервисные команды (ретранслируются на пиров комнаты, кроме отправителя):
-#    {"t":"svc","room":"room1","cmd":"mute","target":"mic","value":true}
-#    {"t":"svc","room":"room1","cmd":"mute","target":"spk","value":true}
+#    {"t":"mute_mic", "room":"room1","token":"<uuid>"}
+#    {"t":"mute_head","room":"room1","token":"<uuid>"}
+#    После того как эти сообщения пришли на сервер, сообщение формируется для клиента в виде
+#    {"t": t, "client": client.to_dict()}
 #
 # 5) Уведомления сервера:
 #    {"t":"peer_left","addr":"ip:port"}     # когда кто-то ушёл
@@ -40,6 +42,16 @@ class ClientInfo:
 
     def addr_str(self) -> str:
         return f"{self.ip}:{self.tcp_port}"
+
+    def to_dict(self) -> dict:
+        return {
+            "ip": self.ip,
+            "tcp_port": self.tcp_port,
+            "user": self.user,
+            "token": self.token,
+            "room": self.room,
+            "udp_port": self.udp_port,
+        }
 
 
 class TcpSignalServer:
@@ -90,18 +102,16 @@ class TcpSignalServer:
             await self._join_room(client, msg)
         elif typ == "leave":  # btw информационное сообщение, что с ним делать не ебу, управление всё равно отдаётся finally
             print("Клиент сообщил о выходе с сервера")
-        elif typ == "mic_mute":
-            pass
-        elif typ == "head_mute":
-            pass
+        elif "mute" in typ:
+            await self._mute_msg(typ, client, msg)
         else:
             print(f"Неизвестный тип сообщения: {typ}")
 
-    async def _mute_msg(self, client: ClientInfo, msg: dict):
+    async def _mute_msg(self, t, client: ClientInfo, msg: dict):
         room = msg.get("room") or "default_room"
         token = msg.get("token")
         if client.token == token:
-            await self._broadcast_room(room, {"t": "mic_mute", "client": client}, skip=client)
+            await self._broadcast_room(room, {"t": t, "client": client.to_dict(), }, skip=client)
 
     async def _join_room(self, client: ClientInfo, msg: dict):
         room = msg.get("room") or "default_room"
@@ -177,7 +187,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("26.36.207.48", 55559)
+    await srv.serve("26.36.124.241", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

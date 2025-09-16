@@ -10,6 +10,7 @@ from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 class ChatView(QtWidgets.QWidget):
     messageReceived = QtCore.pyqtSignal(str, str, str, int, int)
     muteDevice = QtCore.pyqtSignal(str, bool)
+    connectReceived = QtCore.pyqtSignal(bool)
     clear_layout = QtCore.pyqtSignal()
 
     def __init__(self, chatId, friend_nick, user, controller):
@@ -17,6 +18,7 @@ class ChatView(QtWidgets.QWidget):
         #Сигналы
         self.messageReceived.connect(self.recieveMessage)
         self.muteDevice.connect(self.mute_device_friend)
+        self.connectReceived.connect(self.show_friend_icon)
 
         #Сигналы
 
@@ -66,6 +68,8 @@ class ChatView(QtWidgets.QWidget):
 
         self.ui.user1_headphonesMute.hide()
         self.ui.user2_headphonesMute.hide()
+
+        self.ui.widget_2.hide()
 
         # Переменные мутов
         self.microphone_mute = False
@@ -249,3 +253,10 @@ class ChatView(QtWidgets.QWidget):
             self.ui.user2_headphonesMute.show()
         else:
             self.ui.user2_headphonesMute.hide()
+
+    # Работа с иконками юзеров
+    def show_friend_icon(self, flg):
+        if flg:
+            self.ui.widget_2.show()
+        else:
+            self.ui.widget_2.hide()

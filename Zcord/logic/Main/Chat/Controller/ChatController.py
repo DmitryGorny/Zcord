@@ -65,3 +65,6 @@ class ChatController:
 
         def receive_mute(self, device: str, chat_id: str, mute_pos: bool):
             self._views[chat_id].muteDevice.emit(device, mute_pos)
+
+        def receive_connect(self, chat_id: str, connect_pos: bool):
+            self._views[chat_id].connectReceived.emit(connect_pos)

@@ -156,7 +156,7 @@ class TcpSignalServer:
             lst.remove(client)
             print(f"[TCP] {client.addr_str()} вышел из комнаты '{room}', участников={len(lst)}")
 
-            await self._broadcast_room(room, {"t": "peer_left", "addr": client.addr_str()}, skip=client)
+            await self._broadcast_room(room, {"t": "peer_left", "addr": client.addr_str(), "count": len(lst)}, skip=client)
 
         # чистка комнаты если пустая TODO: Не знаю нужно ли??
         if not lst:
@@ -187,7 +187,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("26.36.124.241", 55559)
+    await srv.serve("26.36.207.48", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

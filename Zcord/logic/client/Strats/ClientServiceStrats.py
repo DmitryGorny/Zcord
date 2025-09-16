@@ -104,3 +104,13 @@ class ConnectToMessageServer(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         self.service_connection_pointer.connect_to_msg_server()  # TODO: Отловить ошибки подключения
         self.service_connection_pointer.send_message(message="CACHE-REQUEST")
+
+class CallNotificationStrat(ClientsStrategies):
+    header_name = "CALL-NOTIFICATION"
+
+    def __init__(self):
+        super(CallNotificationStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        user_id = msg["user_id"] #Юзер позвонивший
+        self.service_connection_pointer.chat.socket_controller. ########

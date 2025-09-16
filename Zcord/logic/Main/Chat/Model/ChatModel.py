@@ -6,6 +6,9 @@ class ChatModel:
     def __init__(self):
         self._block_scroll_cache = False
 
+    def call_notification(self):
+        ClientConnections.send_service_message("CALL-NOTIFICATION")
+
     def ask_for_cached_messages(self):
         if not self._block_scroll_cache:
             ClientConnections.ask_for_scroll_cache(msg_type=f"SCROLL-CACHE-REQUEST")

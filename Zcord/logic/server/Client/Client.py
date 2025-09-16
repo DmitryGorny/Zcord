@@ -31,7 +31,7 @@ class Client:
         return self.__friends
 
     @friends.setter
-    def friends(self, friends: List[Dict[str, str]]) -> None:
+    def friends(self, friends: List[Dict[str, str]]) -> None: #TODO: Подумать над хранением группы
         for friend_attrs in friends:
             fr = Friend(friend_attrs['id'],  # TODO: Подумать над фабрикой
                         friend_attrs['nickname'],
@@ -68,11 +68,16 @@ class Client:
     def status(self, status):
         self._activityStatus = status
 
-    async def send_message(self, mes_type: str, mes_data: dict) -> None:
+    async def send_message(self, mes_type: str, mes_data: dict = None) -> None:
         message_header = {
             "message_type": mes_type,
         }
-        message = message_header | mes_data
+
+        if mes_data is not None:
+            message = message_header | mes_data
+        else:
+            message = message_header
+
         self._writer.write(json.dumps(message).encode('utf-8'))
         await self._writer.drain()
 

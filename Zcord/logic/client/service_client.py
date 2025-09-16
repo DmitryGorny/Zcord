@@ -3,6 +3,7 @@ import os
 import socket
 from typing import Dict
 
+from logic.client.Chat.ClientChat import Chat
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
 from logic.client.Strats.ClientServiceStrats import ChooseStrategy
 
@@ -19,8 +20,18 @@ class ServiceConnection(IConnection, BaseConnection):
 
         self._cache_chat: Dict[str, list] = {}
 
+        self._chat: Chat = None
+
         self._msg_srv_tcp: socket.socket = msg_srv_tcp
         self._ip_data = ip_data
+
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
+    @chat.setter
+    def chat(self, chat: Chat) -> None:
+        self._chat = chat
 
     def send_message(self, message, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
         msg = {

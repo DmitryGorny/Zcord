@@ -107,3 +107,21 @@ class RequestCacheStrategy(ServiceStrategy):
                 chats_ids.append(chat_id)
 
         await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids)})
+
+
+class CallNotificationStrategy(ServiceStrategy):
+    """Уведомление звонка"""
+    command_name = "CALL-NOTIFICATION"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        user_id = msg["user_id"]
+        chat_id = msg["chat_id"]
+        for friend in self._server_pointer.clients[user_id].friends[chat_id]:
+            friend_id = friend.id
+            self._server_pointer.clients[friend_id].send_message('CALL-NOTIFICATION', {'user_id': user_id})
+
+
+

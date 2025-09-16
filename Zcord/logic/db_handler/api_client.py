@@ -143,3 +143,9 @@ class APIClient:
             "messages": messages_list
         }
         return self._request('POST', 'messages-bulk/', json=data)
+
+    def update_messages_bulk(self, ids: list):
+        data = {
+            "ids": ids
+        }
+        return self._request('POST', "messages-bulk-update/", json=data)

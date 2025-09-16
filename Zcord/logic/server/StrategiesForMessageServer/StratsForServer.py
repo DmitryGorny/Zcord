@@ -67,15 +67,16 @@ class ChangeChatStrategy(MessageStrategy):
         if len(cache) == 0:
             return
 
-        self._messageRoom_pointer.send_cache(cache["cache"], user_id, index=cache["index"])
-
-        print(cache["index"])
         self._messageRoom_pointer.cache_chat.mark_as_seen(chat_code, user_id, int(cache["index"]))
+
+        self._messageRoom_pointer.send_cache(cache["cache"], user_id, index=cache["index"])
 
         if len(self._messageRoom_pointer.ids_in_chats[chat_code]) <= 1:
             return
 
-        count = len([x for x in cache["cache"] if x["was_seen"] == False])
+        ids = [{"id": x["id"]} for x in cache["cache"] if x["was_seen"] == False if x["sender"] != user_id]
+        self._api_client.update_messages_bulk(ids)
+        count = len(ids)
         for user_id in self._messageRoom_pointer.ids_in_chats[chat_code]:
             self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
                                                         data={"messages_number": count,
@@ -191,6 +192,7 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
 
         if cache is not None and len(cache["cache"]) > 0:
+            print(11111)
             self._messageRoom_pointer.send_cache(cache_list=cache["cache"],
                                                  client_identent=user_id,
                                                  scroll_cache=True,
@@ -216,7 +218,10 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         if len(self._messageRoom_pointer.ids_in_chats[chat_id]) <= 1:
             return
 
-        count = len([x for x in cache if x["was_seen"] == False])
+        ids = [{"id": x["id"]} for x in cache if x["was_seen"] == False if str(x["sender"]) != user_id]
+        print(cache, user_id)
+        self._api_client.update_messages_bulk(ids)
+        count = len(ids)
         for user_id in self._messageRoom_pointer.ids_in_chats[chat_id]:
             self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
                                                         data={"messages_number": count,

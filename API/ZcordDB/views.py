@@ -7,7 +7,7 @@ from .Paginations import LimitPagination
 from .models import Users, Friendship, Message, FriendsAdding
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
-from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer
+from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer, MessageBulkUpdateSerializer
 from .serializers.FriendsAddingSerializer import FriendsAddingSerializer
 from django.db.models import Q
 
@@ -52,11 +52,14 @@ class MessageView(viewsets.ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'bulk_create':
             return MessageBulkSerializer
+        if self.action == 'bulk_update':
+            return MessageBulkUpdateSerializer
         return MessageSerializer
 
     @action(detail=False, methods=['post'], url_path='messages-bulk/')
     def bulk_create(self, request):
         serializer = self.get_serializer(data=request.data)
+        print(serializer)
         serializer.is_valid(raise_exception=True)
         messages_data = serializer.validated_data.get('messages', [])
         messages_to_create = [
@@ -73,3 +76,21 @@ class MessageView(viewsets.ModelViewSet):
             "status": "success",
             "count": len(messages_to_create)
         }, status=status.HTTP_201_CREATED)
+
+    @action(detail=False, methods=['post'], url_path='messages-bulk-update/')
+    def bulk_update(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        messages = []
+        for mes_id in request.data["ids"]:
+            message = Message.objects.get(id=mes_id["id"])
+            message.was_seen = True
+            messages.append(message)
+
+        count = Message.objects.bulk_update(messages, ["was_seen"], 15)
+
+        return Response({
+            "status": "success",
+            "count": count
+        }, status=status.HTTP_201_CREATED)
+

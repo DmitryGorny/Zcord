@@ -8,9 +8,10 @@ from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 
 
 class ChatView(QtWidgets.QWidget):
-    messageReceived = QtCore.pyqtSignal(str, str, str, int, int)
     muteDevice = QtCore.pyqtSignal(str, bool)
     connectReceived = QtCore.pyqtSignal(bool)
+    callReceived = QtCore.pyqtSignal(bool)
+
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
     awaitedMessageReceive = QtCore.pyqtSignal(str, str, str, int, bool, object)
     clear_layout = QtCore.pyqtSignal()
@@ -24,8 +25,8 @@ class ChatView(QtWidgets.QWidget):
         self.messageReceived.connect(self.recieveMessage)
         self.muteDevice.connect(self.mute_device_friend)
         self.connectReceived.connect(self.show_friend_icon)
+        self.callReceived.connect(self.show_call_widget)
 
-        #Сигналы
         self.awaitedMessageReceive.connect(self.recieveMessage)
         self.enable_scroll_bar.connect(self.enable_scroll)
         self.change_unseen_status_signal.connect(self.change_unseen_status)
@@ -96,8 +97,7 @@ class ChatView(QtWidgets.QWidget):
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
         """Окно приходящего звонка"""
-        self.call_dialog = Call()
-
+        self.call_dialog = Call(self.start_call)
 
     def ask_for_cached_messages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
@@ -243,6 +243,7 @@ class ChatView(QtWidgets.QWidget):
     def start_call(self):
         self.ui.Call.show()
         self._controller.start_call(self.__user, self.__chatId)
+        self.call_dialog.hide_call_event()
 
     def stop_call(self):
         self.ui.Call.hide()
@@ -294,3 +295,9 @@ class ChatView(QtWidgets.QWidget):
             self.ui.widget_2.show()
         else:
             self.ui.widget_2.hide()
+
+    def show_call_widget(self, flg):
+        if flg and self.ui.Call.isHidden():
+            self.call_dialog.show_call_event()
+        else:
+            self.call_dialog.hide_call_event()

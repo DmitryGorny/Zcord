@@ -5,7 +5,7 @@ from logic.Message import message_client
 
 
 class Call(QtWidgets.QDialog):
-    def __init__(self):
+    def __init__(self, callback):
         super(Call, self).__init__()
         self.call_dialog = Ui_Call()
         self.call_dialog.setupUi(self)
@@ -14,6 +14,7 @@ class Call(QtWidgets.QDialog):
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 
+        self.call_dialog.AcceptCall_button.clicked.connect(callback)
         self.call_dialog.DeclineCall_button.clicked.connect(self.hide_call_event)  # hide отображение виджета, а также отправка сообщения в чат об отклонении звонка
 
     def show_call_event(self):

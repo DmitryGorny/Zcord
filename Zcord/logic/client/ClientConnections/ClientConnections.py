@@ -106,9 +106,9 @@ class ClientConnections:
         ClientConnections._service_connection.chat = chat
 
     @staticmethod
-    def send_service_message(message: str) -> None:
+    def send_service_message(message: str, extra_data: Dict[str, str] = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._service_connection.send_message(message, current_chat)
+        ClientConnections._service_connection.send_message(message, current_chat, extra_data)
 
     @staticmethod
     def send_chat_message(message: str = None) -> None:

@@ -82,8 +82,12 @@ class ChatController:
         def clear_unseen_messages_in_view(self, chat_id: str):
             self._views[chat_id].clear_unseen.emit()
 
+        # Voice
         def receive_mute(self, device: str, chat_id: str, mute_pos: bool):
             self._views[chat_id].muteDevice.emit(device, mute_pos)
 
         def receive_connect(self, chat_id: str, connect_pos: bool):
             self._views[chat_id].connectReceived.emit(connect_pos)
+
+        def receive_call(self, chat_id: str, call_flg: bool):
+            self._views[chat_id].callReceived.emit(call_flg)

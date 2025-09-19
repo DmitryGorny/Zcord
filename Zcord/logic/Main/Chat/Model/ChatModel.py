@@ -66,10 +66,12 @@ class ChatModel(QObject):
             port=55559,
             room=chat_id
         )
+        ClientConnections.send_service_message(message=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
 
     def stop_call(self):
         """Остановка звонка - синхронный вызов"""
         success = self.call_manager.stop_call()
+        ClientConnections.send_service_message(message=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
 
     # Микрофон
     def mute_mic_self(self, flg):

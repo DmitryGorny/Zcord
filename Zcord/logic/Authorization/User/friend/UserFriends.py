@@ -17,10 +17,18 @@ class UserFriends:
             chat_id = friendship['id']
             status = friendship['status']
             friend_data = self._db.get_user_by_id(friendship['user1'] if friendship['user1'] != self._user.id else friendship['user2'])
-            friend = fabric.create_friend(chat_id=chat_id, user_nickanme=friend_data["nickname"], status=status, user_id=friend_data["id"])
+            friend = fabric.create_friend(chat_id=chat_id,
+                                          user_nickanme=friend_data["nickname"],
+                                          status=status,
+                                          user_id=friend_data["id"],
+                                          last_online=friend_data["last_online"])
             self._friends.append(friend)
 
     def friends_props(self) -> dict:
         """Поочередно возвращает атрибуты каждого класса"""
         for friend in self._friends:
-            yield {"id": str(friend.id), "chat_id": str(friend.chat_id), "nickname": friend.getNickName(), "status": str(friend.status)}
+            yield {"id": str(friend.id),
+                   "chat_id": str(friend.chat_id),
+                   "nickname": friend.getNickName(),
+                   "status": str(friend.status),
+                   "last_online": friend.last_online}

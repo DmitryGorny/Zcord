@@ -9,4 +9,4 @@ class FriendFabric(ABC):
 
 class CreateFriend(FriendFabric):
     def create_friend(self, **kwargs) -> Friend:
-        return Friend(kwargs['user_id'], kwargs['user_nickanme'], kwargs['chat_id'], kwargs['status'])
+        return Friend(kwargs['user_id'], kwargs['user_nickanme'], kwargs['chat_id'], kwargs['status'], kwargs['last_online'])

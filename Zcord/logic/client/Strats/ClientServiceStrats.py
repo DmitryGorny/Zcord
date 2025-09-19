@@ -2,6 +2,7 @@ from abc import abstractmethod
 
 from logic.client.Strats.Strategy import Strategy
 
+
 class ChooseStrategy:
     def __init__(self):
         self.__current_strategy = None
@@ -17,6 +18,7 @@ class ChooseStrategy:
         self.__current_strategy = ClientsStrategies.headers[header]()
         self.__current_strategy.set_data(service_connection=service_conn_obj, nick=nickname_yours)
         return self.__current_strategy
+
 
 class ClientsStrategies(Strategy):
     headers = {}
@@ -35,7 +37,7 @@ class ClientsStrategies(Strategy):
         self._nickname_yours = kwargs.get("nick")
 
     @abstractmethod
-    def execute(self,  msg: dict) -> None:
+    def execute(self, msg: dict) -> None:
         pass
 
 
@@ -45,7 +47,7 @@ class UserStatusRecieve(ClientsStrategies):
     def __init__(self):
         super(UserStatusRecieve, self).__init__()
 
-    def execute(self,  msg: dict) -> None:
+    def execute(self, msg: dict) -> None:
         sender_status = msg["user-status"]
         sender_nickname = msg["nickname"]
         reciever_nickname = self.service_connection_pointer.user.getNickName()
@@ -65,12 +67,13 @@ class UserStatusRecieve(ClientsStrategies):
 
 class SendChatsData(ClientsStrategies):
     header_name = "__NICK__"
-    
+
     def __init__(self):
         super(SendChatsData, self).__init__()
 
-    def execute(self,  msg: dict) -> None:
-        self.service_connection_pointer.send_message(self.service_connection_pointer.serialize(self.service_connection_pointer._cache_chat).decode('utf-8'))
+    def execute(self, msg: dict) -> None:
+        self.service_connection_pointer.send_message(
+            self.service_connection_pointer.serialize(self.service_connection_pointer._cache_chat).decode('utf-8'))
 
 
 class SendFirstInfo(ClientsStrategies):
@@ -79,19 +82,35 @@ class SendFirstInfo(ClientsStrategies):
     def __init__(self):
         super(SendFirstInfo, self).__init__()
 
-    def execute(self,  msg: dict) -> None:
+    def execute(self, msg: dict) -> None:
         dictToSend = {
-            "friends":  self.service_connection_pointer.user.getFriends(),
-            "status": [self.service_connection_pointer.user.status.name, self.service_connection_pointer.user.status.color],
-            "id": self.service_connection_pointer.user.id
+            "friends": self.service_connection_pointer.user.getFriends(),
+            "status": [self.service_connection_pointer.user.status.name,
+                       self.service_connection_pointer.user.status.color],
+            "id": self.service_connection_pointer.user.id,
+            "last_online": self.service_connection_pointer.user.last_online
         }
-        print(dictToSend)
-        self.service_connection_pointer.send_message(self.service_connection_pointer.serialize(dictToSend).decode('utf-8'))
+
+        self.service_connection_pointer.send_message(
+            self.service_connection_pointer.serialize(dictToSend).decode('utf-8'))
+
 
 class ConnectToMessageServer(ClientsStrategies):
     header_name = "__CONNECT__"
+
     def __init__(self):
         super(ConnectToMessageServer, self).__init__()
 
-    def execute(self,  msg: dict) -> None:
-        self.service_connection_pointer.connect_to_msg_server()
+    def execute(self, msg: dict) -> None:
+        self.service_connection_pointer.connect_to_msg_server()  # TODO: Отловить ошибки подключения
+        self.service_connection_pointer.send_message(message="CACHE-REQUEST")
+
+class CallNotificationStrat(ClientsStrategies):
+    header_name = "CALL-NOTIFICATION"
+
+    def __init__(self):
+        super(CallNotificationStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        user_id = msg["user_id"] #Юзер позвонивший
+        self.service_connection_pointer.chat.socket_controller. ########

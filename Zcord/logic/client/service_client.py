@@ -3,8 +3,9 @@ import os
 import socket
 from typing import Dict
 
+from logic.client.Chat.ClientChat import Chat
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
-from logic.client.Strats.Strats import ChooseStrategy
+from logic.client.Strats.ClientServiceStrats import ChooseStrategy
 
 
 class ServiceConnection(IConnection, BaseConnection):
@@ -19,18 +20,34 @@ class ServiceConnection(IConnection, BaseConnection):
 
         self._cache_chat: Dict[str, list] = {}
 
+        self._chat: Chat = None
+
         self._msg_srv_tcp: socket.socket = msg_srv_tcp
         self._ip_data = ip_data
 
-    def send_message(self, message, current_chat_id: int = 0): # = 0 в случае, когда chat_id не играет роли
+    @property
+    def chat(self) -> Chat:
+        return self._chat
+
+    @chat.setter
+    def chat(self, chat: Chat) -> None:
+        self._chat = chat
+
+    def send_message(self, message, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
         msg = {
             "chat_id": current_chat_id,
-            "nickname": self._user.getNickName(),
+            "user_id": self._user.id,
+            "nickname": self.user.getNickName(),
             "message": message}
+
+        if extra_data is not None:
+            msg = msg | extra_data
+
         self._service_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     def connect_to_msg_server(self):
         self._msg_srv_tcp.connect((self._ip_data["IP"], self._ip_data["PORT"]))
+
     def cache_chat(self, chat_id: str) -> None:
         self._cache_chat[chat_id] = []
 

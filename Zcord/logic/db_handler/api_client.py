@@ -109,16 +109,43 @@ class APIClient:
             "sender": sender_id,
             "message": message_text
         }
-        return self._request('POST', 'message/', json=data)
+        return self._request('POST', 'messages/', json=data)
 
     def get_messages(self, chat_id):
         data = {
             'search': chat_id
         }
-        return self._request('GET', 'message/', params=data)
+        return self._request('GET', 'messages/', params=data)
 
     def mark_message_as_seen(self, message_id):
         data = {
             "was_seen": True
         }
-        return self._request('PATCH', f'message/{message_id}/', json=data)
+        return self._request('PATCH', f'messages/{message_id}/', json=data)
+
+    def get_messages_limit(self, chat_id, limit):
+        data = {
+            "search": chat_id,
+            "limit": limit
+        }
+        return self._request("GET", "messages/", params=data)['results']
+
+    def get_messages_limit_offset(self, chat_id, limit, offset):
+        data = {
+            "search": chat_id,
+            "limit": limit,
+            "offset": offset
+        }
+        return self._request("GET", "messages/", params=data)['results']
+
+    def send_messages_bulk(self, messages_list):
+        data = {
+            "messages": messages_list
+        }
+        return self._request('POST', 'messages-bulk/', json=data)
+
+    def update_messages_bulk(self, ids: list):
+        data = {
+            "ids": ids
+        }
+        return self._request('POST', "messages-bulk-update/", json=data)

@@ -113,4 +113,4 @@ class CallNotificationStrat(ClientsStrategies):
 
     def execute(self, msg: dict) -> None:
         user_id = msg["user_id"] #Юзер позвонивший
-        self.service_connection_pointer.chat.socket_controller. ########
+        #self.service_connection_pointer.chat.socket_controller. ########

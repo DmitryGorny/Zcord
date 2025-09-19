@@ -7,7 +7,7 @@ class Chat:
         self._friend_nick = friend_nick
         self.socket_controller = socket_controller
 
-        self._scroll_index: int = 0
+        self._scroll_index: int = -1
         self._scroll_db_index: int = 0
         self._max_scroll_index: int = scroll_index
 

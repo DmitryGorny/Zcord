@@ -144,14 +144,22 @@ class ChatView(QtWidgets.QWidget):
 
     @QtCore.pyqtSlot(int)
     def change_unseen_status(self, number_of_widgets):
-        if number_of_widgets >= len(self.unseenMessages):
-            number_of_widgets = len(self.unseenMessages)
-        try:
-            for messageWidget in range(number_of_widgets):
-                self.unseenMessages[messageWidget].WasSeenlabel.setText("Seen")
-            del self.unseenMessages[:number_of_widgets]
-        except Exception:
+        if not self.unseenMessages or number_of_widgets <= 0:
             return
+        try:
+
+            count = min(number_of_widgets, len(self.unseenMessages))
+
+            messages_to_process = self.unseenMessages[-count:]
+
+            for message in messages_to_process:
+                print(message.Message_Text.text())
+                message.WasSeenlabel.setText("Seen")
+
+            self.unseenMessages = self.unseenMessages[:-count]
+
+        except Exception as e:
+            print(f"Error updating unseen status: {e}")
 
     @QtCore.pyqtSlot()
     def clear_unseen_messages(self):

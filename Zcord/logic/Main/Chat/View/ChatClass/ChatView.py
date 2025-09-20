@@ -33,6 +33,8 @@ class ChatView(QtWidgets.QWidget):
         self.__user = user
         self.__friendNickname = friend_nick
 
+        self.ui.MAIN_ChatLayout.setContentsMargins(0, 0, 0, 0)
+
         self._old_max_scroll = None
         self._old_value_scroll = None
 

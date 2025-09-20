@@ -9,7 +9,7 @@ from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
 from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer, MessageBulkUpdateSerializer
 from .serializers.FriendsAddingSerializer import FriendsAddingSerializer
-from django.db.models import Q
+from django.db.models import Q, Count
 
 
 class UserView(viewsets.ModelViewSet):
@@ -56,10 +56,20 @@ class MessageView(viewsets.ModelViewSet):
             return MessageBulkUpdateSerializer
         return MessageSerializer
 
+    @action(detail=False, methods=['get'], url_path='messages-unseen-count/')
+    def get_unseen_count(self, request):
+        chat_id = request.query_params.get('id')
+        user_id = request.query_params.get('user_id')
+
+        messages = Message.objects.filter(chat__id=chat_id, was_seen=False).exclude(sender=user_id)[:99]
+        result = messages.aggregate(count=Count('id'))
+
+        return Response(result)
+
     @action(detail=False, methods=['post'], url_path='messages-bulk/')
     def bulk_create(self, request):
         serializer = self.get_serializer(data=request.data)
-        print(serializer)
+
         serializer.is_valid(raise_exception=True)
         messages_data = serializer.validated_data.get('messages', [])
         messages_to_create = [
@@ -93,4 +103,3 @@ class MessageView(viewsets.ModelViewSet):
             "status": "success",
             "count": count
         }, status=status.HTTP_201_CREATED)
-

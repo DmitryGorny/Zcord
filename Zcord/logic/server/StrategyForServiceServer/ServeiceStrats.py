@@ -102,11 +102,11 @@ class RequestCacheStrategy(ServiceStrategy):
 
         chats_ids = []
         for chat_id in client.friends:
-            time_period = timedelta(days=72)
+            time_period = timedelta(days=72) # TODO: Переделать на 7 или убрать?????????
             if client.last_online - client.friends[chat_id].last_online < time_period:
                 chats_ids.append(chat_id)
 
-        await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids)})
+        await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids), 'user_id': user_id})
 
 
 class CallNotificationStrategy(ServiceStrategy):

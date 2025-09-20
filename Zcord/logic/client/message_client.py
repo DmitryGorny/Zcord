@@ -1,7 +1,7 @@
 import os
 import socket
-from datetime import datetime
 import json
+from typing import Callable
 
 from logic.client.Chat.ClientChat import Chat
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
@@ -9,7 +9,7 @@ from logic.client.Strats.MessageStrats import ChooseStrategy
 
 
 class MessageConnection(IConnection, BaseConnection):
-    def __init__(self, message_server_tcp: socket.socket, user):
+    def __init__(self, message_server_tcp: socket.socket, user, main_callback: Callable):
         self._choose_strategy: ChooseStrategy = ChooseStrategy()
         self._user = user
 
@@ -19,6 +19,8 @@ class MessageConnection(IConnection, BaseConnection):
         self._chat: Chat = None
 
         self._flg = True
+
+        self._main_window_dynamic_update = main_callback
 
     def send_message(self, current_chat_id: int, message=None, msg_type: str = "CHAT-MESSAGE",
                      extra_data: dict = None) -> None:
@@ -34,6 +36,12 @@ class MessageConnection(IConnection, BaseConnection):
             msg = msg | extra_data
 
         self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
+
+    def call_main_dynamic_update(self, command: str, args: tuple):
+        try:
+            self._main_window_dynamic_update.emit(command, args)
+        except Exception as e:
+            print(e)
 
     @property
     def chat(self):

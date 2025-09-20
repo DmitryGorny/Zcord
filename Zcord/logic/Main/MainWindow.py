@@ -18,12 +18,17 @@ from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
 
 
 class MainWindow(QtWidgets.QMainWindow):
+    dynamic_update = QtCore.pyqtSignal(str, tuple)
     def __init__(self, user):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
         self.voicepr = VoiceParamsClass()
+
+        #Сигналы
+        self.dynamic_update.connect(self.dynamic_update_slot)
+        #Сигналы
 
         self.parameters = ParamsWindow(self.ui, self.voicepr)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
@@ -81,7 +86,7 @@ class MainWindow(QtWidgets.QMainWindow):
             chat["socket_controller"] = self.__user.get_socket_controller()
             queueToSend.put(chat)
 
-        ClientConnections.start_client(self.__user, queueToSend)
+        ClientConnections.start_client(self.__user, queueToSend, self.dynamic_update)
 
 
     def initializeChatsInScrollArea(self):
@@ -291,12 +296,13 @@ class MainWindow(QtWidgets.QMainWindow):
             friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status",
                                                            f"friend_two_id = '{senderAndReciver[1]}'")[0]
 
-            self.dynamicUpdateSlot("ADD-CANDIDATE-FRIEND", (senderAndReciver[1], friendshipInfo[0], friendshipInfo[1]))
+            self.dynamic_update_slot("ADD-CANDIDATE-FRIEND", (senderAndReciver[1], friendshipInfo[0], friendshipInfo[1]))
 
-            chat = self.dynamicUpdateSlot("UPDATE-CHATS", (friendshipInfo[0], senderAndReciver[1]))
+            chat = self.dynamic_update_slot("UPDATE-CHATS", (friendshipInfo[0], senderAndReciver[1]))
             chat.sendFriendRequest()
 
-    def dynamicUpdateSlot(self, command: str, args: tuple, done_event=None):
+    QtCore.pyqtSlot(str, tuple)
+    def dynamic_update_slot(self, command: str, args: tuple, done_event=None):
         """
         В *args передаются парометры необходимые для дальнейшего выполнения функций в кейсах
                       индекс\/

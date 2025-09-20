@@ -24,9 +24,10 @@ class ClientConnections:
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
 
     @staticmethod
-    def start_client(user, chats: queue.Queue):
+    def start_client(user, chats: queue.Queue, main_window_dynamic_update_cb):
         sockets = ClientConnections._create_sockets()
-        ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
+        ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"],
+                                                                                           main_window_dynamic_update_cb)
         ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"],
                                                                                            sockets["message_tcp"])
         ClientConnections._init_chats(chats)
@@ -68,8 +69,8 @@ class ClientConnections:
         recieve_message_thread.start()
 
     @staticmethod
-    def _init_message_connection(user, socket_pointer: socket.socket) -> MessageConnection:
-        return MessageConnection(socket_pointer, user)
+    def _init_message_connection(user, socket_pointer: socket.socket, callback) -> MessageConnection:
+        return MessageConnection(socket_pointer, user, callback)
 
     @staticmethod
     def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket) -> ServiceConnection:

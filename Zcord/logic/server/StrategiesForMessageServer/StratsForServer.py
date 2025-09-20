@@ -6,7 +6,6 @@ from logic.db_handler.api_client import APIClient
 from logic.server.MessageServer.Cache.Cache import CacheOverloadError
 from logic.server.Strategy import Strategy
 from abc import abstractmethod, ABC
-from typing import Callable, List, Dict, Union
 from logic.server.StrategyForServiceServer.ServeiceStrats import ServiceStrategy
 
 CACHE_LIMIT = '15'
@@ -66,7 +65,7 @@ class ChangeChatStrategy(MessageStrategy):
 
         if len(cache["cache"]) == 0:
             return
-
+        # Расчет сообщений для отправки на update + отсылки юзерам в чате
         ids = []
         count = 0
         for x in cache["cache"]:
@@ -80,16 +79,25 @@ class ChangeChatStrategy(MessageStrategy):
             if x["id"] != "0":
                 ids.append({"id": x["id"]})
 
+        # Update
         self._api_client.update_messages_bulk(ids)
-
+        # Рассылка уведомления
         for user_id in self._messageRoom_pointer.ids_in_chats[chat_code]:
             self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
                                                         data={"messages_number": count,
                                                               "chat_id": chat_code})
-
+        # Изменение was_seen в локальном хранилище
         self._messageRoom_pointer.cache_chat.mark_as_seen(chat_code, user_id, cache["index"])
 
+        # Отсылка кэша
         self._messageRoom_pointer.send_cache(cache["cache"], user_id, index=cache["index"])
+
+        # Отсылка нового количества непрочитаных сообщений
+        self._messageRoom_pointer.unseen_messages.subtract_users_count(chat_id=chat_code, user_id=user_id, number=count)
+        number_of_unseen = self._messageRoom_pointer.unseen_messages.get_user_count(chat_id=chat_code, user_id=user_id)
+        self._messageRoom_pointer.send_info_message(user_id, "UNSEEN-COUNTER",
+                                                    data={"message_number": number_of_unseen,
+                                                          "chat_id": chat_code})
 
 
 class UserInfoStrategy(MessageStrategy):
@@ -101,16 +109,15 @@ class UserInfoStrategy(MessageStrategy):
 
     def execute(self, msg: dict) -> None:
         serialize_1 = json.loads(msg["serialize_1"])
-        serialize_2 = msg["serialize_2"]
+        serialize_2 = json.loads(msg["serialize_2"])
+
+        user_id = str(serialize_2["user_id"])
+        IP = serialize_2["IP"]
 
         self._messageRoom_pointer.copyCacheChat(serialize_1)
         for chat_id in serialize_1.keys():
             self._messageRoom_pointer.cache_chat.init_cache(chat_id)
-
-        msg = json.loads(serialize_2)
-
-        user_id = str(msg["user_id"])
-        IP = msg["IP"]
+            self._messageRoom_pointer.unseen_messages.add_user(chat_id=chat_id, user_id=user_id)
 
         self._messageRoom_pointer.clients.add_client(client_id=user_id, ip=IP)
 
@@ -124,7 +131,7 @@ class EndSessionStrat(MessageStrategy):
     def execute(self, msg: dict) -> None:
         user_id = str(msg["user_id"])
         self._messageRoom_pointer.clients.remove_client(client_identent=user_id)
-
+        self._messageRoom_pointer.unseen_messages.delete_user(user_id=user_id)
         for id_chat in self._messageRoom_pointer.ids_in_chats.keys():  # TODO: Слишком медленно
             if user_id in self._messageRoom_pointer.ids_in_chats[id_chat]:
                 self._messageRoom_pointer.ids_in_chats[id_chat].remove(user_id)
@@ -134,12 +141,12 @@ class EndSessionStrat(MessageStrategy):
                     self._messageRoom_pointer.cache_chat.clear_cache(chat_id=id_chat)
 
 
-class EndSession(
+class ChatMessageStrat(
     MessageStrategy):  # TODO: Для групп ввести метку is_group = msg["is_group"], придумать что-то для was_seen
     command_name = "CHAT-MESSAGE"
 
     def __init__(self):
-        super(EndSession, self).__init__()
+        super(ChatMessageStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
         chat_code = str(msg["chat_id"])
@@ -156,16 +163,27 @@ class EndSession(
         }
 
         result = self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
-
+        # Проверка на переполненость кэша и последующая отсылка в БД
         if result is not None:
             self._api_client.send_messages_bulk(result)
             self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
             self._messageRoom_pointer.send_info_message(user_id, "CACHE-SENT-TO-DB")
-
+        # Проверка на наличие второго юзера в чате
         if len(self._messageRoom_pointer.ids_in_chats[chat_code]) > 1:
             message_to_send["was_seen"] = True
 
+        # Рассылка сообщений
         self._messageRoom_pointer.broadcast((chat_code, message, date_now, user_id, message_to_send["was_seen"]))
+
+        # Отправка unseen тем, кто не в чате
+        for user in self._messageRoom_pointer.unseen_messages.get_users(chat_id=chat_code, user_id=user_id):
+            if user in self._messageRoom_pointer.ids_in_chats[chat_code]:
+                continue
+            self._messageRoom_pointer.unseen_messages.increment_users_count(chat_id=chat_code, user_id=user)
+            count = self._messageRoom_pointer.unseen_messages.get_user_count(chat_id=chat_code, user_id=user)
+            self._messageRoom_pointer.send_info_message(user, "UNSEEN-COUNTER",
+                                                        data={"message_number": count,
+                                                              "chat_id": chat_code})
 
 
 class RequestCacheStrategy(MessageStrategy):
@@ -176,10 +194,21 @@ class RequestCacheStrategy(MessageStrategy):
 
     def execute(self, msg: dict[str, str]) -> None:
         chats_ids = msg["chats_ids"].split(',')
+        user_id = str(msg['user_id'])
         if len(chats_ids) == 0:
             return
 
         for chat_id in chats_ids:
+            # Отсылка количетсва непрочитанных сообщений из БД
+            unseen_number = self._api_client.get_uneesn_messages_count(chat_id, user_id)
+            count = unseen_number['count']
+            self._messageRoom_pointer.unseen_messages.set_new_value(chat_id=chat_id, user_id=user_id, val=count)
+
+            self._messageRoom_pointer.send_info_message(user_id, "UNSEEN-COUNTER",
+                                                        data={"message_number": count,
+                                                              "chat_id": chat_id})
+
+            # Проверка на необходимость запроса кэша
             if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)["cache"]) > 0:
                 continue
 
@@ -202,10 +231,10 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         if index == - 1:
             return
 
+        #Логика запроса кэша из локального хранилища
         cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
 
         if cache is not None and len(cache["cache"]) > 0:
-
             ids = []
             count = 0
             for x in cache["cache"]:
@@ -231,6 +260,13 @@ class ScrollRequestCacheStrategy(MessageStrategy):
                                                             data={"messages_number": count,
                                                                   "chat_id": chat_id})
 
+            # Вычисление и обновление данных по непрочитанным сообщениям
+            self._messageRoom_pointer.unseen_messages.subtract_users_count(chat_id=chat_id, user_id=user_id, number=count)
+            unseen = self._messageRoom_pointer.unseen_messages.get_user_count(chat_id=chat_id, user_id=user_id)
+            self._messageRoom_pointer.send_info_message(user_id, "UNSEEN-COUNTER",
+                                                        data={"message_number": unseen,
+                                                              "chat_id": chat_id})
+
             return
 
         # Ниже логика запроса кеша и отслыки клиенту кэша из БД
@@ -238,10 +274,11 @@ class ScrollRequestCacheStrategy(MessageStrategy):
 
         if cache is None:
             return
+
         self._messageRoom_pointer.send_cache(cache[::-1], user_id, scroll_cache=True)
 
-        if len(self._messageRoom_pointer.ids_in_chats[chat_id]) <= 1:
-            return
+        #if len(self._messageRoom_pointer.ids_in_chats[chat_id]) <= 1:
+            #return
 
         ids = [{"id": x["id"]} for x in cache if x["was_seen"] == False if str(x["sender"]) != user_id]
 
@@ -251,3 +288,10 @@ class ScrollRequestCacheStrategy(MessageStrategy):
             self._messageRoom_pointer.send_info_message(user_id, "USER-JOINED-CHAT",
                                                         data={"messages_number": count,
                                                               "chat_id": chat_id})
+
+        # Вычисление и обновление данных по непрочитанным сообщениям
+        self._messageRoom_pointer.unseen_messages.subtract_users_count(chat_id=chat_id, user_id=user_id, number=count)
+        unseen = self._messageRoom_pointer.unseen_messages.get_user_count(chat_id=chat_id, user_id=user_id)
+        self._messageRoom_pointer.send_info_message(user_id, "UNSEEN-COUNTER",
+                                                    data={"message_number": unseen,
+                                                          "chat_id": chat_id})

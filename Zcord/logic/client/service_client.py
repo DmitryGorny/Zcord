@@ -33,12 +33,17 @@ class ServiceConnection(IConnection, BaseConnection):
     def chat(self, chat: Chat) -> None:
         self._chat = chat
 
-    def send_message(self, message, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
+    @property
+    def cache_chat(self) -> Dict[str, list]:
+        return self._cache_chat
+
+    def send_message(self, msg_type: str, message=None, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
         msg = {
+            'msg_type': msg_type,
             "chat_id": current_chat_id,
             "user_id": self._user.id,
             "nickname": self.user.getNickName(),
-            "message": message}
+            "message": message if message is not None else '0'}
 
         if extra_data is not None:
             msg = msg | extra_data
@@ -59,6 +64,7 @@ class ServiceConnection(IConnection, BaseConnection):
                 buffer = ''
                 msg = self._service_tcp.recv(4096).decode('utf-8')
                 buffer += msg
+                print(msg)
                 try:
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:

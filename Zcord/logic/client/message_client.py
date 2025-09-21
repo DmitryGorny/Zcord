@@ -79,6 +79,8 @@ class MessageConnection(IConnection, BaseConnection):
                 print("Ошибка, конец соединения")
                 self._message_server_tcp.close()
                 break
+            except AttributeError: #TODO: Вот здесь прописать логику отключения сервера
+                return
 
     @property
     def user(self):

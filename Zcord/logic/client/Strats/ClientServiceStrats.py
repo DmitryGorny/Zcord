@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 
 from logic.client.Strats.Strategy import Strategy
@@ -65,17 +66,6 @@ class UserStatusRecieve(ClientsStrategies):
         self.service_connection_pointer.reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (args))
 
 
-class SendChatsData(ClientsStrategies):
-    header_name = "__NICK__"
-
-    def __init__(self):
-        super(SendChatsData, self).__init__()
-
-    def execute(self, msg: dict) -> None:
-        self.service_connection_pointer.send_message(
-            self.service_connection_pointer.serialize(self.service_connection_pointer._cache_chat).decode('utf-8'))
-
-
 class SendFirstInfo(ClientsStrategies):
     header_name = "__USER-INFO__"
 
@@ -88,11 +78,11 @@ class SendFirstInfo(ClientsStrategies):
             "status": [self.service_connection_pointer.user.status.name,
                        self.service_connection_pointer.user.status.color],
             "id": self.service_connection_pointer.user.id,
-            "last_online": self.service_connection_pointer.user.last_online
+            "last_online": self.service_connection_pointer.user.last_online,
+            'chats': self.service_connection_pointer._cache_chat# TODO: Че за бред?
         }
 
-        self.service_connection_pointer.send_message(
-            self.service_connection_pointer.serialize(dictToSend).decode('utf-8'))
+        self.service_connection_pointer.send_message(msg_type="USER-INFO", message=self.service_connection_pointer.serialize(dictToSend).decode('utf-8'))
 
 
 class ConnectToMessageServer(ClientsStrategies):
@@ -103,7 +93,8 @@ class ConnectToMessageServer(ClientsStrategies):
 
     def execute(self, msg: dict) -> None:
         self.service_connection_pointer.connect_to_msg_server()  # TODO: Отловить ошибки подключения
-        self.service_connection_pointer.send_message(message="CACHE-REQUEST")
+        self.service_connection_pointer.send_message(msg_type="CACHE-REQUEST")
+
 
 class CallNotificationStrat(ClientsStrategies):
     header_name = "CALL-NOTIFICATION"

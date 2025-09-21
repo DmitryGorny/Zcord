@@ -74,6 +74,7 @@ class ClientConnections:
 
     @staticmethod
     def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket) -> ServiceConnection:
+        print(12313)
         return ServiceConnection(socket_pointer,
                                  msg_socket,
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
@@ -94,14 +95,14 @@ class ClientConnections:
     def change_chat(chat_id: str) -> None:
         chat = ClientConnections._chat_interface.change_chat(chat_id)
         chat.socket_controller.clear_unseen_messages_in_view(chat_id)
-        ClientConnections.send_service_message("__change_chat__")
+        ClientConnections.send_service_message(msg_type="__change_chat__")
         ClientConnections._message_connection.chat = chat
         ClientConnections._service_connection.chat = chat
 
     @staticmethod
-    def send_service_message(message: str) -> None:
+    def send_service_message(msg_type: str, message: str = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._service_connection.send_message(message, current_chat)
+        ClientConnections._service_connection.send_message(msg_type, message, current_chat)
 
     @staticmethod
     def send_chat_message(message: str = None) -> None:
@@ -123,6 +124,6 @@ class ClientConnections:
 
     @staticmethod
     def close() -> None:
-        ClientConnections.send_service_message("END-SESSION")
+        ClientConnections.send_service_message(msg_type="END-SESSION")
         ClientConnections._service_connection.close()
         ClientConnections._message_connection.close()

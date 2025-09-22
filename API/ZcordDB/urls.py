@@ -52,5 +52,8 @@ urlpatterns = [
     path('messages-bulk-update/', MessageView.as_view({
         'get': 'list',
         'post': 'bulk_update'
-    }), name='message_bulk_update')
+    }), name='message_bulk_update'),
+    path('messages-unseen-count/', MessageView.as_view({
+        'get': 'get_unseen_count',
+    }), name='messages-unseen-count')
 ]

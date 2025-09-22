@@ -1,7 +1,6 @@
 # Реализации интерфейса Strategy для сервера сервисных сообщений (Server)
+import json
 from datetime import timedelta
-
-import msgspec
 
 from logic.server.Client.Client import Client
 from logic.server.Strategy import Strategy
@@ -56,7 +55,7 @@ class ChangeChatStrategy(ServiceStrategy):
 
     async def execute(self, msg: dict) -> None:
         chat_code = msg["chat_id"]
-        user_id = msg["user_id"]
+        user_id = str(msg["user_id"])
         client_obj = self._server_pointer.clients[user_id]
 
         if client_obj.message_chat_id == 0:
@@ -81,7 +80,7 @@ class EndSessionStrategy(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"]
+        user_id = str(msg["user_id"])
         if not self._server_pointer.clients[user_id].writer.is_closing():
             self._server_pointer.clients[user_id].writer.close()
             await self._server_pointer.clients[user_id].writer.wait_closed()
@@ -97,16 +96,52 @@ class RequestCacheStrategy(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"]
+        user_id = str(msg["user_id"])
         client: Client = self._server_pointer.clients[user_id]
 
         chats_ids = []
         for chat_id in client.friends:
-            time_period = timedelta(days=72)
+            time_period = timedelta(days=72)  # TODO: Переделать на 7 или убрать?????????
             if client.last_online - client.friends[chat_id].last_online < time_period:
                 chats_ids.append(chat_id)
 
-        await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids)})
+        await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids), 'user_id': user_id})
+
+
+class UserInfoStrat(ServiceStrategy):
+    command_name = "USER-INFO"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        print(2131)
+        user_id = msg["user_id"]
+        nickname = msg["nickname"]
+        writer = msg['writer']
+
+        data = json.loads(msg["message"])
+        id = str(data["id"])
+        last_online = data["last_online"]
+        friends = data["friends"]
+        status = data['status']
+        chats = data['chats']
+        print(chats)
+        client_obj = Client(id, nickname, last_online, writer)
+        client_obj.friends = friends
+        client_obj.status = status
+        self._server_pointer.clients[id] = client_obj
+        client_ip = writer.transport.get_extra_info('socket').getpeername()
+
+        await client_obj.send_message("__CONNECT__", {
+            "connect": 1
+        })
+
+        await self._sender_to_msg_server_func("USER-INFO",
+                                              {"serialize_1": self._server_pointer.serialize(chats).decode('utf-8'),
+                                               "serialize_2": self._server_pointer.serialize({'user_id': str(user_id),
+                                                                                              "IP": client_ip[
+                                                                                                  0]}).decode('utf-8')})
 
 
 class CallNotificationStrategy(ServiceStrategy):

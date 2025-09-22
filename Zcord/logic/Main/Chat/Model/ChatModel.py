@@ -15,7 +15,7 @@ class ChatModel(QObject):
         self._block_scroll_cache = False
 
     def call_notification(self):
-        ClientConnections.send_service_message("CALL-NOTIFICATION")
+        ClientConnections.send_service_message(msg_type="CALL-NOTIFICATION")
 
     def ask_for_cached_messages(self):
         if not self._block_scroll_cache:

@@ -89,7 +89,7 @@ class CacheManager:
             self.add_value(chat_id, message)
 
     def mark_as_seen(self, chat_id: str, sender_id: str, current_index: int = 0):
-        for message in self._main_cache[chat_id][:current_index]:
+        for message in self._main_cache[chat_id]:
             if not message["was_seen"] and str(message["sender"]) != sender_id:
                 message["was_seen"] = True
 
@@ -146,7 +146,7 @@ class CacheManager:
         
         #TODO: Пересмотерть методы пометки
         def mark_as_seen(self, chat_id: str, sender_id: str, messages_number: int) -> None:
-            for message in self._cache[chat_id][::-1][messages_number:]:
+            for message in self._cache[chat_id][::-1][:messages_number]:
                 if not message["was_seen"] and message["sender"] != sender_id:
                     message["was_seen"] = True
 

@@ -149,3 +149,10 @@ class APIClient:
             "ids": ids
         }
         return self._request('POST', "messages-bulk-update/", json=data)
+
+    def get_uneesn_messages_count(self, chat_id, user_id):
+        params = {
+            'id': int(chat_id),
+            'user_id': int(user_id)
+        }
+        return self._request("GET", 'messages-unseen-count/', params=params)

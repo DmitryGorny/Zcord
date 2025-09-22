@@ -27,9 +27,10 @@ class ClientConnections:
     _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса
 
     @staticmethod
-    def start_client(user, chats: queue.Queue):
+    def start_client(user, chats: queue.Queue, main_window_dynamic_update_cb):
         sockets = ClientConnections._create_sockets()
-        ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
+        ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"],
+                                                                                           main_window_dynamic_update_cb)
         ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"],
                                                                                            sockets["message_tcp"])
         ClientConnections._init_chats(chats)
@@ -71,11 +72,12 @@ class ClientConnections:
         recieve_message_thread.start()
 
     @staticmethod
-    def _init_message_connection(user, socket_pointer: socket.socket) -> MessageConnection:
-        return MessageConnection(socket_pointer, user)
+    def _init_message_connection(user, socket_pointer: socket.socket, callback) -> MessageConnection:
+        return MessageConnection(socket_pointer, user, callback)
 
     @staticmethod
     def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket) -> ServiceConnection:
+        print(12313)
         return ServiceConnection(socket_pointer,
                                  msg_socket,
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
@@ -101,14 +103,14 @@ class ClientConnections:
     def change_chat(chat_id: str) -> None:
         chat = ClientConnections._chat_interface.change_chat(chat_id)
         chat.socket_controller.clear_unseen_messages_in_view(chat_id)
-        ClientConnections.send_service_message("__change_chat__")
+        ClientConnections.send_service_message(msg_type="__change_chat__")
         ClientConnections._message_connection.chat = chat
         ClientConnections._service_connection.chat = chat
 
     @staticmethod
-    def send_service_message(message: str, extra_data: Dict[str, str] = None) -> None:
+    def send_service_message(msg_type: str, message: str = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._service_connection.send_message(message, current_chat, extra_data)
+        ClientConnections._service_connection.send_message(msg_type, message, current_chat)
 
     @staticmethod
     def send_chat_message(message: str = None) -> None:
@@ -134,6 +136,6 @@ class ClientConnections:
 
     @staticmethod
     def close() -> None:
-        ClientConnections.send_service_message("END-SESSION")
+        ClientConnections.send_service_message(msg_type="END-SESSION")
         ClientConnections._service_connection.close()
         ClientConnections._message_connection.close()

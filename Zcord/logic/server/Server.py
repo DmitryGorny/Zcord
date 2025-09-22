@@ -1,12 +1,11 @@
 import asyncio
-import copy
 import json
-from typing import Dict, List
+from typing import Dict
 
 import msgspec
 import re
 from logic.server.Client.Client import Client
-from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy
+from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy, UserInfoStrat
 
 
 class Server:
@@ -19,8 +18,8 @@ class Server:
     def deserialize(self, msg):
         cache = msgspec.json.decode(msg)
         return cache
-
-    def serialize(self, data):
+    @staticmethod
+    def serialize(data):
         ser = msgspec.json.encode(data)
         return ser
 
@@ -38,33 +37,27 @@ class Server:
 
         return send_data_to_server
 
-    def decode_multiple_json_objects(self, data):
-        json_pattern = re.compile(r"\{.*?\}")
-        decoded_objects = []
-        for match in json_pattern.finditer(data):
-            decoded_objects.append(json.loads(match.group()))
-        return decoded_objects
+    @staticmethod
+    def decode_multiple_json_objects(data):
+        decoder = json.JSONDecoder()
+        idx = 0
+        results = []
+        while idx < len(data):
+            try:
+                obj, idx_new = decoder.raw_decode(data[idx:])
+                results.append(obj)
+                idx += idx_new
+            except json.JSONDecodeError:
+                idx += 1
+        return results
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         # Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
-        first_info = await self.settle_first_info(reader, writer)
-        await self.get_client_info(reader, writer)
-        user_id = first_info[1]
-        chats = first_info[0]
-        client_obj = Server.clients[user_id]
-
-        await client_obj.send_message("__CONNECT__", {
-            "connect": 1
-        })
-
         send_to_message_server = self.send_decorator(Server.servers["message-server"])
-
-        client_ip = writer.transport.get_extra_info('socket').getpeername()
-        await send_to_message_server("USER-INFO", {"serialize_1": self.serialize(chats).decode('utf-8'),
-                                                   "serialize_2": self.serialize({'user_id': str(client_obj.id),
-                                                                                  "IP": client_ip[0]}).decode('utf-8')})
-
+        writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
+        await writer.drain()
         while True:
+
             buffer = ''
             try:
                 msg = await reader.read(4096)
@@ -76,8 +69,10 @@ class Server:
                     continue
 
                 for msg in arr:
-                    message = msg["message"]
+                    message = msg["msg_type"]
                     strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
+                    if isinstance(strategy, UserInfoStrat):
+                        msg['writer'] = writer
                     try:
                         await strategy.execute(msg)
                     except AttributeError as e:  # Пока чисто для отладки, т.к. незнакомых команд быть не может????
@@ -88,6 +83,7 @@ class Server:
                 break
 
     async def handle_server(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        """Сокет обрабатывающий подключение серверов"""
         writer.write(b'DISCOVER')  # Запрос на информацию о сервере
         while True:
             try:
@@ -105,28 +101,6 @@ class Server:
                 writer.close()
                 print("Отключён")
                 break
-
-    async def settle_first_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        writer.write(json.dumps({"message_type": '__NICK__'}).encode('utf-8'))
-        await writer.drain()
-        msg = await reader.read(4096)
-        msg = json.loads(msg)
-        user_id = msg["user_id"]
-        chat_id = self.deserialize(msg["message"])
-
-        print(f"user_id is {user_id}")
-        return [chat_id, user_id]
-
-    async def get_client_info(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
-        msg = await reader.read(1024)
-        msg = json.loads(msg)
-        nickname = msg["nickname"]
-        msg = json.loads(msg["message"])
-        clientObj = Client(msg["id"], nickname, msg["last_online"], writer)
-        clientObj.friends = msg["friends"]
-        clientObj.status = msg["status"]
-        Server.clients[msg["id"]] = clientObj
 
     # TODO: Переделать
     async def send_status(self, nickname: str) -> None:

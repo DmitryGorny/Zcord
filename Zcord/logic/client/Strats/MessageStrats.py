@@ -194,3 +194,15 @@ class UserJoinedStrat(ClientsStrategies):
         self._message_connection_pointer.chat.socket_controller.change_unseen_status(
             msg["chat_id"],
             int(msg["messages_number"]))
+
+
+class UnseenCounterStrat(ClientsStrategies):
+    header_name = "UNSEEN-COUNTER"
+
+    def __init__(self):
+        super(UnseenCounterStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        chat_id = str(msg['chat_id'])
+        message_number = int(msg["message_number"])
+        self._message_connection_pointer.call_main_dynamic_update('UPDATE-MESSAGE-NUMBER', (chat_id, message_number))

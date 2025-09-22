@@ -1,8 +1,7 @@
 import json
 import socket
 import threading
-from datetime import datetime
-from typing import Dict, List, Any, Union, Tuple
+from typing import Dict, List
 
 import msgspec
 import copy
@@ -10,13 +9,14 @@ import select
 
 from logic.server.MessageServer.Cache.Cache import CacheManager
 from logic.server.MessageServer.Clients.ClientManager import ClientManager
+from logic.server.MessageServer.UnseenMessages.UnseenManager import UnseenManager
 from logic.server.StrategiesForMessageServer.StratsForServer import ChooseStrategy
 
 
 class MessageRoom(object):  # TODO: Когда-нибудь переделать
     ids_in_chats: Dict[str, List[str]] = {}
     cache_chat: CacheManager = CacheManager()
-    unseenMessages = {}
+    unseen_messages: UnseenManager = UnseenManager()
     clients: ClientManager = ClientManager()
     _strat_choose = ChooseStrategy()
 

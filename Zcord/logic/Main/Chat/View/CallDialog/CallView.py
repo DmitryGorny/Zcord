@@ -1,7 +1,6 @@
 from PyQt6 import QtWidgets
-from PyQt6.QtCore import QByteArray, Qt, QTimer, QPropertyAnimation
+from PyQt6.QtCore import QPoint, Qt, QTimer, QPropertyAnimation
 from logic.Main.Chat.View.CallDialog.CallGUI import Ui_Call
-from logic.Message import message_client
 
 
 class Call(QtWidgets.QDialog):
@@ -16,6 +15,8 @@ class Call(QtWidgets.QDialog):
 
         self.call_dialog.AcceptCall_button.clicked.connect(callback)
         self.call_dialog.DeclineCall_button.clicked.connect(self.hide_call_event)  # hide отображение виджета, а также отправка сообщения в чат об отклонении звонка
+
+        self.pressing = False
 
     def show_call_event(self):
         print("Пришел ивент звонка")

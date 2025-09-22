@@ -1,4 +1,6 @@
 import threading
+
+from logic.Main.Chat.View.Animation.AnimatedCall import AnimatedBorderButton
 from logic.Main.Chat.View.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.CallDialog.CallView import Call
 from PyQt6 import QtWidgets, QtCore
@@ -244,10 +246,14 @@ class ChatView(QtWidgets.QWidget):
         self.ui.Call.show()
         self._controller.start_call(self.__user, self.__chatId)
         self.call_dialog.hide_call_event()
+        """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
+        иконок пользователей с сервером)"""
+        #self.animate_call = AnimatedBorderButton(self.ui.User1_icon) # TODO
 
     def stop_call(self):
         self.ui.Call.hide()
         self._controller.stop_call()
+        self.ui.widget_2.hide()
 
     def show_call_dialog(self):
         self.call_dialog.show_call_event()

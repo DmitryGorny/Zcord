@@ -153,7 +153,7 @@ class Server:
 
 
 async def main():
-    IP = "26.36.207.48"
+    IP = "26.36.124.241"
     PORT_FO_USERS = 55558
 
     server_user = await asyncio.start_server(

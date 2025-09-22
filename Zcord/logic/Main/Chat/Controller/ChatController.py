@@ -20,7 +20,7 @@ class ChatController:
         self._model.send_message(text)
 
     def get_socket_controller(self) -> 'ChatController.SocketController':
-        return self.SocketController(self._views)
+        return self.SocketController(self._views, self._model)
 
     # TODO: Переделать вместе с ситемой добавления друзей + ChatModel
     def send_friend_request(self, chat_id, friend_nick):
@@ -51,17 +51,43 @@ class ChatController:
         self._model.mute_head_self(flg)
 
     class SocketController:
-        def __init__(self, views: Dict[str, ChatView]):
+        def __init__(self, views: Dict[str, ChatView], model: ChatModel):
             self._views = views
+            self._model = model
 
         def clear_layout(self, chat_id: str):
             self._views[chat_id].clearLayout()
 
-        #TODO:Пересмотреть метод в view
-        #TODO: Сделать еще awaited версию см. SygnalReciever
-        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: int = 0,
-                            event: threading.Event = None):
+        # TODO:Пересмотреть метод в view
+        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: bool = False):
             self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)
 
+        def awaited_receive_message(self, chat_id: str, sender, text, date, messageIndex=1,
+                                    wasSeen: bool = False, event: threading.Event = None):
+            self._views[chat_id].awaitedMessageReceive.emit(sender, text, date, messageIndex, wasSeen, event)
+
+        def enable_scroll_bar(self, chat_id: str):
+            self._views[chat_id].enable_scroll_bar.emit()
+            self._model.enable_scroll_cache()
+
+        def stop_requesting_cache(self):
+            self._model.stop_requesting_cache()
+
+        def enable_model_scroll_bar_requesting(self):
+            self._model.enable_scroll_cache()
+
+        def change_unseen_status(self, chat_id: str, number_of_messages: int):
+            self._views[chat_id].change_unseen_status_signal.emit(number_of_messages)
+
+        def clear_unseen_messages_in_view(self, chat_id: str):
+            self._views[chat_id].clear_unseen.emit()
+
+        # Voice
         def receive_mute(self, device: str, chat_id: str, mute_pos: bool):
             self._views[chat_id].muteDevice.emit(device, mute_pos)
+
+        def receive_connect(self, chat_id: str, connect_pos: bool):
+            self._views[chat_id].connectReceived.emit(connect_pos)
+
+        def receive_call(self, chat_id: str, call_flg: bool):
+            self._views[chat_id].callReceived.emit(call_flg)

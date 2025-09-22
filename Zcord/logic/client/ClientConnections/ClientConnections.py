@@ -30,7 +30,8 @@ class ClientConnections:
     def start_client(user, chats: queue.Queue):
         sockets = ClientConnections._create_sockets()
         ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"])
-        ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"], sockets["message_tcp"])
+        ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"],
+                                                                                           sockets["message_tcp"])
         ClientConnections._init_chats(chats)
         ClientConnections._create_threads()
 
@@ -89,6 +90,7 @@ class ClientConnections:
     def _init_chats(chats_queue: queue.Queue):
         if ClientConnections._service_connection is None:
             raise ValueError("_init_chats должен быть вызван после инициализации объекта сервисных сообщений")
+
         while not chats_queue.empty():
             attrs = chats_queue.get()
             ClientConnections._service_connection.cache_chat = attrs["chat_id"]
@@ -98,18 +100,33 @@ class ClientConnections:
     @staticmethod
     def change_chat(chat_id: str) -> None:
         chat = ClientConnections._chat_interface.change_chat(chat_id)
+        chat.socket_controller.clear_unseen_messages_in_view(chat_id)
         ClientConnections.send_service_message("__change_chat__")
         ClientConnections._message_connection.chat = chat
+        ClientConnections._service_connection.chat = chat
 
     @staticmethod
-    def send_service_message(message: str) -> None:
+    def send_service_message(message: str, extra_data: Dict[str, str] = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._service_connection.send_message(message, current_chat)
+        ClientConnections._service_connection.send_message(message, current_chat, extra_data)
 
     @staticmethod
-    def send_chat_message(message: str) -> None:
+    def send_chat_message(message: str = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._message_connection.send_message(message, current_chat)
+        ClientConnections._message_connection.send_message(current_chat, message=message)
+
+    @staticmethod
+    def send_message_server_message(msg_type: str, extra_data: dict):
+        current_chat = ClientConnections._chat_interface.current_chat_id
+        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data=extra_data)
+
+    @staticmethod
+    def ask_for_scroll_cache(msg_type: str):
+        current_chat = ClientConnections._chat_interface.current_chat_id
+        index = ClientConnections._chat_interface.chat.scroll_index
+        db_index = ClientConnections._chat_interface.chat.scroll_db_index
+        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data={"index": index,
+                                                                                                        "db_index": db_index})
 
     @staticmethod
     def get_chat_id() -> object:

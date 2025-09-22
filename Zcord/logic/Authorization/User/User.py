@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List, Dict
 from logic.Main.Chat.Controller.ChatController import ChatController
 from logic.Authorization.User.chat.UserChats import UserChats
@@ -8,11 +9,12 @@ from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 
 class BaseUser:
-    def __init__(self, user_id, nickname):
+    def __init__(self, user_id, nickname, last_online: str):
         self._id = user_id
         self._nickname = nickname
         self._status = None
         self._statuses = []
+        self._last_online: datetime = datetime.strptime(last_online, "%Y-%m-%dT%H:%M:%S.%fZ")
         self.create_default_statuses()
 
     def create_default_statuses(self):
@@ -37,6 +39,7 @@ class BaseUser:
 
         self._statuses = [online, distrub, hidden, afk]
         self._status = online
+
     @property
     def status(self):
         return self._status
@@ -56,9 +59,14 @@ class BaseUser:
     def getNickName(self):
         return self._nickname
 
+    @property
+    def last_online(self) -> datetime:
+        return self._last_online
+
+
 class User(BaseUser):
-    def __init__(self, user_id, nickname, password):
-        super(User, self).__init__(user_id, nickname)
+    def __init__(self, user_id, nickname, password, last_online):
+        super(User, self).__init__(user_id, nickname, last_online)
         self.__friends = {}
         self.__password = password
         self._friends_model = UserFriends(self)

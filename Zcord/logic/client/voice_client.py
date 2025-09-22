@@ -69,14 +69,18 @@ class VoiceConnection(IConnection, BaseConnection):
                         self.peer = (p["ip"], int(p["udp_port"]))
                         self.voice_handler.get_last_seq = None  # TODO Возможно не сработает нужно проверять внимательно
                         print(f"[Client] peer: {self.peer}")
+                        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, connect_pos=True)
 
                 elif t == "peer_left":
                     print(f"[Client] peer_left: {msg.get('addr')}")
+                    count_of_users = msg.get("count")
+                    self.chat_obj.socket_controller.receive_connect(chat_id=self.room, connect_pos=False)
                     self.peer = None
 
                 elif t == "peer_joined":
-                    # просто информационное событие
-                    pass
+                    count_of_users = msg.get("count")
+                    self.chat_obj.socket_controller.receive_connect(chat_id=self.room, connect_pos=True)
+
                 elif "mute" in t:  # Реализация мутов
                     client = msg.get("client")
 
@@ -127,6 +131,7 @@ class VoiceConnection(IConnection, BaseConnection):
                 self._udp_send(pkt, msg_type="audio")
             except Exception:
                 pass
+        print("Вышел из _audio_input_thread")
 
     @property
     def user(self):

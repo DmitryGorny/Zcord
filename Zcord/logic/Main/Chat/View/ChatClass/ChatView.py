@@ -1,4 +1,6 @@
 import threading
+
+from logic.Main.Chat.View.Animation.AnimatedCall import AnimatedBorderButton
 from logic.Main.Chat.View.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.CallDialog.CallView import Call
 from PyQt6 import QtWidgets, QtCore
@@ -8,17 +10,30 @@ from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 
 
 class ChatView(QtWidgets.QWidget):
-    messageReceived = QtCore.pyqtSignal(str, str, str, int, int)
     muteDevice = QtCore.pyqtSignal(str, bool)
+    connectReceived = QtCore.pyqtSignal(bool)
+    callReceived = QtCore.pyqtSignal(bool)
+
+    messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
+    awaitedMessageReceive = QtCore.pyqtSignal(str, str, str, int, bool, object)
     clear_layout = QtCore.pyqtSignal()
+    enable_scroll_bar = QtCore.pyqtSignal()
+    change_unseen_status_signal = QtCore.pyqtSignal(int)
+    clear_unseen = QtCore.pyqtSignal()
 
     def __init__(self, chatId, friend_nick, user, controller):
         super(ChatView, self).__init__()
-        #Сигналы
+        # Сигналы
         self.messageReceived.connect(self.recieveMessage)
         self.muteDevice.connect(self.mute_device_friend)
+        self.connectReceived.connect(self.show_friend_icon)
+        self.callReceived.connect(self.show_call_widget)
 
-        #Сигналы
+        self.awaitedMessageReceive.connect(self.recieveMessage)
+        self.enable_scroll_bar.connect(self.enable_scroll)
+        self.change_unseen_status_signal.connect(self.change_unseen_status)
+        self.clear_unseen.connect(self.clear_unseen_messages)
+        # Сигналы
 
         # интерфейс чата
         self.ui = Ui_Chat()
@@ -30,6 +45,9 @@ class ChatView(QtWidgets.QWidget):
         self.__chatId = chatId
         self.__user = user
         self.__friendNickname = friend_nick
+
+        self._old_max_scroll = None
+        self._old_value_scroll = None
 
         self.ui.UsersNickInChat.setText(friend_nick)
         self.ui.UsersLogoinChat.setText(friend_nick[0])
@@ -46,12 +64,12 @@ class ChatView(QtWidgets.QWidget):
 
         self.ui.InfoButton.clicked.connect(self.showDeleteFriendDialog)
 
-        self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.askForCachedMessages)
+        self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.ask_for_cached_messages)
 
         self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
 
-        #if self.__user.getFriends()[self.__friendNickname][1] == 1: TODO: Вернуть после переработки
-            #self.ui.ChatInputLayout.setHidden(True)
+        # if self.__user.getFriends()[self.__friendNickname][1] == 1: TODO: Вернуть после переработки
+        # self.ui.ChatInputLayout.setHidden(True)
 
         self.messageNumber = None
 
@@ -67,6 +85,8 @@ class ChatView(QtWidgets.QWidget):
         self.ui.user1_headphonesMute.hide()
         self.ui.user2_headphonesMute.hide()
 
+        self.ui.widget_2.hide()
+
         # Переменные мутов
         self.microphone_mute = False
         self.headphone_mute = False
@@ -79,11 +99,24 @@ class ChatView(QtWidgets.QWidget):
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
         """Окно приходящего звонка"""
-        self.call_dialog = Call()
+        self.call_dialog = Call(self.start_call)
 
-    def askForCachedMessages(self, val):
-        if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum()/4):
+    def ask_for_cached_messages(self, val):
+        if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
             self._controller.ask_for_cached_message()
+
+            self._old_max_scroll = self.ui.ChatScroll.verticalScrollBar().maximum()
+            self._old_value_scroll = self.ui.ChatScroll.verticalScrollBar().value()
+
+    @QtCore.pyqtSlot()
+    def enable_scroll(self):
+        scrollbar = self.ui.ChatScroll.verticalScrollBar()
+
+        new_max = scrollbar.maximum()
+        scroll_delta = new_max - self._old_max_scroll
+
+        if scroll_delta > 0:
+            scrollbar.setValue(self._old_value_scroll + scroll_delta)
 
     def sendMessage(self):
         message_text = self.ui.Chat_input_.text()
@@ -94,8 +127,9 @@ class ChatView(QtWidgets.QWidget):
         self._controller.send_message(message_text)
         self.ui.Chat_input_.clear()
 
-    @QtCore.pyqtSlot(str, str, str, int, int)
-    def recieveMessage(self, sender, text, date, messageIndex=1, wasSeen:int = 0, event: threading.Event = None): #Нужно еще 20 аргументов
+    @QtCore.pyqtSlot(str, str, str, int, bool)
+    def recieveMessage(self, sender, text, date, messageIndex=1, wasSeen: bool = False,
+                       event: threading.Event = None):  # Нужно еще 20 аргументов
         if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
             self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
 
@@ -113,7 +147,7 @@ class ChatView(QtWidgets.QWidget):
                     border:2px solid white;
                     }
                     }"""
-        if wasSeen == 0:
+        if not wasSeen:
             message.ui.WasSeenlabel.setText("Unseen")
             self.unseenMessages.append(message.ui)
 
@@ -127,7 +161,7 @@ class ChatView(QtWidgets.QWidget):
             self.ui.ChatScroll.addItem(widget)
         else:
             self.ui.ChatScroll.insertItem(0, widget)
-            #self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
+            # self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
 
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
 
@@ -140,20 +174,26 @@ class ChatView(QtWidgets.QWidget):
         return True
 
     def slotForScroll(self):
-        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum()/4))
+        self.ui.ChatScroll.verticalScrollBar().setValue(int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4))
 
-    def addMessageOnTop(self, sender, text, date, index, wasSeen:int = 0, event = None): #Надубасил в код жестко
-         self.recieveMessage(sender, text, date, index, wasSeen, event)
+    def addMessageOnTop(self, sender, text, date, wasSeen: int = 0, event=None):  # Надубасил в код жестко
+        self.recieveMessage(sender, text, date, wasSeen, event)
 
-    def changeUnseenStatus(self, numberOfWidgets):
-        if numberOfWidgets >= len(self.unseenMessages):
-            numberOfWidgets = len(self.unseenMessages)
+    @QtCore.pyqtSlot(int)
+    def change_unseen_status(self, number_of_widgets):
+        if number_of_widgets >= len(self.unseenMessages):
+            number_of_widgets = len(self.unseenMessages)
         try:
-            for messageWidget in range(numberOfWidgets):
-                self.unseenMessages[::-1][messageWidget].WasSeenlabel.setText("Seen")
-            del self.unseenMessages[-(numberOfWidgets):]
+            for messageWidget in range(number_of_widgets):
+                self.unseenMessages[messageWidget].WasSeenlabel.setText("Seen")
+            del self.unseenMessages[:number_of_widgets]
         except Exception:
             return
+
+    @QtCore.pyqtSlot()
+    def clear_unseen_messages(self):
+        self.unseenMessages.clear()
+
     def sendFriendRequest(self):
         self._controller.send_friend_request(self.__chatId, self.__friendNickname)
 
@@ -205,10 +245,15 @@ class ChatView(QtWidgets.QWidget):
     def start_call(self):
         self.ui.Call.show()
         self._controller.start_call(self.__user, self.__chatId)
+        self.call_dialog.hide_call_event()
+        """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
+        иконок пользователей с сервером)"""
+        #self.animate_call = AnimatedBorderButton(self.ui.User1_icon) # TODO
 
     def stop_call(self):
         self.ui.Call.hide()
         self._controller.stop_call()
+        self.ui.widget_2.hide()
 
     def show_call_dialog(self):
         self.call_dialog.show_call_event()
@@ -249,3 +294,16 @@ class ChatView(QtWidgets.QWidget):
             self.ui.user2_headphonesMute.show()
         else:
             self.ui.user2_headphonesMute.hide()
+
+    # Работа с иконками юзеров
+    def show_friend_icon(self, flg):
+        if flg:
+            self.ui.widget_2.show()
+        else:
+            self.ui.widget_2.hide()
+
+    def show_call_widget(self, flg):
+        if flg and self.ui.Call.isHidden():
+            self.call_dialog.show_call_event()
+        else:
+            self.call_dialog.hide_call_event()

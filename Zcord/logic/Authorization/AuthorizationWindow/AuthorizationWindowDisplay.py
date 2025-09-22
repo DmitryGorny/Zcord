@@ -73,6 +73,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
                 valid_login = user_auth.get_valid_login()
                 valid_password = user_auth.get_valid_password()
                 valid_user_id = user_auth.get_valid_id()
+                last_online = user_auth.get_last_online()
                 user = {
                     "nickname": valid_login,
                     "password": valid_password
@@ -81,7 +82,7 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
                     user_json.write(json.dumps(user))
 
                 self.close()
-                self.__user = User(valid_user_id, valid_login, valid_password)
+                self.__user = User(valid_user_id, valid_login, valid_password, last_online)
             else:
                 LoginPassErrorBox = LoginPassError()
                 LoginPassErrorBox.show()

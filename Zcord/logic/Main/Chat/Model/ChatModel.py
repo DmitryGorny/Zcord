@@ -4,7 +4,6 @@ import threading
 from PyQt6.QtCore import QThread, pyqtSignal, QObject
 
 from logic.Main.Friends.FriendAdding import FriendAdding
-from logic.Message import message_client
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.client.voice_client import CallManager
 
@@ -13,9 +12,21 @@ class ChatModel(QObject):
     def __init__(self):
         super().__init__()
         self.call_manager = CallManager()
+        self._block_scroll_cache = False
+
+    def call_notification(self):
+        ClientConnections.send_service_message("CALL-NOTIFICATION")
 
     def ask_for_cached_messages(self):
-        ClientConnections.send_service_message(f"__CACHED-REQUEST__")
+        if not self._block_scroll_cache:
+            ClientConnections.ask_for_scroll_cache(msg_type=f"SCROLL-CACHE-REQUEST")
+            self._block_scroll_cache = True
+
+    def stop_requesting_cache(self):
+        self._block_scroll_cache = True
+
+    def enable_scroll_cache(self):
+        self._block_scroll_cache = False
 
     def send_message(self, text: str):
         ClientConnections.send_chat_message(text)
@@ -55,10 +66,12 @@ class ChatModel(QObject):
             port=55559,
             room=chat_id
         )
+        ClientConnections.send_service_message(message=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
 
     def stop_call(self):
         """Остановка звонка - синхронный вызов"""
         success = self.call_manager.stop_call()
+        ClientConnections.send_service_message(message=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
 
     # Микрофон
     def mute_mic_self(self, flg):

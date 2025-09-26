@@ -73,6 +73,7 @@ class VoiceHandler:
             try:
                 seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
             except asyncio.TimeoutError:
+                print("таймаут")
                 continue
             except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
                 # но хотелось бы более понятный флажок
@@ -83,9 +84,13 @@ class VoiceHandler:
                 diff = (seq - self.last_seq) & 0xFFFFFFFF
                 if diff > 0x80000000:
                     # это «очень старый» пакет — дроп
+                    print("дроп")
                     continue
                 if diff == 0:
+                    print("дроп")
                     continue
+            else:
+                print(f"self.last_seq is None")
             self.last_seq = seq
             print(self.last_seq)
             try:

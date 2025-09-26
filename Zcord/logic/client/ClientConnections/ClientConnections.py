@@ -21,7 +21,7 @@ class ClientConnections:
     _chat_interface: ChatInterface = ChatInterface()
 
     # Данные сервеа
-    _SERVER_IP = "26.36.207.48"  # IP
+    _SERVER_IP = "26.36.124.241"  # IP
     _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
     _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса
@@ -77,7 +77,6 @@ class ClientConnections:
 
     @staticmethod
     def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket) -> ServiceConnection:
-        print(12313)
         return ServiceConnection(socket_pointer,
                                  msg_socket,
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
@@ -108,9 +107,9 @@ class ClientConnections:
         ClientConnections._service_connection.chat = chat
 
     @staticmethod
-    def send_service_message(msg_type: str, message: str = None) -> None:
+    def send_service_message(msg_type: str, message: str = None, extra_data: Dict[str, str] = None) -> None:
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._service_connection.send_message(msg_type, message, current_chat)
+        ClientConnections._service_connection.send_message(msg_type, message, current_chat, extra_data)
 
     @staticmethod
     def send_chat_message(message: str = None) -> None:

@@ -131,9 +131,6 @@ class TcpSignalServer:
 
         print(f"[TCP] {client.addr_str()} присоединился к комнате '{room}', участников={len(lst)}")
 
-        # Сообщаем остальным, что кто-то присоединился к комнате
-        await self._broadcast_room(room, {"t": "peer_joined", "client": client.to_dict()}, skip=client)
-
         # Новому клиенту отправляем список уже присутствующих пиров
         if len(lst) >= 2:
             peers_dicts = [c.to_dict() for c in lst if c != client]
@@ -183,7 +180,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("26.36.207.48", 55559)
+    await srv.serve("26.36.124.241", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

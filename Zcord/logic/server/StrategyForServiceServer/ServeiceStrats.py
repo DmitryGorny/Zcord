@@ -115,7 +115,6 @@ class UserInfoStrat(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        print(2131)
         user_id = msg["user_id"]
         nickname = msg["nickname"]
         writer = msg['writer']
@@ -126,7 +125,6 @@ class UserInfoStrat(ServiceStrategy):
         friends = data["friends"]
         status = data['status']
         chats = data['chats']
-        print(chats)
         client_obj = Client(id, nickname, last_online, writer)
         client_obj.friends = friends
         client_obj.status = status
@@ -156,7 +154,7 @@ class CallNotificationStrategy(ServiceStrategy):
         chat_id = msg["chat_id"]
         call_flag = msg["call_flg"]
         print("Сервер принял ивент звонка")
-        friend = self._server_pointer.clients[user_id].friends[str(chat_id)]
+        friend = self._server_pointer.clients[str(user_id)].friends[str(chat_id)]
         friend_id = friend.id
         await self._server_pointer.clients[str(friend_id)].send_message('__CALL-NOTIFICATION__', {'user_id': user_id,
                                                                                            'chat_id': chat_id,

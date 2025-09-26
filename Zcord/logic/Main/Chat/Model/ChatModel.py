@@ -61,17 +61,17 @@ class ChatModel(QObject):
     def start_call(self, user, chat_id):
         """Запуск звонка - синхронный вызов"""
         success = self.call_manager.start_call(
-            user=None,
-            host="26.36.207.48",
+            user=user,
+            host="26.36.124.241",
             port=55559,
             room=chat_id
         )
-        ClientConnections.send_service_message(message=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
+        #ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
 
     def stop_call(self):
         """Остановка звонка - синхронный вызов"""
         success = self.call_manager.stop_call()
-        ClientConnections.send_service_message(message=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
+        #ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
 
     # Микрофон
     def mute_mic_self(self, flg):

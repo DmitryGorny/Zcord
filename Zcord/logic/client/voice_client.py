@@ -41,9 +41,13 @@ class VoiceConnection(IConnection, BaseConnection):
         self._voice_handler = None
 
     async def register(self):
-        msg = {"t": "join_room", "room": self.room, "token": self.token, "user": self.user,
+        msg = {"t": "join_room", "room": self.room, "token": self.token, "user": self.user.getNickName(),
                "udp_port": self.local_udp_port}
         print("Отправлено сообщение о входе на сервер")
+        """Передаю отсюда свой токен для корректного отображения собственной иконки"""
+        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=[msg]) # TODO
+        # мб засунуть в другое место??
+
         await self.send_message(msg, current_chat_id=0)
 
     async def recv_server(self):
@@ -67,20 +71,15 @@ class VoiceConnection(IConnection, BaseConnection):
                         # для простоты — берём первого (или последовательно всех)
                         p = peers[0]
                         self.peer = (p["ip"], int(p["udp_port"]))
-                        self.voice_handler.get_last_seq = None  # TODO Возможно не сработает нужно проверять внимательно
+                        self.voice_handler.get_last_seq = None
                         print(f"[Client] peer: {self.peer}")
                         self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
 
                 elif t == "peer_left":
                     client = msg.get("client")
                     print(f"[Client] peer_left: {client}")
-                    self.chat_obj.socket_controller.receive_left(chat_id=self.room, client=client)
+                    self.chat_obj.socket_controller.receive_disconnect(chat_id=self.room, client=client)
                     self.peer = None
-
-                elif t == "peer_joined":
-                    client = msg.get("client")
-                    print(f"[Client] peer_joined: {client}")
-                    self.chat_obj.socket_controller.receive_join(chat_id=self.room, client=client)
 
                 elif "mute" in t:  # Реализация мутов
                     client = msg.get("client")
@@ -218,7 +217,7 @@ class VoiceConnection(IConnection, BaseConnection):
             await asyncio.sleep(0.05)
 
         # стартуем прием/воспроизведение
-        self.out_task = asyncio.create_task(self.voice_handler.audio_output_loop(self.flg))
+        self.out_task = asyncio.create_task(self.voice_handler.audio_output_loop(lambda: self.flg))
         self.udp_recv_task = asyncio.create_task(self.recv_udp())
 
         # стартуем поток отправки микрофона

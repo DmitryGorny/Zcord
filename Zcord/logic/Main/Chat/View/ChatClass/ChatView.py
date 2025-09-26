@@ -13,8 +13,7 @@ from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 class ChatView(QtWidgets.QWidget):
     muteDevice = QtCore.pyqtSignal(str, bool)
     connectReceived = QtCore.pyqtSignal(list)
-    joinReceived = QtCore.pyqtSignal(object)
-    leftReceived = QtCore.pyqtSignal(object)
+    disconnectReceived = QtCore.pyqtSignal(object)
     callReceived = QtCore.pyqtSignal(bool)
 
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
@@ -29,9 +28,8 @@ class ChatView(QtWidgets.QWidget):
         # Сигналы
         self.messageReceived.connect(self.recieveMessage)
         self.muteDevice.connect(self.mute_device_friend)
-        self.connectReceived.connect(self.all_icons)
-        self.leftReceived.connect(self.left_icon)
-        self.joinReceived.connect(self.join_icon)
+        self.connectReceived.connect(self.join_icon)
+        self.disconnectReceived.connect(self.left_icon)
         self.callReceived.connect(self.show_call_widget)
 
         self.awaitedMessageReceive.connect(self.recieveMessage)
@@ -265,8 +263,8 @@ class ChatView(QtWidgets.QWidget):
         self.ui.Call.hide()
         self._controller.stop_call()
 
-        for icon in self.client_icons.keys():
-            icon.ui.widget_2.hide()
+        for icon in self.client_icons.values():
+            self.ui.UsersFiled_layout.removeWidget(icon.ui.widget_2)
         self.client_icons = {}
 
     def show_call_dialog(self):
@@ -311,24 +309,20 @@ class ChatView(QtWidgets.QWidget):
 
     # Работа с иконками юзеров
     # Условие 1 - подключение к группе пользователей
-    def all_icons(self, clients):
-        print(f"all_icons {clients}")
+    def join_icon(self, clients):
+        print(f"join_icon")
         for client in clients:
-            if client["token"] in self.client_icons.keys():
+            if client["token"] not in self.client_icons.keys():
+                print("отображаем иконку")
                 newcomer = UserIcon(client)
                 self.client_icons[client["token"]] = newcomer
                 self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
     # Условие 2 - выход одного из пользователей peer_left
     def left_icon(self, client):
+        print("left_icon")
         self.ui.UsersFiled_layout.removeWidget(self.client_icons[client["token"]].ui.widget_2)
         del self.client_icons[client["token"]]
-
-    # Условие 3 - вход нового пользователя peer_join
-    def join_icon(self, client):
-        newcomer = UserIcon(client)
-        self.client_icons[client["token"]] = newcomer
-        self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
     def show_call_widget(self, flg):
         if flg and self.ui.Call.isHidden():

@@ -64,7 +64,6 @@ class ServiceConnection(IConnection, BaseConnection):
                 buffer = ''
                 msg = self._service_tcp.recv(4096).decode('utf-8')
                 buffer += msg
-                print(msg)
                 try:
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:

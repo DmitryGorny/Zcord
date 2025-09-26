@@ -9,7 +9,7 @@ class UserIcon(QtWidgets.QWidget):
 
         self.ui = Ui_Icon()
         self.ui.setupUi(self)
-        #self.ui.User2_icon_2.setText(client['user'][0])
+        self.ui.User2_icon_2.setText(client['user'][0])
         self.ui.user2_headphonesMute_2.hide()
         self.ui.user2_micMute_2.hide()
         self.ui.widget_2.show()

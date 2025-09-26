@@ -132,19 +132,15 @@ class TcpSignalServer:
         print(f"[TCP] {client.addr_str()} присоединился к комнате '{room}', участников={len(lst)}")
 
         # Сообщаем остальным, что кто-то присоединился к комнате
-        await self._broadcast_room(room, {"t": "peer_joined", "count": len(lst)}, skip=client)
+        await self._broadcast_room(room, {"t": "peer_joined", "client": client.to_dict()}, skip=client)
 
         # Новому клиенту отправляем список уже присутствующих пиров
-        peers = [
-            {"ip": c.ip, "udp_port": c.udp_port}
-            for c in lst if c is not client and c.udp_port
-        ]
-        if peers:
-            await self._send(client, {"t": "peer", "peers": peers})
+        if len(lst) >= 2:
+            peers_dicts = [c.to_dict() for c in lst if c != client]
+            await self._send(client, {"t": "peer", "client": peers_dicts})
 
         # И существующим участникам разошлём адрес нового
-        newcomer = {"ip": client.ip, "udp_port": client.udp_port}
-        await self._broadcast_room(room, {"t": "peer", "peers": [newcomer]}, skip=client)
+        await self._broadcast_room(room, {"t": "peer", "client": [client.to_dict()]}, skip=client)
 
     async def _leave_room(self, client: ClientInfo):
         if not client.room:
@@ -156,7 +152,7 @@ class TcpSignalServer:
             lst.remove(client)
             print(f"[TCP] {client.addr_str()} вышел из комнаты '{room}', участников={len(lst)}")
 
-            await self._broadcast_room(room, {"t": "peer_left", "addr": client.addr_str(), "count": len(lst)}, skip=client)
+            await self._broadcast_room(room, {"t": "peer_left", "client": client.to_dict()}, skip=client)
 
         # чистка комнаты если пустая TODO: Не знаю нужно ли??
         if not lst:
@@ -187,7 +183,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("26.36.124.241", 55559)
+    await srv.serve("26.36.207.48", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

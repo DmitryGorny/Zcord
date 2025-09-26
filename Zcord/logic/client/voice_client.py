@@ -62,24 +62,25 @@ class VoiceConnection(IConnection, BaseConnection):
 
                 if t == "peer":
                     # сервер может прислать список пиров
-                    peers = msg.get("peers", [])
+                    peers = msg.get("client", [])
                     if peers:
                         # для простоты — берём первого (или последовательно всех)
                         p = peers[0]
                         self.peer = (p["ip"], int(p["udp_port"]))
                         self.voice_handler.get_last_seq = None  # TODO Возможно не сработает нужно проверять внимательно
                         print(f"[Client] peer: {self.peer}")
-                        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, connect_pos=True)
+                        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
 
                 elif t == "peer_left":
-                    print(f"[Client] peer_left: {msg.get('addr')}")
-                    count_of_users = msg.get("count")
-                    self.chat_obj.socket_controller.receive_connect(chat_id=self.room, connect_pos=False)
+                    client = msg.get("client")
+                    print(f"[Client] peer_left: {client}")
+                    self.chat_obj.socket_controller.receive_left(chat_id=self.room, client=client)
                     self.peer = None
 
                 elif t == "peer_joined":
-                    count_of_users = msg.get("count")
-                    self.chat_obj.socket_controller.receive_connect(chat_id=self.room, connect_pos=True)
+                    client = msg.get("client")
+                    print(f"[Client] peer_joined: {client}")
+                    self.chat_obj.socket_controller.receive_join(chat_id=self.room, client=client)
 
                 elif "mute" in t:  # Реализация мутов
                     client = msg.get("client")

@@ -7,11 +7,14 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
 from logic.Main.Chat.View.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
 from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
+from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 
 
 class ChatView(QtWidgets.QWidget):
     muteDevice = QtCore.pyqtSignal(str, bool)
-    connectReceived = QtCore.pyqtSignal(bool)
+    connectReceived = QtCore.pyqtSignal(list)
+    joinReceived = QtCore.pyqtSignal(object)
+    leftReceived = QtCore.pyqtSignal(object)
     callReceived = QtCore.pyqtSignal(bool)
 
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
@@ -26,7 +29,9 @@ class ChatView(QtWidgets.QWidget):
         # Сигналы
         self.messageReceived.connect(self.recieveMessage)
         self.muteDevice.connect(self.mute_device_friend)
-        self.connectReceived.connect(self.show_friend_icon)
+        self.connectReceived.connect(self.all_icons)
+        self.leftReceived.connect(self.left_icon)
+        self.joinReceived.connect(self.join_icon)
         self.callReceived.connect(self.show_call_widget)
 
         self.awaitedMessageReceive.connect(self.recieveMessage)
@@ -81,14 +86,9 @@ class ChatView(QtWidgets.QWidget):
 
         # Войс GUI
         self.ui.Call.hide()
-        self.ui.user1_micMute.hide()
-        self.ui.user2_micMute.hide()
 
-        self.ui.user1_headphonesMute.hide()
-        self.ui.user2_headphonesMute.hide()
-
-        self.ui.widget_2.hide()
-
+        # Словарь по иконкам юзеров: {client: icon}
+        self.client_icons = {}
         # Переменные мутов
         self.microphone_mute = False
         self.headphone_mute = False
@@ -256,6 +256,7 @@ class ChatView(QtWidgets.QWidget):
         self.ui.Call.show()
         self._controller.start_call(self.__user, self.__chatId)
         self.call_dialog.hide_call_event()
+
         """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
         иконок пользователей с сервером)"""
         #self.animate_call = AnimatedBorderButton(self.ui.User1_icon) # TODO
@@ -263,7 +264,10 @@ class ChatView(QtWidgets.QWidget):
     def stop_call(self):
         self.ui.Call.hide()
         self._controller.stop_call()
-        self.ui.widget_2.hide()
+
+        for icon in self.client_icons.keys():
+            icon.ui.widget_2.hide()
+        self.client_icons = {}
 
     def show_call_dialog(self):
         self.call_dialog.show_call_event()
@@ -306,11 +310,25 @@ class ChatView(QtWidgets.QWidget):
             self.ui.user2_headphonesMute.hide()
 
     # Работа с иконками юзеров
-    def show_friend_icon(self, flg):
-        if flg:
-            self.ui.widget_2.show()
-        else:
-            self.ui.widget_2.hide()
+    # Условие 1 - подключение к группе пользователей
+    def all_icons(self, clients):
+        print(f"all_icons {clients}")
+        for client in clients:
+            if client["token"] in self.client_icons.keys():
+                newcomer = UserIcon(client)
+                self.client_icons[client["token"]] = newcomer
+                self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+
+    # Условие 2 - выход одного из пользователей peer_left
+    def left_icon(self, client):
+        self.ui.UsersFiled_layout.removeWidget(self.client_icons[client["token"]].ui.widget_2)
+        del self.client_icons[client["token"]]
+
+    # Условие 3 - вход нового пользователя peer_join
+    def join_icon(self, client):
+        newcomer = UserIcon(client)
+        self.client_icons[client["token"]] = newcomer
+        self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
     def show_call_widget(self, flg):
         if flg and self.ui.Call.isHidden():

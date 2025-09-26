@@ -86,8 +86,14 @@ class ChatController:
         def receive_mute(self, device: str, chat_id: str, mute_pos: bool):
             self._views[chat_id].muteDevice.emit(device, mute_pos)
 
-        def receive_connect(self, chat_id: str, connect_pos: bool):
-            self._views[chat_id].connectReceived.emit(connect_pos)
+        def receive_connect(self, chat_id: str, clients: list):
+            self._views[chat_id].connectReceived.emit(clients)
+
+        def receive_join(self, chat_id: str, client: object):
+            self._views[chat_id].joinReceived.emit(client)
+
+        def receive_left(self, chat_id: str, client: object):
+            self._views[chat_id].leftReceived.emit(client)
 
         def receive_call(self, chat_id: str, call_flg: bool):
             self._views[chat_id].callReceived.emit(call_flg)

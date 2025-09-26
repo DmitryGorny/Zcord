@@ -315,6 +315,13 @@ QPushButton {
              <property name="bottomMargin">
               <number>0</number>
              </property>
+             <item>
+              <layout class="QHBoxLayout" name="UsersFiled_layout">
+               <property name="spacing">
+                <number>0</number>
+               </property>
+              </layout>
+             </item>
              <item alignment="Qt::AlignHCenter">
               <widget class="QFrame" name="horizontalFrame">
                <property name="sizePolicy">

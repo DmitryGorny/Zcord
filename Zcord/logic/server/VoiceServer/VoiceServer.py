@@ -34,6 +34,7 @@ class ClientInfo:
     writer: asyncio.StreamWriter
     ip: str
     tcp_port: int
+    user_id: Optional[str] = None
     user: Optional[str] = None
     token: Optional[str] = None
     room: Optional[str] = None
@@ -47,6 +48,7 @@ class ClientInfo:
         return {
             "ip": self.ip,
             "tcp_port": self.tcp_port,
+            "user_id": self.user_id,
             "user": self.user,
             "token": self.token,
             "room": self.room,
@@ -115,10 +117,12 @@ class TcpSignalServer:
 
     async def _join_room(self, client: ClientInfo, msg: dict):
         room = msg.get("room") or "default_room"
+        user_id = msg.get("user_id")
         token = msg.get("token")
         user = msg.get("user")
         udp_port = msg.get("udp_port")
 
+        client.user_id = user_id
         client.room = room
         client.token = token
         client.user = user
@@ -180,7 +184,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("26.36.124.241", 55559)
+    await srv.serve("26.36.207.48", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

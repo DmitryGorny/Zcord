@@ -11,7 +11,7 @@ from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 
 
 class ChatView(QtWidgets.QWidget):
-    muteDevice = QtCore.pyqtSignal(str, bool)
+    muteDevice = QtCore.pyqtSignal(str, bool, object)
     connectReceived = QtCore.pyqtSignal(list)
     disconnectReceived = QtCore.pyqtSignal(object)
     callReceived = QtCore.pyqtSignal(bool)
@@ -271,58 +271,45 @@ class ChatView(QtWidgets.QWidget):
         self.call_dialog.show_call_event()
 
     # Функция чередования для девайса мута друга
-    def mute_device_friend(self, device, flg):
+    def mute_device_friend(self, device, flg, client):
         if device == "mic":
-            self.mute_mic_friend(flg)
+            self.mute_mic_friend(flg, client)
         elif device == "head":
-            self.mute_head_friend(flg)
+            self.mute_head_friend(flg, client)
 
     # Микрофон
     def mute_mic_self(self):
         self.microphone_mute = not self.microphone_mute
-        if self.microphone_mute:
-            self.ui.user1_micMute.show()
-        else:
-            self.ui.user1_micMute.hide()
+        self.client_icons[self.__user.id].mute_mic(self.microphone_mute)
         self._controller.mute_mic_self(self.microphone_mute)
 
-    def mute_mic_friend(self, flg):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
-        if flg:
-            self.ui.user2_micMute.show()
-        else:
-            self.ui.user2_micMute.hide()
+    def mute_mic_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        self.client_icons[client["user_id"]].mute_mic(flg)
 
     # Наушники
     def mute_head_self(self):
         self.headphone_mute = not self.headphone_mute
-        if self.headphone_mute:
-            self.ui.user1_headphonesMute.show()
-        else:
-            self.ui.user1_headphonesMute.hide()
+        self.client_icons[self.__user.id].mute_head(self.headphone_mute)
         self._controller.mute_head_self(self.headphone_mute)
 
-    def mute_head_friend(self, flg):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
-        if flg:
-            self.ui.user2_headphonesMute.show()
-        else:
-            self.ui.user2_headphonesMute.hide()
+    def mute_head_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        self.client_icons[client["user_id"]].mute_head(flg)
 
     # Работа с иконками юзеров
     # Условие 1 - подключение к группе пользователей
     def join_icon(self, clients):
         print(f"join_icon")
         for client in clients:
-            if client["token"] not in self.client_icons.keys():
-                print("отображаем иконку")
+            if client["user_id"] not in self.client_icons.keys():
                 newcomer = UserIcon(client)
-                self.client_icons[client["token"]] = newcomer
+                self.client_icons[client["user_id"]] = newcomer
                 self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
     # Условие 2 - выход одного из пользователей peer_left
     def left_icon(self, client):
         print("left_icon")
-        self.ui.UsersFiled_layout.removeWidget(self.client_icons[client["token"]].ui.widget_2)
-        del self.client_icons[client["token"]]
+        self.ui.UsersFiled_layout.removeWidget(self.client_icons[client["user_id"]].ui.widget_2)
+        del self.client_icons[client["user_id"]]
 
     def show_call_widget(self, flg):
         if flg and self.ui.Call.isHidden():

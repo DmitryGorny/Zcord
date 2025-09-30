@@ -41,7 +41,7 @@ class VoiceConnection(IConnection, BaseConnection):
         self._voice_handler = None
 
     async def register(self):
-        msg = {"t": "join_room", "room": self.room, "token": self.token, "user": self.user.getNickName(),
+        msg = {"t": "join_room", "room": self.room, "token": self.token, "user_id": self.user.id, "user": self.user.getNickName(),
                "udp_port": self.local_udp_port}
         print("Отправлено сообщение о входе на сервер")
         """Передаю отсюда свой токен для корректного отображения собственной иконки"""
@@ -88,9 +88,9 @@ class VoiceConnection(IConnection, BaseConnection):
                     device = lst[0]
                     action = lst[1]
                     if action == "mute":
-                        self.chat_obj.socket_controller.receive_mute(device, chat_id=self.room, mute_pos=True)
+                        self.chat_obj.socket_controller.receive_mute(device, chat_id=self.room, mute_pos=True, client=client)
                     elif action == "unmute":
-                        self.chat_obj.socket_controller.receive_mute(device, chat_id=self.room, mute_pos=False)
+                        self.chat_obj.socket_controller.receive_mute(device, chat_id=self.room, mute_pos=False, client=client)
 
                 else:
                     # прочие сообщения сервера

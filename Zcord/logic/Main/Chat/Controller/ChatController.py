@@ -83,8 +83,8 @@ class ChatController:
             self._views[chat_id].clear_unseen.emit()
 
         # Voice
-        def receive_mute(self, device: str, chat_id: str, mute_pos: bool):
-            self._views[chat_id].muteDevice.emit(device, mute_pos)
+        def receive_mute(self, device: str, chat_id: str, mute_pos: bool, client: object):
+            self._views[chat_id].muteDevice.emit(device, mute_pos, client)
 
         def receive_connect(self, chat_id: str, clients: list):
             self._views[chat_id].connectReceived.emit(clients)

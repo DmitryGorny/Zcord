@@ -198,14 +198,27 @@ class Ui_Chat(object):
         self.muteMic.setSizePolicy(sizePolicy)
         self.muteMic.setMinimumSize(QtCore.QSize(40, 40))
         self.muteMic.setMaximumSize(QtCore.QSize(40, 40))
-        self.muteMic.setStyleSheet("\n"
-"border:2px solid white;\n"
-"background-color:black;")
+        self.muteMic.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.muteMic.setStyleSheet("QPushButton {\n"
+"    border:2px solid white;\n"
+"    background-color:black;\n"
+"}\n"
+"QPushButton:checked {\n"
+"    border: 2px solid #e6a23c;\n"
+"    background-color: red;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: rgba(229, 229, 229, 55);\n"
+"}\n"
+"QPushButton:checked:hover {\n"
+"    background-color: red;\n"
+"}")
         self.muteMic.setText("")
         icon2 = QtGui.QIcon()
         icon2.addPixmap(QtGui.QPixmap("GUI/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.muteMic.setIcon(icon2)
         self.muteMic.setIconSize(QtCore.QSize(28, 28))
+        self.muteMic.setCheckable(True)
         self.muteMic.setObjectName("muteMic")
         self.wrapperForButtons.addWidget(self.muteMic)
         self.muteHeadphones = QtWidgets.QPushButton(parent=self.horizontalFrame)
@@ -216,13 +229,27 @@ class Ui_Chat(object):
         self.muteHeadphones.setSizePolicy(sizePolicy)
         self.muteHeadphones.setMinimumSize(QtCore.QSize(40, 40))
         self.muteHeadphones.setMaximumSize(QtCore.QSize(40, 40))
-        self.muteHeadphones.setStyleSheet("border:2px solid white;\n"
-"background-color:black;")
+        self.muteHeadphones.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.muteHeadphones.setStyleSheet("QPushButton {\n"
+"    border:2px solid white;\n"
+"    background-color:black;\n"
+"}\n"
+"QPushButton:checked {\n"
+"    border: 2px solid #e6a23c;\n"
+"    background-color: red;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: rgba(229, 229, 229, 55);\n"
+"}\n"
+"QPushButton:checked:hover {\n"
+"    background-color: red;\n"
+"}")
         self.muteHeadphones.setText("")
         icon3 = QtGui.QIcon()
         icon3.addPixmap(QtGui.QPixmap("GUI/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.muteHeadphones.setIcon(icon3)
         self.muteHeadphones.setIconSize(QtCore.QSize(28, 28))
+        self.muteHeadphones.setCheckable(True)
         self.muteHeadphones.setFlat(False)
         self.muteHeadphones.setObjectName("muteHeadphones")
         self.wrapperForButtons.addWidget(self.muteHeadphones)
@@ -234,6 +261,7 @@ class Ui_Chat(object):
         self.leaveCall.setSizePolicy(sizePolicy)
         self.leaveCall.setMinimumSize(QtCore.QSize(40, 40))
         self.leaveCall.setMaximumSize(QtCore.QSize(40, 40))
+        self.leaveCall.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.leaveCall.setStyleSheet("border-color:#BB271A;\n"
 "background-color:#BB271A;")
         self.leaveCall.setText("")

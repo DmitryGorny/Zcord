@@ -1,7 +1,7 @@
 import asyncio
 import struct
 import pyaudio
-import time
+import webrtcvad as wb
 
 RATE = 48000
 CHANNELS = 1
@@ -17,9 +17,11 @@ HDR_STRUCT = struct.Struct("!2s1sI")  # magic, type, seq
 
 
 class VoiceHandler:
-    def __init__(self):
-        # sequence последовательности кадров
-        self.last_seq = None
+    def __init__(self, chat_obj, room, user):
+        # объект чата
+        self.user = user
+        self.room = room
+        self.chat_obj = chat_obj
         # флаги собственного мута
         self.is_mic_mute = False
         self.is_head_mute = False
@@ -37,7 +39,16 @@ class VoiceHandler:
                                        frames_per_buffer=SAMPLES_PER_FRAME)
 
         # очень маленький «джиттер-буфер» по последовательности (опционально)
-        self.play_queue = asyncio.Queue(maxsize=5)
+        self.user_queues = {}
+        self.last_seq_map = {}
+
+        self.vad = wb.Vad()
+        self.vad.set_mode(2)
+        self.vad_counter = 0
+
+        self.sad = wb.Vad()
+        self.sad.set_mode(2)
+        self.sad_counter = 0
 
     def audio_input_thread(self, seq):
         # читаем микрофон и шлём UDP
@@ -46,7 +57,14 @@ class VoiceHandler:
             if self.is_mic_mute:
                 data = b"\x00" * len(data)
         except Exception:
+            # TODO надо зафиксить data может быть пустой изначально если микро нет
             data = b"\x00" * len(data)
+
+        self.vad_counter += 1
+        if self.vad_counter >= 25:
+            self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
+            self.vad_counter = 0
+
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq) + data
         seq = (seq + 1) & 0xFFFFFFFF
         return pkt, seq
@@ -58,59 +76,67 @@ class VoiceHandler:
     def mute_head_self(self, flg):
         self.is_head_mute = flg
 
-    @property
-    def get_last_seq(self):
-        return self.last_seq
+    def get_last_seq(self, user_id):
+        return self.last_seq_map.get(user_id)
 
-    @get_last_seq.setter
-    def get_last_seq(self, last_seq):
-        self.last_seq = last_seq
+    def set_last_seq(self, user_id, value):
+        self.last_seq_map[user_id] = value
 
     async def audio_output_loop(self, flg):
         # минимальная «сортировка» по seq: берём всегда самое свежее, старьё выбрасываем
-        self.last_seq = None
         while flg:
-            try:
-                seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
-            except asyncio.TimeoutError:
-                print("таймаут")
-                continue
-            except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
-                # но хотелось бы более понятный флажок
-                break
-            # если пришёл «старый» — пропускаем
-            if self.last_seq is not None:
-                # учтём переполнение uint32
-                diff = (seq - self.last_seq) & 0xFFFFFFFF
-                if diff > 0x80000000:
-                    # это «очень старый» пакет — дроп
-                    print("дроп")
+            for user_id, queue in list(self.user_queues.items()):
+                try:
+                    seq, payload = await asyncio.wait_for(queue.get(), timeout=1.0)
+                except asyncio.TimeoutError:
+                    print("таймаут")
                     continue
-                if diff == 0:
-                    print("дроп")
-                    continue
-            else:
-                print(f"self.last_seq is None")
-            self.last_seq = seq
-            print(self.last_seq)
-            try:
-                if not self.is_head_mute:
-                    self.out_stream.write(payload)
+                except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
+                    # но хотелось бы более понятный флажок
+                    break
+
+                # если пришёл «старый» — пропускаем
+                last_seq = self.last_seq_map.get(user_id)
+                if last_seq is not None:
+                    # учтём переполнение uint32
+                    diff = (seq - last_seq) & 0xFFFFFFFF
+                    if diff > 0x80000000:
+                        # это «очень старый» пакет — дроп
+                        print("дроп")
+                        continue
+                    if diff == 0:
+                        print("дроп")
+                        continue
                 else:
-                    continue
-            except Exception:
-                pass
+                    print(f"self.last_seq is None")
+                self.last_seq_map[user_id] = seq
+                print(self.last_seq_map[user_id])
+                try:
+                    if not self.is_head_mute:
+                        self.sad_counter += 1
+                        if self.sad_counter >= 25:
+                            self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
+                                                                          user_id)
+                            self.sad_counter = 0
+
+                        self.out_stream.write(payload)
+                    else:
+                        continue
+                except Exception:
+                    pass
 
         print("audio_output_loop завершился")
 
-    async def play_enqueue(self, seq, payload):
+    async def play_enqueue(self, seq, payload, user_id):
         # если очередь забита — не ждём (минимальная задержка важнее)
-        if self.play_queue.full():
+        if user_id not in self.user_queues:
+            self.user_queues[user_id] = asyncio.Queue(maxsize=5)
+        if self.user_queues[user_id].full():
             try:
-                _ = self.play_queue.get_nowait()
+                _ = self.user_queues[user_id].get_nowait()
             except Exception:
                 pass
-        await self.play_queue.put((seq, payload))
+        await self.user_queues[user_id].put((seq, payload))
 
     def close(self):
         # 4. Закрываем аудио потоки

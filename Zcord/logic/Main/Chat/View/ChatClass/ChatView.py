@@ -15,6 +15,7 @@ class ChatView(QtWidgets.QWidget):
     connectReceived = QtCore.pyqtSignal(list)
     disconnectReceived = QtCore.pyqtSignal(object)
     callReceived = QtCore.pyqtSignal(bool)
+    speechDetector = QtCore.pyqtSignal(bool, int)
 
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
     awaitedMessageReceive = QtCore.pyqtSignal(str, str, str, int, bool, object)
@@ -31,6 +32,7 @@ class ChatView(QtWidgets.QWidget):
         self.connectReceived.connect(self.join_icon)
         self.disconnectReceived.connect(self.left_icon)
         self.callReceived.connect(self.show_call_widget)
+        self.speechDetector.connect(self.speech_detector)
 
         self.awaitedMessageReceive.connect(self.recieveMessage)
         self.enable_scroll_bar.connect(self.enable_scroll)
@@ -284,7 +286,7 @@ class ChatView(QtWidgets.QWidget):
         self._controller.mute_mic_self(self.microphone_mute)
 
     def mute_mic_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
-        self.client_icons[client["user_id"]].mute_mic(flg)
+        self.client_icons[int(client["user_id"])].mute_mic(flg)
 
     # Наушники
     def mute_head_self(self):
@@ -293,26 +295,29 @@ class ChatView(QtWidgets.QWidget):
         self._controller.mute_head_self(self.headphone_mute)
 
     def mute_head_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
-        self.client_icons[client["user_id"]].mute_head(flg)
+        self.client_icons[int(client["user_id"])].mute_head(flg)
 
     # Работа с иконками юзеров
     # Условие 1 - подключение к группе пользователей
     def join_icon(self, clients):
         print(f"join_icon")
         for client in clients:
-            if client["user_id"] not in self.client_icons.keys():
+            if int(client["user_id"]) not in self.client_icons.keys():
                 newcomer = UserIcon(client)
-                self.client_icons[client["user_id"]] = newcomer
+                self.client_icons[int(client["user_id"])] = newcomer
                 self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
     # Условие 2 - выход одного из пользователей peer_left
     def left_icon(self, client):
         print("left_icon")
-        self.ui.UsersFiled_layout.removeWidget(self.client_icons[client["user_id"]].ui.widget_2)
-        del self.client_icons[client["user_id"]]
+        self.ui.UsersFiled_layout.removeWidget(self.client_icons[int(client["user_id"])].ui.widget_2)
+        del self.client_icons[int(client["user_id"])]
 
     def show_call_widget(self, flg):
         if flg and self.ui.Call.isHidden():
             self.call_dialog.show_call_event()
         else:
             self.call_dialog.hide_call_event()
+
+    def speech_detector(self, flg, user_id):
+        self.client_icons[int(user_id)].speech_animation(flg)

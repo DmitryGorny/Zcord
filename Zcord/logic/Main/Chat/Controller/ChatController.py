@@ -94,3 +94,6 @@ class ChatController:
 
         def receive_call(self, chat_id: str, call_flg: bool):
             self._views[chat_id].callReceived.emit(call_flg)
+
+        def vad_animation(self, chat_id: str, speech_flg: bool, user_id: int):
+            self._views[chat_id].speechDetector.emit(speech_flg, user_id)

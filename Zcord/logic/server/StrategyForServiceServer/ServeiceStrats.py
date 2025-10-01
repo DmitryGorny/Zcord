@@ -2,6 +2,7 @@
 import json
 from datetime import timedelta
 
+from logic.db_client.api_client import APIClient
 from logic.server.Client.Client import Client
 from logic.server.Strategy import Strategy
 from abc import abstractmethod
@@ -37,6 +38,7 @@ class ServiceStrategy(Strategy):
     def __init__(self):
         self._sender_to_msg_server_func = None
         self._server_pointer = None
+        self._api_client: APIClient = APIClient()
 
     def set_data(self, **kwargs):
         self._sender_to_msg_server_func = kwargs.get("sender_to_msg_server")
@@ -101,6 +103,9 @@ class RequestCacheStrategy(ServiceStrategy):
 
         chats_ids = []
         for chat_id in client.friends:
+            if client.friends[chat_id].friendship_status == '1':
+                continue
+
             time_period = timedelta(days=72)  # TODO: Переделать на 7 или убрать?????????
             if client.last_online - client.friends[chat_id].last_online < time_period:
                 chats_ids.append(chat_id)
@@ -115,18 +120,16 @@ class UserInfoStrat(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        print(2131)
         user_id = msg["user_id"]
         nickname = msg["nickname"]
         writer = msg['writer']
-
         data = json.loads(msg["message"])
         id = str(data["id"])
         last_online = data["last_online"]
         friends = data["friends"]
         status = data['status']
         chats = data['chats']
-        print(chats)
+
         client_obj = Client(id, nickname, last_online, writer)
         client_obj.friends = friends
         client_obj.status = status
@@ -142,6 +145,79 @@ class UserInfoStrat(ServiceStrategy):
                                                "serialize_2": self._server_pointer.serialize({'user_id': str(user_id),
                                                                                               "IP": client_ip[
                                                                                                   0]}).decode('utf-8')})
+
+
+class SendFriendRequest(ServiceStrategy):
+    command_name = "FRIENDSHIP-REQUEST-SEND"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        friend_id: str = msg['friend_id']
+        user_id: str = msg['user_id']
+        receiver_nick = msg['friend_nick']
+        sender_nick = msg['sender_nick']
+
+        fr_request = self._api_client.create_friendship_request(user_id, friend_id)
+        if fr_request is None:
+            friendship = self._api_client.get_friendship_by_id(user_id, friend_id)[0]
+            if friend_id != str(friendship['user2']) and user_id != str(friendship['user1']):
+                self._api_client.patch_friendship_status(friendship['id'], 2)
+
+        self._api_client.send_friend_request(sender_id=int(user_id), receiver_id=int(friend_id),
+                                             friendship_id=fr_request["id"])
+        try:
+            await self._server_pointer.clients[friend_id].send_message("FRIENDSHIP-REQUEST-SEND", {'sender_id': user_id,
+                                                                                                   'receiver_id': friend_id,
+                                                                                                   'sender_nick': sender_nick})
+        except KeyError:
+            pass # TODO: подумать на очередью????
+
+        await self._server_pointer.clients[user_id].send_message("FRIENDSHIP-REQUEST-SEND", {'sender_id': user_id,
+                                                                                             'receiver_id': friend_id,
+                                                                                             'receiver_nick': receiver_nick})
+
+
+class RecallFriendRequest(ServiceStrategy):
+    command_name = "FRIENDSHIP-REQUEST-RECALL"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        friend_id: str = msg['friend_id']
+        sender_id: str = msg['sender_id']
+
+        friendship = self._api_client.get_friendship_by_id(sender_id, friend_id)[0]
+
+        friendship_id = friendship['id']
+
+        delete_friend_request = self._api_client.delete_friendship_request(int(sender_id), int(friend_id),
+                                                                           int(friendship_id))
+
+        if delete_friend_request is not None:
+            self._api_client.delete_friendship(friendship_id)
+        try:
+            await self._server_pointer.clients[friend_id].send_message("FRIEND-REQUEST-RECALL",
+                                                                       {'sender_id': sender_id,
+                                                                        'friend_id': friend_id})
+        except KeyError:
+            pass
+
+        await self._server_pointer.clients[sender_id].send_message("FRIEND-REQUEST-RECALL", {'sender_id': sender_id,
+                                                                                             'friend_id': friend_id})
+
+
+class AcceptFriendRequestStrat(ServiceStrategy):
+    command_name = "ACCEPT-FRIEND"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        friend_id: str = msg['friend_id']
+        sender_id: str = msg['sender_id']
 
 
 class CallNotificationStrategy(ServiceStrategy):

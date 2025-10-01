@@ -1,5 +1,8 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/person_cancel_46dp_8B1A10_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/person_add_46dp_018741_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/search_53dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>icon/icons8-green-circle-15.png</file>
     <file>icon/chevron_right_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/edit_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>

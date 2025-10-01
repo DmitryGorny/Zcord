@@ -37,7 +37,7 @@ class MessageConnection(IConnection, BaseConnection):
 
         self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
-    def call_main_dynamic_update(self, command: str, args: tuple):
+    def call_main_dynamic_update(self, command: str, args: dict):
         try:
             self._main_window_dynamic_update.emit(command, args)
         except Exception as e:
@@ -62,6 +62,7 @@ class MessageConnection(IConnection, BaseConnection):
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
+                    print(msg)
                     try:
                         strategy = self._choose_strategy.get_strategy(msg["type"], self)
                         strategy.execute(msg)

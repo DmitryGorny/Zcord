@@ -17,16 +17,6 @@ class Users(models.Model):
         return f"{self.secondname} {self.firstname} {self.lastname}"
 
 
-class FriendsAdding(models.Model):
-    sender = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='sent_friend_requests')
-    receiver = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='received_friend_requests')
-    date = models.DateTimeField(auto_now_add=True)
-
-    class Meta:
-        verbose_name = 'Заявка в друзья'
-        verbose_name_plural = 'Заявки в друзья'
-
-
 class Friendship(models.Model):
     REQUESTED = 1
     CONFIRMED = 2
@@ -48,6 +38,18 @@ class Friendship(models.Model):
         verbose_name = 'Друг'
         verbose_name_plural = 'Друзья'
         unique_together = ('user1', 'user2')
+
+
+class FriendsAdding(models.Model):
+    sender = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='sent_friend_requests')
+    receiver = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='received_friend_requests')
+    friendship = models.ForeignKey(Friendship, on_delete=models.CASCADE, related_name='friendship_id')
+    date = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        verbose_name = 'Заявка в друзья'
+        verbose_name_plural = 'Заявки в друзья'
+        unique_together = ('receiver', 'sender')
 
 
 class Message(models.Model):

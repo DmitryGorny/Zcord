@@ -26,7 +26,8 @@ urlpatterns = [
 
     path('friends_adding/', FriendsAddingView.as_view({
         'get': 'list',
-        'post': 'create'
+        'post': 'create',
+        'delete': 'destroy'
     }), name='friends_adding'),
     path('friends_adding/<int:pk>/', FriendsAddingView.as_view({
         'get': 'retrieve',

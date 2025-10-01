@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework import generics, status
@@ -16,7 +17,7 @@ class UserView(viewsets.ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['nickname']
+    search_fields = ['=nickname']
 
 
 class FriendshipView(viewsets.ModelViewSet):
@@ -27,20 +28,100 @@ class FriendshipView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         queryset = super().get_queryset()
+
         user1_nick = self.request.query_params.get('user1')
         user2_nick = self.request.query_params.get('user2')
+        user1_id = self.request.query_params.get('user1_id')
+        user2_id = self.request.query_params.get('user2_id')
 
         if user1_nick and user2_nick:
-            return queryset.filter(
+            queryset = queryset.filter(
                 Q(user1_id__nickname=user1_nick, user2_id__nickname=user2_nick) |
                 Q(user1_id__nickname=user2_nick, user2_id__nickname=user1_nick)
             )
+
+        if user1_id and user2_id:
+            queryset = queryset.filter(
+                Q(user1_id=user1_id, user2_id=user2_id) |
+                Q(user1_id=user2_id, user2_id=user1_id)
+            )
+
         return queryset
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        user1 = data['user1']
+        user2 = data['user2']
+
+        existing_obj = Friendship.objects.filter(Q(user1__id=user1, user2__id=user2)
+                                                 | Q(user2__id=user2, user1__id=user1)).exists()
+        if existing_obj:
+            serializer = self.get_serializer(existing_obj)
+            return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
+        serializer = self.get_serializer(data={"user1": user1, "user2": user2, 'status': 1})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class FriendsAddingView(viewsets.ModelViewSet):
     queryset = FriendsAdding.objects.all()
     serializer_class = FriendsAddingSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['sender__id', 'receiver__id']
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
+        sender = data['sender']
+        receiver = data['receiver']
+        friendship = data['friendship_id']
+
+        if sender == receiver:  # Вообще не должно, но пусть будет
+            return Response(
+                {"detail": "Нельзя отправить заявку самому себе."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        serializer = self.get_serializer(data={"sender": sender, "receiver": receiver, 'friendship': friendship})
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    def get_queryset(self):
+        queryset = super(FriendsAddingView, self).get_queryset()
+        sender_id = self.request.query_params.get('sender_id')
+        receiver_id = self.request.query_params.get('receiver_id')
+
+        if sender_id and receiver_id:
+            return queryset.filter(receiver__id=receiver_id, sender__id=sender_id)
+
+        if sender_id:
+            return queryset.filter(sender__id=sender_id)
+
+        if receiver_id:
+            return queryset.filter(receiver__id=receiver_id)
+
+    def destroy(self, request, *args, **kwargs):
+        data = request.data
+        sender = data['sender']
+        receiver = data['receiver']
+        friendship_id = data['friendship_id']
+
+        if sender == receiver:
+            return Response(
+                {"detail": "Неверные данные."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        friend_adding = get_object_or_404(
+            FriendsAdding,
+            friendship_id=friendship_id,
+            sender_id=sender,
+            receiver_id=receiver
+        )
+
+        self.perform_destroy(friend_adding)
+        return Response(request.data, status=status.HTTP_200_OK)
 
 
 class MessageView(viewsets.ModelViewSet):

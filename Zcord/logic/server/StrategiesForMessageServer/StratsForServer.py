@@ -2,10 +2,9 @@
 import json
 from datetime import datetime
 
-from logic.db_handler.api_client import APIClient
-from logic.server.MessageServer.Cache.Cache import CacheOverloadError
+from logic.db_client.api_client import APIClient
 from logic.server.Strategy import Strategy
-from abc import abstractmethod, ABC
+from abc import abstractmethod
 from logic.server.StrategyForServiceServer.ServeiceStrats import ServiceStrategy
 
 CACHE_LIMIT = '15'
@@ -195,7 +194,8 @@ class RequestCacheStrategy(MessageStrategy):
     def execute(self, msg: dict[str, str]) -> None:
         chats_ids = msg["chats_ids"].split(',')
         user_id = str(msg['user_id'])
-        if len(chats_ids) == 0:
+
+        if len(chats_ids) == 0 or len(chats_ids[0]) == 0:
             return
 
         for chat_id in chats_ids:

@@ -13,6 +13,9 @@ class UserChats:
 
     def init_dm_chats(self, friends_list: dict) -> None:
         fabric = CreateChat()
+        if friends_list['status'] == '1' or friends_list['status'] == '3':
+            return
+
         chat = fabric.create_chat(is_dm=True,
                                   chat_id=friends_list["chat_id"],
                                   friend_nick=friends_list["nickname"],

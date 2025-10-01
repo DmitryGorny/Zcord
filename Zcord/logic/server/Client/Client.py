@@ -86,7 +86,7 @@ class Friend(Client):
     def __init__(self, user_id: str, nick, chat_id: str, friendship_status: str, last_online: str):
         super(Friend, self).__init__(user_id, nick, last_online)
         self._chat_id = chat_id
-        self.friendship_status = friendship_status
+        self._friendship_status = friendship_status
 
     @property
     def writer(self) -> asyncio.StreamWriter:
@@ -95,3 +95,7 @@ class Friend(Client):
     @writer.setter
     def writer(self, writer: asyncio.StreamWriter):
         self._writer = writer
+
+    @property
+    def friendship_status(self):
+        return self._friendship_status

@@ -1,7 +1,7 @@
 import json
 import os
 import socket
-from typing import Dict
+from typing import Dict, Callable
 
 from logic.client.Chat.ClientChat import Chat
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
@@ -9,7 +9,7 @@ from logic.client.Strats.ClientServiceStrats import ChooseStrategy
 
 
 class ServiceConnection(IConnection, BaseConnection):
-    def __init__(self, tcp: socket.socket, msg_srv_tcp: socket.socket, ip_data: Dict[str, str], user):
+    def __init__(self, tcp: socket.socket, msg_srv_tcp: socket.socket, ip_data: Dict[str, str], user, main_callback: Callable):
         self._user = user
 
         self._flg = True
@@ -21,6 +21,8 @@ class ServiceConnection(IConnection, BaseConnection):
         self._cache_chat: Dict[str, list] = {}
 
         self._chat: Chat = None
+
+        self._main_window_dynamic_update = main_callback
 
         self._msg_srv_tcp: socket.socket = msg_srv_tcp
         self._ip_data = ip_data
@@ -37,6 +39,12 @@ class ServiceConnection(IConnection, BaseConnection):
     def cache_chat(self) -> Dict[str, list]:
         return self._cache_chat
 
+    def call_main_dynamic_update(self, command: str, args: dict):
+        try:
+            self._main_window_dynamic_update.emit(command, args)
+        except Exception as e:
+            print(e)
+
     def send_message(self, msg_type: str, message=None, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
         msg = {
             'msg_type': msg_type,
@@ -47,7 +55,6 @@ class ServiceConnection(IConnection, BaseConnection):
 
         if extra_data is not None:
             msg = msg | extra_data
-
         self._service_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     def connect_to_msg_server(self):
@@ -64,7 +71,6 @@ class ServiceConnection(IConnection, BaseConnection):
                 buffer = ''
                 msg = self._service_tcp.recv(4096).decode('utf-8')
                 buffer += msg
-                print(msg)
                 try:
                     arr = self.decode_multiple_json_objects(buffer)
                 except json.JSONDecodeError:

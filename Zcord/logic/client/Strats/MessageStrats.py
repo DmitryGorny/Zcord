@@ -205,4 +205,6 @@ class UnseenCounterStrat(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         chat_id = str(msg['chat_id'])
         message_number = int(msg["message_number"])
-        self._message_connection_pointer.call_main_dynamic_update('UPDATE-MESSAGE-NUMBER', (chat_id, message_number))
+
+        self._message_connection_pointer.call_main_dynamic_update('UPDATE-MESSAGE-NUMBER', {'chat_id': chat_id,
+                                                                                            'message_number': message_number})

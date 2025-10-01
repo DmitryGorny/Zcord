@@ -5,20 +5,19 @@ from PyQt6 import QtWidgets, QtCore
 
 from logic.Authorization.User.User import User
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
-from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
+from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
-from logic.db_handler.db_handler import db_handler
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
 from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
-
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
 
 
 class MainWindow(QtWidgets.QMainWindow):
-    dynamic_update = QtCore.pyqtSignal(str, tuple)
+    dynamic_update = QtCore.pyqtSignal(str, dict)
+
     def __init__(self, user):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
@@ -26,33 +25,43 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.voicepr = VoiceParamsClass()
 
-        #Сигналы
-        self.dynamic_update.connect(self.dynamic_update_slot)
-        #Сигналы
+        # Объект пользователя
+        self.__user: User = user
 
+        # Сигналы
+        self.dynamic_update.connect(self.dynamic_update_slot)
+        # Сигналы
+
+        # Работа с друзьями
+        self._friends: FriendsWidget = FriendsWidget(self.__user)
+        self.ui.stackedWidget_2.addWidget(self._friends.get_widget())
+
+        # Параметры
         self.parameters = ParamsWindow(self.ui, self.voicepr)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
 
         self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
-        self.__user: User = user
-
+        # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
         self.ui.UsersLogo.clicked.connect(self.showProfile)
 
+        # Чаты
         self._friendsChatOptions: List[ChatInList] = self.create_chats()
 
-        # ГЫГЫГЫГЫГЫГЫ Я ДОЛБАЕБ Я НАСРАЛ В КОД ГЫГЫГЫГЫГЫГЫГЫГЫ
         self.WidgetForScroll = QtWidgets.QWidget()
 
+        # Конектим сигналы к кнопкам всем селом
         self.ui.close.clicked.connect(self.closeWindow)
         self.ui.minimize.clicked.connect(self.on_click_hide)
         self.ui.WindowMode.clicked.connect(self.on_click_fullscreenWindowMode)
-        self.ui.AddFriends.clicked.connect(self.addFriend)
+        self.ui.AddFriends.clicked.connect(self.add_friend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
         self.ui.SettingsButton.clicked.connect(self.show_parameters)
         self.ui.ScrollFriends.setVisible(False)
+
+        # Вызов клиента
         self.call_chat()
 
         self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
@@ -70,14 +79,15 @@ class MainWindow(QtWidgets.QMainWindow):
         chats_list: List[ChatInList] = []
         for attrs in self.__user.get_chats():
             chats_list.append(ChatInList(attrs['nickname'], attrs['chat_id'], attrs["chat_ui"]))
-            self.ui.stackedWidget_2.addWidget(attrs["chat_ui"]) #Передается UI объекта ChatView для отображения самого чата
+            self.ui.stackedWidget_2.addWidget(
+                attrs["chat_ui"])  # Передается UI объекта ChatView для отображения самого чата
         return chats_list
 
     def addChatToList(self, chatId, friendNick):
-        #chat = Chat(chatId, friendNick, self.__user)
-        #self.__chats.append(chat)
-        #message_client.MessageConnection.addChatToList(chat)
-        #return chat
+        # chat = Chat(chatId, friendNick, self.__user)
+        # self.__chats.append(chat)
+        # message_client.MessageConnection.addChatToList(chat)
+        # return chat
         pass
 
     def call_chat(self):
@@ -87,7 +97,6 @@ class MainWindow(QtWidgets.QMainWindow):
             queueToSend.put(chat)
 
         ClientConnections.start_client(self.__user, queueToSend, self.dynamic_update)
-
 
     def initializeChatsInScrollArea(self):
         """Добавляет объекты ChatInList в ScrollFriends"""
@@ -146,7 +155,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.__user.change_chat(chat.id)
 
-        #chat.chat_ui.MAIN_ChatLayout.setContentsMargins(0, 0, 0, 0)
+        # chat.chat_ui.MAIN_ChatLayout.setContentsMargins(0, 0, 0, 0)
         self.ui.stackedWidget_2.setCurrentWidget(chat.chat_ui)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
@@ -258,12 +267,10 @@ class MainWindow(QtWidgets.QMainWindow):
         self.miniProfile.show()
         self.miniProfile.exec()
 
-    def addFriendToDict(self, name, chat_id, status):
-        self.__friends[name] = [chat_id, status]
-
     def show_parameters(self):
         self.ui.stackedWidget.setCurrentWidget(self.parameters.ui_pr.MAIN)
 
+    # <---------------------------------------------Работа с друзьями-------------------------------------------------->
     def showFriendList(self):
         if len(self._friendsChatOptions) == 0:
             if not self.ui.ScrollFriends.isVisible():
@@ -277,65 +284,34 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.ui.ScrollFriends.setVisible(False)
 
-    def addFriend(self):
-        if not AddFriendWindow.isOpen:
-            addFriendsDialog = AddFriendWindow(self.__user)
+    def add_friend(self):
+        self.ui.stackedWidget_2.setCurrentWidget(self._friends.get_widget())
 
-            addFriendsDialog.show()
-
-            addFriendsDialog.exec()
-
-            senderAndReciver = addFriendsDialog.getSenderAndReciver()
-
-            if len(senderAndReciver) == 0:
-                return
-
-            friendshipTable = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
-
-            # Подумать над необходимостью получения status, т.к. при создании запроса он всегда равен 1
-            friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status",
-                                                           f"friend_two_id = '{senderAndReciver[1]}'")[0]
-
-            self.dynamic_update_slot("ADD-CANDIDATE-FRIEND", (senderAndReciver[1], friendshipInfo[0], friendshipInfo[1]))
-
-            chat = self.dynamic_update_slot("UPDATE-CHATS", (friendshipInfo[0], senderAndReciver[1]))
-            chat.sendFriendRequest()
-
-    QtCore.pyqtSlot(str, tuple)
-    def dynamic_update_slot(self, command: str, args: tuple, done_event=None):
-        """
-        В *args передаются парометры необходимые для дальнейшего выполнения функций в кейсах
-                      индекс\/
-        ADD-FRIEND: args = 0:"никнейм друга" - обнавляет статус друга в словаре, передает словарь в user
-        UPDATE-CHATS: args = 0:"айди чата", 1:"никнейм друга"
-        DELETE-FRIEND: args = 0:"никнейм друга"
-        DELETE-CHAT: args = 0:"никнейм друга"
-        UPDATE-MESSAGE-NUMBER: args = 0: "id чата", 1: "новое значение"
-        CHANGE-ACTIVITY: args = 0: "self/friend", 1: "цвет", 2: "никнейм друга (если есть)"
-        """
+    # <---------------------------------------------Работа с друзьями-------------------------------------------------->
+    @QtCore.pyqtSlot(str, dict)
+    def dynamic_update_slot(self, command: str, args: dict, done_event=None):
         match command:
-            case "ADD-FRIEND":
-                self.updateFriendshipStatus(args)
-                #self.__user.setFrinds(self.__friends)
+            case "FRIENDSHIP-REQUEST-SELF":
+                self._friends.add_your_friend_request(friend_id=args['receiver_id'], username=args['receiver_nick'])
+            case "FRIENDSHIP-REQUEST-OTHER":
+                self._friends.add_others_friend_request(friend_id=args['sender_id'], username=args['sender_nick'])
+            case "SELF-RECALL-REQUEST":
+                self._friends.remove_your_request(args['user_id'])
+            case "OTHERS-RECALL-REQUEST":
+                self._friends.remove_others_request(args['user_id'])
+
             case "UPDATE-CHATS":
                 chat = self.addChatToList(args[0], args[1])
                 self.updateChatList(chat)
                 if done_event is not None:
                     done_event.set()
                 return chat
-            case "ADD-CANDIDATE-FRIEND":
-                self.addFriendToDict(args[0], args[1], args[2])
-                #self.__user.setFrinds(self.__friends)
-                if done_event is not None:
-                    done_event.set()
-            case "DELETE-FRIEND":
-                self.deleteFriend(args)
-                #self.__user.setFrinds(self.__friends)
+
             case "DELETE-CHAT":
                 chat = self.delete_DM_chat(args)
                 self.deleteChatFromUI(chat)
             case "UPDATE-MESSAGE-NUMBER":
-                self.unseenMessages(args[0], args[1])
+                self.unseenMessages(chat_id=args['chat_id'], newValue=args['message_number'])
                 if done_event is not None:
                     done_event.set()
             case "CHANGE-ACTIVITY":
@@ -353,14 +329,6 @@ class MainWindow(QtWidgets.QMainWindow):
                                     border:3px solid rgba(34,35,39,255);
                                     """
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
-
-    def updateFriendshipStatus(self, friendName):
-        """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
-        self.__friends[friendName][1] = 2
-
-    def deleteFriend(self, friendName):
-        del self.__friends[friendName]
-
     def closeWindow(self):
         # with open("Resources/frineds/friends.json", "w") as Frineds_json:
         # Frineds_json.write(json.dumps(self.__friends))

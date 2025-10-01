@@ -1,4 +1,4 @@
-from ..db_handler.api_client import APIClient
+from ..db_client.api_client import APIClient
 import bcrypt
 
 

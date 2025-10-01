@@ -42,11 +42,11 @@ class ClientsStrategies(Strategy):
         pass
 
 
-class UserStatusRecieve(ClientsStrategies):
+class UserStatusReceive(ClientsStrategies):
     header_name = "USER-STATUS"
 
     def __init__(self):
-        super(UserStatusRecieve, self).__init__()
+        super(UserStatusReceive, self).__init__()
 
     def execute(self, msg: dict) -> None:
         sender_status = msg["user-status"]
@@ -79,10 +79,11 @@ class SendFirstInfo(ClientsStrategies):
                        self.service_connection_pointer.user.status.color],
             "id": self.service_connection_pointer.user.id,
             "last_online": self.service_connection_pointer.user.last_online,
-            'chats': self.service_connection_pointer._cache_chat# TODO: Че за бред?
+            'chats': self.service_connection_pointer._cache_chat  # TODO: Че за бред?
         }
-
-        self.service_connection_pointer.send_message(msg_type="USER-INFO", message=self.service_connection_pointer.serialize(dictToSend).decode('utf-8'))
+        self.service_connection_pointer.send_message(msg_type="USER-INFO",
+                                                     message=self.service_connection_pointer.serialize(
+                                                         dictToSend).decode('utf-8'))
 
 
 class ConnectToMessageServer(ClientsStrategies):
@@ -103,5 +104,43 @@ class CallNotificationStrat(ClientsStrategies):
         super(CallNotificationStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"] #Юзер позвонивший
-        #self.service_connection_pointer.chat.socket_controller. ########
+        user_id = msg["user_id"]  # Юзер позвонивший
+        # self.service_connection_pointer.chat.socket_controller. ########
+
+
+class FriendshipRequestSendStrat(ClientsStrategies):
+    header_name = 'FRIENDSHIP-REQUEST-SEND'
+
+    def __init__(self):
+        super(FriendshipRequestSendStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg["sender_id"]
+        receiver_id = msg['receiver_id']
+        if str(self.service_connection_pointer.user.id) == str(sender_id):
+            receiver_nick = msg['receiver_nick']
+            self.service_connection_pointer.call_main_dynamic_update('FRIENDSHIP-REQUEST-SELF',
+                                                                     {'receiver_nick': receiver_nick,
+                                                                      'receiver_id': receiver_id})
+        else:
+            sender_nick = msg['sender_nick']
+            self.service_connection_pointer.call_main_dynamic_update('FRIENDSHIP-REQUEST-OTHER',
+                                                                     {'sender_id': sender_id,
+                                                                      'sender_nick': sender_nick})
+
+
+class FriendshipRecallSendStrat(ClientsStrategies):
+    header_name = 'FRIEND-REQUEST-RECALL'
+
+    def __init__(self):
+        super(FriendshipRecallSendStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg["sender_id"]
+        receiver_id = msg['friend_id']
+        if sender_id == str(self.service_connection_pointer.user.id):
+            print(1)
+            self.service_connection_pointer.call_main_dynamic_update('SELF-RECALL-REQUEST', {'user_id': receiver_id})
+        else:
+            print(2)
+            self.service_connection_pointer.call_main_dynamic_update('OTHERS-RECALL-REQUEST', {'user_id': sender_id})

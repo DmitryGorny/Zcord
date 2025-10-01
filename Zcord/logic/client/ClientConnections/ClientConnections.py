@@ -29,7 +29,8 @@ class ClientConnections:
         ClientConnections._message_connection = ClientConnections._init_message_connection(user, sockets["message_tcp"],
                                                                                            main_window_dynamic_update_cb)
         ClientConnections._service_connection = ClientConnections._init_service_connection(user, sockets["service_tcp"],
-                                                                                           sockets["message_tcp"])
+                                                                                           sockets["message_tcp"],
+                                                                                           main_window_dynamic_update_cb)
         ClientConnections._init_chats(chats)
         ClientConnections._create_threads()
 
@@ -73,11 +74,11 @@ class ClientConnections:
         return MessageConnection(socket_pointer, user, callback)
 
     @staticmethod
-    def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket) -> ServiceConnection:
+    def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket, callback) -> ServiceConnection:
         return ServiceConnection(socket_pointer,
                                  msg_socket,
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
-                                 user)
+                                 user, callback)
 
     @staticmethod
     def _init_chats(chats_queue: queue.Queue):

@@ -1,7 +1,7 @@
 from typing import Dict, List
 
 
-class UnseenManager: # TODO: Повесить try-except, поставить lock на защиту от гонки потоков???
+class UnseenManager:  # TODO: Повесить try-except, поставить lock на защиту от гонки потоков???
     def __init__(self):
         self._unseen_messages: Dict[str, Dict[str, int]] = {}
 
@@ -15,14 +15,22 @@ class UnseenManager: # TODO: Повесить try-except, поставить loc
             return
 
     def increment_users_count(self, chat_id: str, user_id: str) -> None:
-        self._unseen_messages[chat_id][user_id] += 1
+        try:
+            self._unseen_messages[chat_id][user_id] += 1
+        except KeyError:
+            return
 
     def subtract_users_count(self, chat_id: str, user_id: str, number: int) -> None:
-        self._unseen_messages[chat_id][user_id] = max(0, self._unseen_messages[chat_id][user_id] - number)
-
+        try:
+            self._unseen_messages[chat_id][user_id] = max(0, self._unseen_messages[chat_id][user_id] - number)
+        except KeyError:
+            return
 
     def set_new_value(self, chat_id: str, user_id: str, val: int) -> None:
-        self._unseen_messages[chat_id][user_id] = val
+        try:
+            self._unseen_messages[chat_id][user_id] = val
+        except KeyError:
+            return
 
     def delete_chat(self, chat_id: str) -> None:
         del self._unseen_messages[chat_id]
@@ -34,7 +42,10 @@ class UnseenManager: # TODO: Повесить try-except, поставить loc
             del self._unseen_messages[chat_id][user_id]
 
     def get_user_count(self, chat_id: str, user_id: str) -> int:
-        return self._unseen_messages[chat_id][user_id]
+        try:
+            return self._unseen_messages[chat_id][user_id]
+        except KeyError:
+            return 0
 
     def get_users(self, chat_id: str, user_id: str) -> List[str]:
         users_ids = []

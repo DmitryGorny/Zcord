@@ -1,6 +1,6 @@
 from ..Errors.AuthorizationError import AuthorizationError
 import bcrypt
-from ..db_handler.api_client import APIClient
+from ..db_client.api_client import APIClient
 
 
 class UserAuthorization:
@@ -14,6 +14,9 @@ class UserAuthorization:
         users_table = APIClient()
 
         user = users_table.get_user(self.__nick_name)
+
+        if user is None:
+            raise AuthorizationError(self.__nick_name)
 
         if len(user) == 0: #Проверка наличия логина юзреа в базе
             raise AuthorizationError(self.__nick_name)

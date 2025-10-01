@@ -1,6 +1,6 @@
 from typing import List
 
-from logic.db_handler.api_client import APIClient
+from logic.db_client.api_client import APIClient
 
 
 class UserFriends:
@@ -24,7 +24,7 @@ class UserFriends:
                                           last_online=friend_data["last_online"])
             self._friends.append(friend)
 
-    def friends_props(self) -> dict:
+    def friends_props(self) -> dict[str, str]:
         """Поочередно возвращает атрибуты каждого класса"""
         for friend in self._friends:
             yield {"id": str(friend.id),

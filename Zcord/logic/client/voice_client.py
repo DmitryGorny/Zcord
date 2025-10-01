@@ -40,8 +40,6 @@ class VoiceConnection(IConnection, BaseConnection):
         # Аудио
         self._voice_handler = None
 
-        self.peer_map = {}
-
     async def register(self):
         msg = {"t": "join_room", "room": self.room, "token": self.token, "user_id": self.user.id, "user": self.user.getNickName(),
                "udp_port": self.local_udp_port}
@@ -70,22 +68,19 @@ class VoiceConnection(IConnection, BaseConnection):
                     # сервер может прислать список пиров
                     peers = msg.get("client", [])
                     if peers:
-                        # для простоты — берём первого (или последовательно всех)
-                        for p in peers:
-                            self.peer_map[(p["ip"], int(p["udp_port"]))] = p["user_id"]
-
-                        """ПОКА ЧТО ВОТ ТАК ПО ВЫБЛЯДСКИ ПОТОМУ ЧТО НЕ СУЩЕСТВУЕТ КОМНАТ"""
-                        self.peer = (p["ip"], int(p["udp_port"]))
-                        self.voice_handler.set_last_seq(p["user_id"], None)
-                        print(f"[Client] peer: {self.peer}")
-                        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
+                        if peers:
+                            # для простоты — берём первого (или последовательно всех)
+                            p = peers[0]
+                            self.peer = (p["ip"], int(p["udp_port"]))
+                            self.voice_handler.get_last_seq = None
+                            print(f"[Client] peer: {self.peer}")
+                            self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
 
                 elif t == "peer_left":
                     client = msg.get("client")
                     print(f"[Client] peer_left: {client}")
                     self.chat_obj.socket_controller.receive_disconnect(chat_id=self.room, client=client)
                     self.peer = None
-                    del self.peer_map[(client["ip"], int(client["udp_port"]))]
 
                 elif "mute" in t:  # Реализация мутов
                     client = msg.get("client")
@@ -126,12 +121,8 @@ class VoiceConnection(IConnection, BaseConnection):
                     continue
                 if typ == PKT_AUDIO:
                     payload = data[HDR_STRUCT.size:]
-                    user_id = self.peer_map.get(addr)
-                    if not user_id:
-                        print("неизвестный источник")
-                        continue  # неизвестный источник
                     # чуть-чуть упорядочим (без жёсткого ожидания)
-                    await self.voice_handler.play_enqueue(seq, payload, user_id=user_id)
+                    await self.voice_handler.play_enqueue(seq, payload)
 
     def _audio_input_thread(self):
         # читаем микрофон и шлём UDP

@@ -15,7 +15,7 @@ class UserIcon(QtWidgets.QWidget):
         self.ui.widget_2.show()
 
         self.default_icon = f"""
-                            border-color: "#8f8f91";
+                            border-color: white;
                             """
         self.active_icon = f"""
                             border-color: "#3ba55d";

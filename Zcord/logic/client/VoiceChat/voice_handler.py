@@ -39,8 +39,8 @@ class VoiceHandler:
                                        frames_per_buffer=SAMPLES_PER_FRAME)
 
         # очень маленький «джиттер-буфер» по последовательности (опционально)
-        self.user_queues = {}
-        self.last_seq_map = {}
+        self.last_seq = None
+        self.play_queue = asyncio.Queue(maxsize=5)
 
         self.vad = wb.Vad()
         self.vad.set_mode(2)
@@ -76,67 +76,66 @@ class VoiceHandler:
     def mute_head_self(self, flg):
         self.is_head_mute = flg
 
-    def get_last_seq(self, user_id):
-        return self.last_seq_map.get(user_id)
+    @property
+    def get_last_seq(self):
+        return self.last_seq
 
-    def set_last_seq(self, user_id, value):
-        self.last_seq_map[user_id] = value
+    @get_last_seq.setter
+    def get_last_seq(self, last_seq):
+        self.last_seq = last_seq
 
     async def audio_output_loop(self, flg):
+        self.last_seq = None
         # минимальная «сортировка» по seq: берём всегда самое свежее, старьё выбрасываем
         while flg:
-            for user_id, queue in list(self.user_queues.items()):
-                try:
-                    seq, payload = await asyncio.wait_for(queue.get(), timeout=1.0)
-                except asyncio.TimeoutError:
-                    print("таймаут")
+            try:
+                seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
+            except asyncio.TimeoutError:
+                print("таймаут")
+                continue
+            except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
+                # но хотелось бы более понятный флажок
+                break
+
+            # если пришёл «старый» — пропускаем
+            if self.last_seq is not None:
+                # учтём переполнение uint32
+                diff = (seq - self.last_seq) & 0xFFFFFFFF
+                if diff > 0x80000000:
+                    # это «очень старый» пакет — дроп
+                    print("дроп")
                     continue
-                except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
-                    # но хотелось бы более понятный флажок
-                    break
+                if diff == 0:
+                    print("дроп")
+                    continue
+            else:
+                print(f"self.last_seq is None")
+            self.last_seq = seq
+            print(self.last_seq)
+            try:
+                if not self.is_head_mute:
+                    """self.sad_counter += 1
+                    if self.sad_counter >= 25:
+                        self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
+                                                                      user_id)
+                        self.sad_counter = 0"""
 
-                # если пришёл «старый» — пропускаем
-                last_seq = self.last_seq_map.get(user_id)
-                if last_seq is not None:
-                    # учтём переполнение uint32
-                    diff = (seq - last_seq) & 0xFFFFFFFF
-                    if diff > 0x80000000:
-                        # это «очень старый» пакет — дроп
-                        print("дроп")
-                        continue
-                    if diff == 0:
-                        print("дроп")
-                        continue
+                    self.out_stream.write(payload)
                 else:
-                    print(f"self.last_seq is None")
-                self.last_seq_map[user_id] = seq
-                print(self.last_seq_map[user_id])
-                try:
-                    if not self.is_head_mute:
-                        self.sad_counter += 1
-                        if self.sad_counter >= 25:
-                            self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
-                                                                          user_id)
-                            self.sad_counter = 0
-
-                        self.out_stream.write(payload)
-                    else:
-                        continue
-                except Exception:
-                    pass
+                    continue
+            except Exception:
+                pass
 
         print("audio_output_loop завершился")
 
-    async def play_enqueue(self, seq, payload, user_id):
+    async def play_enqueue(self, seq, payload):
         # если очередь забита — не ждём (минимальная задержка важнее)
-        if user_id not in self.user_queues:
-            self.user_queues[user_id] = asyncio.Queue(maxsize=5)
-        if self.user_queues[user_id].full():
+        if self.play_queue.full():
             try:
-                _ = self.user_queues[user_id].get_nowait()
+                _ = self.play_queue.get_nowait()
             except Exception:
                 pass
-        await self.user_queues[user_id].put((seq, payload))
+        await self.play_queue.put((seq, payload))
 
     def close(self):
         # 4. Закрываем аудио потоки

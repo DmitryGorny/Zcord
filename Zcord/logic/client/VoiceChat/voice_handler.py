@@ -10,10 +10,10 @@ FORMAT = pyaudio.paInt16
 BYTES_PER_SAMPLE = 2
 FRAME_BYTES = SAMPLES_PER_FRAME * BYTES_PER_SAMPLE  # 1920 bytes
 
-# Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | payload...
+# Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | user_id | payload...
 PKT_HDR = b"V1"
 PKT_AUDIO = b"A"
-HDR_STRUCT = struct.Struct("!2s1sI")  # magic, type, seq
+HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
 
 
 class VoiceHandler:
@@ -65,7 +65,7 @@ class VoiceHandler:
             self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
             self.vad_counter = 0
 
-        pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq) + data
+        pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
         seq = (seq + 1) & 0xFFFFFFFF
         return pkt, seq
 
@@ -87,7 +87,7 @@ class VoiceHandler:
     async def audio_output_loop(self, flg):
         self.last_seq = None
         # минимальная «сортировка» по seq: берём всегда самое свежее, старьё выбрасываем
-        while flg:
+        while flg():
             try:
                 seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
             except asyncio.TimeoutError:

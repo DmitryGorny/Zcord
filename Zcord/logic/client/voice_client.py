@@ -8,10 +8,10 @@ from logic.client.IConnection.IConnection import IConnection, BaseConnection
 from logic.client.VoiceChat.voice_handler import VoiceHandler
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 
-# Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | payload...
+# Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | user_id | payload...
 PKT_HDR = b"V1"
 PKT_AUDIO = b"A"
-HDR_STRUCT = struct.Struct("!2s1sI")  # magic, type, seq
+HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
 
 
 class VoiceConnection(IConnection, BaseConnection):
@@ -63,18 +63,17 @@ class VoiceConnection(IConnection, BaseConnection):
                     break
                 msg = json.loads(line.decode("utf-8"))
                 t = msg.get("t")
-
+                print(msg)
                 if t == "peer":
                     # сервер может прислать список пиров
                     peers = msg.get("client", [])
                     if peers:
-                        if peers:
-                            # для простоты — берём первого (или последовательно всех)
-                            p = peers[0]
-                            self.peer = (p["ip"], int(p["udp_port"]))
-                            self.voice_handler.get_last_seq = None
-                            print(f"[Client] peer: {self.peer}")
-                            self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
+                        # для простоты — берём первого (или последовательно всех)
+                        p = peers[0]
+                        self.peer = (p["ip"], int(p["udp_port"]))
+                        self.voice_handler.get_last_seq = None
+                        print(f"[Client] peer: {self.peer}")
+                        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
 
                 elif t == "peer_left":
                     client = msg.get("client")
@@ -112,11 +111,11 @@ class VoiceConnection(IConnection, BaseConnection):
                 continue
             except (OSError, Exception) as e:
                 print(f"recv_udp вышел: {e}")
-                break
+                continue
 
             # аудио-пакеты
             if len(data) >= HDR_STRUCT.size:
-                magic, typ, seq = HDR_STRUCT.unpack_from(data, 0)
+                magic, typ, seq, user_id = HDR_STRUCT.unpack_from(data, 0)
                 if magic != PKT_HDR:
                     continue
                 if typ == PKT_AUDIO:

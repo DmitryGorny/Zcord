@@ -320,4 +320,7 @@ class ChatView(QtWidgets.QWidget):
             self.call_dialog.hide_call_event()
 
     def speech_detector(self, flg, user_id):
-        self.client_icons[int(user_id)].speech_animation(flg)
+        try:
+            self.client_icons[int(user_id)].speech_animation(flg)
+        except KeyError as e:
+            pass

@@ -125,13 +125,16 @@ class AddFriendView(QtWidgets.QWidget):
         self._friends_requests[username].ui.AlreadyFriend.setHidden(False)
 
     def remove_request_widget(self, username: str) -> None:
-        fr_widget = self._friends_requests[username]
-        item = self._ui.FriendScroll.takeItem(fr_widget.index)
-        widget = self._ui.FriendScroll.itemWidget(item)
-        self._ui.FriendScroll.removeItemWidget(item)
-        if widget:
-            widget.deleteLater()
-        del self._friends_requests[username]
+        try:
+            fr_widget = self._friends_requests[username]
+            item = self._ui.FriendScroll.takeItem(fr_widget.index)
+            widget = self._ui.FriendScroll.itemWidget(item)
+            self._ui.FriendScroll.removeItemWidget(item)
+            if widget:
+                widget.deleteLater()
+            del self._friends_requests[username]
+        except Exception: #TODO: Выбрать правильный тип ошибки
+            return
 
     def get_nickname_data(self) -> str:
         return self._ui.nickname_input.text().strip()

@@ -319,6 +319,13 @@ class MainWindow(QtWidgets.QMainWindow):
                                             'nickname': args['friend_nickname'],
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.updateChatList(chat_gui)
+            case "DECLINE-REQUEST-OTHERS":
+                print(1)
+                self._friends.remove_others_request(args['sender_id'])
+            case "DECLINE-REQUEST-SELF":
+                print(134123)
+                self._friends.remove_your_request(args['receiver_id'])
+                self._friends.remove_add_friend_widget(args['friend_nickname'])
 
             case "UPDATE-CHATS":
                 chat = self.addChatToList(args[0], args[1])

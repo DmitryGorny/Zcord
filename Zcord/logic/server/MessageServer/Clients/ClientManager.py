@@ -29,7 +29,6 @@ class ClientManager:
 
     def remove_client(self, client_identent: str) -> None:
         try:
-
             client = self._clients[str(client_identent)]
         except KeyError:
             return None

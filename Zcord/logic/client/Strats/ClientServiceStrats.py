@@ -173,3 +173,21 @@ class AcceptFriendRequestStrat(ClientsStrategies):
                                                                                              'chat_id': chat_id,
                                                                                              'friend_nickname': friend_nickname,
                                                                                              })
+
+
+class DeclineFriendRequestStrat(ClientsStrategies):
+    header_name = 'DECLINE-FRIEND'
+
+    def __init__(self):
+        super(DeclineFriendRequestStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg["sender_id"]
+        receiver_id = msg['friend_id']
+        friend_nickname = msg['friend_nickname']
+
+        if str(self.service_connection_pointer.user.id) != str(sender_id):
+            self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-OTHERS', {'sender_id': receiver_id})
+        else:
+            self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-SELF', {'receiver_id': str(receiver_id),
+                                                                                              'friend_nickname': friend_nickname})

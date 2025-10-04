@@ -186,6 +186,7 @@ class RecallFriendRequest(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
+        print(msg)
         friend_id: str = msg['friend_id']
         sender_id: str = msg['sender_id']
 
@@ -245,7 +246,8 @@ class AcceptFriendRequestStrat(ServiceStrategy):
         await self._server_pointer.clients[sender_id].send_message("ACCEPT-FRIEND", {'sender_id': sender_id,
                                                                                      'friend_id': friend_id,
                                                                                      'chat_id': friendship['id'],
-                                                                                     'friend_nickname': friend['nickname'],
+                                                                                     'friend_nickname': friend[
+                                                                                         'nickname'],
                                                                                      'sender_nickname':
                                                                                          self._server_pointer.clients[
                                                                                              sender_id].nick})
@@ -254,6 +256,42 @@ class AcceptFriendRequestStrat(ServiceStrategy):
         await self._sender_to_msg_server_func("ADD-FRIEND", {"sender_id": sender_id,
                                                              "receiver_id": friend_id,
                                                              "chat_id": friendship['id']})
+
+
+class DeclineFriendRequestStrat(ServiceStrategy):
+    command_name = "DECLINE-FRIEND"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:  # Дописать отсылку сообщения на месседж сервер
+        friend_id: str = msg['receiver_id']
+        sender_id: str = str(msg['sender_id'])
+
+        try:
+            friendship = self._api_client.get_friendship_by_id(int(sender_id), int(friend_id))[0]
+        except IndexError as e:
+            print(e)
+            return
+
+        self._api_client.delete_friendship_request(int(sender_id), int(friend_id), friendship['id'])
+        self._api_client.delete_friendship(friendship['id'])
+        friend = self._api_client.get_user_by_id(int(friend_id))
+
+        try:
+            await self._server_pointer.clients[friend_id].send_message("DECLINE-FRIEND",
+                                                                       {'sender_id': sender_id,
+                                                                        'friend_id': friend_id,
+                                                                        'friend_nickname': friend['nickname']
+                                                                        })
+        except KeyError:
+            pass
+
+        await self._server_pointer.clients[sender_id].send_message("DECLINE-FRIEND",
+                                                                   {'sender_id': sender_id,
+                                                                    'friend_id': friend_id,
+                                                                    'friend_nickname': friend['nickname']
+                                                                    })
 
 
 class CallNotificationStrategy(ServiceStrategy):
@@ -266,6 +304,7 @@ class CallNotificationStrategy(ServiceStrategy):
     async def execute(self, msg: dict) -> None:
         user_id = msg["user_id"]
         chat_id = msg["chat_id"]
+
         for friend in self._server_pointer.clients[user_id].friends[chat_id]:
             friend_id = friend.id
             self._server_pointer.clients[friend_id].send_message(msg_type='CALL-NOTIFICATION',

@@ -13,6 +13,9 @@ class ChatController:
         for chat in views:
             self._views[str(chat.getChatId())] = chat
 
+    def add_view(self, chat_id: str, chat) -> None:
+        self._views[str(chat_id)] = chat
+
     def ask_for_cached_message(self) -> None:
         self._model.ask_for_cached_messages()
 
@@ -65,4 +68,4 @@ class ChatController:
             self._views[chat_id].change_unseen_status_signal.emit(number_of_messages)
 
         def clear_unseen_messages_in_view(self, chat_id: str):
-            self._views[chat_id].clear_unseen.emit()
+            self._views[str(chat_id)].clear_unseen.emit()

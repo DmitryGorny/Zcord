@@ -81,9 +81,8 @@ class FriendRequestListModel(QObject):
 
     def accept_request(self, user_id: str) -> None:
         try:
-            ClientConnections.send_service_message(msg_type="ACCEPT-FRIEND", extra_data={'receiver_id': user_id,
-                                                                                         'sender_id': str(
-                                                                                             self._user.id)})
+            ClientConnections.send_service_message(msg_type="ACCEPT-FRIEND", extra_data={'receiver_id': str(self._user.id),
+                                                                                         'sender_id': user_id})
             self.remove_others_request_view.emit(user_id)
         except Exception as e:
             print(e)
@@ -91,7 +90,7 @@ class FriendRequestListModel(QObject):
     def recall_friend_request(self, user_id: str) -> None:
         try:
             ClientConnections.send_service_message(msg_type="FRIENDSHIP-REQUEST-RECALL",
-                                                   extra_data={'friend_id': str(user_id),
+                                                   extra_data={'receiver_id': str(user_id),
                                                                'sender_id': str(self._user.id)})
             self.remove_your_request_view.emit(user_id)
         except Exception as e:

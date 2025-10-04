@@ -15,6 +15,8 @@ class FriendRequest(QtWidgets.QWidget):
 
         self._friend_id = id
 
+        self.index = 0
+
         self.ui.recall_request.setHidden(True) #По дефолту всегда
         self.ui.AlreadyFriend.setHidden(True)
 

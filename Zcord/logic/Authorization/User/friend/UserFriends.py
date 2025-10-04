@@ -16,13 +16,24 @@ class UserFriends:
         for friendship in self._db.get_friendships_by_nickname(self._user.getNickName()):
             chat_id = friendship['id']
             status = friendship['status']
-            friend_data = self._db.get_user_by_id(friendship['user1'] if friendship['user1'] != self._user.id else friendship['user2'])
+            friend_data = self._db.get_user_by_id(
+                friendship['user1'] if friendship['user1'] != self._user.id else friendship['user2'])
             friend = fabric.create_friend(chat_id=chat_id,
                                           user_nickanme=friend_data["nickname"],
                                           status=status,
                                           user_id=friend_data["id"],
                                           last_online=friend_data["last_online"])
             self._friends.append(friend)
+
+    def add_friend(self, chat_id: str, user_nickname: str, user_id: str, last_online: str, status: str = '2'):
+        from logic.Authorization.User.friend.fabric import CreateFriend
+        fabric = CreateFriend()
+        friend = fabric.create_friend(chat_id=chat_id,
+                                      user_nickanme=user_nickname,
+                                      status=status,
+                                      user_id=user_id,
+                                      last_online=last_online)
+        self._friends.append(friend)
 
     def friends_props(self) -> dict[str, str]:
         """Поочередно возвращает атрибуты каждого класса"""

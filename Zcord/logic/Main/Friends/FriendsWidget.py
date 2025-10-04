@@ -55,6 +55,9 @@ class FriendsWidget(QtWidgets.QWidget):
     def remove_others_request(self, user_id: str) -> None:
         self._friend_request_controller.remove_friend_request(user_id)
 
+    def remove_add_friend_widget(self, username: str) -> None:
+        self._add_friend_controller.remove_add_friend_widget(username)
+
     def _select_request_page(self):
         self._ui.stackedWidget.setCurrentWidget(self._stacked_widgets['requests_list'])
 

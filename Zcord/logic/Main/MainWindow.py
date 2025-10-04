@@ -83,12 +83,13 @@ class MainWindow(QtWidgets.QMainWindow):
                 attrs["chat_ui"])  # Передается UI объекта ChatView для отображения самого чата
         return chats_list
 
-    def addChatToList(self, chatId, friendNick):
-        # chat = Chat(chatId, friendNick, self.__user)
-        # self.__chats.append(chat)
-        # message_client.MessageConnection.addChatToList(chat)
-        # return chat
-        pass
+    def add_chat_to_view(self, chat_id: str, friend_nick: str, ui) -> ChatInList:
+        chat = ChatInList(friend_nick, str(chat_id), ui)
+        self._friendsChatOptions.append(chat)
+        self.ui.stackedWidget_2.addWidget(
+                ui)
+        self._friendsChatOptions.append(chat)
+        return chat
 
     def call_chat(self):
         queueToSend = queue.Queue()
@@ -299,6 +300,25 @@ class MainWindow(QtWidgets.QMainWindow):
                 self._friends.remove_your_request(args['user_id'])
             case "OTHERS-RECALL-REQUEST":
                 self._friends.remove_others_request(args['user_id'])
+            case "ACCEPT-REQUEST-OTHERS":
+                self._friends.remove_others_request(args['user_id'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'])
+                chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
+                                                 ui=chat.ui.MAIN)
+                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                                            'nickname': args['sender_nickname'],
+                                            'socket_controller': self.__user.get_socket_controller()})
+                self.updateChatList(chat_gui)
+            case "ACCEPT-REQUEST-SELF":
+                self._friends.remove_your_request(args['user_id'])
+                self._friends.remove_add_friend_widget(args['friend_nickname'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['friend_nickname'])
+                chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
+                                                 ui=chat.ui.MAIN)
+                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                                            'nickname': args['friend_nickname'],
+                                            'socket_controller': self.__user.get_socket_controller()})
+                self.updateChatList(chat_gui)
 
             case "UPDATE-CHATS":
                 chat = self.addChatToList(args[0], args[1])
@@ -329,6 +349,7 @@ class MainWindow(QtWidgets.QMainWindow):
                                     border:3px solid rgba(34,35,39,255);
                                     """
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
+
     def closeWindow(self):
         # with open("Resources/frineds/friends.json", "w") as Frineds_json:
         # Frineds_json.write(json.dumps(self.__friends))

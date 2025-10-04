@@ -295,3 +295,20 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         self._messageRoom_pointer.send_info_message(user_id, "UNSEEN-COUNTER",
                                                     data={"message_number": unseen,
                                                           "chat_id": chat_id})
+
+
+class AddNewFriendStrat(MessageStrategy):
+    command_name = "ADD-FRIEND"
+
+    def __init__(self):
+        super(AddNewFriendStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        receiver_id = str(msg["receiver_id"])
+        sender_id = str(msg["sender_id"])
+        chat_id = str(msg["chat_id"])
+
+        self._messageRoom_pointer.ids_in_chats[chat_id] = []
+        self._messageRoom_pointer.cache_chat.init_cache(chat_id)
+        self._messageRoom_pointer.unseen_messages.add_user(chat_id, receiver_id)
+        self._messageRoom_pointer.unseen_messages.add_user(chat_id, sender_id)

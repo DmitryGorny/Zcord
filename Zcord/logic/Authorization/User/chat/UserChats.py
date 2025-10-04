@@ -23,6 +23,19 @@ class UserChats:
                                   controller=self._dm_chats_controller)
         self._dm_chats.append(chat)
 
+    def add_DM_chat(self, chat_id: str, friend_nick: str):
+        fabric = CreateChat()
+
+        chat = fabric.create_chat(is_dm=True,
+                                  chat_id=chat_id,
+                                  friend_nick=friend_nick,
+                                  user_obj=self.__user,
+                                  controller=self._dm_chats_controller)
+        self._dm_chats.append(chat)
+        print(12321)
+        self._dm_chats_controller.add_view(chat_id, chat)
+        return chat
+
     def get_socket_controller(self) -> ChatController.SocketController:
         return self._dm_chats_controller.get_socket_controller()
 

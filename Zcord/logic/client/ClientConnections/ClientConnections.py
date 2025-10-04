@@ -1,6 +1,6 @@
 import socket
 import threading
-from typing import Dict
+from typing import Dict, Any
 import queue
 
 from logic.client.Chat.ClientChat import ChatInterface
@@ -90,6 +90,10 @@ class ClientConnections:
             ClientConnections._service_connection.cache_chat = attrs["chat_id"]
             ClientConnections._chat_interface.chats = attrs
             chats_queue.task_done()
+
+    @staticmethod
+    def add_chat(attrs: Dict[str, Any]) -> None:
+        ClientConnections._chat_interface.chats = attrs
 
     @staticmethod
     def change_chat(chat_id: str) -> None:

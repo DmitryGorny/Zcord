@@ -96,6 +96,8 @@ class FriendRequestListView(QtWidgets.QWidget):
         self._ui.others_request.addItem(item)
         self._ui.others_request.setItemWidget(item, req.get_widget())
         req.index = self._ui.others_request.count() - 1
+        req.connect_accept_request(lambda: self.accept_request_model.emit(friend_id))
+        req.connect_decline_request(lambda: self.decline_request_model.emit(friend_id))
 
     def remove_friend_request(self, user_id: str) -> None:
         if user_id not in self._others_requests.keys():

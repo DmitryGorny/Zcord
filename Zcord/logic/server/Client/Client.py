@@ -53,9 +53,15 @@ class Client:
     def nick(self):
         return self._nick
 
-    # TODO:Переделать
-    def add_friend(self, freind_name: str, chat_id: int) -> None:
-        self.__friends[freind_name] = [chat_id, 1]  # 1 - статус друга (по дефолту стоит заявка в друзья)
+    def add_friend(self, friend_name: str, chat_id: str, friend_id: str, status: str = 2) -> None:
+        from datetime import datetime
+        now = datetime.now()
+        time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
+        self.__friends[chat_id] = Friend(user_id=friend_id,
+                                         nick=friend_name,
+                                         chat_id=chat_id,
+                                         friendship_status=status,
+                                         last_online=time_str)
 
     def delete_friend(self, friend_name: str) -> None:
         del self.__friends[friend_name]

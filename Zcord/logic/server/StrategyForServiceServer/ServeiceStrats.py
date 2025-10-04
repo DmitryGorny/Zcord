@@ -1,6 +1,6 @@
 # Реализации интерфейса Strategy для сервера сервисных сообщений (Server)
 import json
-from datetime import timedelta
+from datetime import timedelta, datetime
 
 from logic.db_client.api_client import APIClient
 from logic.server.Client.Client import Client
@@ -172,7 +172,7 @@ class SendFriendRequest(ServiceStrategy):
                                                                                                    'receiver_id': friend_id,
                                                                                                    'sender_nick': sender_nick})
         except KeyError:
-            pass # TODO: подумать на очередью????
+            pass  # TODO: подумать на очередью????
 
         await self._server_pointer.clients[user_id].send_message("FRIENDSHIP-REQUEST-SEND", {'sender_id': user_id,
                                                                                              'receiver_id': friend_id,
@@ -215,9 +215,45 @@ class AcceptFriendRequestStrat(ServiceStrategy):
     def __init__(self):
         super().__init__()
 
-    async def execute(self, msg: dict) -> None:
-        friend_id: str = msg['friend_id']
+    async def execute(self, msg: dict) -> None:  # Дописать отсылку сообщения на месседж сервер
+        friend_id: str = msg['receiver_id']
         sender_id: str = msg['sender_id']
+
+        try:
+            friendship = self._api_client.get_friendship_by_id(sender_id, friend_id)[0]
+        except IndexError as e:
+            print(e)
+            return
+
+        self._api_client.patch_friendship_status(friendship['id'], 2)
+
+        friend = self._api_client.get_user_by_id(int(friend_id))
+        self._server_pointer.clients[sender_id].add_friend(friend['nickname'],
+                                                           friendship['id'],
+                                                           friend_id)
+        try:
+            await self._server_pointer.clients[friend_id].send_message("ACCEPT-FRIEND",
+                                                                       {'sender_id': sender_id,
+                                                                        'friend_id': friend_id,
+                                                                        'chat_id': friendship['id'],
+                                                                        'friend_nickname': friend['nickname'],
+                                                                        'sender_nickname': self._server_pointer.clients[
+                                                                            sender_id].nick})
+        except KeyError:
+            pass
+
+        await self._server_pointer.clients[sender_id].send_message("ACCEPT-FRIEND", {'sender_id': sender_id,
+                                                                                     'friend_id': friend_id,
+                                                                                     'chat_id': friendship['id'],
+                                                                                     'friend_nickname': friend['nickname'],
+                                                                                     'sender_nickname':
+                                                                                         self._server_pointer.clients[
+                                                                                             sender_id].nick})
+        self._api_client.delete_friendship_request(int(sender_id), int(friend_id), friendship['id'])
+
+        await self._sender_to_msg_server_func("ADD-FRIEND", {"sender_id": sender_id,
+                                                             "receiver_id": friend_id,
+                                                             "chat_id": friendship['id']})
 
 
 class CallNotificationStrategy(ServiceStrategy):

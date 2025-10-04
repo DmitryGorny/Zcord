@@ -35,6 +35,9 @@ class IAddFriendView(typing.Protocol):
     def request_already_sent(self) -> None:
         pass
 
+    def remove_request_widget(self, username: str) -> None:
+        pass
+
     def connect_send_signal(self, callback: Callable) -> None:
         pass
 
@@ -68,18 +71,19 @@ class AddFriendView(QtWidgets.QWidget):
 
         self._ui.Search_button.clicked.connect(search)
 
-
     def add_found_friend(self, friend_nick: str, friend_id: str) -> None:
         item = QtWidgets.QListWidgetItem(self._ui.FriendScroll)
         friend_widget = FriendRequest(friend_nick, friend_id)
 
         def on_send():
             self.send_request_model.emit(friend_nick, friend_id)
-            self._block_button(friend_widget.ui.recall_request)
+            if friend_widget.ui.recall_request:
+                self._block_button(friend_widget.ui.recall_request)
 
         def on_recall():
             self.recall_request_model.emit(friend_nick, friend_id)
-            self._block_button(friend_widget.ui.send_request)
+            if friend_widget.ui.send_request:
+                self._block_button(friend_widget.ui.send_request)
 
         friend_widget.ui.send_request.clicked.connect(on_send)
         friend_widget.ui.recall_request.clicked.connect(on_recall)
@@ -90,10 +94,18 @@ class AddFriendView(QtWidgets.QWidget):
 
         if friend_nick not in self._friends_requests.keys():
             self._friends_requests[friend_nick] = friend_widget
+            friend_widget.index = self._ui.FriendScroll.count() - 1
 
     def _block_button(self, button: QtWidgets.QPushButton, delay: int = 3000) -> None:
         button.setEnabled(False)
-        QTimer.singleShot(delay, lambda: button.setEnabled(True))
+
+        def enable_button():
+            try:
+                button.setEnabled(True)
+            except RuntimeError:
+                return
+
+        QTimer.singleShot(delay, enable_button)
 
     def request_sent(self, username: str) -> None:
         self._friends_requests[username].ui.send_request.setHidden(True)
@@ -111,6 +123,15 @@ class AddFriendView(QtWidgets.QWidget):
         self._friends_requests[username].ui.recall_request.setHidden(True)
         self._friends_requests[username].ui.AlreadyFriend.setText("Заявка отправлена")
         self._friends_requests[username].ui.AlreadyFriend.setHidden(False)
+
+    def remove_request_widget(self, username: str) -> None:
+        fr_widget = self._friends_requests[username]
+        item = self._ui.FriendScroll.takeItem(fr_widget.index)
+        widget = self._ui.FriendScroll.itemWidget(item)
+        self._ui.FriendScroll.removeItemWidget(item)
+        if widget:
+            widget.deleteLater()
+        del self._friends_requests[username]
 
     def get_nickname_data(self) -> str:
         return self._ui.nickname_input.text().strip()

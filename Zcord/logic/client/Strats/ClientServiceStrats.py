@@ -139,8 +139,37 @@ class FriendshipRecallSendStrat(ClientsStrategies):
         sender_id = msg["sender_id"]
         receiver_id = msg['friend_id']
         if sender_id == str(self.service_connection_pointer.user.id):
-            print(1)
             self.service_connection_pointer.call_main_dynamic_update('SELF-RECALL-REQUEST', {'user_id': receiver_id})
         else:
-            print(2)
             self.service_connection_pointer.call_main_dynamic_update('OTHERS-RECALL-REQUEST', {'user_id': sender_id})
+
+
+class AcceptFriendRequestStrat(ClientsStrategies):
+    header_name = 'ACCEPT-FRIEND'
+
+    def __init__(self):
+        super(AcceptFriendRequestStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg["sender_id"]
+        receiver_id = msg['friend_id']
+        chat_id = msg['chat_id']
+        friend_nickname = msg['friend_nickname']
+        sender_nickname = msg['sender_nickname']
+
+        if str(self.service_connection_pointer.user.id) != str(sender_id):
+            self.service_connection_pointer.user.add_friend(username=friend_nickname,
+                                                            chat_id=chat_id,
+                                                            user_id=sender_id)
+            self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-OTHERS', {'user_id': sender_id,
+                                                                                               'chat_id': chat_id,
+                                                                                               'sender_nickname': sender_nickname,
+                                                                                               })
+        else:
+            self.service_connection_pointer.user.add_friend(username=friend_nickname,
+                                                            chat_id=chat_id,
+                                                            user_id=receiver_id)
+            self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-SELF', {'user_id': sender_id,
+                                                                                             'chat_id': chat_id,
+                                                                                             'friend_nickname': friend_nickname,
+                                                                                             })

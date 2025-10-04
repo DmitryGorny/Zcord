@@ -21,3 +21,6 @@ class AddFriendsController:
 
     def get_view_widget(self) -> QtWidgets.QFrame:
         return self._view.get_widget()
+
+    def remove_add_friend_widget(self, username: str) -> None:
+        self._view.remove_request_widget(username)

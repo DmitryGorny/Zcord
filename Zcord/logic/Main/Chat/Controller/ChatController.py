@@ -9,6 +9,13 @@ class ChatController:
         self._views: Dict[str, ChatView] = {}
         self._model: ChatModel = ChatModel()
 
+    def delete_chat(self, chat_id: str):
+        try:
+            del self._views[chat_id]
+        except KeyError as e:
+            print(e, 22222)
+            return
+
     def set_views(self, views: List[ChatView]):
         for chat in views:
             self._views[str(chat.getChatId())] = chat

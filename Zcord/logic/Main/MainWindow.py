@@ -201,7 +201,7 @@ class MainWindow(QtWidgets.QMainWindow):
         """Удаляет чат из ScrollFriends"""
         for i in range(self.ui.ScrollFriends.widget().layout().count()):
             widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
-            if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.nickname:
+            if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.username:
                 self.ui.ScrollFriends.widget().layout().takeAt(i)
                 widgetToDelete.deleteLater()
                 self.ui.ScrollFriends.widget().layout().update()
@@ -224,11 +224,10 @@ class MainWindow(QtWidgets.QMainWindow):
         # plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )
 
     def delete_DM_chat(self, chat_id: str):
-        self.__user.delete_chat(chat_id, is_dm=True)
-        chat_gui = list(filter(lambda x: chat_id == x.id, self._friendsChatOptions))[0]
+        chat_gui = list(filter(lambda x: str(chat_id) == x.id, self._friendsChatOptions))[0]
         self._friendsChatOptions.remove(chat_gui)
-
-        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
+        if self.ui.stackedWidget_2.currentWidget() == chat_gui:
+            self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
         return chat_gui
 
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
@@ -290,7 +289,7 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # <---------------------------------------------Работа с друзьями-------------------------------------------------->
     @QtCore.pyqtSlot(str, dict)
-    def dynamic_update_slot(self, command: str, args: dict, done_event=None):
+    def dynamic_update_slot(self, command: str, args: dict):
         match command:
             case "FRIENDSHIP-REQUEST-SELF":
                 self._friends.add_your_friend_request(friend_id=args['receiver_id'], username=args['receiver_nick'])
@@ -320,27 +319,19 @@ class MainWindow(QtWidgets.QMainWindow):
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.updateChatList(chat_gui)
             case "DECLINE-REQUEST-OTHERS":
-                print(1)
                 self._friends.remove_others_request(args['sender_id'])
             case "DECLINE-REQUEST-SELF":
-                print(134123)
                 self._friends.remove_your_request(args['receiver_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
-
             case "UPDATE-CHATS":
                 chat = self.addChatToList(args[0], args[1])
                 self.updateChatList(chat)
-                if done_event is not None:
-                    done_event.set()
                 return chat
-
-            case "DELETE-CHAT":
-                chat = self.delete_DM_chat(args)
+            case "DELETE-FRIEND":
+                chat = self.delete_DM_chat(args['chat_id'])
                 self.deleteChatFromUI(chat)
             case "UPDATE-MESSAGE-NUMBER":
                 self.unseenMessages(chat_id=args['chat_id'], newValue=args['message_number'])
-                if done_event is not None:
-                    done_event.set()
             case "CHANGE-ACTIVITY":
                 if args[0] == "self":
                     self.change_self_activity_indicator_color(args[1])

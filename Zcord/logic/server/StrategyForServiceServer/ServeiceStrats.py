@@ -186,7 +186,6 @@ class RecallFriendRequest(ServiceStrategy):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        print(msg)
         friend_id: str = msg['friend_id']
         sender_id: str = msg['sender_id']
 
@@ -292,6 +291,43 @@ class DeclineFriendRequestStrat(ServiceStrategy):
                                                                     'friend_id': friend_id,
                                                                     'friend_nickname': friend['nickname']
                                                                     })
+
+
+class DeleteFriendRequestStrat(ServiceStrategy):
+    command_name = "DELETE-FRIEND"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:  # Дописать отсылку сообщения на месседж сервер
+        friend_id: str = msg['receiver_id']
+        sender_id: str = str(msg['sender_id'])
+
+        try:
+            friendship = self._api_client.get_friendship_by_id(int(sender_id), int(friend_id))[0]
+        except IndexError as e:
+            print(e)
+            return
+
+        self._api_client.delete_friendship(friendship['id'])
+        friend = self._api_client.get_user_by_id(int(friend_id))
+
+        try:
+            await self._server_pointer.clients[friend_id].send_message("DELETE-FRIEND",
+                                                                       {'friend_id': sender_id,
+                                                                        'sender_nickname': msg['sender_nickname'],
+                                                                        'chat_id': friendship['id']
+                                                                        })
+        except KeyError:
+            pass
+
+        await self._server_pointer.clients[sender_id].send_message("DELETE-FRIEND",
+                                                                   {'friend_id': friend_id,
+                                                                    'friend_nickname': friend['nickname'],
+                                                                    'chat_id': friendship['id']
+                                                                    })
+
+        await self._sender_to_msg_server_func('DELETE-FRIEND', {'chat_id': friendship['id']})
 
 
 class CallNotificationStrategy(ServiceStrategy):

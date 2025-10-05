@@ -277,9 +277,6 @@ class ScrollRequestCacheStrategy(MessageStrategy):
 
         self._messageRoom_pointer.send_cache(cache[::-1], user_id, scroll_cache=True)
 
-        #if len(self._messageRoom_pointer.ids_in_chats[chat_id]) <= 1:
-            #return
-
         ids = [{"id": x["id"]} for x in cache if x["was_seen"] == False if str(x["sender"]) != user_id]
 
         self._api_client.update_messages_bulk(ids)
@@ -312,3 +309,17 @@ class AddNewFriendStrat(MessageStrategy):
         self._messageRoom_pointer.cache_chat.init_cache(chat_id)
         self._messageRoom_pointer.unseen_messages.add_user(chat_id, receiver_id)
         self._messageRoom_pointer.unseen_messages.add_user(chat_id, sender_id)
+
+
+class DeleteFriendStrat(MessageStrategy):
+    command_name = "DELETE-FRIEND"
+
+    def __init__(self):
+        super(DeleteFriendStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        chat_id = str(msg["chat_id"])
+
+        del self._messageRoom_pointer.ids_in_chats[chat_id]
+        self._messageRoom_pointer.cache_chat.clear_cache(chat_id)
+        self._messageRoom_pointer.unseen_messages.delete_user(chat_id)

@@ -83,7 +83,7 @@ class ServiceConnection(IConnection, BaseConnection):
                 if not self._flg:
                     print("Сокет закрылся корректно")
                 else:
-                    print(e)
+                    print(e, 222)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 self._service_tcp.close()

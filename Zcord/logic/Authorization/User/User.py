@@ -67,7 +67,6 @@ class BaseUser:
 class User(BaseUser):
     def __init__(self, user_id, nickname, password, last_online):
         super(User, self).__init__(user_id, nickname, last_online)
-        self.__friends = {}
         self.__password = password
         self._friends_model = UserFriends(self)
         self._chats_model = UserChats(self)
@@ -100,6 +99,10 @@ class User(BaseUser):
     def delete_chat(self, chat_id: str, is_dm: bool) -> None:
         if is_dm:
             self._chats_model.delete_DM_chat(chat_id)
+
+    def delete_friend(self, friend_id: str) -> None:
+        print(1123121332)
+        self._friends_model.delete_friend(friend_id)
 
     def change_chat(self, chat_id: str) -> None:
         ClientConnections.change_chat(chat_id)

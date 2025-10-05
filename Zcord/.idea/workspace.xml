@@ -7,12 +7,17 @@
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/Friends/AddFriends/AddFriendsModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/AddFriends/AddFriendsModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/AddFriends/View/AddFriendsView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/AddFriends/View/AddFriendsView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/FriendRequestsListModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/FriendRequestsListModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendsWidget.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendsWidget.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/Clients/ClientManager.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/Clients/ClientManager.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/service_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/service_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -72,11 +77,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendsList\View" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendsList\View\FriendWidget" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View\OthersRequest" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View\YourRequest" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\AddFriends\View\friend_request" />
     </key>
   </component>
   <component name="RunManager" selected="Python.zcord">

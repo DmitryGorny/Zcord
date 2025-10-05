@@ -43,3 +43,15 @@ class UserFriends:
                    "nickname": friend.getNickName(),
                    "status": str(friend.status),
                    "last_online": friend.last_online}
+
+    def delete_friend(self, friend_id: str):
+        print(222)
+        try:
+            friend = next(filter(lambda x: int(friend_id) == int(x.id), self._friends))
+            print(friend)
+        except StopIteration as e:
+            print(e)
+            return
+
+        self._friends.remove(friend)
+        print(self._friends)

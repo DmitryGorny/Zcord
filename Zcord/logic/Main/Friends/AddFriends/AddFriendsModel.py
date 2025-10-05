@@ -59,7 +59,7 @@ class AddFriendModel(QObject):
                 # TODO: Сделать вывод виджета для оповещения юзера об отсуствущих найденных юзерах
                 return
 
-            already_exist = self._api_client.get_friend_request(self._user.id, user['id'])
+            already_exist = self._api_client.get_friendship_by_id(self._user.id, user['id'])
 
             if user['id'] == self._user.id:
                 return

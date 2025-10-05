@@ -32,7 +32,6 @@ class UserChats:
                                   user_obj=self.__user,
                                   controller=self._dm_chats_controller)
         self._dm_chats.append(chat)
-        print(12321)
         self._dm_chats_controller.add_view(chat_id, chat)
         return chat
 
@@ -48,8 +47,9 @@ class UserChats:
             yield {"chat_id": chat.getChatId(), "nickname": chat.getNickName(), "chat_ui": chat.ui.MAIN}
 
     def delete_DM_chat(self, chat_id: str) -> None:
-        chat = list(filter(lambda x: x.getChatId == chat_id, self._dm_chats))[0]
+        chat = list(filter(lambda x: str(x.getChatId()) == str(chat_id), self._dm_chats))[0]
         self._dm_chats.remove(chat)
+        self._dm_chats_controller.delete_chat(chat_id)
 
     def get_DM_hat_by_id(self, chat_id: str) -> ChatView:
         chat = list(filter(lambda x: x.getChatId() == chat_id, self._dm_chats))

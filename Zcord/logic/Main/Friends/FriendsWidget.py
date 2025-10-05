@@ -4,6 +4,7 @@ from PyQt6 import QtWidgets
 
 from logic.Main.Friends.AddFriends.AddFriendsController import AddFriendsController
 from logic.Main.Friends.FriendRequestsList.FriendRequestsListController import FriendRequestController
+from logic.Main.Friends.FriendsList.FriendsListController import FriendListController
 from logic.Main.Friends.FriendsQt import Ui_Friends_page
 
 
@@ -20,9 +21,11 @@ class FriendsWidget(QtWidgets.QWidget):
 
         self._add_friend_controller: AddFriendsController = self._init_add_friend_widget(self._user)
         self._friend_request_controller: FriendRequestController = self._init_friend_requests_list(self._user)
+        self._friend_list_controller: FriendListController = self._init_friends_list(self._user)
 
         self._ui.requests.clicked.connect(self._select_request_page)
         self._ui.add_friend.clicked.connect(self._select_add_friend_page)
+        self._ui.friends.clicked.connect(self._select_friends_list_page)
 
         self._ui.stackedWidget.setCurrentWidget(self._stacked_widgets['add_friend'])
 
@@ -38,6 +41,13 @@ class FriendsWidget(QtWidgets.QWidget):
         self._ui.stackedWidget.addWidget(controller.get_view_widget())
 
         self._stacked_widgets['requests_list'] = controller.get_view_widget()
+        return controller
+
+    def _init_friends_list(self, user) -> FriendListController:
+        controller = FriendListController(user)
+        self._ui.stackedWidget.addWidget(controller.get_widget())
+
+        self._stacked_widgets['friends_list'] = controller.get_widget()
         return controller
 
     def get_widget(self) -> QtWidgets.QFrame:
@@ -63,5 +73,9 @@ class FriendsWidget(QtWidgets.QWidget):
 
     def _select_add_friend_page(self):
         self._ui.stackedWidget.setCurrentWidget(self._stacked_widgets['add_friend'])
+
+    def _select_friends_list_page(self):
+        self._friend_list_controller.update_view()
+        self._ui.stackedWidget.setCurrentWidget(self._stacked_widgets['friends_list'])
 
 

@@ -158,7 +158,7 @@ class AcceptFriendRequestStrat(ClientsStrategies):
         sender_nickname = msg['sender_nickname']
 
         if str(self.service_connection_pointer.user.id) != str(sender_id):
-            self.service_connection_pointer.user.add_friend(username=friend_nickname,
+            self.service_connection_pointer.user.add_friend(username=sender_nickname,
                                                             chat_id=chat_id,
                                                             user_id=sender_id)
             self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-OTHERS', {'user_id': sender_id,
@@ -169,10 +169,35 @@ class AcceptFriendRequestStrat(ClientsStrategies):
             self.service_connection_pointer.user.add_friend(username=friend_nickname,
                                                             chat_id=chat_id,
                                                             user_id=receiver_id)
-            self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-SELF', {'user_id': sender_id,
+            self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-SELF', {'user_id': receiver_id,
                                                                                              'chat_id': chat_id,
                                                                                              'friend_nickname': friend_nickname,
                                                                                              })
+
+
+class DeleteFriendRequestStrat(ClientsStrategies):
+    header_name = 'DELETE-FRIEND'
+
+    def __init__(self):
+        super(DeleteFriendRequestStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg['friend_id']
+        chat_id = str(msg['chat_id'])
+        try:
+            sender_nickname = msg['sender_nickname']
+            self.service_connection_pointer.user.delete_friend(friend_id=sender_id)
+            self.service_connection_pointer.user.delete_chat(chat_id, True)
+            self.service_connection_pointer.call_main_dynamic_update('DELETE-FRIEND', {'chat_id': chat_id,
+                                                                                       'sender_nickname': sender_nickname,
+                                                                                       })
+        except KeyError:
+            friend_nickname = msg['friend_nickname']
+            self.service_connection_pointer.user.delete_friend(friend_id=sender_id)
+            self.service_connection_pointer.user.delete_chat(chat_id, True)
+            self.service_connection_pointer.call_main_dynamic_update('DELETE-FRIEND', {'chat_id': chat_id,
+                                                                                       'friend_nickname': friend_nickname,
+                                                                                       })
 
 
 class DeclineFriendRequestStrat(ClientsStrategies):
@@ -187,7 +212,9 @@ class DeclineFriendRequestStrat(ClientsStrategies):
         friend_nickname = msg['friend_nickname']
 
         if str(self.service_connection_pointer.user.id) != str(sender_id):
-            self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-OTHERS', {'sender_id': receiver_id})
+            self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-OTHERS',
+                                                                     {'sender_id': receiver_id})
         else:
-            self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-SELF', {'receiver_id': str(receiver_id),
-                                                                                              'friend_nickname': friend_nickname})
+            self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-SELF',
+                                                                     {'receiver_id': str(receiver_id),
+                                                                      'friend_nickname': friend_nickname})

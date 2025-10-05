@@ -69,6 +69,7 @@ class Server:
                     continue
 
                 for msg in arr:
+                    print(msg)
                     message = msg["msg_type"]
                     strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
                     if isinstance(strategy, UserInfoStrat):

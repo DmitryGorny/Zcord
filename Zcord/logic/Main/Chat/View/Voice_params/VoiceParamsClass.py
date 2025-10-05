@@ -1,6 +1,5 @@
-from logic.Main.Voice_main.VoiceParameters import Ui_VoiceParams
+from logic.Main.Chat.View.Voice_params.VoiceParameters import Ui_VoiceParams
 from PyQt6 import QtWidgets, QtCore
-from logic.VoiceRoom import audio_send
 import threading
 import pyaudio
 import json
@@ -16,7 +15,7 @@ class VoiceParamsClass(QtWidgets.QWidget):
         self.ui_voice_pr = Ui_VoiceParams()
         self.ui_voice_pr.setupUi(self)
 
-        self.ui_voice_pr.pushButton.clicked.connect(self.call_noise_profile)
+        #self.ui_voice_pr.pushButton.clicked.connect(self.call_noise_profile)
         self.ui_voice_pr.pushButton_2.clicked.connect(self.check_mic_volume)
 
         self.ui_voice_pr.VolumeOfMicSlider.valueChanged.connect(self.change_voice_volume)
@@ -77,24 +76,14 @@ class VoiceParamsClass(QtWidgets.QWidget):
         self.thread = None
         self.thread1 = None
 
-    def call_noise_profile(self):
+    """def call_noise_profile(self):
         if not self.is_noise_down:
             self.thread1 = threading.Thread(target=audio_send.listen_noise)
             self.thread1.start()
             self.is_noise_down = True
         else:
             audio_send.VoiceConnection.noise_profile = None
-            self.is_noise_down = False
-
-    def change_voice_volume(self):
-        current_volume = self.ui_voice_pr.VolumeOfMicSlider.value() / 10.0
-        self.ui_voice_pr.label_6.setText(f"{current_volume}")
-        audio_send.volume_change(current_volume)
-
-    def change_headphones_volume(self):
-        current_volume = self.ui_voice_pr.VolumeOHeadphonesSlider.value() / 10.0
-        self.ui_voice_pr.VolimeOfHeadphonesLabel.setText(f"{current_volume}")
-        audio_send.headphones_volume_change(current_volume)
+            self.is_noise_down = False"""
 
     def check_mic_volume(self):
         if not self.is_check_volume:
@@ -105,6 +94,16 @@ class VoiceParamsClass(QtWidgets.QWidget):
         else:
             audio_send.VoiceConnection.voice_checker = False
             self.is_check_volume = False
+
+    def change_voice_volume(self):
+        current_volume = self.ui_voice_pr.VolumeOfMicSlider.value() / 10.0
+        self.ui_voice_pr.label_6.setText(f"{current_volume}")
+        audio_send.volume_change(current_volume)
+
+    def change_headphones_volume(self):
+        current_volume = self.ui_voice_pr.VolumeOHeadphonesSlider.value() / 10.0
+        self.ui_voice_pr.VolimeOfHeadphonesLabel.setText(f"{current_volume}")
+        audio_send.headphones_volume_change(current_volume)
 
     def change_input_device(self):
         if audio_send.VoiceConnection.is_running:
@@ -125,3 +124,7 @@ class VoiceParamsClass(QtWidgets.QWidget):
         }
         with open('Resources/settings/settings_voice.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
+
+    """Геттеры настроек"""
+    def input_volume(self):
+        return self.input_volume()

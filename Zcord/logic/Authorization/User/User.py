@@ -4,7 +4,6 @@ from logic.Main.Chat.Controller.ChatController import ChatController
 from logic.Authorization.User.chat.UserChats import UserChats
 from logic.Authorization.User.friend.UserFriends import UserFriends
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
-from logic.Message.message_client import MainInterface
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 

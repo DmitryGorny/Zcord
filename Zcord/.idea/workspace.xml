@@ -4,17 +4,21 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Добавление работы с иконками (hide/show), появился баг с выходом из приложения">
-      <change beforePath="$PROJECT_DIR$/../.idea/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/../.idea/.gitignore" afterDir="false" />
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Сделал разделение потоков под каждого юзера">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParameters.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/Voice_params/VoiceParameters.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParamsClass.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/Voice_params/VoiceParamsClass.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/miniProfile/MiniProfile.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/miniProfile/MiniProfile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Message/message_server.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/VoiceRoom/Sound_Notifications.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/VoiceRoom/audio_send.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/VoiceRoom/audio_server.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/client/VoiceChat/voice_handler.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/VoiceChat/voice_handler.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/voice_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/voice_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/VoiceServer/VoiceServer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -73,11 +77,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\client\SettingController" />
+      <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Chat\View" />
       <recent name="C:\Users\alexa\PycharmProjects\Zcord\Zcord\logic\server\VoiceServer" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\View" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\client\Strats" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\server" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI\Helpers" />
     </key>
   </component>
   <component name="RunManager" selected="Python.VoiceServer">
@@ -344,7 +348,15 @@
       <option name="project" value="LOCAL" />
       <updated>1757068991294</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="Сделал разделение потоков под каждого юзера">
+      <option name="closed" value="true" />
+      <created>1759668768857</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1759668768858</updated>
+    </task>
+    <option name="localTasksCounter" value="18" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -387,7 +399,8 @@
     <MESSAGE value="Изменение класса Call_Voice на синглтон" />
     <MESSAGE value="Фикс старья пакетов last_seq" />
     <MESSAGE value="Рабочий старт звонка и выход из него" />
-    <option name="LAST_COMMIT_MESSAGE" value="Рабочий старт звонка и выход из него" />
+    <MESSAGE value="Сделал разделение потоков под каждого юзера" />
+    <option name="LAST_COMMIT_MESSAGE" value="Сделал разделение потоков под каждого юзера" />
   </component>
   <component name="XDebuggerManager">
     <watches-manager>

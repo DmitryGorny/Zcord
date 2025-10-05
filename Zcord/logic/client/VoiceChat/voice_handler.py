@@ -1,6 +1,8 @@
 import asyncio
 import struct
 import pyaudio
+import json
+import audioop
 import webrtcvad as wb
 
 RATE = 48000
@@ -17,7 +19,24 @@ HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
 
 
 class VoiceHandler:
+    output_volume = 1.0
+    input_volume = 1.0
+
     def __init__(self, chat_obj, room, user, flg_callback=lambda: True):
+        # подгрузка настроек
+        self.pa = pyaudio.PyAudio()
+        with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
+            self.loaded_data = json.load(file)
+        try:
+            self.mic_index = self.loaded_data["microphone_index"]
+            self.head_index = self.loaded_data["headphones_index"]
+            VoiceHandler.input_volume = self.loaded_data["volume_mic"] / 10
+            VoiceHandler.output_volume = self.loaded_data["volume_head"] / 10
+        except Exception as e:
+            print(e)
+            self.mic_index = int(self.pa.get_default_input_device_info()["index"])
+            self.head_index = int(self.pa.get_default_output_device_info()["index"])
+
         # объект чата
         self.user = user
         self.room = room
@@ -28,12 +47,12 @@ class VoiceHandler:
         self.is_mic_mute = False
         self.is_head_mute = False
         # Потоки
-        self.pa = pyaudio.PyAudio()
         self.in_stream = self.pa.open(format=FORMAT,
                                       channels=CHANNELS,
                                       rate=RATE,
                                       input=True,
-                                      frames_per_buffer=SAMPLES_PER_FRAME)
+                                      frames_per_buffer=SAMPLES_PER_FRAME,
+                                      input_device_index=self.mic_index)
 
         # Словари потоков и очередей по user_id
         self.out_streams: dict[int, pyaudio.Stream] = {}
@@ -57,19 +76,13 @@ class VoiceHandler:
             # TODO надо зафиксить data может быть пустой изначально если микро нет
             data = b"\x00" * len(data)
 
-        if not self.is_mic_mute and seq % 25 == 0:
-            self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
-
+        if not self.is_mic_mute:
+            data = self.adjust_volume(data, VoiceHandler.output_volume)
+            if seq % 10 == 0:
+                self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
         seq = (seq + 1) & 0xFFFFFFFF
         return pkt, seq
-
-    # селф мьюты
-    def mute_mic_self(self, flg):
-        self.is_mic_mute = flg
-
-    def mute_head_self(self, flg):
-        self.is_head_mute = flg
 
     async def audio_output_loop(self, user_id: int):
         queue = self.play_queues[user_id]
@@ -82,8 +95,7 @@ class VoiceHandler:
             except asyncio.TimeoutError:
                 print("таймаут")
                 continue
-            except TypeError:  # сюда выходит потому что в методе close voice клиента в play_queue сую None,
-                # но хотелось бы более понятный флажок
+            except TypeError:
                 break
 
             # если пришёл «старый» — пропускаем
@@ -100,10 +112,11 @@ class VoiceHandler:
             print(seq)
             try:
                 if not self.is_head_mute:
-                    if seq % 25 == 0:
+                    if seq % 10 == 0:
                         self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
                                                                       user_id)
 
+                    payload = self.adjust_volume(payload, VoiceHandler.output_volume)
                     out_stream.write(payload)
                 else:
                     continue
@@ -124,7 +137,8 @@ class VoiceHandler:
                                                      channels=CHANNELS,
                                                      rate=RATE,
                                                      output=True,
-                                                     frames_per_buffer=SAMPLES_PER_FRAME)
+                                                     frames_per_buffer=SAMPLES_PER_FRAME,
+                                                     output_device_index=self.head_index)
             self.play_tasks[user_id] = asyncio.create_task(self.audio_output_loop(user_id))
             print(f"[VoiceHandler] Создан поток воспроизведения для user_id={user_id}")
 
@@ -144,13 +158,27 @@ class VoiceHandler:
         else:
             self.last_seq_map[user_id] = None
 
+    def adjust_volume(self, payload, volume):
+        """Функция для регулирования громкости на значение volume"""
+        if volume == 1.0:
+            return payload
+        payload = audioop.mul(payload, 2, volume)  # Здесь 2 потому что paInt16
+        return payload
+
+    # селф мьюты
+    def mute_mic_self(self, flg):
+        self.is_mic_mute = flg
+
+    def mute_head_self(self, flg):
+        self.is_head_mute = flg
+
     def close(self):
         # Закрываем аудио потоки
         try:
             if self.in_stream and self.in_stream.is_active():
                 self.in_stream.stop_stream()
                 self.in_stream.close()
-        except Exception as e:
+        except Exception:
             pass
 
         # отменить все задачи воспроизведения

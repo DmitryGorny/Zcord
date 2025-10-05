@@ -1,8 +1,5 @@
-import sys
-from PyQt6.QtWidgets import QApplication, QMainWindow, QSlider, QWidget
-from PyQt6.QtCore import Qt
+from PyQt6.QtWidgets import QMainWindow
 from logic.Main.Parameters.Parameters import Ui_Parameters
-from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
 
 
 class ParamsWindow(QMainWindow):

@@ -10,7 +10,7 @@ from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.db_handler.db_handler import db_handler
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
-from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
+from logic.Main.Chat.View.Voice_params.VoiceParamsClass import VoiceParamsClass
 
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay

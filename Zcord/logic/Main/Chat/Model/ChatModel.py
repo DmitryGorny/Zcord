@@ -62,7 +62,7 @@ class ChatModel(QObject):
         """Запуск звонка - синхронный вызов"""
         success = self.call_manager.start_call(
             user=user,
-            host="26.36.207.48",
+            host="26.36.124.241",
             port=55559,
             room=chat_id
         )

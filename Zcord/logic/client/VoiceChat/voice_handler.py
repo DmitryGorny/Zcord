@@ -17,11 +17,13 @@ HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
 
 
 class VoiceHandler:
-    def __init__(self, chat_obj, room, user):
+    def __init__(self, chat_obj, room, user, flg_callback=lambda: True):
         # объект чата
         self.user = user
         self.room = room
         self.chat_obj = chat_obj
+        self._flg_callback = flg_callback  # ссылка на VoiceConnection.flg
+
         # флаги собственного мута
         self.is_mic_mute = False
         self.is_head_mute = False
@@ -32,23 +34,18 @@ class VoiceHandler:
                                       rate=RATE,
                                       input=True,
                                       frames_per_buffer=SAMPLES_PER_FRAME)
-        self.out_stream = self.pa.open(format=FORMAT,
-                                       channels=CHANNELS,
-                                       rate=RATE,
-                                       output=True,
-                                       frames_per_buffer=SAMPLES_PER_FRAME)
 
-        # очень маленький «джиттер-буфер» по последовательности (опционально)
-        self.last_seq = None
-        self.play_queue = asyncio.Queue(maxsize=5)
+        # Словари потоков и очередей по user_id
+        self.out_streams: dict[int, pyaudio.Stream] = {}
+        self.play_queues: dict[int, asyncio.Queue] = {}
+        self.play_tasks: dict[int, asyncio.Task] = {}
+        self.last_seq_map: dict[int, int | None] = {}
 
         self.vad = wb.Vad()
         self.vad.set_mode(2)
-        self.vad_counter = 0
 
         self.sad = wb.Vad()
         self.sad.set_mode(2)
-        self.sad_counter = 0
 
     def audio_input_thread(self, seq):
         # читаем микрофон и шлём UDP
@@ -60,10 +57,8 @@ class VoiceHandler:
             # TODO надо зафиксить data может быть пустой изначально если микро нет
             data = b"\x00" * len(data)
 
-        self.vad_counter += 1
-        if self.vad_counter >= 25:
+        if not self.is_mic_mute and seq % 25 == 0:
             self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
-            self.vad_counter = 0
 
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
         seq = (seq + 1) & 0xFFFFFFFF
@@ -76,20 +71,14 @@ class VoiceHandler:
     def mute_head_self(self, flg):
         self.is_head_mute = flg
 
-    @property
-    def get_last_seq(self):
-        return self.last_seq
+    async def audio_output_loop(self, user_id: int):
+        queue = self.play_queues[user_id]
+        out_stream = self.out_streams[user_id]
 
-    @get_last_seq.setter
-    def get_last_seq(self, last_seq):
-        self.last_seq = last_seq
-
-    async def audio_output_loop(self, flg):
-        self.last_seq = None
         # минимальная «сортировка» по seq: берём всегда самое свежее, старьё выбрасываем
-        while flg():
+        while self._flg_callback():
             try:
-                seq, payload = await asyncio.wait_for(self.play_queue.get(), timeout=1.0)
+                seq, payload = await asyncio.wait_for(queue.get(), timeout=1.0)
             except asyncio.TimeoutError:
                 print("таймаут")
                 continue
@@ -98,47 +87,65 @@ class VoiceHandler:
                 break
 
             # если пришёл «старый» — пропускаем
-            if self.last_seq is not None:
-                # учтём переполнение uint32
-                diff = (seq - self.last_seq) & 0xFFFFFFFF
-                if diff > 0x80000000:
-                    # это «очень старый» пакет — дроп
+            # анти-джиттер фильтр
+            last_seq = self.last_seq_map.get(user_id)
+            if last_seq is not None:
+                diff = (seq - last_seq) & 0xFFFFFFFF
+                if diff == 0 or diff > 0x80000000:
                     print("дроп")
                     continue
-                if diff == 0:
-                    print("дроп")
-                    continue
-            else:
-                print(f"self.last_seq is None")
-            self.last_seq = seq
-            print(self.last_seq)
+
+            # обновляем
+            self.last_seq_map[user_id] = seq
+            print(seq)
             try:
                 if not self.is_head_mute:
-                    """self.sad_counter += 1
-                    if self.sad_counter >= 25:
+                    if seq % 25 == 0:
                         self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
                                                                       user_id)
-                        self.sad_counter = 0"""
 
-                    self.out_stream.write(payload)
+                    out_stream.write(payload)
                 else:
                     continue
             except Exception:
                 pass
 
-        print("audio_output_loop завершился")
+        print(f"[VoiceHandler] Завершён поток user_id={user_id}")
+        self.last_seq_map[user_id] = None
 
-    async def play_enqueue(self, seq, payload):
+    async def play_enqueue(self, user_id: int, seq: int, payload: bytes):
+        """Добавляем пакет конкретного пользователя в очередь"""
+        if not self._flg_callback():
+            return
+
+        if user_id not in self.play_queues:
+            self.play_queues[user_id] = asyncio.Queue(maxsize=5)
+            self.out_streams[user_id] = self.pa.open(format=FORMAT,
+                                                     channels=CHANNELS,
+                                                     rate=RATE,
+                                                     output=True,
+                                                     frames_per_buffer=SAMPLES_PER_FRAME)
+            self.play_tasks[user_id] = asyncio.create_task(self.audio_output_loop(user_id))
+            print(f"[VoiceHandler] Создан поток воспроизведения для user_id={user_id}")
+
         # если очередь забита — не ждём (минимальная задержка важнее)
-        if self.play_queue.full():
+        queue = self.play_queues[user_id]
+        if queue.full():
             try:
-                _ = self.play_queue.get_nowait()
+                _ = queue.get_nowait()
             except Exception:
                 pass
-        await self.play_queue.put((seq, payload))
+        await queue.put((seq, payload))
+
+    def reset_last_seq(self, user_id: int | None = None):
+        """Сбросить seq для конкретного пользователя или для всех."""
+        if user_id is None:
+            self.last_seq_map.clear()
+        else:
+            self.last_seq_map[user_id] = None
 
     def close(self):
-        # 4. Закрываем аудио потоки
+        # Закрываем аудио потоки
         try:
             if self.in_stream and self.in_stream.is_active():
                 self.in_stream.stop_stream()
@@ -146,14 +153,30 @@ class VoiceHandler:
         except Exception as e:
             pass
 
-        try:
-            if self.out_stream and self.out_stream.is_active():
-                self.out_stream.stop_stream()
-                self.out_stream.close()
-        except Exception as e:
-            pass
+        # отменить все задачи воспроизведения
+        for user_id, task in self.play_tasks.items():
+            if not task.done():
+                task.cancel()
 
-        # 7. Terminate PyAudio (только если больше нет потоков)
+        # очистить очереди
+        for q in self.play_queues.values():
+            try:
+                while not q.empty():
+                    q.get_nowait()
+            except Exception:
+                pass
+
+        # закрываем все output stream’ы
+        for user_id, stream in self.out_streams.items():
+            try:
+                if stream.is_active():
+                    stream.stop_stream()
+                stream.close()
+                print(f"[VoiceHandler] Закрыт out_stream user_id={user_id}")
+            except Exception:
+                pass
+
+        # Terminate PyAudio (только если больше нет потоков)
         try:
             self.pa.terminate()
         except Exception as e:

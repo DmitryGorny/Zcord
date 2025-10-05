@@ -58,12 +58,11 @@ class VoiceConnection(IConnection, BaseConnection):
                 line = await self.reader.readline()
                 if not line:
                     print("[Client] TCP соединение потеряно (EOF)")
-                    print("Сейчас клиент не сможет увидеть все сервисные сообщения (например мута)")
 
                     break
                 msg = json.loads(line.decode("utf-8"))
                 t = msg.get("t")
-                print(msg)
+
                 if t == "peer":
                     # сервер может прислать список пиров
                     peers = msg.get("client", [])
@@ -71,7 +70,7 @@ class VoiceConnection(IConnection, BaseConnection):
                         # для простоты — берём первого (или последовательно всех)
                         p = peers[0]
                         self.peer = (p["ip"], int(p["udp_port"]))
-                        self.voice_handler.get_last_seq = None
+                        self.voice_handler.reset_last_seq(p["user_id"])
                         print(f"[Client] peer: {self.peer}")
                         self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
 
@@ -121,7 +120,7 @@ class VoiceConnection(IConnection, BaseConnection):
                 if typ == PKT_AUDIO:
                     payload = data[HDR_STRUCT.size:]
                     # чуть-чуть упорядочим (без жёсткого ожидания)
-                    await self.voice_handler.play_enqueue(seq, payload)
+                    await self.voice_handler.play_enqueue(user_id, seq, payload)
 
     def _audio_input_thread(self):
         # читаем микрофон и шлём UDP
@@ -147,13 +146,6 @@ class VoiceConnection(IConnection, BaseConnection):
 
     async def close(self) -> None:
         self.flg = False  # циклы сами выскочат
-
-        # подкидываем "сигнал завершения" для очереди вывода
-        try:
-            if self.voice_handler and hasattr(self.voice_handler, "play_queue"):
-                self.voice_handler.play_queue.put_nowait(None)
-        except:
-            pass
 
         # сообщение "leave"
         try:
@@ -210,14 +202,13 @@ class VoiceConnection(IConnection, BaseConnection):
         await self.register()
 
         # создаём аудио потоки
-        self.voice_handler = VoiceHandler(self.chat_obj, self.room, self.user)
+        self.voice_handler = VoiceHandler(self.chat_obj, self.room, self.user, flg_callback=lambda: self.flg)
 
         # ждём, пока узнаем peer
         while self.peer is None:
             await asyncio.sleep(0.05)
 
         # стартуем прием/воспроизведение
-        self.out_task = asyncio.create_task(self.voice_handler.audio_output_loop(lambda: self.flg))
         self.udp_recv_task = asyncio.create_task(self.recv_udp())
 
         # стартуем поток отправки микрофона
@@ -226,7 +217,7 @@ class VoiceConnection(IConnection, BaseConnection):
 
         try:
             await asyncio.wait(
-                [self.tcp_recv_task, self.udp_recv_task, self.out_task],
+                [self.tcp_recv_task, self.udp_recv_task],
                 return_when=asyncio.FIRST_COMPLETED
             )
         except asyncio.CancelledError:

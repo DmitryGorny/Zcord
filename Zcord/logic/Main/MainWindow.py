@@ -156,7 +156,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
         self.__user.change_chat(chat.id)
 
-        # chat.chat_ui.MAIN_ChatLayout.setContentsMargins(0, 0, 0, 0)
         self.ui.stackedWidget_2.setCurrentWidget(chat.chat_ui)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
@@ -226,7 +225,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def delete_DM_chat(self, chat_id: str):
         chat_gui = list(filter(lambda x: str(chat_id) == x.id, self._friendsChatOptions))[0]
         self._friendsChatOptions.remove(chat_gui)
-        if self.ui.stackedWidget_2.currentWidget() == chat_gui:
+        if self.ui.stackedWidget_2.currentWidget() == chat_gui.chat_ui:
             self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
         return chat_gui
 

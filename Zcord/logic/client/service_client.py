@@ -76,7 +76,6 @@ class ServiceConnection(IConnection, BaseConnection):
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
-                    print(msg)
                     strategy = self._choose_strategy.get_strategy(msg["message_type"], self, self._user.getNickName())
                     strategy.execute(msg)
                 continue
@@ -84,7 +83,7 @@ class ServiceConnection(IConnection, BaseConnection):
                 if not self._flg:
                     print("Сокет закрылся корректно")
                 else:
-                    print(e, 222)
+                    print(e)
             except ConnectionResetError:
                 print("Ошибка, конец соединения")
                 self._service_tcp.close()

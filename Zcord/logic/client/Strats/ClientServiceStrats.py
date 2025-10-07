@@ -51,19 +51,20 @@ class UserStatusReceive(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         sender_status = msg["user-status"]
         sender_nickname = msg["nickname"]
-        reciever_nickname = self.service_connection_pointer.user.getNickName()
+        receiver_nickname = self.service_connection_pointer.user.getNickName()
 
         STATUS_COLORS = {
-            "__USER-ONLINE__": "#008000",
-            "__USER-DISTRUB-BLOCK__": "red",
-            "__USER-HIDDEN__": "grey",
-            "__USER-AFK__": "yellow"
+            "USER-ONLINE": "#008000",
+            "USER-DISTRUB-BLOCK": "red",
+            "USER-HIDDEN": "grey",
+            "USER-AFK": "yellow"
         }
 
         color = STATUS_COLORS.get(sender_status)
-        target = "self" if sender_nickname == reciever_nickname else "friend"
-        args = ([target, color] + ([sender_nickname] if target == "friend" else []))
-        self.service_connection_pointer.reciever.dynamicInterfaceUpdate.emit("CHANGE-ACTIVITY", (args))
+        target = "self" if sender_nickname == receiver_nickname else "friend"
+        self.service_connection_pointer.call_main_dynamic_update("CHANGE-ACTIVITY", {'target': target,
+                                                                                     'color': color,
+                                                                                     'sender_nickname': sender_nickname})
 
 
 class SendFirstInfo(ClientsStrategies):

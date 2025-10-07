@@ -5,6 +5,8 @@ from .ChangeStatusGUI import Ui_Menu
 from PyQt6.QtGui import QColor, QPainter, QBrush
 from logic.Main.ActivitySatus.Activity import Online, Hidden, DisturbBlock, AFK, Status
 from logic.Message.message_client import MessageConnection
+from ...client.ClientConnections.ClientConnections import ClientConnections
+
 
 def singleton(cls):
     instances = {}
@@ -17,7 +19,7 @@ def singleton(cls):
     return get_instance
 
 @singleton
-class MiniProfile(QtWidgets.QDialog):
+class MiniProfile(QtWidgets.QDialog): #TODO: Сделать MVC
     def __init__(self, centerOfApp, user):
         super().__init__()
 
@@ -153,28 +155,28 @@ class StatusWidget(QtWidgets.QMenu):
 
     def clicked(self, actvity_status):
         if isinstance(actvity_status, Online):
-            MessageConnection.send_message("__USER-ONLINE__", self._user.getNickName())
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-ONLINE'})
             self.miniProfile.change_activity_color("#008000")
             self.miniProfile.change_status_text("В сети")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, DisturbBlock):
-            MessageConnection.send_message("__USER-DISTRUB-BLOCK__", self._user.getNickName())
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-DISTRUB-BLOCK'})
             self.miniProfile.change_activity_color("red")
             self.miniProfile.change_status_text("Не беспокоить")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, Hidden):
-            MessageConnection.send_message("__USER-HIDDEN__", self._user.getNickName())
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-HIDDEN'})
             self.miniProfile.change_activity_color("grey")
             self.miniProfile.change_status_text("Невидимка")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, AFK):
-            MessageConnection.send_message("__USER-AFK__", self._user.getNickName())
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-AFK'})
             self.miniProfile.change_activity_color("yellow")
             self.miniProfile.change_status_text("Не активен")
             self._user.status = actvity_status

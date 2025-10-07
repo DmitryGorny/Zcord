@@ -160,7 +160,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.ui.stackedWidget_2.setCurrentWidget(chat.chat_ui)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
-        friend_ChatInList = list(filter(lambda x: x.chat.getNickName() == friendNick, self._friendsChatOptions))[0]
+        friend_ChatInList = list(filter(lambda x: x.username == friendNick, self._friendsChatOptions))[0]
 
         friend_ChatInList.changeIndicatorColor(color)
 
@@ -323,20 +323,16 @@ class MainWindow(QtWidgets.QMainWindow):
             case "DECLINE-REQUEST-SELF":
                 self._friends.remove_your_request(args['receiver_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
-            case "UPDATE-CHATS":
-                chat = self.addChatToList(args[0], args[1])
-                self.updateChatList(chat)
-                return chat
             case "DELETE-FRIEND":
                 chat = self.delete_DM_chat(args['chat_id'])
                 self.deleteChatFromUI(chat)
             case "UPDATE-MESSAGE-NUMBER":
                 self.unseenMessages(chat_id=args['chat_id'], newValue=args['message_number'])
             case "CHANGE-ACTIVITY":
-                if args[0] == "self":
-                    self.change_self_activity_indicator_color(args[1])
-                elif args[0] == "friend":
-                    self.change_friend_activity_indeicator_color(args[2], args[1])
+                if args['target'] == "self":
+                    self.change_self_activity_indicator_color(args['color'])
+                elif args['target'] == "friend":
+                    self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
 

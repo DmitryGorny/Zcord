@@ -69,7 +69,6 @@ class Server:
                     continue
 
                 for msg in arr:
-                    print(msg)
                     message = msg["msg_type"]
                     strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
                     if isinstance(strategy, UserInfoStrat):
@@ -97,29 +96,6 @@ class Server:
             except ConnectionResetError:
                 writer.close()
                 break
-
-    # TODO: Переделать
-    async def send_status(self, nickname: str) -> None:
-        for friend in Server.clients[nickname].friends.keys():
-            if friend not in Server.clients:
-                continue
-
-            friend_obj = Server.clients[friend]
-
-            await friend_obj.send_message('USER-STATUS', {
-                "user-status": "__USER-ONLINE__",
-                "nickname": nickname,
-            })
-
-    async def get_friends_statuses(self, nickname: str) -> None:
-        for friend in Server.clients[nickname].friends.keys():
-            if friend not in Server.clients:
-                continue
-
-            await Server.clients[nickname].send_message('USER-STATUS', {
-                "user-status": "__USER-ONLINE__",
-                "nickname": friend,
-            })
 
 
 async def main():

@@ -83,6 +83,18 @@ class EndSessionStrategy(ServiceStrategy):
 
     async def execute(self, msg: dict) -> None:
         user_id = str(msg["user_id"])
+        for chat_id in self._server_pointer.clients[user_id].friends.keys():
+            friend = self._server_pointer.clients[user_id].friends[chat_id]
+            if friend.id not in self._server_pointer.clients:
+                continue
+
+            friend_obj = self._server_pointer.clients[friend.id]
+
+            await friend_obj.send_message('USER-STATUS', {
+                "user-status": "USER-HIDDEN",
+                "nickname": self._server_pointer.clients[user_id].nick,
+            })
+
         if not self._server_pointer.clients[user_id].writer.is_closing():
             self._server_pointer.clients[user_id].writer.close()
             await self._server_pointer.clients[user_id].writer.wait_closed()
@@ -145,6 +157,26 @@ class UserInfoStrat(ServiceStrategy):
                                                "serialize_2": self._server_pointer.serialize({'user_id': str(user_id),
                                                                                               "IP": client_ip[
                                                                                                   0]}).decode('utf-8')})
+
+        for chat_id in self._server_pointer.clients[id].friends.keys():
+            friend = self._server_pointer.clients[id].friends[chat_id]
+            if friend.id not in self._server_pointer.clients:
+                continue
+
+            friend_obj = self._server_pointer.clients[friend.id]
+
+            await friend_obj.send_message('USER-STATUS', {
+                "user-status": "USER-ONLINE",
+                "nickname": nickname,
+            })
+
+            status = self._server_pointer.clients[friend.id].status
+            friend_status = 'USER-ONLINE' if status is None or isinstance(status, list) else status
+
+            await self._server_pointer.clients[id].send_message('USER-STATUS', {
+                "user-status": friend_status,
+                "nickname": friend_obj.nick,
+            })
 
 
 class SendFriendRequest(ServiceStrategy):
@@ -328,6 +360,36 @@ class DeleteFriendRequestStrat(ServiceStrategy):
                                                                     })
 
         await self._sender_to_msg_server_func('DELETE-FRIEND', {'chat_id': friendship['id']})
+
+
+class UserStatusStrat(ServiceStrategy):
+    command_name = "USER-STATUS"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:  # Дописать отсылку сообщения на месседж сервер
+        user_status: str = msg['user-status']
+        user_id: str = str(msg['user_id'])
+        nickname: str = msg['nickname']
+
+        self._server_pointer.clients[user_id].status = user_status
+        await self._server_pointer.clients[user_id].send_message('USER-STATUS', {
+            "user-status": user_status,
+            "nickname": nickname,
+        })
+
+        for chat_id in self._server_pointer.clients[user_id].friends.keys():
+            friend = self._server_pointer.clients[user_id].friends[chat_id]
+            if friend.id not in self._server_pointer.clients:
+                continue
+
+            friend_obj = self._server_pointer.clients[friend.id]
+
+            await friend_obj.send_message('USER-STATUS', {
+                "user-status": user_status,
+                "nickname": nickname,
+            })
 
 
 class CallNotificationStrategy(ServiceStrategy):

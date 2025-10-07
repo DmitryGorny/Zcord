@@ -76,6 +76,7 @@ class ServiceConnection(IConnection, BaseConnection):
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
+                    print(msg)
                     strategy = self._choose_strategy.get_strategy(msg["message_type"], self, self._user.getNickName())
                     strategy.execute(msg)
                 continue

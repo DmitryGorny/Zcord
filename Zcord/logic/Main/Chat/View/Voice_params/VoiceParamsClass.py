@@ -1,15 +1,14 @@
 from logic.Main.Chat.View.Voice_params.VoiceParameters import Ui_VoiceParams
+from logic.client.SettingController.settings_controller import VoiceSettingsController
 from PyQt6 import QtWidgets, QtCore
 import threading
 import pyaudio
+import audioop
 import json
 
 
 class VoiceParamsClass(QtWidgets.QWidget):
-    changer_input = QtCore.pyqtSignal(int)
-    changer_output = QtCore.pyqtSignal(int)
-
-    def __init__(self):
+    def __init__(self,):
         super(VoiceParamsClass, self).__init__()
 
         self.ui_voice_pr = Ui_VoiceParams()
@@ -28,22 +27,16 @@ class VoiceParamsClass(QtWidgets.QWidget):
 
         self.p = pyaudio.PyAudio()
 
-        with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
-            self.loaded_data = json.load(file)
-        try:
-            self.mic_index = self.loaded_data["microphone_index"]
-            self.head_index = self.loaded_data["headphones_index"]
-            self.volume_mic_settings = self.loaded_data["volume_mic"]
-            self.volume_head_settings = self.loaded_data["volume_head"]
+        self.mic_index = VoiceSettingsController().current_input_device()
+        self.head_index = VoiceSettingsController().current_output_device()
 
-            self.ui_voice_pr.VolumeOfMicSlider.setValue(self.volume_mic_settings)
-            self.ui_voice_pr.VolumeOHeadphonesSlider.setValue(self.volume_head_settings)
+        try:
+            self.ui_voice_pr.VolumeOfMicSlider.setValue(VoiceSettingsController().input_volume())
+            self.ui_voice_pr.VolumeOHeadphonesSlider.setValue(VoiceSettingsController().output_volume())
             self.change_voice_volume()
             self.change_headphones_volume()
         except Exception as e:
             print(e)
-            self.mic_index = -1
-            self.head_index = -1
 
         self.default_mic = self.p.get_default_input_device_info()['index']
         self.default_head = self.p.get_default_output_device_info()['index']
@@ -74,7 +67,6 @@ class VoiceParamsClass(QtWidgets.QWidget):
         self.is_check_volume = False
         self.is_noise_down = False
         self.thread = None
-        self.thread1 = None
 
     """def call_noise_profile(self):
         if not self.is_noise_down:
@@ -85,34 +77,20 @@ class VoiceParamsClass(QtWidgets.QWidget):
             audio_send.VoiceConnection.noise_profile = None
             self.is_noise_down = False"""
 
-    def check_mic_volume(self):
-        if not self.is_check_volume:
-            audio_send.VoiceConnection.voice_checker = True
-            self.thread = threading.Thread(target=audio_send.activity_detection, args=(self.ui_voice_pr,))
-            self.thread.start()
-            self.is_check_volume = True
-        else:
-            audio_send.VoiceConnection.voice_checker = False
-            self.is_check_volume = False
-
     def change_voice_volume(self):
         current_volume = self.ui_voice_pr.VolumeOfMicSlider.value() / 10.0
         self.ui_voice_pr.label_6.setText(f"{current_volume}")
-        audio_send.volume_change(current_volume)
+        self.save_settings()
 
     def change_headphones_volume(self):
         current_volume = self.ui_voice_pr.VolumeOHeadphonesSlider.value() / 10.0
         self.ui_voice_pr.VolimeOfHeadphonesLabel.setText(f"{current_volume}")
-        audio_send.headphones_volume_change(current_volume)
+        self.save_settings()
 
     def change_input_device(self):
-        if audio_send.VoiceConnection.is_running:
-            self.changer_input.emit(self.ui_voice_pr.ChooseMicroBox.currentData())
         self.save_settings()
 
     def change_output_device(self):
-        if audio_send.VoiceConnection.is_running:
-            self.changer_output.emit(self.ui_voice_pr.ChooseHeadPhonesBox.currentData())
         self.save_settings()
 
     def save_settings(self):
@@ -125,6 +103,72 @@ class VoiceParamsClass(QtWidgets.QWidget):
         with open('Resources/settings/settings_voice.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
 
-    """Геттеры настроек"""
-    def input_volume(self):
-        return self.input_volume()
+    def check_mic_volume(self):
+        """Включает или выключает тест микрофона"""
+        if not self.is_check_volume:
+            self.is_check_volume = True
+            self.ui_voice_pr.pushButton_2.setText("Остановка")
+            self.thread = threading.Thread(target=self._mic_test_loop, daemon=True)
+            self.thread.start()
+        else:
+            self.is_check_volume = False
+            self.ui_voice_pr.pushButton_2.setText("Проверка")
+
+    def _mic_test_loop(self):
+        """Поток для тестирования микрофона"""
+        p = pyaudio.PyAudio()
+        try:
+            stream = p.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=48000,
+                input=True,
+                frames_per_buffer=960,
+                input_device_index=VoiceSettingsController().current_input_device()
+            )
+            out_stream = p.open(
+                format=pyaudio.paInt16,
+                channels=1,
+                rate=48000,
+                output=True,
+                frames_per_buffer=960,
+                output_device_index=VoiceSettingsController().current_output_device()
+            )
+        except Exception as e:
+            print(f"[MicTest] Ошибка открытия микрофона: {e}")
+            self.is_check_volume = False
+            return
+
+        print(f"[MicTest] Тест микрофона запущен")
+
+        while self.is_check_volume:
+            try:
+                data = stream.read(960, exception_on_overflow=False)
+                data = audioop.mul(data, 2, VoiceSettingsController().input_volume())
+                rms = audioop.rms(data, 2)
+                volume_percent = min(100, int(rms / 50))
+                out_stream.write(data)
+                QtCore.QMetaObject.invokeMethod(
+                    self.ui_voice_pr.VolumeCheckWithNoiseReduceSlider,
+                    "setValue",
+                    QtCore.Qt.ConnectionType.QueuedConnection,
+                    QtCore.Q_ARG(int, volume_percent)
+                )
+            except Exception:
+                pass
+
+        try:
+            stream.stop_stream()
+            stream.close()
+            p.terminate()
+        except Exception:
+            pass
+
+        QtCore.QMetaObject.invokeMethod(
+            self.ui_voice_pr.VolumeCheckWithNoiseReduceSlider,
+            "setValue",
+            QtCore.Qt.ConnectionType.QueuedConnection,
+            QtCore.Q_ARG(int, 0)
+        )
+
+        print("[MicTest] Тест микрофона остановлен.")

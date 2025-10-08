@@ -1,9 +1,9 @@
 import asyncio
 import struct
 import pyaudio
-import json
 import audioop
 import webrtcvad as wb
+from logic.client.SettingController.settings_controller import VoiceSettingsController
 
 RATE = 48000
 CHANNELS = 1
@@ -19,23 +19,15 @@ HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
 
 
 class VoiceHandler:
-    output_volume = 1.0
-    input_volume = 1.0
-
     def __init__(self, chat_obj, room, user, flg_callback=lambda: True):
         # подгрузка настроек
         self.pa = pyaudio.PyAudio()
-        with open('Resources/settings/settings_voice.json', 'r', encoding='utf-8') as file:
-            self.loaded_data = json.load(file)
-        try:
-            self.mic_index = self.loaded_data["microphone_index"]
-            self.head_index = self.loaded_data["headphones_index"]
-            VoiceHandler.input_volume = self.loaded_data["volume_mic"] / 10
-            VoiceHandler.output_volume = self.loaded_data["volume_head"] / 10
-        except Exception as e:
-            print(e)
-            self.mic_index = int(self.pa.get_default_input_device_info()["index"])
-            self.head_index = int(self.pa.get_default_output_device_info()["index"])
+        settings = VoiceSettingsController()
+        settings.settingsChanged.connect(lambda data: asyncio.create_task(self.on_settings_changed(data)))
+
+        # Новое: флаги и блокировка для безопасной перезагрузки
+        self.device_reload_required = False
+        self.reload_lock = asyncio.Lock()
 
         # объект чата
         self.user = user
@@ -52,7 +44,7 @@ class VoiceHandler:
                                       rate=RATE,
                                       input=True,
                                       frames_per_buffer=SAMPLES_PER_FRAME,
-                                      input_device_index=self.mic_index)
+                                      input_device_index=VoiceSettingsController().current_input_device())
 
         # Словари потоков и очередей по user_id
         self.out_streams: dict[int, pyaudio.Stream] = {}
@@ -77,7 +69,7 @@ class VoiceHandler:
             data = b"\x00" * len(data)
 
         if not self.is_mic_mute:
-            data = self.adjust_volume(data, VoiceHandler.output_volume)
+            data = self.adjust_volume(data, VoiceSettingsController().input_volume())
             if seq % 10 == 0:
                 self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
@@ -116,7 +108,7 @@ class VoiceHandler:
                         self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
                                                                       user_id)
 
-                    payload = self.adjust_volume(payload, VoiceHandler.output_volume)
+                    payload = self.adjust_volume(payload, VoiceSettingsController().output_volume())
                     out_stream.write(payload)
                 else:
                     continue
@@ -138,7 +130,7 @@ class VoiceHandler:
                                                      rate=RATE,
                                                      output=True,
                                                      frames_per_buffer=SAMPLES_PER_FRAME,
-                                                     output_device_index=self.head_index)
+                                                     output_device_index=VoiceSettingsController().current_output_device())
             self.play_tasks[user_id] = asyncio.create_task(self.audio_output_loop(user_id))
             print(f"[VoiceHandler] Создан поток воспроизведения для user_id={user_id}")
 
@@ -209,3 +201,52 @@ class VoiceHandler:
             self.pa.terminate()
         except Exception as e:
             pass
+
+    async def on_settings_changed(self, data):
+        """Реагирует на изменения JSON-настроек (устройства/громкость)."""
+        print("[VoiceHandler] Получено обновление настроек — перезапуск устройств...")
+        self.device_reload_required = True
+        await self.reload_audio_devices(data)
+        self.device_reload_required = False
+
+    async def reload_audio_devices(self, new_settings: dict):
+        async with self.reload_lock:
+            print("[VoiceHandler] Перезапуск аудиоустройств...")
+            try:
+                try:
+                    if self.in_stream and self.in_stream.is_active():
+                        self.in_stream.stop_stream()
+                    self.in_stream.close()
+                except Exception:
+                    pass
+
+                self.in_stream = self.pa.open(
+                    format=FORMAT,
+                    channels=CHANNELS,
+                    rate=RATE,
+                    input=True,
+                    frames_per_buffer=SAMPLES_PER_FRAME,
+                    input_device_index=new_settings.get("microphone_index", -1)
+                )
+
+                for user_id, stream in list(self.out_streams.items()):
+                    try:
+                        if stream.is_active():
+                            stream.stop_stream()
+                        stream.close()
+                    except Exception:
+                        pass
+
+                    self.out_streams[user_id] = self.pa.open(
+                        format=FORMAT,
+                        channels=CHANNELS,
+                        rate=RATE,
+                        output=True,
+                        frames_per_buffer=SAMPLES_PER_FRAME,
+                        output_device_index=new_settings.get("headphones_index", -1)
+                    )
+
+                print("[VoiceHandler] Потоки успешно перезапущены.")
+            except Exception as e:
+                print("[VoiceHandler] Ошибка при перезапуске устройств:", e)
+

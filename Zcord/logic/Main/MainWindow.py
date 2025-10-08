@@ -7,6 +7,7 @@ from logic.Authorization.User.User import User
 from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
 from logic.client.ClientConnections.ClientConnections import ClientConnections
+from logic.client.SettingController.settings_controller import VoiceSettingsController
 from logic.db_handler.db_handler import db_handler
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
@@ -19,17 +20,17 @@ from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
 
 class MainWindow(QtWidgets.QMainWindow):
     dynamic_update = QtCore.pyqtSignal(str, tuple)
+
     def __init__(self, user):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
-        self.voicepr = VoiceParamsClass()
-
         #Сигналы
         self.dynamic_update.connect(self.dynamic_update_slot)
         #Сигналы
 
+        self.voicepr = VoiceParamsClass()
         self.parameters = ParamsWindow(self.ui, self.voicepr)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)

@@ -6,10 +6,12 @@
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/Main.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Main.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/MainWindowGUI.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_server.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/client/service_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/service_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/miniProfile/MiniProfile.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/miniProfile/MiniProfile.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -68,11 +70,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\TitleBar" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendsList\View" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendsList\View\FriendWidget" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View\OthersRequest" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View\YourRequest" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View" />
     </key>
   </component>
   <component name="RunManager" selected="Python.zcord">

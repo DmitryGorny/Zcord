@@ -4,7 +4,6 @@ from .MiniProfileGUI import Ui_Form
 from .ChangeStatusGUI import Ui_Menu
 from PyQt6.QtGui import QColor, QPainter, QBrush
 from logic.Main.ActivitySatus.Activity import Online, Hidden, DisturbBlock, AFK, Status
-from logic.Message.message_client import MessageConnection
 from ...client.ClientConnections.ClientConnections import ClientConnections
 
 

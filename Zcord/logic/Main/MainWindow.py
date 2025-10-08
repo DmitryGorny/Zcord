@@ -4,7 +4,7 @@ from typing import List
 from PyQt6 import QtWidgets, QtCore
 
 from logic.Authorization.User.User import User
-from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
+from logic.Main.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
@@ -13,15 +13,23 @@ from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
+from qframelesswindow import FramelessWindow
+from logic.Main.TitleBar.TitleBar import CustomTitleBar
 
 
-class MainWindow(QtWidgets.QMainWindow):
+class MainWindow(FramelessWindow):
     dynamic_update = QtCore.pyqtSignal(str, dict)
 
     def __init__(self, user):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
+        self.setResizeEnabled(True)
+
+        self._title_bar = CustomTitleBar(self)
+        self.setTitleBar(self._title_bar)
+
+        self.setWindowTitle("Zcord")
 
         self.voicepr = VoiceParamsClass()
 
@@ -39,8 +47,6 @@ class MainWindow(QtWidgets.QMainWindow):
         # Параметры
         self.parameters = ParamsWindow(self.ui, self.voicepr)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
-
         self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
         # Лого
@@ -53,9 +59,6 @@ class MainWindow(QtWidgets.QMainWindow):
         self.WidgetForScroll = QtWidgets.QWidget()
 
         # Конектим сигналы к кнопкам всем селом
-        self.ui.close.clicked.connect(self.closeWindow)
-        self.ui.minimize.clicked.connect(self.on_click_hide)
-        self.ui.WindowMode.clicked.connect(self.on_click_fullscreenWindowMode)
         self.ui.AddFriends.clicked.connect(self.add_friend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
         self.ui.SettingsButton.clicked.connect(self.show_parameters)
@@ -64,7 +67,7 @@ class MainWindow(QtWidgets.QMainWindow):
         # Вызов клиента
         self.call_chat()
 
-        self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
+
 
         self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
@@ -231,23 +234,6 @@ class MainWindow(QtWidgets.QMainWindow):
 
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
 
-    def mousePressEvent(self, event):
-        self.start = self.mapToGlobal(event.pos())
-        self.pressing = True
-
-    def MoveWindow(self, event):
-        if self.isMaximized():
-            return
-
-        if self.pressing:
-            self.end = self.mapToGlobal(event.pos())
-            movement = self.end - self.start
-            self.move(self.mapToGlobal(movement))
-            self.start = self.end
-
-    def mouseReleaseEvent(self, event):
-        self.pressing = False
-
     def showProfile(self):
         self.miniProfile = MiniProfile(QtWidgets.QApplication.primaryScreen().geometry().center(), self.__user)
         self.miniProfile.setParent(self.ui.Main)
@@ -343,21 +329,10 @@ class MainWindow(QtWidgets.QMainWindow):
                                     """
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
 
-    def closeWindow(self):
-        # with open("Resources/frineds/friends.json", "w") as Frineds_json:
-        # Frineds_json.write(json.dumps(self.__friends))
-        self.close()
+    def close(self):
+        super(MainWindow, self).close()
         ClientConnections.close()
 
-    def on_click_hide(self):
-        self.showMinimized()
-
-    def on_click_fullscreenWindowMode(self):
-        if self.isMaximized():
-            self.showNormal()
-        else:
-            self.showMaximized()
-        self.updateOverlayGeometry()
 
     def updateOverlayGeometry(self):
         if hasattr(self, 'overlay'):
@@ -382,6 +357,4 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.updateMiniProfilePosition()
 
-    def resizeEvent(self, event):
-        self.updateWindowMargins()
-        super().resizeEvent(event)
+

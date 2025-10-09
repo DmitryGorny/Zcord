@@ -5,13 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/views.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/.name" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/Main.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Main.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/MainWindowGUI.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/Friends/Friends.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Friends/Friends.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/MainWindow.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/MainWindow.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/FriendRequestsListController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/FriendRequestsListController.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/View/FriendRequestsListView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/View/FriendRequestsListView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/View/OthersRequest/OthersRequest.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/View/OthersRequest/OthersRequest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/View/YourRequest/YourRequest.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendRequestsList/View/YourRequest/YourRequest.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendsQt.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendsQt.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Friends/FriendsWidget.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Friends/FriendsWidget.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/miniProfile/MiniProfile.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/miniProfile/MiniProfile.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindowGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindowGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/message_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Client/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Client/Client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -70,11 +81,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\TitleBar" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendsList\View" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendsList\View\FriendWidget" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends\FriendRequestsList\View\OthersRequest" />
     </key>
   </component>
   <component name="RunManager" selected="Python.zcord">

@@ -1,7 +1,11 @@
 import queue
+import sys
+import threading
+import traceback
 from typing import List
 
 from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtCore import Qt
 
 from logic.Authorization.User.User import User
 from logic.Main.MainWindowGUI import Ui_Zcord
@@ -10,7 +14,7 @@ from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
 from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
-from PyQt6.QtGui import QIcon
+from PyQt6.QtGui import QIcon, QPainter, QColor
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
 from qframelesswindow import FramelessWindow
@@ -24,6 +28,8 @@ class MainWindow(FramelessWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
+
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
         self.setResizeEnabled(True)
 
         self._title_bar = CustomTitleBar(self)
@@ -32,6 +38,22 @@ class MainWindow(FramelessWindow):
         self.setWindowTitle("Zcord")
 
         self.voicepr = VoiceParamsClass()
+
+        self.setStyleSheet("""
+                            QWidget {
+                                background-color: black;
+                            }
+                            QScrollArea, QScrollArea QWidget, QScrollArea::viewport {
+                                background-color: black;
+                            }
+                            QStackedWidget {
+                                background-color: black;
+                            }
+                        """)
+
+        # Уведомления о заявках в комнатах и друзьях
+        self.ui.friends_alert.setHidden(True)
+        self.ui.room_alert.setHidden(True)
 
         # Объект пользователя
         self.__user: User = user
@@ -43,6 +65,9 @@ class MainWindow(FramelessWindow):
         # Работа с друзьями
         self._friends: FriendsWidget = FriendsWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._friends.get_widget())
+
+        if self._friends.has_requests():
+            self.friend_request_alert()
 
         # Параметры
         self.parameters = ParamsWindow(self.ui, self.voicepr)
@@ -67,8 +92,6 @@ class MainWindow(FramelessWindow):
         # Вызов клиента
         self.call_chat()
 
-
-
         self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
@@ -90,7 +113,7 @@ class MainWindow(FramelessWindow):
         chat = ChatInList(friend_nick, str(chat_id), ui)
         self._friendsChatOptions.append(chat)
         self.ui.stackedWidget_2.addWidget(
-                ui)
+            ui)
         self._friendsChatOptions.append(chat)
         return chat
 
@@ -270,6 +293,7 @@ class MainWindow(FramelessWindow):
             self.ui.ScrollFriends.setVisible(False)
 
     def add_friend(self):
+        self._friends.has_requests()
         self.ui.stackedWidget_2.setCurrentWidget(self._friends.get_widget())
 
     # <---------------------------------------------Работа с друзьями-------------------------------------------------->
@@ -280,10 +304,12 @@ class MainWindow(FramelessWindow):
                 self._friends.add_your_friend_request(friend_id=args['receiver_id'], username=args['receiver_nick'])
             case "FRIENDSHIP-REQUEST-OTHER":
                 self._friends.add_others_friend_request(friend_id=args['sender_id'], username=args['sender_nick'])
+                self.friend_request_alert()
             case "SELF-RECALL-REQUEST":
                 self._friends.remove_your_request(args['user_id'])
             case "OTHERS-RECALL-REQUEST":
                 self._friends.remove_others_request(args['user_id'])
+                self.friend_request_alert()
             case "ACCEPT-REQUEST-OTHERS":
                 self._friends.remove_others_request(args['user_id'])
                 chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'])
@@ -292,6 +318,7 @@ class MainWindow(FramelessWindow):
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
                                             'nickname': args['sender_nickname'],
                                             'socket_controller': self.__user.get_socket_controller()})
+                self.friend_request_alert()
                 self.updateChatList(chat_gui)
             case "ACCEPT-REQUEST-SELF":
                 self._friends.remove_your_request(args['user_id'])
@@ -304,7 +331,10 @@ class MainWindow(FramelessWindow):
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.updateChatList(chat_gui)
             case "DECLINE-REQUEST-OTHERS":
-                self._friends.remove_others_request(args['sender_id'])
+                self._friends.show_hide_alert()
+                has_reqs = self._friends.has_requests()
+                if has_reqs:
+                    self.friend_request_alert()
             case "DECLINE-REQUEST-SELF":
                 self._friends.remove_your_request(args['receiver_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
@@ -317,9 +347,16 @@ class MainWindow(FramelessWindow):
                 if args['target'] == "self":
                     self.change_self_activity_indicator_color(args['color'])
                 elif args['target'] == "friend":
+                    print(args['sender_nickname'])
                     self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
+
+    def friend_request_alert(self):
+        if self.ui.friends_alert.isHidden():
+            self.ui.friends_alert.setHidden(False)
+        else:
+            self.ui.friends_alert.setHidden(True)
 
     def change_self_activity_indicator_color(self, color):
         activity_indicator_qss = f"""background-color:{color};
@@ -330,9 +367,9 @@ class MainWindow(FramelessWindow):
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
 
     def close(self):
-        super(MainWindow, self).close()
+        super().close()
         ClientConnections.close()
-
+        sys.exit(0)
 
     def updateOverlayGeometry(self):
         if hasattr(self, 'overlay'):
@@ -356,5 +393,3 @@ class MainWindow(FramelessWindow):
             self.updateMiniProfilePosition()
         else:
             self.updateMiniProfilePosition()
-
-

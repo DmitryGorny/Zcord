@@ -36,7 +36,7 @@ class Client:
             fr = Friend(friend_attrs['id'],  # TODO: Подумать над фабрикой
                         friend_attrs['nickname'],
                         friend_attrs['chat_id'],
-                        friend_attrs['status'],
+                        str(friend_attrs['status']),
                         friend_attrs["last_online"])
 
             self.__friends[friend_attrs['chat_id']] = fr #тут зачем-то был статус дружбы в ключе
@@ -53,7 +53,7 @@ class Client:
     def nick(self):
         return self._nick
 
-    def add_friend(self, friend_name: str, chat_id: str, friend_id: str, status: str = 2) -> None:
+    def add_friend(self, friend_name: str, chat_id: str, friend_id: str, status: str = '2') -> None:
         from datetime import datetime
         now = datetime.now()
         time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
@@ -63,8 +63,9 @@ class Client:
                                          friendship_status=status,
                                          last_online=time_str)
 
-    def delete_friend(self, friend_name: str) -> None:
-        del self.__friends[friend_name]
+    def delete_friend(self, chat_Id: str) -> None:
+        print(self.__friends)
+        del self.__friends[chat_Id]
 
     @property
     def status(self):
@@ -103,5 +104,9 @@ class Friend(Client):
         self._writer = writer
 
     @property
-    def friendship_status(self):
+    def friendship_status(self) -> str:
         return self._friendship_status
+
+    @friendship_status.setter
+    def friendship_status(self, val: str) -> None:
+        self._friendship_status = val

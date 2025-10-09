@@ -48,6 +48,9 @@ class IFriendRequestListView(Protocol):
     def get_request_from_db(self) -> None:
         pass
 
+    def has_request(self) -> bool:
+        pass
+
 
 class FriendRequestListView(QtWidgets.QWidget):
     accept_request_model = pyqtSignal(str)
@@ -84,7 +87,7 @@ class FriendRequestListView(QtWidgets.QWidget):
         item.setSizeHint(req.get_widget().sizeHint())
         self._ui.my_requests.addItem(item)
         self._ui.my_requests.setItemWidget(item, req.get_widget())
-        req.index = self._ui.my_requests.count() - 1
+        req.widget = item
 
     def add_others_request(self, nickname: str, friend_id: str):
         req = OtherRequest(nickname, friend_id)
@@ -95,7 +98,7 @@ class FriendRequestListView(QtWidgets.QWidget):
         item.setSizeHint(req.get_widget().sizeHint())
         self._ui.others_request.addItem(item)
         self._ui.others_request.setItemWidget(item, req.get_widget())
-        req.index = self._ui.others_request.count() - 1
+        req.widget = item
         req.connect_accept_request(lambda: self.accept_request_model.emit(friend_id))
         req.connect_decline_request(lambda: self.decline_request_model.emit(friend_id))
 
@@ -105,7 +108,7 @@ class FriendRequestListView(QtWidgets.QWidget):
 
         widget = self._others_requests[user_id]
 
-        item = self._ui.others_request.takeItem(widget.index)
+        item = widget.widget
         widget = self._ui.others_request.itemWidget(item)
         self._ui.others_request.removeItemWidget(item)
         if widget:
@@ -118,7 +121,7 @@ class FriendRequestListView(QtWidgets.QWidget):
 
         widget = self._your_requests[user_id]
 
-        item = self._ui.my_requests.takeItem(widget.index)
+        item = widget.widget
         widget = self._ui.my_requests.itemWidget(item)
         self._ui.my_requests.removeItemWidget(item)
         if widget:
@@ -127,6 +130,11 @@ class FriendRequestListView(QtWidgets.QWidget):
 
     def get_widget(self) -> QtWidgets.QFrame:
         return self._ui.Column
+
+    def has_request(self) -> bool:
+        if len(self._others_requests) > 0:
+            return True
+        return False
 
     def connect_get_my_requests(self, callback: Callable) -> None:
         self.get_my_requests_model.connect(callback)

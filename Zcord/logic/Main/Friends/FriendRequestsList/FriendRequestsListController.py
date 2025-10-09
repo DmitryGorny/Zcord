@@ -38,3 +38,6 @@ class FriendRequestController:
 
     def remove_friend_request(self, user_id: str) -> None:
         self._view.remove_friend_request(user_id=user_id)
+
+    def has_request(self) -> bool:
+        return self._view.has_request()

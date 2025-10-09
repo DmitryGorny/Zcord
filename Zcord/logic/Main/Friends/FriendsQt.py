@@ -12,14 +12,14 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Friends_page(object):
     def setupUi(self, Friends_page):
         Friends_page.setObjectName("Friends_page")
-        Friends_page.resize(683, 577)
+        Friends_page.resize(706, 577)
         self.verticalLayout = QtWidgets.QVBoxLayout(Friends_page)
         self.verticalLayout.setObjectName("verticalLayout")
         self.Wrapper = QtWidgets.QFrame(parent=Friends_page)
         self.Wrapper.setStyleSheet("background-color:rgba(16,19,23,255);")
         self.Wrapper.setObjectName("Wrapper")
         self.verticalLayout_2 = QtWidgets.QVBoxLayout(self.Wrapper)
-        self.verticalLayout_2.setContentsMargins(0, 0, 0, 11)
+        self.verticalLayout_2.setContentsMargins(0, 0, 0, 0)
         self.verticalLayout_2.setSpacing(0)
         self.verticalLayout_2.setObjectName("verticalLayout_2")
         self.menu = QtWidgets.QFrame(parent=self.Wrapper)
@@ -47,7 +47,7 @@ class Ui_Friends_page(object):
 "")
         self.menu.setObjectName("menu")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.menu)
-        self.horizontalLayout.setContentsMargins(0, 11, 1, 11)
+        self.horizontalLayout.setContentsMargins(0, 12, 1, 11)
         self.horizontalLayout.setObjectName("horizontalLayout")
         self.add_friend = QtWidgets.QPushButton(parent=self.menu)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -64,16 +64,69 @@ class Ui_Friends_page(object):
         self.add_friend.setAutoRepeat(False)
         self.add_friend.setObjectName("add_friend")
         self.horizontalLayout.addWidget(self.add_friend)
-        self.requests = QtWidgets.QPushButton(parent=self.menu)
+        self.horizontalFrame = QtWidgets.QFrame(parent=self.menu)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.horizontalFrame.sizePolicy().hasHeightForWidth())
+        self.horizontalFrame.setSizePolicy(sizePolicy)
+        self.horizontalFrame.setMinimumSize(QtCore.QSize(100, 70))
+        self.horizontalFrame.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.horizontalFrame.setStyleSheet("QFrame {\n"
+"border:none;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    /* Эффект туманности сверху с прозрачностью */\n"
+"    background-color: rgba(229, 229, 229, 55)\n"
+"}\n"
+"QPushButton:checked {\n"
+"    background-color: rgba(229, 229, 229, 55);\n"
+"}")
+        self.horizontalFrame.setObjectName("horizontalFrame")
+        self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalFrame)
+        self.horizontalLayout_2.setObjectName("horizontalLayout_2")
+        self.widget = QtWidgets.QWidget(parent=self.horizontalFrame)
+        self.widget.setMinimumSize(QtCore.QSize(100, 70))
+        self.widget.setMaximumSize(QtCore.QSize(91, 16777215))
+        self.widget.setStyleSheet("QWidget {\n"
+"background:none;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    /* Эффект туманности сверху с прозрачностью */\n"
+"    background-color: rgba(229, 229, 229, 55)\n"
+"}\n"
+"QPushButton:checked {\n"
+"    background-color: rgba(229, 229, 229, 55);\n"
+"}")
+        self.widget.setObjectName("widget")
+        self.requests_button = QtWidgets.QPushButton(parent=self.widget)
+        self.requests_button.setGeometry(QtCore.QRect(0, 0, 100, 47))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.requests.sizePolicy().hasHeightForWidth())
-        self.requests.setSizePolicy(sizePolicy)
-        self.requests.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.requests.setCheckable(False)
-        self.requests.setObjectName("requests")
-        self.horizontalLayout.addWidget(self.requests)
+        sizePolicy.setHeightForWidth(self.requests_button.sizePolicy().hasHeightForWidth())
+        self.requests_button.setSizePolicy(sizePolicy)
+        self.requests_button.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.requests_button.setCheckable(False)
+        self.requests_button.setObjectName("requests_button")
+        self.friends_alert = QtWidgets.QPushButton(parent=self.widget)
+        self.friends_alert.setGeometry(QtCore.QRect(80, 10, 10, 10))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.friends_alert.sizePolicy().hasHeightForWidth())
+        self.friends_alert.setSizePolicy(sizePolicy)
+        self.friends_alert.setMaximumSize(QtCore.QSize(10, 10))
+        self.friends_alert.setStyleSheet("border:1px solid #DA3E44;\n"
+"background:#DA3E44;\n"
+"border-radius:5%;\n"
+"text-align: center; ")
+        self.friends_alert.setText("")
+        self.friends_alert.setObjectName("friends_alert")
+        self.horizontalLayout_2.addWidget(self.widget, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
+        self.horizontalLayout.addWidget(self.horizontalFrame, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.friends = QtWidgets.QPushButton(parent=self.menu)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -102,5 +155,5 @@ class Ui_Friends_page(object):
         _translate = QtCore.QCoreApplication.translate
         Friends_page.setWindowTitle(_translate("Friends_page", "Form"))
         self.add_friend.setText(_translate("Friends_page", "Добавить"))
-        self.requests.setText(_translate("Friends_page", "Заявки"))
+        self.requests_button.setText(_translate("Friends_page", "Заявки"))
         self.friends.setText(_translate("Friends_page", "Все друзья"))

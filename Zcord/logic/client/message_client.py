@@ -62,7 +62,6 @@ class MessageConnection(IConnection, BaseConnection):
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
-                    print(msg)
                     try:
                         strategy = self._choose_strategy.get_strategy(msg["type"], self)
                         strategy.execute(msg)
@@ -93,3 +92,4 @@ class MessageConnection(IConnection, BaseConnection):
 
     def close(self) -> None:
         self._flg = False
+

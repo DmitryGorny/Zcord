@@ -24,7 +24,7 @@ class FriendshipView(viewsets.ModelViewSet):
     queryset = Friendship.objects.all()
     serializer_class = FriendshipSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['user1_id__nickname', 'user2_id__nickname']  # Поиск по никнеймам
+    search_fields = ['=user1_id__nickname', '=user2_id__nickname']  # Поиск по никнеймам
 
     def get_queryset(self):
         queryset = super().get_queryset()

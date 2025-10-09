@@ -34,6 +34,9 @@
    </property>
    <item>
     <widget class="QStackedWidget" name="stackedWidget">
+     <property name="styleSheet">
+      <string notr="true">background-color:black;</string>
+     </property>
      <widget class="QWidget" name="page">
       <layout class="QHBoxLayout" name="horizontalLayout_5">
        <property name="leftMargin">
@@ -526,7 +529,7 @@ font-size:20px;</string>
                         </property>
                        </widget>
                       </item>
-                      <item alignment="Qt::AlignRight">
+                      <item>
                        <widget class="QWidget" name="widget_2" native="true">
                         <property name="sizePolicy">
                          <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
@@ -534,81 +537,82 @@ font-size:20px;</string>
                           <verstretch>0</verstretch>
                          </sizepolicy>
                         </property>
-                        <layout class="QHBoxLayout" name="horizontalLayout_6">
-                         <property name="spacing">
-                          <number>0</number>
+                        <property name="minimumSize">
+                         <size>
+                          <width>20</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <widget class="QPushButton" name="AddFriends">
+                         <property name="geometry">
+                          <rect>
+                           <x>0</x>
+                           <y>4</y>
+                           <width>20</width>
+                           <height>20</height>
+                          </rect>
                          </property>
-                         <property name="leftMargin">
-                          <number>0</number>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
                          </property>
-                         <property name="topMargin">
-                          <number>0</number>
+                         <property name="minimumSize">
+                          <size>
+                           <width>20</width>
+                           <height>20</height>
+                          </size>
                          </property>
-                         <property name="rightMargin">
-                          <number>0</number>
+                         <property name="maximumSize">
+                          <size>
+                           <width>20</width>
+                           <height>20</height>
+                          </size>
                          </property>
-                         <property name="bottomMargin">
-                          <number>0</number>
+                         <property name="cursor">
+                          <cursorShape>PointingHandCursor</cursorShape>
                          </property>
-                         <item alignment="Qt::AlignVCenter">
-                          <widget class="QPushButton" name="AddFriends">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="minimumSize">
-                            <size>
-                             <width>20</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>20</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                           <property name="cursor">
-                            <cursorShape>PointingHandCursor</cursorShape>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">border:none;
+                         <property name="styleSheet">
+                          <string notr="true">border:none;
 font-size:20px;
 color:white;</string>
-                           </property>
-                           <property name="text">
-                            <string>+</string>
-                           </property>
-                          </widget>
-                         </item>
-                         <item alignment="Qt::AlignVCenter">
-                          <widget class="QPushButton" name="friends_alert">
-                           <property name="sizePolicy">
-                            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                             <horstretch>0</horstretch>
-                             <verstretch>0</verstretch>
-                            </sizepolicy>
-                           </property>
-                           <property name="maximumSize">
-                            <size>
-                             <width>20</width>
-                             <height>20</height>
-                            </size>
-                           </property>
-                           <property name="styleSheet">
-                            <string notr="true">border:1px solid white;
-background:white;
-border-radius:9%;
+                         </property>
+                         <property name="text">
+                          <string>+</string>
+                         </property>
+                        </widget>
+                        <widget class="QPushButton" name="friends_alert">
+                         <property name="geometry">
+                          <rect>
+                           <x>10</x>
+                           <y>0</y>
+                           <width>10</width>
+                           <height>10</height>
+                          </rect>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>10</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">border:1px solid #DA3E44;
+background:#DA3E44;
+border-radius:5%;
 text-align: center; </string>
-                           </property>
-                           <property name="text">
-                            <string>0</string>
-                           </property>
-                          </widget>
-                         </item>
-                        </layout>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
                        </widget>
                       </item>
                      </layout>
@@ -710,7 +714,7 @@ QScrollBar:vertical {
                    <property name="rightMargin">
                     <number>5</number>
                    </property>
-                   <item>
+                   <item alignment="Qt::AlignLeft">
                     <widget class="QPushButton" name="ShowRooms">
                      <property name="sizePolicy">
                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -754,9 +758,9 @@ font-size:20px;</string>
                     </widget>
                    </item>
                    <item alignment="Qt::AlignRight">
-                    <widget class="QPushButton" name="AddRoom">
+                    <widget class="QWidget" name="widget_3" native="true">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
@@ -764,26 +768,79 @@ font-size:20px;</string>
                      <property name="minimumSize">
                       <size>
                        <width>20</width>
-                       <height>20</height>
+                       <height>0</height>
                       </size>
                      </property>
-                     <property name="maximumSize">
-                      <size>
-                       <width>20</width>
-                       <height>20</height>
-                      </size>
-                     </property>
-                     <property name="cursor">
-                      <cursorShape>PointingHandCursor</cursorShape>
-                     </property>
-                     <property name="styleSheet">
-                      <string notr="true">border:none;
+                     <widget class="QPushButton" name="AddRoom">
+                      <property name="geometry">
+                       <rect>
+                        <x>0</x>
+                        <y>4</y>
+                        <width>20</width>
+                        <height>20</height>
+                       </rect>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="minimumSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>20</width>
+                        <height>20</height>
+                       </size>
+                      </property>
+                      <property name="cursor">
+                       <cursorShape>PointingHandCursor</cursorShape>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">border:none;
 font-size:20px;
 color:white;</string>
-                     </property>
-                     <property name="text">
-                      <string>+</string>
-                     </property>
+                      </property>
+                      <property name="text">
+                       <string>+</string>
+                      </property>
+                     </widget>
+                     <widget class="QPushButton" name="room_alert">
+                      <property name="geometry">
+                       <rect>
+                        <x>10</x>
+                        <y>0</y>
+                        <width>10</width>
+                        <height>10</height>
+                       </rect>
+                      </property>
+                      <property name="sizePolicy">
+                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                        <horstretch>0</horstretch>
+                        <verstretch>0</verstretch>
+                       </sizepolicy>
+                      </property>
+                      <property name="maximumSize">
+                       <size>
+                        <width>10</width>
+                        <height>10</height>
+                       </size>
+                      </property>
+                      <property name="styleSheet">
+                       <string notr="true">border:1px solid #DA3E44;
+background:#DA3E44;
+border-radius:5%;
+text-align: center; </string>
+                      </property>
+                      <property name="text">
+                       <string/>
+                      </property>
+                     </widget>
                     </widget>
                    </item>
                   </layout>

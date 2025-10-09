@@ -14,7 +14,7 @@ class OtherRequest(QtWidgets.QWidget):
 
         self._nickname = nickname
         self._user_id = user_id
-        self._index = 0
+        self._widget = None
 
         self._ui.UserNick.setText(nickname)
         self._ui.UserIcon.setText(nickname[0])
@@ -34,12 +34,12 @@ class OtherRequest(QtWidgets.QWidget):
         return self.user_id
 
     @property
-    def index(self) -> int:
-        return self._index
+    def widget(self):
+        return self._widget
 
-    @index.setter
-    def index(self, val: int) -> None:
-        self._index = val
+    @widget.setter
+    def widget(self, val) -> None:
+        self._widget = val
 
     def get_widget(self) -> QtWidgets.QFrame:
         return self._ui.Friend_wrapper

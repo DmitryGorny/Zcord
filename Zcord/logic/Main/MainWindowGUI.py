@@ -19,6 +19,7 @@ class Ui_Zcord(object):
         self.verticalLayout_8.setSpacing(0)
         self.verticalLayout_8.setObjectName("verticalLayout_8")
         self.stackedWidget = QtWidgets.QStackedWidget(parent=Zcord)
+        self.stackedWidget.setStyleSheet("background-color:black;")
         self.stackedWidget.setObjectName("stackedWidget")
         self.page = QtWidgets.QWidget()
         self.page.setObjectName("page")
@@ -163,7 +164,7 @@ class Ui_Zcord(object):
 "")
         self.SettingsButton.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/icon/settings_40dp_E8EAED_FILL0_wght400_GRAD0_opsz40.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("GUI/icon/settings_40dp_E8EAED_FILL0_wght400_GRAD0_opsz40.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.SettingsButton.setIcon(icon)
         self.SettingsButton.setIconSize(QtCore.QSize(40, 40))
         self.SettingsButton.setObjectName("SettingsButton")
@@ -201,7 +202,7 @@ class Ui_Zcord(object):
 "height:30px;\n"
 "border: 2px solid #323338;\n"
 "border-radius: 10px;\n"
-"background-image: url(:/icons/icon/search_24dp_808994_FILL0_wght400_GRAD0_opsz24.svg); \n"
+"background-image: url(GUI/icon/search_24dp_808994_FILL0_wght400_GRAD0_opsz24.svg); \n"
 "background-repeat: no-repeat;\n"
 "background-position: left;\n"
 "background-color:#323338;\n"
@@ -215,7 +216,7 @@ class Ui_Zcord(object):
 "QPushButton:hover {\n"
 "background-color:#656c76;\n"
 "color:black;\n"
-"background-image: url(:/icons/icon/search_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg); \n"
+"background-image: url(GUI/icon/search_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg); \n"
 "background-repeat: no-repeat;\n"
 "background-position: left;\n"
 "}")
@@ -256,7 +257,7 @@ class Ui_Zcord(object):
 "border:none;\n"
 "font-size:20px;")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/icons/icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("GUI/icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.ShowFreind.setIcon(icon1)
         self.ShowFreind.setIconSize(QtCore.QSize(24, 24))
         self.ShowFreind.setObjectName("ShowFreind")
@@ -267,12 +268,10 @@ class Ui_Zcord(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget_2.sizePolicy().hasHeightForWidth())
         self.widget_2.setSizePolicy(sizePolicy)
+        self.widget_2.setMinimumSize(QtCore.QSize(20, 0))
         self.widget_2.setObjectName("widget_2")
-        self.horizontalLayout_6 = QtWidgets.QHBoxLayout(self.widget_2)
-        self.horizontalLayout_6.setContentsMargins(0, 0, 0, 0)
-        self.horizontalLayout_6.setSpacing(0)
-        self.horizontalLayout_6.setObjectName("horizontalLayout_6")
         self.AddFriends = QtWidgets.QPushButton(parent=self.widget_2)
+        self.AddFriends.setGeometry(QtCore.QRect(0, 4, 20, 20))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -285,21 +284,21 @@ class Ui_Zcord(object):
 "font-size:20px;\n"
 "color:white;")
         self.AddFriends.setObjectName("AddFriends")
-        self.horizontalLayout_6.addWidget(self.AddFriends, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
         self.friends_alert = QtWidgets.QPushButton(parent=self.widget_2)
+        self.friends_alert.setGeometry(QtCore.QRect(10, 0, 10, 10))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.friends_alert.sizePolicy().hasHeightForWidth())
         self.friends_alert.setSizePolicy(sizePolicy)
-        self.friends_alert.setMaximumSize(QtCore.QSize(20, 20))
-        self.friends_alert.setStyleSheet("border:1px solid white;\n"
-"background:white;\n"
-"border-radius:9%;\n"
+        self.friends_alert.setMaximumSize(QtCore.QSize(10, 10))
+        self.friends_alert.setStyleSheet("border:1px solid #DA3E44;\n"
+"background:#DA3E44;\n"
+"border-radius:5%;\n"
 "text-align: center; ")
+        self.friends_alert.setText("")
         self.friends_alert.setObjectName("friends_alert")
-        self.horizontalLayout_6.addWidget(self.friends_alert, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
-        self.horizontalLayout_3.addWidget(self.widget_2, 0, QtCore.Qt.AlignmentFlag.AlignRight)
+        self.horizontalLayout_3.addWidget(self.widget_2)
         self.PeopleList.addWidget(self.PeopleColumn)
         self.List = QtWidgets.QVBoxLayout()
         self.List.setObjectName("List")
@@ -369,8 +368,17 @@ class Ui_Zcord(object):
         self.ShowRooms.setIcon(icon1)
         self.ShowRooms.setIconSize(QtCore.QSize(24, 24))
         self.ShowRooms.setObjectName("ShowRooms")
-        self.horizontalLayout_4.addWidget(self.ShowRooms)
-        self.AddRoom = QtWidgets.QPushButton(parent=self.RoomsColumn)
+        self.horizontalLayout_4.addWidget(self.ShowRooms, 0, QtCore.Qt.AlignmentFlag.AlignLeft)
+        self.widget_3 = QtWidgets.QWidget(parent=self.RoomsColumn)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.widget_3.sizePolicy().hasHeightForWidth())
+        self.widget_3.setSizePolicy(sizePolicy)
+        self.widget_3.setMinimumSize(QtCore.QSize(20, 0))
+        self.widget_3.setObjectName("widget_3")
+        self.AddRoom = QtWidgets.QPushButton(parent=self.widget_3)
+        self.AddRoom.setGeometry(QtCore.QRect(0, 4, 20, 20))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -383,7 +391,21 @@ class Ui_Zcord(object):
 "font-size:20px;\n"
 "color:white;")
         self.AddRoom.setObjectName("AddRoom")
-        self.horizontalLayout_4.addWidget(self.AddRoom, 0, QtCore.Qt.AlignmentFlag.AlignRight)
+        self.room_alert = QtWidgets.QPushButton(parent=self.widget_3)
+        self.room_alert.setGeometry(QtCore.QRect(10, 0, 10, 10))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.room_alert.sizePolicy().hasHeightForWidth())
+        self.room_alert.setSizePolicy(sizePolicy)
+        self.room_alert.setMaximumSize(QtCore.QSize(10, 10))
+        self.room_alert.setStyleSheet("border:1px solid #DA3E44;\n"
+"background:#DA3E44;\n"
+"border-radius:5%;\n"
+"text-align: center; ")
+        self.room_alert.setText("")
+        self.room_alert.setObjectName("room_alert")
+        self.horizontalLayout_4.addWidget(self.widget_3, 0, QtCore.Qt.AlignmentFlag.AlignRight)
         self.verticalLayout_6.addWidget(self.RoomsColumn)
         self.verticalLayout_6.setStretch(0, 3)
         self.verticalLayout_4.addWidget(self.SearchAndPeopeistButtons)
@@ -478,7 +500,7 @@ class Ui_Zcord(object):
         self.pushButton.setStyleSheet("border:none;")
         self.pushButton.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/icons/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.pushButton.setIcon(icon2)
         self.pushButton.setIconSize(QtCore.QSize(400, 400))
         self.pushButton.setObjectName("pushButton")
@@ -520,7 +542,6 @@ class Ui_Zcord(object):
         self.SearchButton.setText(_translate("Zcord", "Поиск"))
         self.ShowFreind.setText(_translate("Zcord", "Друзья"))
         self.AddFriends.setText(_translate("Zcord", "+"))
-        self.friends_alert.setText(_translate("Zcord", "0"))
         self.ShowRooms.setText(_translate("Zcord", "Комнаты"))
         self.AddRoom.setText(_translate("Zcord", "+"))
         self.label.setText(_translate("Zcord", "Начало"))

@@ -114,7 +114,6 @@ class MainWindow(FramelessWindow):
         self._friendsChatOptions.append(chat)
         self.ui.stackedWidget_2.addWidget(
             ui)
-        self._friendsChatOptions.append(chat)
         return chat
 
     def call_chat(self):
@@ -186,7 +185,6 @@ class MainWindow(FramelessWindow):
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
         friend_ChatInList = list(filter(lambda x: x.username == friendNick, self._friendsChatOptions))[0]
-
         friend_ChatInList.changeIndicatorColor(color)
 
     def createChatWidget(self, chat_option: ChatInList, layoutFinal):
@@ -253,6 +251,7 @@ class MainWindow(FramelessWindow):
         self._friendsChatOptions.remove(chat_gui)
         if self.ui.stackedWidget_2.currentWidget() == chat_gui.chat_ui:
             self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
+
         return chat_gui
 
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
@@ -347,7 +346,6 @@ class MainWindow(FramelessWindow):
                 if args['target'] == "self":
                     self.change_self_activity_indicator_color(args['color'])
                 elif args['target'] == "friend":
-                    print(args['sender_nickname'])
                     self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")

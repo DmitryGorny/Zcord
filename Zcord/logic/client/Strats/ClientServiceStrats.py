@@ -52,15 +52,7 @@ class UserStatusReceive(ClientsStrategies):
         sender_status = msg["user-status"]
         sender_nickname = msg["nickname"]
         receiver_nickname = self.service_connection_pointer.user.getNickName()
-
-        STATUS_COLORS = {
-            "USER-ONLINE": "#008000",
-            "USER-DISTRUB-BLOCK": "red",
-            "USER-HIDDEN": "grey",
-            "USER-AFK": "yellow"
-        }
-
-        color = STATUS_COLORS.get(sender_status)
+        color = sender_status['color']
         target = "self" if sender_nickname == receiver_nickname else "friend"
         self.service_connection_pointer.call_main_dynamic_update("CHANGE-ACTIVITY", {'target': target,
                                                                                      'color': color,
@@ -76,8 +68,8 @@ class SendFirstInfo(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         dictToSend = {
             "friends": self.service_connection_pointer.user.getFriends(),
-            "status": [self.service_connection_pointer.user.status.name,
-                       self.service_connection_pointer.user.status.color],
+            "status": {'status_name': self.service_connection_pointer.user.status.name,
+                       'color': self.service_connection_pointer.user.status.color},
             "id": self.service_connection_pointer.user.id,
             "last_online": self.service_connection_pointer.user.last_online,
             'chats': self.service_connection_pointer._cache_chat  # TODO: Че за бред?

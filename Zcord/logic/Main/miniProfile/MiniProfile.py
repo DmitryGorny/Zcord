@@ -17,8 +17,9 @@ def singleton(cls):
 
     return get_instance
 
+
 @singleton
-class MiniProfile(QtWidgets.QDialog): #TODO: Сделать MVC
+class MiniProfile(QtWidgets.QDialog):  # TODO: Сделать MVC
     def __init__(self, centerOfApp, user):
         super().__init__()
 
@@ -63,7 +64,7 @@ class MiniProfile(QtWidgets.QDialog): #TODO: Сделать MVC
         self.animation.setEndValue(self.calculateFinalGeometry())
         self.animation.setEasingCurve(QEasingCurve.Type.OutBack)
         self.animation.start()
-        #self.animation.finished.connect(self.center_window)
+        # self.animation.finished.connect(self.center_window)
 
     def calculateStartGeometry(self):
         parent_center = self.parent().rect().center()
@@ -72,7 +73,6 @@ class MiniProfile(QtWidgets.QDialog): #TODO: Сделать MVC
         start_y = parent_center.y() + 10
 
         return QRect(start_x, start_y, 20, 20)
-
 
     def calculateFinalGeometry(self):
         """Вычисляем конечную геометрию окна (центрированную на экране)."""
@@ -109,6 +109,7 @@ class MiniProfile(QtWidgets.QDialog): #TODO: Сделать MVC
     def change_status_text(self, text):
         self.ui.ChangeActivity.setText(text)
 
+
 @singleton
 class Overlay(QtWidgets.QWidget):
     def __init__(self, dialog, parent=None):
@@ -140,12 +141,10 @@ class StatusWidget(QtWidgets.QMenu):
         self.isOpended = False
 
         self._user = user
-        print(self._user.statuses[1])
         self.createButton("В сети", self._user.statuses[0], self.clicked, "green")
         self.createButton("Не активен", self._user.statuses[3], self.clicked, "yellow")
         self.createButton("Не беспокоить", self._user.statuses[1], self.clicked, "red")
         self.createButton("Невидимка", self._user.statuses[2], self.clicked, "grey")
-
 
     def show_menu(self):
         self.isOpended = True
@@ -154,28 +153,34 @@ class StatusWidget(QtWidgets.QMenu):
 
     def clicked(self, actvity_status):
         if isinstance(actvity_status, Online):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-ONLINE'})
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={
+                'status_name': "В сети",
+                'color': "#008000"})
             self.miniProfile.change_activity_color("#008000")
             self.miniProfile.change_status_text("В сети")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, DisturbBlock):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-DISTRUB-BLOCK'})
+            ClientConnections.send_service_message(msg_type="USER-STATUS",
+                                                   extra_data={'status_name': "Не беспокоить",
+                                                               'color': "red"})
             self.miniProfile.change_activity_color("red")
             self.miniProfile.change_status_text("Не беспокоить")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, Hidden):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-HIDDEN'})
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'status_name': "Невидимка",
+                                                                                       'color': "grey"})
             self.miniProfile.change_activity_color("grey")
             self.miniProfile.change_status_text("Невидимка")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, AFK):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'user-status': 'USER-AFK'})
+            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'status_name': "Не активен",
+                                                                                       'color': "yellow"})
             self.miniProfile.change_activity_color("yellow")
             self.miniProfile.change_status_text("Не активен")
             self._user.status = actvity_status
@@ -207,9 +212,9 @@ class StatusWidget(QtWidgets.QMenu):
 
         self.ui.Wrapper.addWidget(frame)
 
-
     class MenuOption(QtWidgets.QPushButton):
         clicked = QtCore.pyqtSignal(Status)
+
         def __init__(self, name, statusType, callback):
             super().__init__()
             self.setText(name)
@@ -234,11 +239,3 @@ class StatusWidget(QtWidgets.QMenu):
             self.setMinimumSize(15, 15)
             self.setMaximumSize(15, 15)
             self.setStyleSheet(self.qss)
-
-
-
-
-
-
-
-

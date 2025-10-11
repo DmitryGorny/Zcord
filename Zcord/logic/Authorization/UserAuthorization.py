@@ -1,4 +1,4 @@
-from ..Errors.AuthorizationError import AuthorizationError
+from logic.Authorization.Errors.AuthorizationError import AuthorizationError
 import bcrypt
 from ..db_client.api_client import APIClient
 

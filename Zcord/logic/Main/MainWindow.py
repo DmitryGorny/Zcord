@@ -1,22 +1,16 @@
 import queue
 import sys
-import threading
-import traceback
 from typing import List
-
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt
-
 from logic.Authorization.User.User import User
+from logic.Main.MainWidnowChats.ChatInList import ChatInList
 from logic.Main.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
-from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
-from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
-from PyQt6.QtGui import QIcon, QPainter, QColor
+from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
-from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
 from qframelesswindow import FramelessWindow
 from logic.Main.TitleBar.TitleBar import CustomTitleBar
 
@@ -36,8 +30,6 @@ class MainWindow(FramelessWindow):
         self.setTitleBar(self._title_bar)
 
         self.setWindowTitle("Zcord")
-
-        self.voicepr = VoiceParamsClass()
 
         self.setStyleSheet("""
                             QWidget {
@@ -70,9 +62,9 @@ class MainWindow(FramelessWindow):
             self.friend_request_alert()
 
         # Параметры
-        self.parameters = ParamsWindow(self.ui, self.voicepr)
-        self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-        self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+        #self.parameters = ParamsWindow(self.ui, self.voicepr)
+        #self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
+        #self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
@@ -391,3 +383,16 @@ class MainWindow(FramelessWindow):
             self.updateMiniProfilePosition()
         else:
             self.updateMiniProfilePosition()
+
+
+class ClikableFrame(QtWidgets.QFrame):
+    def __init__(self, text):
+        super(ClikableFrame, self).__init__()
+        self.text = text
+
+    clicked = QtCore.pyqtSignal()
+
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
+
+        self.clicked.emit()

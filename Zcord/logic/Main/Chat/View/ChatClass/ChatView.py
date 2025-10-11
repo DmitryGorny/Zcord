@@ -2,8 +2,6 @@ import threading
 from logic.Main.Chat.View.ChatClass.ChatGUI import Ui_Chat
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
-from logic.Main.Chat.View.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
-from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 
 
 class ChatView(QtWidgets.QWidget):

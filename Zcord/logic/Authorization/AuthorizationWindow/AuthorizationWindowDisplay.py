@@ -3,9 +3,9 @@ from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.AuthorizationWindow.AuthorizationWindow import Ui_Authorization
 from logic.Authorization.RegistrationWindow.RegistrationWindowDisplay import ReigstrationWindowDisplay
 from ..UserAuthorization import UserAuthorization
-from logic.Errors.AuthorizationError import AuthorizationError
-from logic.Errors.ErrorDialog.UserError.UserError import UserError
-from logic.Errors.ErrorDialog.LoginPassError.LoginPassError import LoginPassError
+from logic.Authorization.Errors.AuthorizationError import AuthorizationError
+from logic.Authorization.Errors.ErrorDialog.UserError.UserError import UserError
+from logic.Authorization.Errors.ErrorDialog.LoginPassError.LoginPassError import LoginPassError
 from ..User.User import User
 import json
 

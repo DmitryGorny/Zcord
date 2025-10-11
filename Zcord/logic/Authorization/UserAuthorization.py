@@ -1,35 +1,45 @@
-from logic.db_handler.db_handler import db_handler
-from logic.Errors.AuthorizationError import AuthorizationError
+from logic.Authorization.Errors.AuthorizationError import AuthorizationError
 import bcrypt
+from ..db_client.api_client import APIClient
+
 
 class UserAuthorization:
     def __init__(self, nick_name, password):
         self.__nick_name = nick_name
         self.__password = password
+        self.__user_id = None
+        self.__last_online = None
 
     def login(self):
-        users_table = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "users")
+        users_table = APIClient()
 
-        nickname_column = users_table.getDataFromTableColumn("nickname")
+        user = users_table.get_user(self.__nick_name)
 
-        found_user = list(filter(lambda x: self.__nick_name in x, nickname_column))
-
-        if len(found_user) == 0: #Проверка наличия логина юзреа в базе
+        if user is None:
             raise AuthorizationError(self.__nick_name)
 
-        password = users_table.getCertainRow("nickname", found_user[0][0], "password")[0][0]
+        if len(user) == 0: #Проверка наличия логина юзреа в базе
+            raise AuthorizationError(self.__nick_name)
 
-        valid = bcrypt.checkpw(self.__password.encode('utf-8'), password.encode('utf-8'))
+        stored_password_hash = user[0]['password'].encode('utf-8')
+
+        valid = bcrypt.checkpw(self.__password.encode('utf-8'), stored_password_hash)
 
         if valid:
+            self.__user_id = user[0]['id']
+            self.__last_online = user[0]['last_online']
             return True
 
         return False
 
+    def get_valid_login(self):
+        return self.__nick_name
 
+    def get_valid_password(self):
+        return self.__password
 
+    def get_valid_id(self):
+        return self.__user_id
 
-
-
-
-
+    def get_last_online(self):
+        return self.__last_online

@@ -2,12 +2,13 @@ import sys
 from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.AuthorizationWindow.AuthorizationWindow import Ui_Authorization
 from logic.Authorization.RegistrationWindow.RegistrationWindowDisplay import ReigstrationWindowDisplay
-from logic.Authorization.UserAuthorization import UserAuthorization
-from logic.Errors.AuthorizationError import AuthorizationError
-from logic.Errors.ErrorDialog.UserError.UserError import UserError
-from logic.Errors.ErrorDialog.LoginPassError.LoginPassError import LoginPassError
-from logic.Authorization.User.User import User
+from ..UserAuthorization import UserAuthorization
+from logic.Authorization.Errors.AuthorizationError import AuthorizationError
+from logic.Authorization.Errors.ErrorDialog.UserError.UserError import UserError
+from logic.Authorization.Errors.ErrorDialog.LoginPassError.LoginPassError import LoginPassError
+from ..User.User import User
 import json
+
 
 class AuthoriztionWindowDisplay(QtWidgets.QDialog):
     def __init__(self):
@@ -67,16 +68,21 @@ class AuthoriztionWindowDisplay(QtWidgets.QDialog):
              return
 
         try:
-            if UserAuthorization(login, password).login():
+            user_auth = UserAuthorization(login, password)
+            if user_auth.login():
+                valid_login = user_auth.get_valid_login()
+                valid_password = user_auth.get_valid_password()
+                valid_user_id = user_auth.get_valid_id()
+                last_online = user_auth.get_last_online()
                 user = {
-                    "nickname": login,
-                    "password": password
+                    "nickname": valid_login,
+                    "password": valid_password
                 }
                 with open(f"{sys.path[0]}/Resources/user/User.json", "w") as user_json:
                     user_json.write(json.dumps(user))
 
                 self.close()
-                self.__user = User(login, password)
+                self.__user = User(valid_user_id, valid_login, valid_password, last_online)
             else:
                 LoginPassErrorBox = LoginPassError()
                 LoginPassErrorBox.show()

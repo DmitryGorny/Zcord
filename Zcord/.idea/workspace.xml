@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
+  <component name="ChangeListManager">
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/RegistrationWindow/RegistrationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/RegistrationWindow/RegistrationWindowDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/AuthorizationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/AuthorizationError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/LoginPassError/LoginPassError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/LoginPassError/LoginPassErrorWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/RegistrationError/RegistrationError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/RegistrationError/RegistrationErrorWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/ErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/UserError/ErrorWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/UserError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/UserError/UserError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegisterWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/SuccessDialog/SuccessRegister/SuccessRegisterWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriend.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriendGUI.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendReauestMessage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendRequest.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInList.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInListGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInListGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ClickableFrame.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Notifications/Notifications.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParameters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParamsClass.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_send.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_server.py" beforeDir="false" />
+    </list>
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Python Script" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$/.." value="VoiceChat" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
+  </component>
+  <component name="HierarchyBrowserManager">
+    <option name="SCOPE" value="All" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 6
+}</component>
+  <component name="ProjectId" id="2nzLBWBiLLzuImwzdszM93DO9IJ" />
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
+    <ConfirmationsSetting value="1" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;WebServerToolWindowFactoryState&quot;: &quot;false&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;FriendAdding&quot;,
+    &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
+    &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitriy/Desktop/Zcord/API&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
+  }
+}</component>
+  <component name="RecentsManager">
+    <key name="MoveFile.RECENT_KEYS">
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\MainWidnowChats" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Authorization" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\TitleBar" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Python.zcord">
+    <configuration name="MessageServer (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/MessageServer" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="Server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/Server.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="StratsForServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/StrategiesForMessageServer" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="api_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/db_client" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/db_client/api_client.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <configuration name="zcord" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="Zcord" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/zcord.py" />
+      <option name="PARAMETERS" value="" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
+    <recent_temporary>
+      <list>
+        <item itemvalue="Python.zcord" />
+        <item itemvalue="Python.MessageServer (1)" />
+        <item itemvalue="Python.Server" />
+        <item itemvalue="Python.api_client" />
+        <item itemvalue="Python.StratsForServer" />
+      </list>
+    </recent_temporary>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2" />
+      <created>1729970822841</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1729970822841</updated>
+      <workItem from="1729970824543" duration="58000" />
+      <workItem from="1729971049684" duration="13258000" />
+      <workItem from="1737818850690" duration="5421000" />
+    </task>
+    <task id="LOCAL-00001" summary="Zcord терпит изменения">
+      <option name="closed" value="true" />
+      <created>1729975215590</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1729975215590</updated>
+    </task>
+    <task id="LOCAL-00002" summary="Zcord терпит изменения 2">
+      <option name="closed" value="true" />
+      <created>1729976724518</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1729976724518</updated>
+    </task>
+    <task id="LOCAL-00003" summary="Zcord терпит изменения 2">
+      <option name="closed" value="true" />
+      <created>1729977035814</created>
+      <option name="number" value="00003" />
+      <option name="presentableId" value="LOCAL-00003" />
+      <option name="project" value="LOCAL" />
+      <updated>1729977035814</updated>
+    </task>
+    <task id="LOCAL-00004" summary="Zcord терпит изменения 3">
+      <option name="closed" value="true" />
+      <created>1729982319912</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1729982319912</updated>
+    </task>
+    <task id="LOCAL-00005" summary="Иправление ошибки с отображением друзей">
+      <created>1730055709502</created>
+      <option name="number" value="00005" />
+      <option name="presentableId" value="LOCAL-00005" />
+      <option name="project" value="LOCAL" />
+      <updated>1730055709502</updated>
+    </task>
+    <task id="LOCAL-00006" summary="Попытка запустить чат">
+      <created>1730232901051</created>
+      <option name="number" value="00006" />
+      <option name="presentableId" value="LOCAL-00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1730232901051</updated>
+    </task>
+    <task id="LOCAL-00007" summary="Попытка запустить чат">
+      <created>1730233109753</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1730233109753</updated>
+    </task>
+    <task id="LOCAL-00008" summary="Попытка запустить чат">
+      <created>1730233479981</created>
+      <option name="number" value="00008" />
+      <option name="presentableId" value="LOCAL-00008" />
+      <option name="project" value="LOCAL" />
+      <updated>1730233479981</updated>
+    </task>
+    <task id="LOCAL-00009" summary="Первая рабочая версия чата">
+      <created>1730240258007</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1730240258007</updated>
+    </task>
+    <task id="LOCAL-00010" summary="Работающий ЛС">
+      <created>1730303250977</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1730303250977</updated>
+    </task>
+    <option name="localTasksCounter" value="11" />
+    <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="TCP-server" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="Zcord терпит изменения" />
+    <MESSAGE value="Zcord терпит изменения 2" />
+    <MESSAGE value="Zcord терпит изменения 3" />
+    <MESSAGE value="Иправление ошибки с отображением друзей" />
+    <MESSAGE value="Попытка запустить чат" />
+    <MESSAGE value="Первая рабочая версия чата" />
+    <MESSAGE value="Работающий ЛС" />
+    <option name="LAST_COMMIT_MESSAGE" value="Работающий ЛС" />
+  </component>
+  <component name="XDebuggerManager">
+    <watches-manager>
+      <configuration name="PythonConfigurationType">
+        <watch expression="self._main_cache" language="Python" />
+        <watch expression="x[&quot;sender&quot;]" language="Python" />
+        <watch expression=" ids = [{&quot;id&quot;: x[&quot;id&quot;]} for x in cache[&quot;cache&quot;] if x[&quot;was_seen&quot;] == False if x[&quot;sender&quot;] != user_id]" language="Python" />
+      </configuration>
+    </watches-manager>
+  </component>
+  <component name="com.intellij.coverage.CoverageDataManagerImpl">
+    <SUITE FILE_PATH="coverage/zcord_py$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1737824200103" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Zcord$zcord.coverage" NAME="zcord Coverage Results" MODIFIED="1729984269127" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/Zcord$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1729984270097" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
+    <SUITE FILE_PATH="coverage/Zcord$audio_server.coverage" NAME="audio_server Coverage Results" MODIFIED="1729971140087" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Voice" />
+    <SUITE FILE_PATH="coverage/Zcord$UserAuthorization.coverage" NAME="UserAuthorization Coverage Results" MODIFIED="1729971150493" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Authorization" />
+    <SUITE FILE_PATH="coverage/Zcord$message_client.coverage" NAME="message_client Coverage Results" MODIFIED="1729973828182" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
+    <SUITE FILE_PATH="coverage/zcord_py$message_server.coverage" NAME="message_server Coverage Results" MODIFIED="1737824198904" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/logic/Message" />
+  </component>
+</project>

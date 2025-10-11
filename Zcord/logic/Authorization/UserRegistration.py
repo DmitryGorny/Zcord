@@ -1,5 +1,7 @@
-from logic.db_handler.db_handler import db_handler
+from ..db_client.api_client import APIClient
 import bcrypt
+
+
 class UserRegistration:
     def __init__(self, name, nickname, password):
         self.__nickname = nickname
@@ -7,11 +9,11 @@ class UserRegistration:
         self.__password = password
 
     def register(self):
-        users_table = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "users")
+        users_table = APIClient()
 
-        newPass = bcrypt.hashpw(self.__password.encode(), bcrypt.gensalt())
+        newPass = bcrypt.hashpw(self.__password.encode(), bcrypt.gensalt()).decode('utf-8')
 
-        UserWasAdded = users_table.insertDataInTable("(`nickname`,`firstname`, `password`)", f"('{self.__nickname}', '{self.__name}', '{newPass.decode()}')")
+        UserWasAdded = users_table.create_user(self.__nickname, newPass, self.__name)
 
         if UserWasAdded:
             return True

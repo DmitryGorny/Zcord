@@ -1,77 +1,129 @@
 import queue
-from PyQt6 import QtWidgets, QtCore, QtGui
-from logic.Main.CompiledGUI.MainWindowGUI import Ui_Zcord
-from logic.Main.Friends.SendRequestDialog.AddFreindWindow import AddFriendWindow
-from logic.Main.Chat.ChatClass.Chat import Chat
-from logic.db_handler.db_handler import db_handler
-from logic.Message import message_client
-from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
+import sys
+from typing import List
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtCore import Qt
+from logic.Authorization.User.User import User
+from logic.Main.MainWidnowChats.ChatInList import ChatInList
+from logic.Main.MainWindowGUI import Ui_Zcord
+from logic.Main.Friends.FriendsWidget import FriendsWidget
+from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.Main.Parameters.Params_Window import ParamsWindow
-from logic.Main.Voice_main.VoiceParamsClass import VoiceParamsClass
-import threading
-import json
-import plyer
-
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
-from logic.Main.CompiledGUI.Helpers.ChatInList import ChatInList
+from qframelesswindow import FramelessWindow
+from logic.Main.TitleBar.TitleBar import CustomTitleBar
 
-class MainWindow(QtWidgets.QMainWindow):
+
+class MainWindow(FramelessWindow):
+    dynamic_update = QtCore.pyqtSignal(str, dict)
+
     def __init__(self, user):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
 
-        self.voicepr = VoiceParamsClass()
+        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
+        self.setResizeEnabled(True)
 
-        self.parameters = ParamsWindow(self.ui, self.voicepr)
-        self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+        self._title_bar = CustomTitleBar(self)
+        self.setTitleBar(self._title_bar)
 
-        self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+        self.setWindowTitle("Zcord")
 
-        self.__user = user
+        self.setStyleSheet("""
+                            QWidget {
+                                background-color: black;
+                            }
+                            QScrollArea, QScrollArea QWidget, QScrollArea::viewport {
+                                background-color: black;
+                            }
+                            QStackedWidget {
+                                background-color: black;
+                            }
+                        """)
 
-        self.ui.UsersLogo.setText(self.__user.getNickName()[0]) #Установка первой буквы в лого
+        # Уведомления о заявках в комнатах и друзьях
+        self.ui.friends_alert.setHidden(True)
+        self.ui.room_alert.setHidden(True)
+
+        # Объект пользователя
+        self.__user: User = user
+
+        # Сигналы
+        self.dynamic_update.connect(self.dynamic_update_slot)
+        # Сигналы
+
+        # Работа с друзьями
+        self._friends: FriendsWidget = FriendsWidget(self.__user)
+        self.ui.stackedWidget_2.addWidget(self._friends.get_widget())
+
+        if self._friends.has_requests():
+            self.friend_request_alert()
+
+        # Параметры
+        #self.parameters = ParamsWindow(self.ui, self.voicepr)
+        #self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
+        #self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+
+        # Лого
+        self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
         self.ui.UsersLogo.clicked.connect(self.showProfile)
 
-        self.__friends = {}
+        # Чаты
+        self._friendsChatOptions: List[ChatInList] = self.create_chats()
 
-        self.__chats = []
-
-        self.__chatOptionsFrames = []
-
-        self.friendsChatOptions = []
-
-        #ГЫГЫГЫГЫГЫГЫ Я ДОЛБАЕБ Я НАСРАЛ В КОД ГЫГЫГЫГЫГЫГЫГЫГЫ
         self.WidgetForScroll = QtWidgets.QWidget()
 
-        self.getFriends()
-        self.createChats()
-
-        self.ui.close.clicked.connect(self.closeWindow)
-        self.ui.minimize.clicked.connect(self.on_click_hide)
-        self.ui.WindowMode.clicked.connect(self.on_click_fullscreenWindowMode)
-        self.ui.AddFriends.clicked.connect(self.addFriend)
+        # Конектим сигналы к кнопкам всем селом
+        self.ui.AddFriends.clicked.connect(self.add_friend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
         self.ui.SettingsButton.clicked.connect(self.show_parameters)
         self.ui.ScrollFriends.setVisible(False)
-        self.call_chat()
 
-        self.ui.horizontalFrame.mouseMoveEvent = self.MoveWindow
+        # Вызов клиента
+        self.call_chat()
 
         self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
+        self.showFriendList()
+
         self.initializeChatsInScrollArea()
 
+    # <----------------------------------------------Работа с чатами--------------------------------------------------->
+    def create_chats(self) -> List[ChatInList]:
+        """Создает GUI объекты чатов ChatInList и возвращает их список"""
+        chats_list: List[ChatInList] = []
+        for attrs in self.__user.get_chats():
+            chats_list.append(ChatInList(attrs['nickname'], attrs['chat_id'], attrs["chat_ui"]))
+            self.ui.stackedWidget_2.addWidget(
+                attrs["chat_ui"])  # Передается UI объекта ChatView для отображения самого чата
+        return chats_list
+
+    def add_chat_to_view(self, chat_id: str, friend_nick: str, ui) -> ChatInList:
+        chat = ChatInList(friend_nick, str(chat_id), ui)
+        self._friendsChatOptions.append(chat)
+        self.ui.stackedWidget_2.addWidget(
+            ui)
+        return chat
+
+    def call_chat(self):
+        queueToSend = queue.Queue()
+        for chat in self.__user.get_chats():
+            chat["socket_controller"] = self.__user.get_socket_controller()
+            queueToSend.put(chat)
+
+        ClientConnections.start_client(self.__user, queueToSend, self.dynamic_update)
+
     def initializeChatsInScrollArea(self):
+        """Добавляет объекты ChatInList в ScrollFriends"""
         layoutFinal = QtWidgets.QVBoxLayout()
         layoutFinal.setSpacing(5)
-        layoutFinal.setContentsMargins(0,0,0,0)
+        layoutFinal.setContentsMargins(0, 0, 0, 0)
 
-        for chat in self.__chats:
-           self.createChatWidget(chat, layoutFinal)
+        for chat in self._friendsChatOptions:
+            self.createChatWidget(chat, layoutFinal)
 
         self.WidgetForScroll.setLayout(layoutFinal)
 
@@ -113,64 +165,88 @@ class MainWindow(QtWidgets.QMainWindow):
                                                      }""")
 
         self.ui.ScrollFriends.setWidget(self.WidgetForScroll)
-    def mousePressEvent(self, event):
-            self.start = self.mapToGlobal(event.pos())
-            self.pressing = True
 
-    def MoveWindow(self, event):
-        if self.isMaximized():
+    def choose_chat(self):
+        sender = self.sender()
+
+        chat = list(filter(lambda x: x.username == sender.text, self._friendsChatOptions))[0]
+
+        self.__user.change_chat(chat.id)
+
+        self.ui.stackedWidget_2.setCurrentWidget(chat.chat_ui)
+
+    def change_friend_activity_indeicator_color(self, friendNick, color):
+        friend_ChatInList = list(filter(lambda x: x.username == friendNick, self._friendsChatOptions))[0]
+        friend_ChatInList.changeIndicatorColor(color)
+
+    def createChatWidget(self, chat_option: ChatInList, layoutFinal):
+        """Создает объекь ClikableFrame для дальнейшей вставки в ScrollArea"""
+        self.QFr = ClikableFrame(chat_option.username)
+        self.QFr.clicked.connect(self.choose_chat)
+
+        layout = chat_option.ui.Friend
+        if chat_option.messageNumber is None:
+            chat_option.createUnseenMessageNumber(self.QFr)
+
+        messagesNumber = chat_option.messageNumber
+
+        layout.addWidget(messagesNumber)
+        messagesNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
+
+        self.QFr.setLayout(layout)
+        self.QFr.setStyleSheet("""QFrame:hover { 
+                                border-radius:15%;
+                                background-color:rgba(0, 0, 0, 0.26);}
+                                QFrame {
+                                margin:0;
+                                }""")
+        self.QFr.setFixedWidth(250)
+        self.QFr.setFixedHeight(70)
+        self.QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
+
+        layoutFinal.addWidget(self.QFr)
+        layoutFinal.update()
+
+        return layoutFinal
+
+    def updateChatList(self, chat):
+        self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
+
+    def deleteChatFromUI(self, chat):
+        """Удаляет чат из ScrollFriends"""
+        for i in range(self.ui.ScrollFriends.widget().layout().count()):
+            widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
+            if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.username:
+                self.ui.ScrollFriends.widget().layout().takeAt(i)
+                widgetToDelete.deleteLater()
+                self.ui.ScrollFriends.widget().layout().update()
+                break
+
+        if len(self._friendsChatOptions) == 0:
+            self.ui.ScrollFriends.setVisible(False)
+
+    def unseenMessages(self, chat_id: str, newValue: int):
+        chat = list(filter(lambda x: x.id == chat_id, self._friendsChatOptions))[0]
+        if newValue == 0:
+            chat.messageNumber.setVisible(False)
             return
+        if not chat.messageNumber.isVisible():
+            chat.messageNumber.setVisible(True)
 
-        if self.pressing:
-            self.end = self.mapToGlobal(event.pos())
-            movement = self.end-self.start
-            self.move(self.mapToGlobal(movement))
-            self.start = self.end
+        if newValue >= 99:
+            newValue = "99"
+        chat.messageNumber.setText(str(newValue))
+        # plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )
 
-    def mouseReleaseEvent(self, event):
-        self.pressing = False
+    def delete_DM_chat(self, chat_id: str):
+        chat_gui = list(filter(lambda x: str(chat_id) == x.id, self._friendsChatOptions))[0]
+        self._friendsChatOptions.remove(chat_gui)
+        if self.ui.stackedWidget_2.currentWidget() == chat_gui.chat_ui:
+            self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
+        return chat_gui
 
-    def getFriends(self):
-        db = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
-
-        friends = db.getDataFromTableColumn("*", f"WHERE friend_one_id = '{self.__user.getNickName()}' OR friend_two_id = '{self.__user.getNickName()}'")
-
-        for friendArr in friends:
-            if friendArr[len(friendArr) - 1] == 3:
-                continue
-
-            if friendArr[1] not in self.__friends and friendArr[2] not in self.__friends:
-                if friendArr[1] != self.__user.getNickName():
-                    key = friendArr[1]
-                else:
-                    key = friendArr[2]
-
-                self.__friends[key] = [friendArr[0], friendArr[3]]
-        self.__user.setFrinds(self.__friends)
-
-    def createChats(self):
-        for friend in self.__friends.keys():
-            self.__chats.append(Chat(self.__friends[friend][0], friend, self.__user, self.voicepr))
-        self.showFriendList()
-
-
-    def addChatToList(self, chatId, friendNick):
-        chat = Chat(chatId, friendNick, self.__user)
-        self.__chats.append(chat)
-        message_client.MessageConnection.addChatToList(chat)
-        return chat
-
-    def call_chat(self):
-        queueToSend = queue.Queue()
-        for chat in self.__chats:
-            queueToSend.put(chat)
-
-        self.callClient = message_client.call(self.__user, queueToSend, self.dynamicUpdateSlot)
-
-        self.__client = self.callClient[0]
-        self.__messageConnection = self.callClient[1]
-
+    # <----------------------------------------------Работа с чатами--------------------------------------------------->
 
     def showProfile(self):
         self.miniProfile = MiniProfile(QtWidgets.QApplication.primaryScreen().geometry().center(), self.__user)
@@ -190,15 +266,12 @@ class MainWindow(QtWidgets.QMainWindow):
         self.miniProfile.show()
         self.miniProfile.exec()
 
-
-    def addFriendToDict(self, name, chat_id, status):
-        self.__friends[name] = [chat_id, status]
-
     def show_parameters(self):
         self.ui.stackedWidget.setCurrentWidget(self.parameters.ui_pr.MAIN)
 
+    # <---------------------------------------------Работа с друзьями-------------------------------------------------->
     def showFriendList(self):
-        if len(self.__chats) == 0:
+        if len(self._friendsChatOptions) == 0:
             if not self.ui.ScrollFriends.isVisible():
                 return
             else:
@@ -210,86 +283,70 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.ui.ScrollFriends.setVisible(False)
 
-    def addFriend(self):
-        if not AddFriendWindow.isOpen:
-            addFriendsDialog = AddFriendWindow(self.__user)
+    def add_friend(self):
+        self._friends.has_requests()
+        self.ui.stackedWidget_2.setCurrentWidget(self._friends.get_widget())
 
-            addFriendsDialog.show()
-
-            addFriendsDialog.exec()
-
-            senderAndReciver = addFriendsDialog.getSenderAndReciver()
-
-            if len(senderAndReciver) == 0:
-                return
-
-            friendshipTable = db_handler("26.181.96.20", "Dmitry", "gfggfggfg3D-", "zcord", "friendship")
-
-            #Подумать над необходимостью получения status, т.к. при создании запроса он всегда равен 1
-            friendshipInfo = friendshipTable.getCertainRow("friend_one_id", senderAndReciver[0], "chat_id, status", f"friend_two_id = '{senderAndReciver[1]}'")[0]
-
-            self.dynamicUpdateSlot("ADD-CANDIDATE-FRIEND", (senderAndReciver[1], friendshipInfo[0], friendshipInfo[1]))
-
-            chat = self.dynamicUpdateSlot("UPDATE-CHATS", (friendshipInfo[0], senderAndReciver[1]))
-            chat.sendFriendRequest()
-
-    def chooseChat(self):
-        sender = self.sender()
-
-        chat = list(filter(lambda x: x.getNickName() == sender.text, self.__chats))[0]
-
-        chat_id = chat.getChatId()
-
-        message_client.MainInterface.change_chat(chat_id, self.__user.getNickName(), message_client.SygnalChanger())
-
-        chat.ui.MAIN_ChatLayout.setContentsMargins(0,0,0,0)
-        self.ui.stackedWidget_2.addWidget(chat.ui.MAIN)
-        self.ui.stackedWidget_2.setCurrentWidget(chat.ui.MAIN)
-
-
-    def dynamicUpdateSlot(self, command:str, args:tuple, done_event=None):
-        """
-        В *args передаются парометры необходимые для дальнейшего выполнения функций в кейсах
-                      индекс\/
-        ADD-FRIEND: args = 0:"никнейм друга" - обнавляет статус друга в словаре, передает словарь в user
-        UPDATE-CHATS: args = 0:"айди чата", 1:"никнейм друга"
-        DELETE-FRIEND: args = 0:"никнейм друга"
-        DELETE-CHAT: args = 0:"никнейм друга"
-        UPDATE-MESSAGE-NUMBER: args = 0: "чат", 1: "новое значение"
-        CHANGE-ACTIVITY: args = 0: "self/friend", 1: "цвет", 2: "никнейм друга (если есть)"
-        """
+    # <---------------------------------------------Работа с друзьями-------------------------------------------------->
+    @QtCore.pyqtSlot(str, dict)
+    def dynamic_update_slot(self, command: str, args: dict):
         match command:
-            case "ADD-FRIEND":
-                self.updateFriendshipStatus(args)
-                self.__user.setFrinds(self.__friends)
-            case "UPDATE-CHATS":
-                chat = self.addChatToList(args[0], args[1])
-                self.updateChatList(chat)
-                if done_event is not None:
-                    done_event.set()
-                return chat
-            case "ADD-CANDIDATE-FRIEND":
-                self.addFriendToDict(args[0], args[1], args[2])
-                self.__user.setFrinds(self.__friends)
-                if done_event is not None:
-                    done_event.set()
+            case "FRIENDSHIP-REQUEST-SELF":
+                self._friends.add_your_friend_request(friend_id=args['receiver_id'], username=args['receiver_nick'])
+            case "FRIENDSHIP-REQUEST-OTHER":
+                self._friends.add_others_friend_request(friend_id=args['sender_id'], username=args['sender_nick'])
+                self.friend_request_alert()
+            case "SELF-RECALL-REQUEST":
+                self._friends.remove_your_request(args['user_id'])
+            case "OTHERS-RECALL-REQUEST":
+                self._friends.remove_others_request(args['user_id'])
+                self.friend_request_alert()
+            case "ACCEPT-REQUEST-OTHERS":
+                self._friends.remove_others_request(args['user_id'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'])
+                chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
+                                                 ui=chat.ui.MAIN)
+                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                                            'nickname': args['sender_nickname'],
+                                            'socket_controller': self.__user.get_socket_controller()})
+                self.friend_request_alert()
+                self.updateChatList(chat_gui)
+            case "ACCEPT-REQUEST-SELF":
+                self._friends.remove_your_request(args['user_id'])
+                self._friends.remove_add_friend_widget(args['friend_nickname'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['friend_nickname'])
+                chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
+                                                 ui=chat.ui.MAIN)
+                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                                            'nickname': args['friend_nickname'],
+                                            'socket_controller': self.__user.get_socket_controller()})
+                self.updateChatList(chat_gui)
+            case "DECLINE-REQUEST-OTHERS":
+                self._friends.show_hide_alert()
+                has_reqs = self._friends.has_requests()
+                if has_reqs:
+                    self.friend_request_alert()
+            case "DECLINE-REQUEST-SELF":
+                self._friends.remove_your_request(args['receiver_id'])
+                self._friends.remove_add_friend_widget(args['friend_nickname'])
             case "DELETE-FRIEND":
-                self.deleteFriend(args)
-                self.__user.setFrinds(self.__friends)
-            case "DELETE-CHAT":
-                chat = self.deleteChat(args)
+                chat = self.delete_DM_chat(args['chat_id'])
                 self.deleteChatFromUI(chat)
             case "UPDATE-MESSAGE-NUMBER":
-                self.unseenMessages(args[0], args[1])
-                if done_event is not None:
-                    done_event.set()
+                self.unseenMessages(chat_id=args['chat_id'], newValue=args['message_number'])
             case "CHANGE-ACTIVITY":
-                if args[0] == "self":
-                    self.change_self_activity_indicator_color(args[1])
-                elif args[0] == "friend":
-                    self.change_friend_activity_indeicator_color(args[2], args[1])
+                if args['target'] == "self":
+                    self.change_self_activity_indicator_color(args['color'])
+                elif args['target'] == "friend":
+                    self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
+
+    def friend_request_alert(self):
+        if self.ui.friends_alert.isHidden():
+            self.ui.friends_alert.setHidden(False)
+        else:
+            self.ui.friends_alert.setHidden(True)
 
     def change_self_activity_indicator_color(self, color):
         activity_indicator_qss = f"""background-color:{color};
@@ -299,43 +356,11 @@ class MainWindow(QtWidgets.QMainWindow):
                                     """
         self.ui.ActivityIndicator_Logo.setStyleSheet(activity_indicator_qss)
 
-    def change_friend_activity_indeicator_color(self, friendNick, color):
-        print(self.friendsChatOptions[0].ui.user_name)
-        friend_ChatInList = list(filter(lambda x: x.chat.getNickName() == friendNick, self.friendsChatOptions))[0]
+    def close(self):
+        super().close()
+        ClientConnections.close()
+        sys.exit(0)
 
-        friend_ChatInList.changeIndicatorColor(color)
-
-    def updateFriendshipStatus(self, friendName):
-        """Метод просто меняет статус с 1 на 2, т.к. в противном случае будет вызван deleteFriend"""
-        self.__friends[friendName][1] = 2
-
-    def deleteFriend(self, friendName):
-        del self.__friends[friendName]
-
-    def deleteChat(self, friendName):
-        chat = list(filter(lambda chat: chat.getNickName() == friendName, self.__chats))[0]
-        self.__chats.remove(chat)
-        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
-        return chat
-    def closeWindow(self):
-        #with open("Resources/frineds/friends.json", "w") as Frineds_json:
-            #Frineds_json.write(json.dumps(self.__friends))
-        self.close()
-        message_client.MessageConnection.flg = False
-        db_handler._engine.dispose()
-
-        self.__client.close()
-
-
-    def on_click_hide(self):
-        self.showMinimized()
-
-    def on_click_fullscreenWindowMode(self):
-        if self.isMaximized():
-            self.showNormal()
-        else:
-            self.showMaximized()
-        self.updateOverlayGeometry()
     def updateOverlayGeometry(self):
         if hasattr(self, 'overlay'):
             new_rect = QtCore.QRect(
@@ -349,6 +374,7 @@ class MainWindow(QtWidgets.QMainWindow):
     def updateMiniProfilePosition(self):
         if hasattr(self, "miniProfile"):
             self.miniProfile.center_child_window()
+
     def updateWindowMargins(self):
         if self.isMaximized():
             screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
@@ -358,70 +384,15 @@ class MainWindow(QtWidgets.QMainWindow):
         else:
             self.updateMiniProfilePosition()
 
-    def resizeEvent(self, event):
-        self.updateWindowMargins()
-        super().resizeEvent(event)
 
-    def createChatWidget(self, chat, layoutFinal):
-        self.QFr = ClikableFrame(chat.getNickName())
-        self.QFr.clicked.connect(self.chooseChat)
-        chat_option = ChatInList(chat.getNickName()[0], chat.getNickName(), chat)
-        layout = chat_option.ui.Friend
-        if chat.messageNumber is None:
-            chat.createUnseenMessageNumber(self.QFr)
-        messagesNumber = chat.messageNumber
-        messagesNumber.setFixedHeight(25)
-        messagesNumber.setFixedWidth(25)
-        messagesNumber.setStyleSheet("""color:black;
-                                    font-size:18px;
-                                    border:1px solid white;
-                                    border-radius:10%;
-                                    padding:0;
-                                    padding-bottom:2px;
-                                    text-align:center;
-                                    background-color:white;""")
+class ClikableFrame(QtWidgets.QFrame):
+    def __init__(self, text):
+        super(ClikableFrame, self).__init__()
+        self.text = text
 
-        layout.addWidget(messagesNumber)
-        messagesNumber.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight | QtCore.Qt.AlignmentFlag.AlignVCenter)
+    clicked = QtCore.pyqtSignal()
 
-        self.QFr.setLayout(layout)
-        self.QFr.setStyleSheet("""QFrame:hover { 
-                                border-radius:15%;
-                                background-color:rgba(0, 0, 0, 0.26);}
-                                QFrame {
-                                margin:0;
-                                }""")
-        self.QFr.setFixedWidth(250)
-        self.QFr.setFixedHeight(70)
-        self.QFr.setCursor(QtCore.Qt.CursorShape.PointingHandCursor)
-        layoutFinal.addWidget(self.QFr)
-        layoutFinal.update()
-        self.friendsChatOptions.append(chat_option)
-        return layoutFinal
+    def mouseReleaseEvent(self, e):
+        super().mouseReleaseEvent(e)
 
-    def updateChatList(self, chat):
-        if self.ui.ScrollFriends.isVisible():
-            self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
-
-    def deleteChatFromUI(self, chat):
-        if self.ui.ScrollFriends.isVisible():
-            for i in range(self.ui.ScrollFriends.widget().layout().count()):
-                widgetToDelete = self.ui.ScrollFriends.widget().layout().itemAt(i).widget()
-                if self.ui.ScrollFriends.widget().layout().itemAt(i).widget().text == chat.getNickName():
-                    self.ui.ScrollFriends.widget().layout().takeAt(i)
-                    widgetToDelete.deleteLater()
-                    self.ui.ScrollFriends.widget().layout().update()
-                    break
-
-    def unseenMessages(self, chat:Chat, newValue:int):
-        if newValue == 0:
-            chat.messageNumber.setVisible(False)
-            return
-        if not chat.messageNumber.isVisible():
-            chat.messageNumber.setVisible(True)
-
-        print(chat.messageNumber.isVisible())
-        if newValue >= 99:
-            newValue = "99"
-        chat.messageNumber.setText(str(newValue))
-        #plyer.notification.notify(message='Новое сообщение', app_name='zcord', title=chat.getNickName(), toast= True )
+        self.clicked.emit()

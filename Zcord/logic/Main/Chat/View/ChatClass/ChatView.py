@@ -1,10 +1,22 @@
 import threading
+
+from logic.Main.Chat.View.Animation.AnimatedCall import AnimatedBorderButton
 from logic.Main.Chat.View.ChatClass.ChatGUI import Ui_Chat
+from logic.Main.Chat.View.CallDialog.CallView import Call
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
+from logic.Main.Chat.View.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
+from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
+from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 
 
 class ChatView(QtWidgets.QWidget):
+    muteDevice = QtCore.pyqtSignal(str, bool, object)
+    connectReceived = QtCore.pyqtSignal(list)
+    disconnectReceived = QtCore.pyqtSignal(object)
+    callReceived = QtCore.pyqtSignal(bool)
+    speechDetector = QtCore.pyqtSignal(bool, int)
+
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
     awaitedMessageReceive = QtCore.pyqtSignal(str, str, str, int, bool, object)
     clear_layout = QtCore.pyqtSignal()
@@ -16,15 +28,23 @@ class ChatView(QtWidgets.QWidget):
         super(ChatView, self).__init__()
         # Сигналы
         self.messageReceived.connect(self.recieveMessage)
+        self.muteDevice.connect(self.mute_device_friend)
+        self.connectReceived.connect(self.join_icon)
+        self.disconnectReceived.connect(self.left_icon)
+        self.callReceived.connect(self.show_call_widget)
+        self.speechDetector.connect(self.speech_detector)
+
         self.awaitedMessageReceive.connect(self.recieveMessage)
         self.enable_scroll_bar.connect(self.enable_scroll)
         self.change_unseen_status_signal.connect(self.change_unseen_status)
         self.clear_unseen.connect(self.clear_unseen_messages)
         # Сигналы
 
+        # интерфейс чата
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
 
+        # контроллер
         self._controller = controller
 
         self.__chatId = chatId
@@ -63,6 +83,25 @@ class ChatView(QtWidgets.QWidget):
         self.unseenMessages = []
 
         self.scroll_pos = 0
+
+        # Войс GUI
+        self.ui.Call.hide()
+
+        # Словарь по иконкам юзеров: {client: icon}
+        self.client_icons = {}
+        # Переменные мутов
+        self.microphone_mute = False
+        self.headphone_mute = False
+
+        # Подключение кнопок войса
+        """Окно чата"""
+        self.ui.CallButton.clicked.connect(self.start_call)
+        self.ui.leaveCall.clicked.connect(self.stop_call)
+        self.ui.muteMic.clicked.connect(self.mute_mic_self)
+        self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
+
+        """Окно приходящего звонка"""
+        self.call_dialog = Call(self.start_call)
 
     def ask_for_cached_messages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
@@ -211,3 +250,77 @@ class ChatView(QtWidgets.QWidget):
 
     def getChatId(self):
         return self.__chatId
+
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self):
+        self.ui.Call.show()
+        self._controller.start_call(self.__user, self.__chatId)
+        self.call_dialog.hide_call_event()
+
+        """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
+        иконок пользователей с сервером)"""
+        #self.animate_call = AnimatedBorderButton(self.ui.User1_icon) # TODO
+
+    def stop_call(self):
+        self.ui.Call.hide()
+        self._controller.stop_call()
+
+        for icon in self.client_icons.values():
+            self.ui.UsersFiled_layout.removeWidget(icon.ui.widget_2)
+        self.client_icons = {}
+
+    def show_call_dialog(self):
+        self.call_dialog.show_call_event()
+
+    # Функция чередования для девайса мута друга
+    def mute_device_friend(self, device, flg, client):
+        if device == "mic":
+            self.mute_mic_friend(flg, client)
+        elif device == "head":
+            self.mute_head_friend(flg, client)
+
+    # Микрофон
+    def mute_mic_self(self):
+        self.microphone_mute = not self.microphone_mute
+        self.client_icons[self.__user.id].mute_mic(self.microphone_mute)
+        self._controller.mute_mic_self(self.microphone_mute)
+
+    def mute_mic_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        self.client_icons[int(client["user_id"])].mute_mic(flg)
+
+    # Наушники
+    def mute_head_self(self):
+        self.headphone_mute = not self.headphone_mute
+        self.client_icons[self.__user.id].mute_head(self.headphone_mute)
+        self._controller.mute_head_self(self.headphone_mute)
+
+    def mute_head_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
+        self.client_icons[int(client["user_id"])].mute_head(flg)
+
+    # Работа с иконками юзеров
+    # Условие 1 - подключение к группе пользователей
+    def join_icon(self, clients):
+        print(f"join_icon")
+        for client in clients:
+            if int(client["user_id"]) not in self.client_icons.keys():
+                newcomer = UserIcon(client, self.__user)
+                self.client_icons[int(client["user_id"])] = newcomer
+                self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+
+    # Условие 2 - выход одного из пользователей peer_left
+    def left_icon(self, client):
+        print("left_icon")
+        self.ui.UsersFiled_layout.removeWidget(self.client_icons[int(client["user_id"])].ui.widget_2)
+        del self.client_icons[int(client["user_id"])]
+
+    def show_call_widget(self, flg):
+        if flg and self.ui.Call.isHidden():
+            self.call_dialog.show_call_event()
+        else:
+            self.call_dialog.hide_call_event()
+
+    def speech_detector(self, flg, user_id):
+        try:
+            self.client_icons[int(user_id)].speech_animation(flg)
+        except KeyError as e:
+            pass

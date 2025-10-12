@@ -1,8 +1,17 @@
+import asyncio
+import threading
+
+from PyQt6.QtCore import QThread, pyqtSignal, QObject
+
+from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.client.ClientConnections.ClientConnections import ClientConnections
+from logic.client.voice_client import CallManager
 
 
 class ChatModel:
     def __init__(self):
+        super().__init__()
+        self.call_manager = CallManager()
         self._block_scroll_cache = False
 
     def call_notification(self):
@@ -28,3 +37,35 @@ class ChatModel:
         #friendAdding.deleteFriendRequest(friend_nick)
         #friendAdding.BlockUser(friend_nick)
         #ClientConnections.send_service_message(f"__DELETE-REQUEST__&{friend_nick}")
+
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self, user, chat_id):
+        """Запуск звонка - синхронный вызов"""
+        success = self.call_manager.start_call(
+            user=user,
+            host="26.36.124.241",
+            port=55559,
+            room=chat_id
+        )
+        #ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
+
+    def stop_call(self):
+        """Остановка звонка - синхронный вызов"""
+        success = self.call_manager.stop_call()
+        #ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
+
+    # Микрофон
+    def mute_mic_self(self, flg):
+        self.call_manager.client.voice_handler.mute_mic_self(flg)
+        asyncio.run_coroutine_threadsafe(
+            self.call_manager.client.send_mute_mic(flg),
+            self.call_manager.loop
+        )
+
+    # Наушники
+    def mute_head_self(self, flg):
+        self.call_manager.client.voice_handler.mute_head_self(flg)
+        asyncio.run_coroutine_threadsafe(
+            self.call_manager.client.send_mute_head(flg),
+            self.call_manager.loop
+        )

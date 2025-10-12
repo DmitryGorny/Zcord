@@ -8,7 +8,12 @@ from logic.Main.MainWidnowChats.ChatInList import ChatInList
 from logic.Main.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
+from logic.client.SettingController.settings_controller import VoiceSettingsController
+from logic.db_handler.db_handler import db_handler
+from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
+from logic.Main.Chat.View.Voice_params.VoiceParamsClass import VoiceParamsClass
+
 from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from qframelesswindow import FramelessWindow
@@ -54,17 +59,16 @@ class MainWindow(FramelessWindow):
         self.dynamic_update.connect(self.dynamic_update_slot)
         # Сигналы
 
+        self.voicepr = VoiceParamsClass()
+        self.parameters = ParamsWindow(self.ui, self.voicepr)
+        self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         # Работа с друзьями
         self._friends: FriendsWidget = FriendsWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._friends.get_widget())
 
         if self._friends.has_requests():
             self.friend_request_alert()
-
-        # Параметры
-        #self.parameters = ParamsWindow(self.ui, self.voicepr)
-        #self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-        #self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
 
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого

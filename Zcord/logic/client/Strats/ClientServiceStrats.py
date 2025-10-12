@@ -90,15 +90,20 @@ class ConnectToMessageServer(ClientsStrategies):
         self.service_connection_pointer.send_message(msg_type="CACHE-REQUEST")
 
 
+
 class CallNotificationStrat(ClientsStrategies):
-    header_name = "CALL-NOTIFICATION"
+    header_name = "__CALL-NOTIFICATION__"
 
     def __init__(self):
         super(CallNotificationStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"]  # Юзер позвонивший
-        # self.service_connection_pointer.chat.socket_controller. ########
+        user_id = msg["user_id"] #Юзер позвонивший
+        chat_id = str(msg["chat_id"])
+        call_flg = int(msg["call_flg"])
+        call_flg = bool(call_flg)
+        print("Клиент принял ивент звонка")
+        self.service_connection_pointer.chat.socket_controller.receive_call(chat_id, call_flg)
 
 
 class FriendshipRequestSendStrat(ClientsStrategies):

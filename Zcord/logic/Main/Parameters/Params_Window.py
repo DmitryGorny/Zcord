@@ -1,4 +1,3 @@
-import sys
 from PyQt6.QtWidgets import QMainWindow
 from logic.Main.Parameters.Parameters import Ui_Parameters
 

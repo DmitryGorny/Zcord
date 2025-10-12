@@ -45,6 +45,21 @@ class ChatController:
     def accept_request(self, user, friend_nick):
         self._model.accept_friend_request(user, friend_nick)
 
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self, user, chat_id):
+        self._model.start_call(user, chat_id)
+
+    def stop_call(self):
+        self._model.stop_call()
+
+    # Микрофон
+    def mute_mic_self(self, flg):
+        self._model.mute_mic_self(flg)
+
+    # Наушники
+    def mute_head_self(self, flg):
+        self._model.mute_head_self(flg)
+
     class SocketController:
         def __init__(self, views: Dict[str, ChatView], model: ChatModel):
             self._views = views
@@ -76,3 +91,19 @@ class ChatController:
 
         def clear_unseen_messages_in_view(self, chat_id: str):
             self._views[str(chat_id)].clear_unseen.emit()
+
+        # Voice
+        def receive_mute(self, device: str, chat_id: str, mute_pos: bool, client: object):
+            self._views[chat_id].muteDevice.emit(device, mute_pos, client)
+
+        def receive_connect(self, chat_id: str, clients: list):
+            self._views[chat_id].connectReceived.emit(clients)
+
+        def receive_disconnect(self, chat_id: str, client: object):
+            self._views[chat_id].disconnectReceived.emit(client)
+
+        def receive_call(self, chat_id: str, call_flg: bool):
+            self._views[chat_id].callReceived.emit(call_flg)
+
+        def vad_animation(self, chat_id: str, speech_flg: bool, user_id: int):
+            self._views[chat_id].speechDetector.emit(speech_flg, user_id)

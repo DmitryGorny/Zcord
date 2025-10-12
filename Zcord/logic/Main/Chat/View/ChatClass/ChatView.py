@@ -5,8 +5,6 @@ from logic.Main.Chat.View.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.CallDialog.CallView import Call
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
-from logic.Main.Chat.View.FriendRequestMessage.FriendReauestMessage import FriendRequestMessage
-from logic.Main.Chat.View.DeleteFriend.DeleteFriend import DeleteFriend
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 
 
@@ -68,8 +66,6 @@ class ChatView(QtWidgets.QWidget):
         self.ui.ChatScroll.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
         self.ui.Chat_input_.returnPressed.connect(self.sendMessage)
-
-        self.ui.InfoButton.clicked.connect(self.showDeleteFriendDialog)
 
         self.ui.ChatScroll.verticalScrollBar().valueChanged.connect(self.ask_for_cached_messages)
 
@@ -204,23 +200,6 @@ class ChatView(QtWidgets.QWidget):
     def clear_unseen_messages(self):
         self.unseenMessages.clear()
 
-    def sendFriendRequest(self):
-        self._controller.send_friend_request(self.__chatId, self.__friendNickname)
-
-    def showFriendRequestWidget(self, sender):
-        message = FriendRequestMessage(sender, self.acceptFriendRequest, self.rejectRequest)
-
-        widget = QtWidgets.QListWidgetItem(self.ui.ChatScroll)
-        widget.setSizeHint(message.ui.Message_.sizeHint())
-
-        self.ui.ChatScroll.addItem(widget)
-        self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
-        self.ui.ChatScroll.setCurrentItem(widget)
-
-    def acceptFriendRequest(self):
-        self._controller.accept_request(self.__user, self.__friendNickname)
-        self.startMessaging()
-
     def startMessaging(self):
         self.ui.ChatInputLayout.setHidden(False)
         self.clearLayout()
@@ -231,13 +210,6 @@ class ChatView(QtWidgets.QWidget):
 
     def rejectRequest(self, deleteFriend: bool = False):
         self._controller.reject_request(self.__user, self.__friendNickname, deleteFriend)
-
-    def showDeleteFriendDialog(self):
-        if not DeleteFriend.isOpen:
-            deleteFriendDialog = DeleteFriend(self)
-
-            deleteFriendDialog.show()
-            deleteFriendDialog.exec()
 
     def blockUser(self):
         self._controller.block_user(self.__user, self.__friendNickname)

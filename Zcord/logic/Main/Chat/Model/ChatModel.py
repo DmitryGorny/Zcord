@@ -1,9 +1,4 @@
 import asyncio
-import threading
-
-from PyQt6.QtCore import QThread, pyqtSignal, QObject
-
-from logic.Main.Friends.FriendAdding import FriendAdding
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.client.voice_client import CallManager
 

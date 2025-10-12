@@ -8,13 +8,8 @@ from logic.Main.MainWidnowChats.ChatInList import ChatInList
 from logic.Main.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
-from logic.client.SettingController.settings_controller import VoiceSettingsController
-from logic.db_handler.db_handler import db_handler
-from logic.Main.CompiledGUI.Helpers.ClickableFrame import ClikableFrame
 from logic.Main.Parameters.Params_Window import ParamsWindow
 from logic.Main.Chat.View.Voice_params.VoiceParamsClass import VoiceParamsClass
-
-from PyQt6.QtGui import QIcon
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from qframelesswindow import FramelessWindow
 from logic.Main.TitleBar.TitleBar import CustomTitleBar

@@ -6,34 +6,6 @@
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/RegistrationWindow/RegistrationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/RegistrationWindow/RegistrationWindowDisplay.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/AuthorizationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/AuthorizationError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/LoginPassError/LoginPassError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/LoginPassError/LoginPassErrorWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/RegistrationError/RegistrationError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/RegistrationError/RegistrationErrorWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/ErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/UserError/ErrorWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/UserError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/UserError/UserError.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegisterWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/SuccessDialog/SuccessRegister/SuccessRegisterWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriend.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriendGUI.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendReauestMessage.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendRequest.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInList.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInListGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInListGUI.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ClickableFrame.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Notifications/Notifications.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParameters.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParamsClass.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_send.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_server.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -50,7 +22,7 @@
   <component name="Git.Settings">
     <option name="RECENT_BRANCH_BY_REPOSITORY">
       <map>
-        <entry key="$PROJECT_DIR$/.." value="VoiceChat" />
+        <entry key="$PROJECT_DIR$/.." value="master" />
       </map>
     </option>
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />

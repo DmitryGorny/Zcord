@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
 from .Option import Option, OptionDirector
 
-#Родитель статусов
+
+# Родитель статусов
 class Status:
     def __init__(self):
         self.color = None
@@ -17,27 +18,34 @@ class Status:
     def set_option(self, option: Option):
         self.option = option
 
-#Классы под все статусы
+
+# Классы под все статусы
 class Online(Status):
     def __init__(self):
         super(Online, self).__init__()
+
 
 class Hidden(Status):
     def __init__(self):
         super(Hidden, self).__init__()
 
+
 class DisturbBlock(Status):
     def __init__(self):
         super(DisturbBlock, self).__init__()
+
 
 class AFK(Status):
     def __init__(self):
         super(AFK, self).__init__()
 
+
 class Custom(Status):
     def __init__(self):
         super(Custom, self).__init__()
-#Классы под все статусы
+
+
+# Классы под все статусы
 
 class Builder(ABC):
     @abstractmethod
@@ -52,6 +60,7 @@ class Builder(ABC):
     def set_options(self, option: Option) -> None:
         pass
 
+
 class CreateStatus(Builder):
     def __init__(self):
         self._status = Status()
@@ -63,7 +72,7 @@ class CreateStatus(Builder):
         return status
 
     @status.setter
-    def status(self, status:Status):
+    def status(self, status: Status):
         self._status = status
 
     def add_color(self, color) -> None:
@@ -74,6 +83,7 @@ class CreateStatus(Builder):
 
     def set_options(self, option: Option) -> None:
         self._status.set_option(option)
+
 
 class Director:
     def __init__(self):
@@ -107,4 +117,3 @@ class Director:
         self._builder.add_color("yellow")
         self._builder.set_name("Не активен")
         self._builder.set_options(self._option_director.default_AFK_option())
-

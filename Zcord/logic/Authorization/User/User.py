@@ -1,17 +1,21 @@
+from datetime import datetime
+from typing import List, Dict
+from logic.Main.Chat.Controller.ChatController import ChatController
+from logic.Authorization.User.chat.UserChats import UserChats
+from logic.Authorization.User.friend.UserFriends import UserFriends
 from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
-from logic.Message.message_client import MessageConnection
-class User:
-    def __init__(self, nickname, password):
-        self.__nickname = nickname
-        self.__friends = {}
-        self.__password = password
+from logic.client.ClientConnections.ClientConnections import ClientConnections
+
+
+class BaseUser:
+    def __init__(self, user_id, nickname, last_online: str):
+        self._id = user_id
+        self._nickname = nickname
         self._status = None
         self._statuses = []
+        self._last_online: datetime = datetime.strptime(last_online, "%Y-%m-%dT%H:%M:%S.%fZ")
         self.create_default_statuses()
 
-    @property
-    def statuses(self):
-        return self._statuses
     def create_default_statuses(self):
         status_director = Director()
         status_director.builder = CreateStatus()
@@ -34,19 +38,79 @@ class User:
 
         self._statuses = [online, distrub, hidden, afk]
         self._status = online
+
     @property
     def status(self):
         return self._status
+
     @status.setter
     def status(self, status) -> None:
         self._status = status
 
+    @property
+    def id(self):
+        return self._id
+
+    @property
+    def statuses(self):
+        return self._statuses
+
     def getNickName(self):
-        return self.__nickname
+        return self._nickname
 
-    def setFrinds(self, friends):
-        self.__friends = friends
+    @property
+    def last_online(self) -> datetime:
+        return self._last_online
 
-    def getFriends(self):
-        return self.__friends
 
+class User(BaseUser):
+    def __init__(self, user_id, nickname, password, last_online):
+        super(User, self).__init__(user_id, nickname, last_online)
+        self.__password = password
+        self._friends_model = UserFriends(self)
+        self._chats_model = UserChats(self)
+
+        self.init_friends_and_chats()
+
+    def init_friends_and_chats(self) -> None:
+        self._friends_model.init_friends()
+
+        for friend in self._friends_model.friends_props():
+            self._chats_model.init_dm_chats(friend)
+        self._chats_model.init_controller_views_list()
+
+    def add_chat(self, username: str, chat_id: str):
+        return self._chats_model.add_DM_chat(chat_id=chat_id, friend_nick=username)
+
+    def add_friend(self, username: str, chat_id: str, user_id: str):
+        from datetime import datetime
+        now = datetime.now()
+        time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+
+        self._friends_model.add_friend(chat_id=chat_id, user_nickname=username, user_id=user_id, last_online=time_str)
+
+    def get_chats(self) -> List[dict]:
+        attrs_list: List[dict] = []
+        for chat_attrs in self._chats_model.chats_props():
+            attrs_list.append(chat_attrs)
+        return attrs_list
+
+    def delete_chat(self, chat_id: str, is_dm: bool) -> None:
+        if is_dm:
+            self._chats_model.delete_DM_chat(chat_id)
+
+    def delete_friend(self, friend_id: str) -> None:
+        print(1123121332)
+        self._friends_model.delete_friend(friend_id)
+
+    def change_chat(self, chat_id: str) -> None:
+        ClientConnections.change_chat(chat_id)
+
+    def get_socket_controller(self) -> ChatController.SocketController:
+        return self._chats_model.get_socket_controller()
+
+    def getFriends(self) -> List[Dict[str, str]]:
+        friends: List[Dict[str, str]] = []
+        for friend in self._friends_model.friends_props():
+            friends.append(friend)
+        return friends

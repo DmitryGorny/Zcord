@@ -4,22 +4,36 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_02_2025_0_36_[Changes]/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_Update_at_22_02_2025_0_36__Changes_.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase_[Changes]5/shelved.patch" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/shelf/Uncommitted_changes_before_rebase__Changes_5.xml" beforeDir="false" />
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/Main.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Main.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/profile/MiniProfile.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/profile/MiniProfile.ui" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/GUI/res-rec.qrc" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/res-rec.qrc" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/ChatClass/Chat.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/MainWindowGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/CompiledGUI/MainWindowGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/AuthorizationWindow/AuthorizationWindowDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/RegistrationWindow/RegistrationWindowDisplay.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/RegistrationWindow/RegistrationWindowDisplay.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/UserAuthorization.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/AuthorizationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/AuthorizationError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/LoginPassError/LoginPassError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/LoginPassError/LoginPassErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/LoginPassError/LoginPassErrorWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/RegistrationError/RegistrationError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/RegistrationError/RegistrationErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/RegistrationError/RegistrationErrorWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/ErrorWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/UserError/ErrorWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/ErrorDialog/UserError/UserError.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/ErrorDialog/UserError/UserError.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/SuccessDialog/SuccessRegister/SuccessRegister.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Errors/SuccessDialog/SuccessRegister/SuccessRegisterWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/Errors/SuccessDialog/SuccessRegister/SuccessRegisterWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriend.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/DeleteFriend/DeleteFriendGUI.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendReauestMessage.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/FriendRequestMessage/FriendRequest.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInList.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInList.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ChatInListGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInListGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/CompiledGUI/Helpers/ClickableFrame.py" beforeDir="false" />
       <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_client.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Message/message_server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Message/message_server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Notifications/Notifications.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Parameters/Params_Window.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParameters.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Voice_main/VoiceParamsClass.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_send.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Voice/audio_server.py" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,26 +80,27 @@
     &quot;git-widget-placeholder&quot;: &quot;FriendAdding&quot;,
     &quot;ignore.virus.scanning.warn.message&quot;: &quot;true&quot;,
     &quot;kotlin-language-version-configured&quot;: &quot;true&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitriy/Desktop/Visual_Studio_Code_Dark_Plus_theme_for_JetBrains_IDEs-2.9.0.zip&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/Dmitriy/Desktop/Zcord/API&quot;,
     &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
     &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
     &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
     &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;run.code.analysis.last.selected.profile&quot;: &quot;pProject Default&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;preferences.pluginManager&quot;,
     &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI\Helpers" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\CompiledGUI" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\miniProfile" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\Message" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\DeleteFriend" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\MainWidnowChats" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Authorization" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\TitleBar" />
     </key>
   </component>
   <component name="RunManager" selected="Python.zcord">
-    <configuration name="Activity" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="MessageServer (1)" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -93,11 +108,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Main/ActivitySatus" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/MessageServer" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Main/ActivitySatus/Activity.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -106,7 +121,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="Notifications" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="Server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -114,11 +129,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Main/Notifications" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Main/Notifications/Notifications.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/Server.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -127,7 +142,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="message_server" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="StratsForServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -135,12 +150,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/Message" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/server/StrategiesForMessageServer" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/Message/message_server.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -149,7 +163,7 @@
       <option name="INPUT_FILE" value="" />
       <method v="2" />
     </configuration>
-    <configuration name="tiel" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+    <configuration name="api_client" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
       <option name="PARENT_ENVS" value="true" />
@@ -157,11 +171,11 @@
         <env name="PYTHONUNBUFFERED" value="1" />
       </envs>
       <option name="SDK_HOME" value="" />
-      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/logic/db_client" />
       <option name="IS_MODULE_SDK" value="true" />
       <option name="ADD_CONTENT_ROOTS" value="true" />
       <option name="ADD_SOURCE_ROOTS" value="true" />
-      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/tiel.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/logic/db_client/api_client.py" />
       <option name="PARAMETERS" value="" />
       <option name="SHOW_COMMAND_LINE" value="false" />
       <option name="EMULATE_TERMINAL" value="false" />
@@ -195,17 +209,17 @@
     <recent_temporary>
       <list>
         <item itemvalue="Python.zcord" />
-        <item itemvalue="Python.message_server" />
-        <item itemvalue="Python.Activity" />
-        <item itemvalue="Python.Notifications" />
-        <item itemvalue="Python.tiel" />
+        <item itemvalue="Python.MessageServer (1)" />
+        <item itemvalue="Python.Server" />
+        <item itemvalue="Python.api_client" />
+        <item itemvalue="Python.StratsForServer" />
       </list>
     </recent_temporary>
   </component>
   <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
   <component name="TaskManager">
     <task active="true" id="Default" summary="Default task">
-      <changelist id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="" />
+      <changelist id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2" />
       <created>1729970822841</created>
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
@@ -305,7 +319,7 @@
                   <entry key="branch">
                     <value>
                       <list>
-                        <option value="origin/FriendAdding" />
+                        <option value="TCP-server" />
                       </list>
                     </value>
                   </entry>
@@ -330,12 +344,9 @@
   <component name="XDebuggerManager">
     <watches-manager>
       <configuration name="PythonConfigurationType">
-        <watch expression="MessageConnection.chatsList" language="Python" />
-        <watch expression="MessageConnection.chatsList[1].getChatId()" language="Python" />
-        <watch expression="chat = list(filter(lambda x: int(x.getChatId()) == int(key), MessageConnection.chatsList))" language="Python" />
-        <watch expression="for i in MessageConnection.chatsList: i.getChatId()" language="Python" />
-        <watch expression="self.friendsChatOptions[0].ui.user_name" language="Python" />
-        <watch expression="self.friendsChatOptions[0].ui.user_name.text()" language="Python" />
+        <watch expression="self._main_cache" language="Python" />
+        <watch expression="x[&quot;sender&quot;]" language="Python" />
+        <watch expression=" ids = [{&quot;id&quot;: x[&quot;id&quot;]} for x in cache[&quot;cache&quot;] if x[&quot;was_seen&quot;] == False if x[&quot;sender&quot;] != user_id]" language="Python" />
       </configuration>
     </watches-manager>
   </component>

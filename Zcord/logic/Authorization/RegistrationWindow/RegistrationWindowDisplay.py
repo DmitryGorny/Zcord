@@ -1,8 +1,8 @@
-from PyQt6 import QtWidgets, QtCore, QtGui
+from PyQt6 import QtWidgets, QtCore
 from logic.Authorization.RegistrationWindow.RegistrationWindow import Ui_Dialog
 from logic.Authorization.UserRegistration import UserRegistration
-from logic.Errors.SuccessDialog.SuccessRegister.SuccessRegister import SuccessRegister
-from logic.Errors.ErrorDialog.RegistrationError.RegistrationError import RegistrationError
+from logic.Authorization.Errors.SuccessDialog.SuccessRegister.SuccessRegister import SuccessRegister
+from logic.Authorization.Errors.ErrorDialog.RegistrationError.RegistrationError import RegistrationError
 
 class ReigstrationWindowDisplay(QtWidgets.QDialog):
     def __init__(self):

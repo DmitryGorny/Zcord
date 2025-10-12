@@ -303,7 +303,7 @@ class ChatView(QtWidgets.QWidget):
         print(f"join_icon")
         for client in clients:
             if int(client["user_id"]) not in self.client_icons.keys():
-                newcomer = UserIcon(client)
+                newcomer = UserIcon(client, self.__user)
                 self.client_icons[int(client["user_id"])] = newcomer
                 self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 

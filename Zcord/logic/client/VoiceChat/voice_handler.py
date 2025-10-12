@@ -22,8 +22,6 @@ class VoiceHandler:
     def __init__(self, chat_obj, room, user, flg_callback=lambda: True):
         # подгрузка настроек
         self.pa = pyaudio.PyAudio()
-        settings = VoiceSettingsController()
-        settings.settingsChanged.connect(lambda data: asyncio.create_task(self.on_settings_changed(data)))
 
         # Новое: флаги и блокировка для безопасной перезагрузки
         self.device_reload_required = False
@@ -101,7 +99,7 @@ class VoiceHandler:
 
             # обновляем
             self.last_seq_map[user_id] = seq
-            print(seq)
+            #print(seq)
             try:
                 if not self.is_head_mute:
                     if seq % 10 == 0:
@@ -109,6 +107,7 @@ class VoiceHandler:
                                                                       user_id)
 
                     payload = self.adjust_volume(payload, VoiceSettingsController().output_volume())
+                    payload = self.adjust_volume(payload, VoiceSettingsController().output_volume_friend(str(user_id)))
                     out_stream.write(payload)
                 else:
                     continue
@@ -201,52 +200,3 @@ class VoiceHandler:
             self.pa.terminate()
         except Exception as e:
             pass
-
-    async def on_settings_changed(self, data):
-        """Реагирует на изменения JSON-настроек (устройства/громкость)."""
-        print("[VoiceHandler] Получено обновление настроек — перезапуск устройств...")
-        self.device_reload_required = True
-        await self.reload_audio_devices(data)
-        self.device_reload_required = False
-
-    async def reload_audio_devices(self, new_settings: dict):
-        async with self.reload_lock:
-            print("[VoiceHandler] Перезапуск аудиоустройств...")
-            try:
-                try:
-                    if self.in_stream and self.in_stream.is_active():
-                        self.in_stream.stop_stream()
-                    self.in_stream.close()
-                except Exception:
-                    pass
-
-                self.in_stream = self.pa.open(
-                    format=FORMAT,
-                    channels=CHANNELS,
-                    rate=RATE,
-                    input=True,
-                    frames_per_buffer=SAMPLES_PER_FRAME,
-                    input_device_index=new_settings.get("microphone_index", -1)
-                )
-
-                for user_id, stream in list(self.out_streams.items()):
-                    try:
-                        if stream.is_active():
-                            stream.stop_stream()
-                        stream.close()
-                    except Exception:
-                        pass
-
-                    self.out_streams[user_id] = self.pa.open(
-                        format=FORMAT,
-                        channels=CHANNELS,
-                        rate=RATE,
-                        output=True,
-                        frames_per_buffer=SAMPLES_PER_FRAME,
-                        output_device_index=new_settings.get("headphones_index", -1)
-                    )
-
-                print("[VoiceHandler] Потоки успешно перезапущены.")
-            except Exception as e:
-                print("[VoiceHandler] Ошибка при перезапуске устройств:", e)
-

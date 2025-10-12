@@ -31,10 +31,8 @@ class VoiceParamsClass(QtWidgets.QWidget):
         self.head_index = VoiceSettingsController().current_output_device()
 
         try:
-            self.ui_voice_pr.VolumeOfMicSlider.setValue(VoiceSettingsController().input_volume())
-            self.ui_voice_pr.VolumeOHeadphonesSlider.setValue(VoiceSettingsController().output_volume())
-            self.change_voice_volume()
-            self.change_headphones_volume()
+            self.ui_voice_pr.VolumeOfMicSlider.setValue(int(VoiceSettingsController().input_volume() * 10))
+            self.ui_voice_pr.VolumeOHeadphonesSlider.setValue(int(VoiceSettingsController().output_volume() * 10))
         except Exception as e:
             print(e)
 
@@ -98,9 +96,10 @@ class VoiceParamsClass(QtWidgets.QWidget):
             "headphones_index": self.ui_voice_pr.ChooseHeadPhonesBox.currentData(),
             "microphone_index": self.ui_voice_pr.ChooseMicroBox.currentData(),
             "volume_mic": self.ui_voice_pr.VolumeOfMicSlider.value(),
-            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value()
+            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value(),
+            "volume_friend": VoiceSettingsController().volume_friend
         }
-        with open('Resources/settings/settings_voice.json', 'w', encoding='utf-8') as file:
+        with open('Resources/settings/Voice/settings_voice.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)
 
     def check_mic_volume(self):

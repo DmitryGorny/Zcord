@@ -1,0 +1,11 @@
+{
+    "headphones_index": 3,
+    "microphone_index": 1,
+    "volume_mic": 10,
+    "volume_head": 10,
+    "volume_friend": {
+        "1": 10,
+        "2": 11,
+        "2": 10
+    }
+}

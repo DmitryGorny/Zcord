@@ -94,7 +94,7 @@ class EndSessionStrategy(ServiceStrategy):
             friend_obj = self._server_pointer.clients[friend.id]
 
             await friend_obj.send_message('USER-STATUS', {
-                "user-status": "USER-HIDDEN",
+                "user-status": {'color': 'grey', 'user-status': 'Невидимка'},
                 "nickname": self._server_pointer.clients[user_id].nick,
             })
 

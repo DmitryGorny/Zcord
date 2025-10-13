@@ -4,12 +4,20 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Добавил функционал увеличения громкости, добавлен общий класс настроек (осталось его подключить)">
+    <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Куча нового и интересного с войса 2">
+      <change beforePath="$PROJECT_DIR$/../API/.env" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/.idea/API.iml" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.idea/API.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.idea/misc.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/Zcord.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/Zcord.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/Resources/settings/Voice/settings_voice.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/settings/Voice/settings_voice.json" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Model/ChatModel.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Resources/user/User.json" beforeDir="false" afterPath="$PROJECT_DIR$/Resources/user/User.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/ClientConnections/ClientConnections.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/MessageServer/MessageServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Server.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Server.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -75,7 +83,7 @@
       <recent name="C:\Users\Disita\Desktop\server-client\Zcord\logic\Main\Chat\View" />
     </key>
   </component>
-  <component name="RunManager" selected="Python.VoiceServer">
+  <component name="RunManager" selected="Python.MessageServer">
     <configuration name="MessageServer" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="Zcord" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -188,10 +196,10 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.VoiceServer" />
+        <item itemvalue="Python.zcord" />
         <item itemvalue="Python.MessageServer" />
         <item itemvalue="Python.Server" />
-        <item itemvalue="Python.zcord" />
+        <item itemvalue="Python.VoiceServer" />
         <item itemvalue="Python.voice_client" />
       </list>
     </recent_temporary>

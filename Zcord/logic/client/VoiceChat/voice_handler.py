@@ -23,7 +23,7 @@ class VoiceHandler:
         # подгрузка настроек
         self.pa = pyaudio.PyAudio()
 
-        # Новое: флаги и блокировка для безопасной перезагрузки
+        # флаги и блокировка для безопасной перезагрузки
         self.device_reload_required = False
         self.reload_lock = asyncio.Lock()
 
@@ -68,7 +68,7 @@ class VoiceHandler:
 
         if not self.is_mic_mute:
             data = self.adjust_volume(data, VoiceSettingsController().input_volume())
-            if seq % 10 == 0:
+            if seq % 5 == 0:
                 self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
         seq = (seq + 1) & 0xFFFFFFFF
@@ -102,7 +102,7 @@ class VoiceHandler:
             #print(seq)
             try:
                 if not self.is_head_mute:
-                    if seq % 10 == 0:
+                    if seq % 5 == 0:
                         self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
                                                                       user_id)
 

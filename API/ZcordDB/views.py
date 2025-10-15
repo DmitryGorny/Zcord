@@ -17,7 +17,7 @@ class UserView(viewsets.ModelViewSet):
     queryset = Users.objects.all()
     serializer_class = UserSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['=nickname']
+    search_fields = ['nickname__exact']
 
 
 class FriendshipView(viewsets.ModelViewSet):

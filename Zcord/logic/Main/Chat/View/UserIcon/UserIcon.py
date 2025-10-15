@@ -1,6 +1,7 @@
 from PyQt6.QtWidgets import QFrame, QWidget
 from PyQt6.QtCore import QTimer, Qt, QPoint
 
+from logic.Main.Chat.View.Animation.AnimatedCall import AnimatedBorderButton
 from logic.Main.Chat.View.UserIcon.UserIconQt import Ui_Icon
 from logic.Main.Chat.View.UserIcon.ContextMenuIcon import Ui_Frame
 from logic.client.SettingController.settings_controller import VoiceSettingsController
@@ -34,7 +35,7 @@ class UserFrame(QFrame, Ui_Frame):
 
 
 class UserIcon(QWidget):
-    def __init__(self, client, user):
+    def __init__(self, client, user, pre_create=False):
         super().__init__()
 
         self.ui = Ui_Icon()
@@ -43,6 +44,10 @@ class UserIcon(QWidget):
         self.ui.User2_icon_2.setText(client['user'][0].upper())
         self.ui.user2_headphonesMute_2.hide()
         self.ui.user2_micMute_2.hide()
+
+        if pre_create:
+            self.animate_call = AnimatedBorderButton(self.ui.User2_icon_2)
+
         self.ui.widget_2.show()
 
         self.default_icon = f"""
@@ -84,7 +89,8 @@ class UserIcon(QWidget):
             self.ui.User2_icon_2.setStyleSheet(self.active_icon)
             self.reset_timer_icon.start(500)
         else:
-            self.reset_timer_icon.start(0)
+            self.reset_timer_icon.stop()  # отменить таймер, если активен
+            self.default_animation()  # сразу вернуть иконку
 
     def default_animation(self):
         self.ui.User2_icon_2.setStyleSheet(self.default_icon)

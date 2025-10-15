@@ -100,6 +100,7 @@ class TcpSignalServer:
 
     async def handle_message(self, client: ClientInfo, msg: dict):
         typ = msg.get("t")
+        print(msg)
         if typ == "join_room":
             await self._join_room(client, msg)
         elif typ == "leave":  # btw информационное сообщение, что с ним делать не ебу, управление всё равно отдаётся finally
@@ -184,7 +185,7 @@ class TcpSignalServer:
 
 async def main():
     srv = TcpSignalServer()
-    await srv.serve("26.36.124.241", 55559)
+    await srv.serve("26.36.207.48", 55559)
 
 if __name__ == "__main__":
     asyncio.run(main())

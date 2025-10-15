@@ -457,6 +457,9 @@ class CallNotificationStrategy(ServiceStrategy):
         print("Сервер принял ивент звонка")
         friend = self._server_pointer.clients[str(user_id)].friends[str(chat_id)]
         friend_id = friend.id
-        await self._server_pointer.clients[str(friend_id)].send_message('__CALL-NOTIFICATION__', {'user_id': user_id,
+        try:
+            await self._server_pointer.clients[str(friend_id)].send_message('__CALL-NOTIFICATION__', {'user_id': user_id,
                                                                                            'chat_id': chat_id,
                                                                                            'call_flg': call_flag})
+        except KeyError as e:
+            pass

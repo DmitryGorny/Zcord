@@ -53,6 +53,7 @@ class UserStatusReceive(ClientsStrategies):
         sender_nickname = msg["nickname"]
         receiver_nickname = self.service_connection_pointer.user.getNickName()
         color = sender_status['color']
+
         target = "self" if sender_nickname == receiver_nickname else "friend"
         self.service_connection_pointer.call_main_dynamic_update("CHANGE-ACTIVITY", {'target': target,
                                                                                      'color': color,

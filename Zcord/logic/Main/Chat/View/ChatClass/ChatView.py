@@ -22,7 +22,7 @@ class ChatView(QtWidgets.QWidget):
     change_unseen_status_signal = QtCore.pyqtSignal(int)
     clear_unseen = QtCore.pyqtSignal()
 
-    def __init__(self, chatId, friend_nick, user, controller):
+    def __init__(self, chatId, friend_nick, friend_id, user, controller):
         super(ChatView, self).__init__()
         # Сигналы
         self.messageReceived.connect(self.recieveMessage)
@@ -48,6 +48,7 @@ class ChatView(QtWidgets.QWidget):
         self.__chatId = chatId
         self.__user = user
         self.__friendNickname = friend_nick
+        self.__friend_id = friend_id
 
         self.ui.MAIN_ChatLayout.setContentsMargins(0, 0, 0, 0)
 
@@ -226,12 +227,20 @@ class ChatView(QtWidgets.QWidget):
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self):
         self.ui.Call.show()
-        self._controller.start_call(self.__user, self.__chatId)
-        self.call_dialog.hide_call_event()
 
         """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
         иконок пользователей с сервером)"""
-        #self.animate_call = AnimatedBorderButton(self.ui.User1_icon) # TODO
+        client = {
+            "user_id": self.__friend_id,
+            "user": self.__friendNickname
+        }
+
+        newcomer = UserIcon(client, self.__user, pre_create=True)
+        self.client_icons[int(client["user_id"])] = newcomer
+        self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+
+        self._controller.start_call(self.__user, self.__chatId)
+        self.call_dialog.hide_call_event()
 
     def stop_call(self):
         self.ui.Call.hide()
@@ -278,6 +287,9 @@ class ChatView(QtWidgets.QWidget):
                 newcomer = UserIcon(client, self.__user)
                 self.client_icons[int(client["user_id"])] = newcomer
                 self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+            else:
+                self.client_icons[int(client["user_id"])].animate_call.stop_animation()
+                self.client_icons[int(client["user_id"])].default_animation()
 
     # Условие 2 - выход одного из пользователей peer_left
     def left_icon(self, client):

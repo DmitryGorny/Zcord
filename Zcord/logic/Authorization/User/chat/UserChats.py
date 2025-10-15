@@ -19,6 +19,7 @@ class UserChats:
         chat = fabric.create_chat(is_dm=True,
                                   chat_id=friends_list["chat_id"],
                                   friend_nick=friends_list["nickname"],
+                                  friend_id=friends_list["id"],
                                   user_obj=self.__user,
                                   controller=self._dm_chats_controller)
         self._dm_chats.append(chat)

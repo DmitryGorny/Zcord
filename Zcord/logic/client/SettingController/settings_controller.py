@@ -29,20 +29,25 @@ class VoiceSettingsController(QObject):
             print("Сработало")
             with open('Resources/settings/Voice/settings_voice.json', 'r', encoding='utf-8') as file:
                 self.loaded_data = json.load(file)
-            self.mic_index = self.loaded_data["microphone_index"]
-            self.head_index = self.loaded_data["headphones_index"]
-            self.volume_mic_settings = self.loaded_data["volume_mic"]
-            self.volume_head_settings = self.loaded_data["volume_head"]
-            self.volume_friend = self.loaded_data["volume_friend"]
+                self.mic_index = self.loaded_data["microphone_index"]
+                self.head_index = self.loaded_data["headphones_index"]
+                self.volume_mic_settings = self.loaded_data["volume_mic"]
+                self.volume_head_settings = self.loaded_data["volume_head"]
+            with open('Resources/settings/Voice/friend_voice.json', 'r', encoding='utf-8') as file:
+                self.loaded_data_2 = json.load(file)
+                self.volume_friend = self.loaded_data_2["volume_friend"]
         except Exception as e:
             print(e)
             self.mic_index = -1
             self.head_index = -1
 
     def save_friend_voice(self, user_id, volume):
-        self.loaded_data["volume_friend"][user_id] = volume
-        with open('Resources/settings/Voice/settings_voice.json', 'w', encoding='utf-8') as file:
-            json.dump(self.loaded_data, file, ensure_ascii=False, indent=4)
+        self.volume_friend[user_id] = volume
+        data = {
+            "volume_friend": self.volume_friend
+        }
+        with open('Resources/settings/Voice/friend_voice.json', 'w', encoding='utf-8') as file:
+            json.dump(data, file, ensure_ascii=False, indent=4)
 
     def input_volume(self) -> float:
         return self.volume_mic_settings / 10

@@ -96,8 +96,7 @@ class VoiceParamsClass(QtWidgets.QWidget):
             "headphones_index": self.ui_voice_pr.ChooseHeadPhonesBox.currentData(),
             "microphone_index": self.ui_voice_pr.ChooseMicroBox.currentData(),
             "volume_mic": self.ui_voice_pr.VolumeOfMicSlider.value(),
-            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value(),
-            "volume_friend": VoiceSettingsController().volume_friend
+            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value()
         }
         with open('Resources/settings/Voice/settings_voice.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)

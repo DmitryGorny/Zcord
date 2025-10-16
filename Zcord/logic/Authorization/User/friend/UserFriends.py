@@ -1,5 +1,6 @@
 from typing import List
 
+from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.db_client.api_client import APIClient
 
 
@@ -13,13 +14,18 @@ class UserFriends:
     def init_friends(self):
         from logic.Authorization.User.friend.fabric import CreateFriend
         fabric = CreateFriend()
-        for friendship in self._db.get_friendships_by_nickname(self._user.getNickName()):
-            chat_id = friendship['id']
-            status = friendship['status']
-            friend_data = self._db.get_user_by_id(
-                friendship['user1'] if friendship['user1'] != self._user.id else friendship['user2'])
-            friend = fabric.create_friend(chat_id=chat_id,
-                                          user_nickanme=friend_data["nickname"],
+
+        friendship_list = self._db.get_chats(user_id=self._user.id, is_group=False)
+
+        if len(friendship_list) == 0:
+            return
+
+        for friendship in friendship_list:
+            friendship_dm = friendship['DM']
+            status = friendship_dm['status']
+            friend_data = self._db.get_user_by_id(friendship_dm['user1'] if friendship_dm['user1'] != self._user.id else friendship_dm['user2'])
+            friend = fabric.create_friend(chat_id=str(friendship['id']),
+                                          user_nickname=friend_data["nickname"],
                                           status=status,
                                           user_id=friend_data["id"],
                                           last_online=friend_data["last_online"])

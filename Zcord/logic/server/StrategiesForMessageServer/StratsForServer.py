@@ -199,6 +199,7 @@ class RequestCacheStrategy(MessageStrategy):
             return
 
         for chat_id in chats_ids:
+            print(chat_id)
             # Отсылка количетсва непрочитанных сообщений из БД
             unseen_number = self._api_client.get_uneesn_messages_count(chat_id, user_id)
             count = unseen_number['count']
@@ -211,6 +212,7 @@ class RequestCacheStrategy(MessageStrategy):
             # Проверка на необходимость запроса кэша
             if len(self._messageRoom_pointer.cache_chat.get_cache(chat_id)["cache"]) > 0:
                 continue
+            print(312)
 
             cache = self._api_client.get_messages_limit(chat_id, CACHE_LIMIT).copy()
             self._messageRoom_pointer.cache_chat.add_cache(chat_id, cache)

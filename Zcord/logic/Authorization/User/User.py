@@ -75,12 +75,11 @@ class User(BaseUser):
     def init_friends_and_chats(self) -> None:
         self._friends_model.init_friends()
 
-        for friend in self._friends_model.friends_props():
-            self._chats_model.init_dm_chats(friend)
-        self._chats_model.init_controller_views_list()
+        self._chats_model.init_dm_chats()
+        self._chats_model.init_groups()
 
     def add_chat(self, username: str, chat_id: str):
-        return self._chats_model.add_DM_chat(chat_id=chat_id, friend_nick=username)
+        return self._chats_model.add_dm_chat(chat_id=chat_id, friend_nick=username)
 
     def add_friend(self, username: str, chat_id: str, user_id: str):
         from datetime import datetime
@@ -97,10 +96,9 @@ class User(BaseUser):
 
     def delete_chat(self, chat_id: str, is_dm: bool) -> None:
         if is_dm:
-            self._chats_model.delete_DM_chat(chat_id)
+            self._chats_model.delete_dm_chat(chat_id)
 
     def delete_friend(self, friend_id: str) -> None:
-        print(1123121332)
         self._friends_model.delete_friend(friend_id)
 
     def change_chat(self, chat_id: str) -> None:
@@ -114,3 +112,10 @@ class User(BaseUser):
         for friend in self._friends_model.friends_props():
             friends.append(friend)
         return friends
+
+    def get_groups(self) -> List[Dict[str, str]]:
+        groups_attrs: List[Dict[str, str]] = []
+        for group_view in self._chats_model.get_groups_props():
+            groups_attrs.append(group_view)
+        return groups_attrs
+

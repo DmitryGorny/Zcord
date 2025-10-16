@@ -68,12 +68,14 @@ class SendFirstInfo(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         dictToSend = {
             "friends": self.service_connection_pointer.user.getFriends(),
+            "groups": self.service_connection_pointer.user.get_groups(),
             "status": {'status_name': self.service_connection_pointer.user.status.name,
                        'color': self.service_connection_pointer.user.status.color},
             "id": self.service_connection_pointer.user.id,
             "last_online": self.service_connection_pointer.user.last_online,
             'chats': self.service_connection_pointer._cache_chat  # TODO: Че за бред?
         }
+
         self.service_connection_pointer.send_message(msg_type="USER-INFO",
                                                      message=self.service_connection_pointer.serialize(
                                                          dictToSend).decode('utf-8'))

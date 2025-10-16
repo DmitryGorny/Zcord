@@ -1,5 +1,5 @@
 from PyQt6 import QtWidgets
-from logic.Main.MainWidnowChats.ChatInListGUI import Ui_Form
+from logic.Main.MainWidnowChats.DM_chat.ChatInListGUI import Ui_Form
 
 
 class ChatInList(QtWidgets.QWidget):

@@ -151,16 +151,13 @@ class ReceiveScrollCache(ClientsStrategies):
             if self._message_connection_pointer.chat is None:
                 raise ValueError("chat = None, не прошла инициализация")
 
-            event = threading.Event()
-            self._message_connection_pointer.chat.socket_controller.awaited_receive_message(
-                # TODO: Нужна ли awaited версия?
+            self._message_connection_pointer.chat.socket_controller.recieve_message(
                 str(self._message_connection_pointer.chat.chat_id),
                 message["sender"],
                 message["message"],
                 date_now,
                 0,
-                message["was_seen"],
-                event)
+                message["was_seen"])
 
             if message["id"] != "0":
                 counter_for_db_scroll_index += 1

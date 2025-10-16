@@ -5,7 +5,34 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="638b2ad0-ee17-49e1-96ee-579f29503ba6" name="Changes" comment="Рабочий старт звонка и выход из него">
+      <change beforePath="$PROJECT_DIR$/../API/.idea/.name" beforeDir="false" afterPath="$PROJECT_DIR$/../API/.idea/.name" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/models.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/models.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/urls.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/urls.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../API/ZcordDB/views.py" beforeDir="false" afterPath="$PROJECT_DIR$/../API/ZcordDB/views.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/Chat/Chat.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/Chat/Chat.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/GUI/MainWindow.ui" beforeDir="false" afterPath="$PROJECT_DIR$/GUI/MainWindow.ui" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/User.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/User.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/UserChats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/chat/fabric.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/chat/fabric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/UserFriends.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Authorization/User/friend/fabric.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Authorization/User/friend/fabric.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/Controller/ChatController.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/dm_view/ChatClass/ChatGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/ChatClass/ChatView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/dm_view/ChatClass/ChatView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/IView/IView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/IView/IView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/Chat/View/group_view/Group/GroupView.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/Chat/View/group_view/Group/GroupView.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInList.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/DM_chat/ChatInList.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWidnowChats/ChatInListGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWidnowChats/DM_chat/ChatInListGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindow.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindow.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/Main/MainWindowGUI.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/Main/MainWindowGUI.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Chat/ClientChat.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Chat/ClientChat.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/ClientServiceStrats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/client/Strats/MessageStrats.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/db_client/api_client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/db_client/api_client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/Client/Client.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/Client/Client.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategiesForMessageServer/StratsForServer.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" beforeDir="false" afterPath="$PROJECT_DIR$/logic/server/StrategyForServiceServer/ServeiceStrats.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -64,11 +91,11 @@
 }</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\MainWidnowChats" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Authorization" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Friends" />
       <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main" />
-      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\TitleBar" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\MainWidnowChats\group_chat" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\MainWidnowChats\DM_chat" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\View" />
+      <recent name="C:\Users\Dmitriy\Desktop\Zcord\Zcord\logic\Main\Chat\dm_chat_view" />
     </key>
   </component>
   <component name="RunManager" selected="Python.zcord">

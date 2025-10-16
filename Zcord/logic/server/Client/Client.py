@@ -1,16 +1,17 @@
 import asyncio
 import datetime
 import json
-from typing import List, Dict
+from typing import List, Dict, Type
 
 
 class Client:
-    def __init__(self, user_id: str, nick, last_online: str,  writer: asyncio.StreamWriter = None):
+    def __init__(self, user_id: str, nick, last_online: str, writer: asyncio.StreamWriter = None):
         self._id = user_id
         self._nick = nick
         self._writer = writer
         self._activityStatus = None
         self.__friends: Dict[str, Friend] = {}
+        self._chats = Dict[str, Chat]
         self._last_online = datetime.datetime.strptime(last_online, "%Y-%m-%dT%H:%M:%S.%f")
         self.__message_chat_id = 0  # id чата, в котором сейчас пользователь (аналог old_chat_code из message_server)
 
@@ -31,7 +32,7 @@ class Client:
         return self.__friends
 
     @friends.setter
-    def friends(self, friends: List[Dict[str, str]]) -> None: #TODO: Подумать над хранением группы
+    def friends(self, friends: List[Dict[str, str]]) -> None:  # TODO: Подумать над хранением группы
         for friend_attrs in friends:
             fr = Friend(friend_attrs['id'],  # TODO: Подумать над фабрикой
                         friend_attrs['nickname'],
@@ -39,7 +40,7 @@ class Client:
                         str(friend_attrs['status']),
                         friend_attrs["last_online"])
 
-            self.__friends[friend_attrs['chat_id']] = fr #тут зачем-то был статус дружбы в ключе
+            self.__friends[friend_attrs['chat_id']] = fr  # тут зачем-то был статус дружбы в ключе
 
     @property
     def writer(self) -> asyncio.StreamWriter:
@@ -64,7 +65,6 @@ class Client:
                                          last_online=time_str)
 
     def delete_friend(self, chat_Id: str) -> None:
-        print(self.__friends)
         del self.__friends[chat_Id]
 
     @property
@@ -110,3 +110,17 @@ class Friend(Client):
     @friendship_status.setter
     def friendship_status(self, val: str) -> None:
         self._friendship_status = val
+
+class Chat:
+    def __init__(self, chat_id: str):
+        self._chat_id = chat_id
+
+        self._members: List[Friend] = []
+
+
+    def add_member(self, friend: Friend) -> None:
+        self._members.append(friend)
+
+    @property
+    def get_member_by_id(self) -> List[Friend]:
+        return self._members

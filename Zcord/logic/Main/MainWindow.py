@@ -133,6 +133,7 @@ class MainWindow(FramelessWindow):
             chat["socket_controller"] = self.__user.get_socket_controller()
             queueToSend.put(chat)
 
+        print(self.__user.get_chats())
         ClientConnections.start_client(self.__user, queueToSend, self.dynamic_update)
 
     def initializeChatsInScrollArea(self):

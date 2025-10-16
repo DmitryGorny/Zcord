@@ -52,6 +52,34 @@ class FriendsAdding(models.Model):
         unique_together = ('receiver', 'sender')
 
 
+class Groups(models.Model):
+    group_name = models.CharField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    members = models.ManyToManyField(Users, through='GroupsMembers', related_name='groups')
+
+    class Meta:
+        verbose_name = 'Группа'
+        verbose_name_plural = 'Группы'
+
+
+class GroupsMembers(models.Model):
+    ADMIN = True
+    NOT_ADMIN = False
+    CHOICES = (
+        (ADMIN, 'ADMIN'),
+        (NOT_ADMIN, 'NOT_ADMIN'),
+    )
+    user = models.ForeignKey(Users, on_delete=models.CASCADE)
+    group = models.ForeignKey(Groups, on_delete=models.CASCADE)
+    role = models.BooleanField(choices=CHOICES, default=NOT_ADMIN)
+
+
+class Chats(models.Model):
+    is_group = models.BooleanField(default=False)
+    DM = models.ForeignKey(Friendship, on_delete=models.CASCADE)
+    group = models.ForeignKey(Groups, on_delete=models.CASCADE)
+
+
 class Message(models.Model):
     UNSEEN = False
     SEEN = True
@@ -61,7 +89,7 @@ class Message(models.Model):
         (SEEN, 'SEEN'),
     )
 
-    chat = models.ForeignKey(Friendship, on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chats, on_delete=models.CASCADE)
     sender = models.ForeignKey(Users, on_delete=models.CASCADE)
     message = models.TextField()
     created_at = models.DateTimeField(auto_now_add=True)

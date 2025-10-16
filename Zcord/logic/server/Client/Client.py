@@ -111,12 +111,12 @@ class Friend(Client):
     def friendship_status(self, val: str) -> None:
         self._friendship_status = val
 
+
 class Chat:
     def __init__(self, chat_id: str):
         self._chat_id = chat_id
 
         self._members: List[Friend] = []
-
 
     def add_member(self, friend: Friend) -> None:
         self._members.append(friend)

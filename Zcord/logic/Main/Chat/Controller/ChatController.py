@@ -97,16 +97,16 @@ class ChatController:
 
         # Voice
         def receive_mute(self, device: str, chat_id: str, mute_pos: bool, client: object):
-            self._views[chat_id].muteDevice.emit(device, mute_pos, client)
+            self._views[str(chat_id)].muteDevice.emit(device, mute_pos, client)
 
         def receive_connect(self, chat_id: str, clients: list):
-            self._views[chat_id].connectReceived.emit(clients)
+            self._views[str(chat_id)].connectReceived.emit(clients)
 
         def receive_disconnect(self, chat_id: str, client: object):
-            self._views[chat_id].disconnectReceived.emit(client)
+            self._views[str(chat_id)].disconnectReceived.emit(client)
 
         def receive_call(self, chat_id: str, call_flg: bool):
-            self._views[chat_id].callReceived.emit(call_flg)
+            self._views[str(chat_id)].callReceived.emit(call_flg)
 
         def vad_animation(self, chat_id: str, speech_flg: bool, user_id: int):
-            self._views[chat_id].speechDetector.emit(speech_flg, user_id)
+            self._views[str(chat_id)].speechDetector.emit(speech_flg, user_id)

@@ -53,9 +53,6 @@ class VoiceHandler:
         self.vad = wb.Vad()
         self.vad.set_mode(2)
 
-        self.sad = wb.Vad()
-        self.sad.set_mode(2)
-
     def audio_input_thread(self, seq):
         # читаем микрофон и шлём UDP
         try:
@@ -77,6 +74,9 @@ class VoiceHandler:
     async def audio_output_loop(self, user_id: int):
         queue = self.play_queues[user_id]
         out_stream = self.out_streams[user_id]
+
+        sad = wb.Vad()
+        sad.set_mode(2)
 
         # минимальная «сортировка» по seq: берём всегда самое свежее, старьё выбрасываем
         while self._flg_callback():
@@ -103,7 +103,7 @@ class VoiceHandler:
             try:
                 if not self.is_head_mute:
                     if seq % 5 == 0:
-                        self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(payload, RATE),
+                        self.chat_obj.socket_controller.vad_animation(self.room, sad.is_speech(payload, RATE),
                                                                       user_id)
 
                     payload = self.adjust_volume(payload, VoiceSettingsController().output_volume())

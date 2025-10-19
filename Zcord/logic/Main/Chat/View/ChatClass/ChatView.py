@@ -226,6 +226,7 @@ class ChatView(QtWidgets.QWidget):
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self):
+        print(f"ФЛАГ НАХУЙ {self._controller.get_voice_flg()}")
         if self._controller.get_voice_flg():
             return
 

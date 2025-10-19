@@ -53,7 +53,7 @@ class ChatController:
         self._model.stop_call()
 
     def get_voice_flg(self):
-        self._model.get_voice_flg()
+        return self._model.get_voice_flg()
 
     # Микрофон
     def mute_mic_self(self, flg):

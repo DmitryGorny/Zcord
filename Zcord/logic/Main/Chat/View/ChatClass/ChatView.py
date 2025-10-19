@@ -98,7 +98,7 @@ class ChatView(QtWidgets.QWidget):
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
         """Окно приходящего звонка"""
-        self.call_dialog = Call(self.start_call)
+        self.call_dialog = Call(self.start_call, self.__friendNickname)
 
     def ask_for_cached_messages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
@@ -253,9 +253,6 @@ class ChatView(QtWidgets.QWidget):
         for icon in self.client_icons.values():
             self.ui.UsersFiled_layout.removeWidget(icon.ui.widget_2)
         self.client_icons = {}
-
-    def show_call_dialog(self):
-        self.call_dialog.show_call_event()
 
     # Функция чередования для девайса мута друга
     def mute_device_friend(self, device, flg, client):

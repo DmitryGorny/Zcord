@@ -4,12 +4,12 @@ from logic.Main.Chat.View.CallDialog.CallGUI import Ui_Call
 
 
 class Call(QtWidgets.QDialog):
-    def __init__(self, callback):
+    def __init__(self, callback, nickname):
         super(Call, self).__init__()
         self.call_dialog = Ui_Call()
         self.call_dialog.setupUi(self)
-        #self.call_dialog.logo.setText()
-        #self.call_dialog.NickName.setText()
+        self.call_dialog.logo.setText(nickname[0])
+        self.call_dialog.NickName.setText(nickname)
         self.setWindowFlags(Qt.WindowType.FramelessWindowHint | Qt.WindowType.WindowStaysOnTopHint)
         self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground)
 

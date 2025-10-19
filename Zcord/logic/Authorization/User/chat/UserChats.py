@@ -24,12 +24,13 @@ class UserChats:
                                   controller=self._dm_chats_controller)
         self._dm_chats.append(chat)
 
-    def add_DM_chat(self, chat_id: str, friend_nick: str):
+    def add_DM_chat(self, chat_id: str, friend_nick: str, friend_id: str):
         fabric = CreateChat()
 
         chat = fabric.create_chat(is_dm=True,
                                   chat_id=chat_id,
                                   friend_nick=friend_nick,
+                                  friend_id=friend_id,
                                   user_obj=self.__user,
                                   controller=self._dm_chats_controller)
         self._dm_chats.append(chat)

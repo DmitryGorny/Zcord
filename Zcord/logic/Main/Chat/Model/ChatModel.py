@@ -49,6 +49,9 @@ class ChatModel:
         success = self.call_manager.stop_call()
         ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
 
+    def get_voice_flg(self):
+        return self.call_manager.get_voice_flg()
+
     # Микрофон
     def mute_mic_self(self, flg):
         self.call_manager.client.voice_handler.mute_mic_self(flg)

@@ -79,8 +79,8 @@ class User(BaseUser):
             self._chats_model.init_dm_chats(friend)
         self._chats_model.init_controller_views_list()
 
-    def add_chat(self, username: str, chat_id: str):
-        return self._chats_model.add_DM_chat(chat_id=chat_id, friend_nick=username)
+    def add_chat(self, username: str, chat_id: str, friend_id: str):
+        return self._chats_model.add_DM_chat(chat_id=chat_id, friend_nick=username, friend_id=friend_id)
 
     def add_friend(self, username: str, chat_id: str, user_id: str):
         from datetime import datetime

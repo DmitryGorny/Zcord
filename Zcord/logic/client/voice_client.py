@@ -45,7 +45,7 @@ class VoiceConnection(IConnection, BaseConnection):
                "udp_port": self.local_udp_port}
         print("Отправлено сообщение о входе на сервер")
         """Передаю отсюда свой токен для корректного отображения собственной иконки"""
-        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=[msg]) # TODO
+        self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=[msg]) # TODO
         # мб засунуть в другое место??
 
         await self.send_message(msg, current_chat_id=0)
@@ -72,7 +72,7 @@ class VoiceConnection(IConnection, BaseConnection):
                         self.peer = (p["ip"], int(p["udp_port"]))
                         self.voice_handler.reset_last_seq(p["user_id"])
                         print(f"[Client] peer: {self.peer}")
-                        self.chat_obj.socket_controller.receive_connect(chat_id=self.room, clients=peers)
+                        self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=peers)
 
                 elif t == "peer_left":
                     client = msg.get("client")
@@ -330,3 +330,8 @@ class CallManager:
     @property
     def loop(self):
         return self._loop
+
+    def get_voice_flg(self):
+        if self.client:
+            return True
+        return False

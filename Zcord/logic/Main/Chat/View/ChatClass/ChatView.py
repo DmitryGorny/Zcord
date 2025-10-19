@@ -226,6 +226,9 @@ class ChatView(QtWidgets.QWidget):
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self):
+        if self._controller.get_voice_flg():
+            return
+
         self.ui.Call.show()
 
         """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 

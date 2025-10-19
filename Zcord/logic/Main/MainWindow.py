@@ -302,7 +302,7 @@ class MainWindow(FramelessWindow):
                 self.friend_request_alert()
             case "ACCEPT-REQUEST-OTHERS":
                 self._friends.remove_others_request(args['user_id'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'], friend_id=args['friend_id'])
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
@@ -313,7 +313,7 @@ class MainWindow(FramelessWindow):
             case "ACCEPT-REQUEST-SELF":
                 self._friends.remove_your_request(args['user_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['friend_nickname'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['friend_nickname'], friend_id=args['user_id'])
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],

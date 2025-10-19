@@ -84,6 +84,7 @@ class TcpSignalServer:
                     break
                 client.last_seen = time.time()
                 msg = json.loads(line.decode("utf-8"))
+                print(msg)
                 await self.handle_message(client, msg)
         except asyncio.CancelledError:
             pass

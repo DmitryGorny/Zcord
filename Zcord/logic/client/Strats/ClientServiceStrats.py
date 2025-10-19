@@ -163,6 +163,7 @@ class AcceptFriendRequestStrat(ClientsStrategies):
             self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-OTHERS', {'user_id': sender_id,
                                                                                                'chat_id': chat_id,
                                                                                                'sender_nickname': sender_nickname,
+                                                                                               'friend_id': receiver_id
                                                                                                })
         else:
             self.service_connection_pointer.user.add_friend(username=friend_nickname,

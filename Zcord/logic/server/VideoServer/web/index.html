@@ -14,14 +14,86 @@
   <video id="localVideo" autoplay playsinline muted></video>
   <video id="remoteVideo" autoplay playsinline></video>
   <br>
+  <button id="shareScreen">Поделиться экраном</button>
+  <button id="unshareScreen">Перестать делится экраном</button>
   <script>
     const room = prompt("Введите имя комнаты:", "testroom") || "default";
-    const ws = new WebSocket(`ws://26.36.207.48:8080/ws?room=${room}`);
+    const ws = new WebSocket(`ws://localhost:8080/ws?room=${room}`);
     const localVideo = document.getElementById("localVideo");
     const remoteVideo = document.getElementById("remoteVideo");
 
     let pc = null;
     let localStream = null;
+
+    function createBlackStream() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 640;
+      canvas.height = 480;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const stream = canvas.captureStream(1); // 1 FPS — чтобы не нагружать
+      return stream;
+    }
+
+    document.getElementById("unshareScreen").addEventListener("click", async () => {
+        try {
+            localVideo.srcObject.getTracks().forEach(track => track.stop());
+            const cameraStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+            localVideo.srcObject = cameraStream;
+            // Если есть активное соединение — отправляем поток
+            if (pc) {
+              const sender = pc.getSenders().find(s => s.track.kind === "video");
+              if (sender) {
+                sender.replaceTrack(cameraStream.getVideoTracks()[0]);
+              } else {
+                cameraStream.getTracks().forEach(track => pc.addTrack(track, cameraStream));
+              }
+              localVideo.srcObject = cameraStream;
+            }
+        } catch (err) {
+            console.error("Ошибка при получении камеры:", err);
+            const blackStream = createBlackStream();
+            localVideo.srcObject = null;
+            const sender = pc.getSenders().find(s => s.track.kind === "video");
+            if (sender) {
+                sender.replaceTrack(blackStream.getVideoTracks()[0]);
+            }
+        }
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify(pc.localDescription));
+    });
+
+    document.getElementById("shareScreen").addEventListener("click", async () => {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: "always" },
+          audio: true
+        });
+
+        localVideo.srcObject = screenStream;
+
+        // Если есть активное соединение — отправляем поток
+        if (pc) {
+          const sender = pc.getSenders().find(s => s.track.kind === "video");
+          if (sender) {
+            sender.replaceTrack(screenStream.getVideoTracks()[0]);
+          } else {
+            screenStream.getTracks().forEach(track => pc.addTrack(track, screenStream));
+          }
+        }
+
+        screenStream.getVideoTracks()[0].onended = () => {
+          console.log("Пользователь перестал делиться экраном");
+        };
+      } catch (err) {
+        console.error("Ошибка при получении экрана:", err);
+      }
+      const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify(pc.localDescription));
+    });
 
     async function createPeerConnection() {
       pc = new RTCPeerConnection({
@@ -38,13 +110,14 @@
           ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
         }
       };
-
+      try {
       if (!localStream) {
         localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         localVideo.srcObject = localStream;
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      }} catch (err) {
+          localVideo.srcObject = null
       }
-
-      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
     }
       // Получение сигналов от других клиентов
       ws.onmessage = async (event) => {

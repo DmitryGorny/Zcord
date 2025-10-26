@@ -53,5 +53,4 @@ app.router.add_get("/ws", websocket_handler)
 
 
 if __name__ == "__main__":
-    logging.info("Starting WebRTC signaling server on http://26.36.207.48:8080")
-    web.run_app(app, host="26.36.207.48", port=8080, ssl_context="26-36.207.48.crt")
+    web.run_app(app, host="localhost", port=8080)

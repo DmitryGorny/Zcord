@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebRTC P2P Chat</title>
+  <style>
+    body { background: #111; color: #eee; text-align: center; font-family: sans-serif; }
+    video { width: 45%; margin: 10px; border-radius: 10px; background: #222; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>WebRTC P2P</h2>
+  <video id="localVideo" autoplay playsinline muted></video>
+  <video id="remoteVideo" autoplay playsinline></video>
+  <br>
+  <script>
+    const room = prompt("Введите имя комнаты:", "testroom") || "default";
+    const ws = new WebSocket(`ws://26.36.207.48:8080/ws?room=${room}`);
+    const localVideo = document.getElementById("localVideo");
+    const remoteVideo = document.getElementById("remoteVideo");
+
+    let pc = null;
+    let localStream = null;
+
+    async function createPeerConnection() {
+      pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      pc.ontrack = (event) => {
+        console.log("Пришёл поток от пира");
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
+        }
+      };
+
+      if (!localStream) {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+      }
+
+      localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+    }
+      // Получение сигналов от других клиентов
+      ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        console.log(data.type);
+
+        if (data.type === "offer") {
+          await pc.setRemoteDescription(new RTCSessionDescription(data));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          ws.send(JSON.stringify(pc.localDescription));
+
+        } else if (data.type === "answer") {
+          await pc.setRemoteDescription(new RTCSessionDescription(data));
+
+        } else if (data.type === "candidate" && data.candidate) {
+          try {
+            await pc.addIceCandidate(data.candidate);
+          } catch (e) {
+            console.error("Ошибка ICE:", e);
+          }
+
+        } else if (data.type === "peer-left") {
+          console.log("Пир вышел — очищаем соединение");
+          remoteVideo.srcObject = null;
+
+          if (pc) {
+            pc.close();
+            pc = null;
+          }
+          await createPeerConnection();
+        }
+      };
+
+    ws.onopen = async () => {
+      await createPeerConnection();
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      ws.send(JSON.stringify(pc.localDescription));
+    };
+  </script>
+</body>
+</html>

@@ -215,11 +215,14 @@ class APIClient:
             'DM_id': chat_id,
             'is_group': False
         }
-        return self._request('POST', f'chats/', data=params)
+        return self._request('POST', f'chats/', json=params)
 
     def create_group_chat(self, group_id):
         params = {
             'group_id': group_id,
             'is_group': True
         }
-        return self._request('POST', f'chats/', params=params)
+        return self._request('POST', f'chats/', json=params)
+
+    def delete_dm_chat(self, DM_id):
+        return self._request('DELETE', f'chats/delete/{DM_id}/')

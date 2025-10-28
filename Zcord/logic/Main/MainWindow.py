@@ -133,7 +133,6 @@ class MainWindow(FramelessWindow):
             chat["socket_controller"] = self.__user.get_socket_controller()
             queueToSend.put(chat)
 
-        print(self.__user.get_chats())
         ClientConnections.start_client(self.__user, queueToSend, self.dynamic_update)
 
     def initializeChatsInScrollArea(self):
@@ -314,6 +313,7 @@ class MainWindow(FramelessWindow):
             self.ui.ScrollRooms.setVisible(False)
 
     def unseenMessages(self, chat_id: str, newValue: int):
+        print(self._friendsChatOptions)
         try:
             chat = list(filter(lambda x: x.id == chat_id, self._friendsChatOptions))[0]
         except IndexError:
@@ -407,22 +407,22 @@ class MainWindow(FramelessWindow):
                 self.friend_request_alert()
             case "ACCEPT-REQUEST-OTHERS":
                 self._friends.remove_others_request(args['user_id'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], friend_id=args['user_id'])
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
-                                            'nickname': args['sender_nickname'],
+                                            'is_dm': True,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.friend_request_alert()
                 self.updateChatList(chat_gui)
             case "ACCEPT-REQUEST-SELF":
                 self._friends.remove_your_request(args['user_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['friend_nickname'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], friend_id=args['user_id'])
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
-                                            'nickname': args['friend_nickname'],
+                                            'is_dm': True,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.updateChatList(chat_gui)
             case "DECLINE-REQUEST-OTHERS":

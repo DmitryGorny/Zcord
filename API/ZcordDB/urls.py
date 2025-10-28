@@ -62,4 +62,14 @@ urlpatterns = [
         'get': 'list',
         'post': 'create'
     }), name='chats'),
+    path('chats/<', ChatsView.as_view({
+        'get': 'list',
+        'post': 'create'
+    }), name='chats-dm'),
+    path('chats/delete/<str:DM_id>/', ChatsView.as_view({
+        'delete': 'destroy'
+    }), name='chats-dm-destroy'),
+    path('chats/delete/groups/<str:groups_id>/', ChatsView.as_view({
+        'delete': 'destroy'
+    }), name='chats-group-destroy'),
 ]

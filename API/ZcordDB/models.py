@@ -76,8 +76,8 @@ class GroupsMembers(models.Model):
 
 class Chats(models.Model):
     is_group = models.BooleanField(default=False)
-    DM = models.ForeignKey(Friendship, on_delete=models.CASCADE)
-    group = models.ForeignKey(Groups, on_delete=models.CASCADE)
+    DM = models.ForeignKey(Friendship, on_delete=models.CASCADE, null=True, blank=True)
+    group = models.ForeignKey(Groups, on_delete=models.CASCADE, null=True, blank=True)
 
 
 class Message(models.Model):

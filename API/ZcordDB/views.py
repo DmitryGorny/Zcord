@@ -65,6 +65,19 @@ class FriendshipView(viewsets.ModelViewSet):
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def destroy(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        if pk:
+            return super().destroy(request, *args, **kwargs)
+
+        user1_id = kwargs.get('user1_id')
+        user2_id = kwargs.get('user2_id')
+
+        if user1_id and user2_id:
+            Friendship.objects.get(Q(user1_id=user1_id, user2_id=user2_id) |
+                                   Q(user1_id=user2_id, user2_id=user1_id)).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class FriendsAddingView(viewsets.ModelViewSet):
     queryset = FriendsAdding.objects.all()
@@ -205,3 +218,18 @@ class ChatsView(viewsets.ModelViewSet):
             return queryset.filter(group__members__id=user_id, is_group=is_group)
 
         return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        dm_id = kwargs.get('DM_id')
+        group_id = kwargs.get('group_id')
+
+        obj = Chats.objects.filter(DM_id=dm_id).first()
+        if not obj and group_id:
+            obj = Chats.objects.filter(group_id=group_id).first()
+
+        if not obj:
+            return Response({'detail': 'Объект не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

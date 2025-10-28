@@ -15,27 +15,24 @@ class UserFriends:
         from logic.Authorization.User.friend.fabric import CreateFriend
         fabric = CreateFriend()
 
-        friendship_list = self._db.get_chats(user_id=self._user.id, is_group=False)
+        friendship_list = self._db.get_friendships_by_nickname(self._user.getNickName())
 
         if len(friendship_list) == 0:
             return
 
         for friendship in friendship_list:
-            friendship_dm = friendship['DM']
-            status = friendship_dm['status']
-            friend_data = self._db.get_user_by_id(friendship_dm['user1'] if friendship_dm['user1'] != self._user.id else friendship_dm['user2'])
-            friend = fabric.create_friend(chat_id=str(friendship['id']),
-                                          user_nickname=friend_data["nickname"],
+            status = friendship['status']
+            friend_data = self._db.get_user_by_id(friendship['user1'] if friendship['user1'] != self._user.id else friendship['user2'])
+            friend = fabric.create_friend(user_nickname=friend_data["nickname"],
                                           status=status,
                                           user_id=friend_data["id"],
                                           last_online=friend_data["last_online"])
             self._friends.append(friend)
 
-    def add_friend(self, chat_id: str, user_nickname: str, user_id: str, last_online: str, status: str = '2'):
+    def add_friend(self, user_nickname: str, user_id: str, last_online: str, status: str = '2'):
         from logic.Authorization.User.friend.fabric import CreateFriend
         fabric = CreateFriend()
-        friend = fabric.create_friend(chat_id=chat_id,
-                                      user_nickanme=user_nickname,
+        friend = fabric.create_friend(user_nickname=user_nickname,
                                       status=status,
                                       user_id=user_id,
                                       last_online=last_online)
@@ -45,7 +42,7 @@ class UserFriends:
         """Поочередно возвращает атрибуты каждого класса"""
         for friend in self._friends:
             yield {"id": str(friend.id),
-                   "chat_id": str(friend.chat_id),
+                    #"chat_id": str(friend.chat_id) нужно ли это возвращать?
                    "nickname": friend.getNickName(),
                    "status": str(friend.status),
                    "last_online": friend.last_online}

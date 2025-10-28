@@ -78,20 +78,24 @@ class User(BaseUser):
         self._chats_model.init_dm_chats()
         self._chats_model.init_groups()
 
-    def add_chat(self, username: str, chat_id: str):
-        return self._chats_model.add_dm_chat(chat_id=chat_id, friend_nick=username)
+    def add_chat(self, friend_id: str, chat_id: str):
+        return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
-    def add_friend(self, username: str, chat_id: str, user_id: str):
+    def add_friend(self, username: str,  user_id: str):
         from datetime import datetime
         now = datetime.now()
         time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-        self._friends_model.add_friend(chat_id=chat_id, user_nickname=username, user_id=user_id, last_online=time_str)
+        self._friends_model.add_friend(user_nickname=username, user_id=user_id, last_online=time_str)
 
-    def get_chats(self) -> List[dict]:
+    def get_chats(self, without_ui: bool = False) -> List[dict]:
         attrs_list: List[dict] = []
-        for chat_attrs in self._chats_model.chats_props():
-            attrs_list.append(chat_attrs)
+        if not without_ui:
+            for chat_attrs in self._chats_model.chats_props():
+                attrs_list.append(chat_attrs)
+        else:
+            for chat_attrs in self._chats_model.chats_props_without_ui():
+                attrs_list.append(chat_attrs)
         return attrs_list
 
     def delete_chat(self, chat_id: str, is_dm: bool) -> None:

@@ -68,12 +68,11 @@ class SendFirstInfo(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         dictToSend = {
             "friends": self.service_connection_pointer.user.getFriends(),
-            "groups": self.service_connection_pointer.user.get_groups(),
             "status": {'status_name': self.service_connection_pointer.user.status.name,
                        'color': self.service_connection_pointer.user.status.color},
             "id": self.service_connection_pointer.user.id,
             "last_online": self.service_connection_pointer.user.last_online,
-            'chats': self.service_connection_pointer._cache_chat  # TODO: Че за бред?
+            'chats': self.service_connection_pointer.user.get_chats(True)
         }
 
         self.service_connection_pointer.send_message(msg_type="USER-INFO",
@@ -154,7 +153,6 @@ class AcceptFriendRequestStrat(ClientsStrategies):
 
         if str(self.service_connection_pointer.user.id) != str(sender_id):
             self.service_connection_pointer.user.add_friend(username=sender_nickname,
-                                                            chat_id=chat_id,
                                                             user_id=sender_id)
             self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-OTHERS', {'user_id': sender_id,
                                                                                                'chat_id': chat_id,
@@ -162,7 +160,6 @@ class AcceptFriendRequestStrat(ClientsStrategies):
                                                                                                })
         else:
             self.service_connection_pointer.user.add_friend(username=friend_nickname,
-                                                            chat_id=chat_id,
                                                             user_id=receiver_id)
             self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-SELF', {'user_id': receiver_id,
                                                                                              'chat_id': chat_id,

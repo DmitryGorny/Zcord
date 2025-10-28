@@ -47,12 +47,12 @@ class UserChats:
             self._groups.append(group_obj)
             self._chats_controller.add_view(str(group['id']), group_obj)
 
-    def add_dm_chat(self, chat_id: str, friend_nick: str):
+    def add_dm_chat(self, chat_id: str, friend_id: str):
         fabric = CreateChat()
 
         chat = fabric.create_chat(is_dm=True,
-                                  chat_id=chat_id,
-                                  friend_nick=friend_nick,
+                                  chat_id=str(chat_id),
+                                  friend_id=str(friend_id),
                                   user_obj=self.__user,
                                   controller=self._chats_controller)
         self._dm_chats.append(chat)
@@ -65,10 +65,18 @@ class UserChats:
     def chats_props(self) -> dict:
         """Поочередно возвращает атрибуты каждого класса"""
         for chat in self._dm_chats:
-            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), "chat_ui": chat.ui.MAIN, 'is_dm': True}
+            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id], "chat_ui": chat.ui.MAIN, 'is_dm': True}
 
         for group in self._groups:
-            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, "group_ui": group.ui.MAIN, 'is_dm': False}
+            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users, "group_ui": group.ui.MAIN, 'is_dm': False}
+
+    def chats_props_without_ui(self) -> dict:
+        """Поочередно возвращает атрибуты каждого класса"""
+        for chat in self._dm_chats:
+            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id], 'is_dm': True}
+
+        for group in self._groups:
+            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users, 'is_dm': False}
 
     def get_dm_chats(self) -> List[ChatView]:
         return self._dm_chats.copy()

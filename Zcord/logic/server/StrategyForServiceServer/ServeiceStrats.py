@@ -278,7 +278,7 @@ class AcceptFriendRequestStrat(ServiceStrategy):
 
         self._api_client.patch_friendship_status(friendship['id'], 2)
         self._api_client.create_dm_chat(friendship['id'])
-        #TODO: Вот это все какая-то полная хуйня, проверить как можно получить ник отправителя на клиенте
+        # TODO: Вот это все какая-то полная хуйня, проверить как можно получить ник отправителя на клиенте
         friend = self._api_client.get_user_by_id(int(friend_id))
         sender = self._api_client.get_user_by_id(int(sender_id))
         self._api_client.delete_friendship_request(int(sender_id), int(friend_id), friendship['id'])
@@ -302,7 +302,8 @@ class AcceptFriendRequestStrat(ServiceStrategy):
                                                                                          'chat_id': friendship['id'],
                                                                                          'friend_nickname': friend[
                                                                                              'nickname'],
-                                                                                         'sender_nickname': sender['nickname']})
+                                                                                         'sender_nickname': sender[
+                                                                                             'nickname']})
             self._server_pointer.clients[sender_id].friends[friend_id].friendship_status = '2'
             self._server_pointer.clients[sender_id].add_chat(str(friendship['id']), [str(friend_id)])
         except KeyError as e:
@@ -458,11 +459,12 @@ class CallNotificationStrategy(ServiceStrategy):
         chat_id = msg["chat_id"]
         call_flag = msg["call_flg"]
         print("Сервер принял ивент звонка")
-        friend = self._server_pointer.clients[str(user_id)].friends[str(chat_id)]
-        friend_id = friend.id
-        try:
-            await self._server_pointer.clients[str(friend_id)].send_message('__CALL-NOTIFICATION__', {'user_id': user_id,
-                                                                                           'chat_id': chat_id,
-                                                                                           'call_flg': call_flag})
-        except KeyError as e:
-            pass
+        chat = self._server_pointer.clients[str(user_id)].get_chat_by_id(str(chat_id))
+
+        for member in chat.get_members():
+            if member.id not in self._server_pointer.clients.keys():
+                continue
+            await self._server_pointer.clients[member.id].send_message('__CALL-NOTIFICATION__',
+                                                                       {'user_id': user_id,
+                                                                        'chat_id': chat_id,
+                                                                        'call_flg': call_flag})

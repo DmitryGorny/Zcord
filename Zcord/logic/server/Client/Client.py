@@ -85,6 +85,9 @@ class Client:
                 del self._chats[chat_id]
                 return
 
+    def get_chat_by_id(self, chat_id: str):
+        return self._chats[chat_id]
+
     @property
     def chats(self):
         return self._chats
@@ -155,3 +158,6 @@ class Chat:
         except IndexError as e:
             print(e)
             return None
+
+    def get_members(self) -> List[Friend]:
+        return self._members.copy()

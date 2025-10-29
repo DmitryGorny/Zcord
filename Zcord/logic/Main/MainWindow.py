@@ -77,6 +77,7 @@ class MainWindow(FramelessWindow):
 
         # Чаты
         self._friendsChatOptions: List[ChatInList] = self.create_chats()
+        self._groups_options: List[GroupInList] = self.create_groups()
 
         self.WidgetForFriendsScroll = QtWidgets.QWidget()
         self.WidgetForRoomsScroll = QtWidgets.QWidget()

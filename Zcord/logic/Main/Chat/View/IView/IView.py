@@ -2,6 +2,8 @@ from abc import abstractmethod, ABCMeta
 from typing import Optional, Union
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
+from logic.Main.Chat.View.CallDialog.CallView import Call
+from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.dm_view.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 
@@ -19,7 +21,7 @@ class IView(QtWidgets.QWidget, metaclass=QWidgetABCMeta):
     def enable_scroll(self):
         pass
 
-     @abstractmethod
+    @abstractmethod
     def send_message(self):
         pass
 
@@ -44,6 +46,7 @@ class IView(QtWidgets.QWidget, metaclass=QWidgetABCMeta):
     def chat_id(self) -> str:
         pass
 
+
 class BaseChatView(IView):
     messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
     clear_layout = QtCore.pyqtSignal()
@@ -57,9 +60,11 @@ class BaseChatView(IView):
     callReceived = QtCore.pyqtSignal(bool)
     speechDetector = QtCore.pyqtSignal(bool, int)
 
-    def __init__(self, chatId, friend_nick, user, controller):
+    def __init__(self, chatId, user, controller):
         super(BaseChatView, self).__init__()
         self.ui: Optional[Union[Ui_Chat, Ui_Group]]
+        """Окно приходящего звонка"""
+        self.call_dialog: Call
         # Сигналы
         self.messageReceived.connect(self.receive_message)
         self.enable_scroll_bar.connect(self.enable_scroll)
@@ -91,24 +96,13 @@ class BaseChatView(IView):
 
         self.scroll_pos = 0
 
-        # Войс GUI
-        self.ui.Call.hide()
-
         # Словарь по иконкам юзеров: {client: icon}
         self.client_icons = {}
         # Переменные мутов
         self.microphone_mute = False
         self.headphone_mute = False
 
-        # Подключение кнопок войса
-        """Окно чата"""
-        self.ui.CallButton.clicked.connect(self.start_call)
-        self.ui.leaveCall.clicked.connect(self.stop_call)
-        self.ui.muteMic.clicked.connect(self.mute_mic_self)
-        self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
-        """Окно приходящего звонка"""
-        self.call_dialog = Call(self.start_call, self.__friendNickname)
 
     def ask_for_cached_messages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
@@ -207,27 +201,6 @@ class BaseChatView(IView):
     def chat_id(self):
         return self._chat_id
 
-    #  абстрактно здесь будет класс VOICE GUI
-    def start_call(self):
-        if self._controller.get_voice_flg():
-            return
-
-        self.ui.Call.show()
-
-        """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
-        иконок пользователей с сервером)"""
-        client = {
-            "user_id": self.__friend_id,
-            "user": self.__friendNickname
-        }
-
-        newcomer = UserIcon(client, self.__user, pre_create=True)
-        self.client_icons[int(client["user_id"])] = newcomer
-        self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
-
-        self._controller.start_call(self.__user, self.__chatId)
-        self.call_dialog.hide_call_event()
-
     def stop_call(self):
         self.ui.Call.hide()
         self._controller.stop_call()
@@ -246,7 +219,7 @@ class BaseChatView(IView):
     # Микрофон
     def mute_mic_self(self):
         self.microphone_mute = not self.microphone_mute
-        self.client_icons[self.__user.id].mute_mic(self.microphone_mute)
+        self.client_icons[self._user.id].mute_mic(self.microphone_mute)
         self._controller.mute_mic_self(self.microphone_mute)
 
     def mute_mic_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
@@ -255,7 +228,7 @@ class BaseChatView(IView):
     # Наушники
     def mute_head_self(self):
         self.headphone_mute = not self.headphone_mute
-        self.client_icons[self.__user.id].mute_head(self.headphone_mute)
+        self.client_icons[self._user.id].mute_head(self.headphone_mute)
         self._controller.mute_head_self(self.headphone_mute)
 
     def mute_head_friend(self, flg, client):  # Сюда будет передаваться id юзера у которого пришел мут с сервера
@@ -267,9 +240,10 @@ class BaseChatView(IView):
         print(f"join_icon")
         for client in clients:
             if int(client["user_id"]) not in self.client_icons.keys():
-                newcomer = UserIcon(client, self.__user)
+                newcomer = UserIcon(client, self._user)
                 self.client_icons[int(client["user_id"])] = newcomer
-                self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+                self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2,
+                                                    alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
             else:
                 self.client_icons[int(client["user_id"])].animate_call.stop_animation()
                 self.client_icons[int(client["user_id"])].default_animation()

@@ -339,7 +339,12 @@ class Ui_Zcord(object):
         self.List.addWidget(self.ScrollFriends)
         self.PeopleList.addLayout(self.List)
         self.verticalLayout_6.addWidget(self.FriendList)
-        self.RoomsColumn = QtWidgets.QFrame(parent=self.SearchAndPeopeistButtons)
+        self.RoomList = QtWidgets.QFrame(parent=self.SearchAndPeopeistButtons)
+        self.RoomList.setObjectName("RoomList")
+        self.verticalLayout_9 = QtWidgets.QVBoxLayout(self.RoomList)
+        self.verticalLayout_9.setContentsMargins(0, 0, 0, 0)
+        self.verticalLayout_9.setObjectName("verticalLayout_9")
+        self.RoomsColumn = QtWidgets.QFrame(parent=self.RoomList)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -406,7 +411,46 @@ class Ui_Zcord(object):
         self.room_alert.setText("")
         self.room_alert.setObjectName("room_alert")
         self.horizontalLayout_4.addWidget(self.widget_3, 0, QtCore.Qt.AlignmentFlag.AlignRight)
-        self.verticalLayout_6.addWidget(self.RoomsColumn)
+        self.verticalLayout_9.addWidget(self.RoomsColumn)
+        self.List_2 = QtWidgets.QVBoxLayout()
+        self.List_2.setObjectName("List_2")
+        self.ScrollRooms = QtWidgets.QScrollArea(parent=self.RoomList)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.ScrollRooms.sizePolicy().hasHeightForWidth())
+        self.ScrollRooms.setSizePolicy(sizePolicy)
+        self.ScrollRooms.setMaximumSize(QtCore.QSize(16777215, 50))
+        self.ScrollRooms.setStyleSheet("QScrollArea {\n"
+"    border:none;\n"
+"}\n"
+"\n"
+"QScrollBar:vertical {\n"
+"    border:none;\n"
+"    width:10px;\n"
+"    height:20px;\n"
+"    background-color:#656c76;\n"
+"}\n"
+"\n"
+" QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical\n"
+" {\n"
+"     background: none;\n"
+" }\n"
+" QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical\n"
+" {\n"
+"     background: none;\n"
+" }")
+        self.ScrollRooms.setVerticalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.ScrollRooms.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.ScrollRooms.setWidgetResizable(True)
+        self.ScrollRooms.setObjectName("ScrollRooms")
+        self.scrollAreaWidgetContents_3 = QtWidgets.QWidget()
+        self.scrollAreaWidgetContents_3.setGeometry(QtCore.QRect(0, 0, 254, 50))
+        self.scrollAreaWidgetContents_3.setObjectName("scrollAreaWidgetContents_3")
+        self.ScrollRooms.setWidget(self.scrollAreaWidgetContents_3)
+        self.List_2.addWidget(self.ScrollRooms)
+        self.verticalLayout_9.addLayout(self.List_2)
+        self.verticalLayout_6.addWidget(self.RoomList)
         self.verticalLayout_6.setStretch(0, 3)
         self.verticalLayout_4.addWidget(self.SearchAndPeopeistButtons)
         self.bottomWidget = QtWidgets.QFrame(parent=self.DialogColumn)

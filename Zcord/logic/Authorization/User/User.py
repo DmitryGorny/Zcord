@@ -75,32 +75,34 @@ class User(BaseUser):
     def init_friends_and_chats(self) -> None:
         self._friends_model.init_friends()
 
-        for friend in self._friends_model.friends_props():
-            self._chats_model.init_dm_chats(friend)
-        self._chats_model.init_controller_views_list()
+        self._chats_model.init_dm_chats()
+        self._chats_model.init_groups()
 
-    def add_chat(self, username: str, chat_id: str, friend_id: str):
-        return self._chats_model.add_DM_chat(chat_id=chat_id, friend_nick=username, friend_id=friend_id)
+    def add_chat(self, friend_id: str, chat_id: str):
+        return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
-    def add_friend(self, username: str, chat_id: str, user_id: str):
+    def add_friend(self, username: str,  user_id: str):
         from datetime import datetime
         now = datetime.now()
         time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
-        self._friends_model.add_friend(chat_id=chat_id, user_nickname=username, user_id=user_id, last_online=time_str)
+        self._friends_model.add_friend(user_nickname=username, user_id=user_id, last_online=time_str)
 
-    def get_chats(self) -> List[dict]:
+    def get_chats(self, without_ui: bool = False) -> List[dict]:
         attrs_list: List[dict] = []
-        for chat_attrs in self._chats_model.chats_props():
-            attrs_list.append(chat_attrs)
+        if not without_ui:
+            for chat_attrs in self._chats_model.chats_props():
+                attrs_list.append(chat_attrs)
+        else:
+            for chat_attrs in self._chats_model.chats_props_without_ui():
+                attrs_list.append(chat_attrs)
         return attrs_list
 
     def delete_chat(self, chat_id: str, is_dm: bool) -> None:
         if is_dm:
-            self._chats_model.delete_DM_chat(chat_id)
+            self._chats_model.delete_dm_chat(chat_id)
 
     def delete_friend(self, friend_id: str) -> None:
-        print(1123121332)
         self._friends_model.delete_friend(friend_id)
 
     def change_chat(self, chat_id: str) -> None:
@@ -114,3 +116,10 @@ class User(BaseUser):
         for friend in self._friends_model.friends_props():
             friends.append(friend)
         return friends
+
+    def get_groups(self) -> List[Dict[str, str]]:
+        groups_attrs: List[Dict[str, str]] = []
+        for group_view in self._chats_model.get_groups_props():
+            groups_attrs.append(group_view)
+        return groups_attrs
+

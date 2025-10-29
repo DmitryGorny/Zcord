@@ -185,4 +185,44 @@ class APIClient:
         }
         return self._request("GET", 'messages-unseen-count/', params=params)
 
+    # Работа с группами
+    def get_users_group(self, user_id):
+        return self._request('GET', f'groups-members/?user_id={user_id}/')
 
+    # Работа с чатами
+    def get_chats(self, user_id, is_group):
+        """{
+        "id": 1,
+        "is_group": false,
+        "group": null,
+        "DM": {
+            "id": 278,
+            "status": 2,
+            "created_at": "2025-10-10T10:10:09.162144Z",
+            "updated_at": "2025-10-10T10:10:11.554547Z",
+            "user1": 1,
+            "user2": 3
+        }
+    }"""
+        params = {
+            'is_group': 1 if is_group else 0,
+            'user_id': int(user_id)
+        }
+        return self._request('GET', f'chats/', params=params)
+
+    def create_dm_chat(self, chat_id):
+        params = {
+            'DM_id': chat_id,
+            'is_group': False
+        }
+        return self._request('POST', f'chats/', json=params)
+
+    def create_group_chat(self, group_id):
+        params = {
+            'group_id': group_id,
+            'is_group': True
+        }
+        return self._request('POST', f'chats/', json=params)
+
+    def delete_dm_chat(self, DM_id):
+        return self._request('DELETE', f'chats/delete/{DM_id}/')

@@ -6,6 +6,7 @@ import queue
 from logic.client.Chat.ClientChat import ChatInterface
 from logic.client.message_client import MessageConnection
 from logic.client.service_client import ServiceConnection
+#from logic.client.voice_client import VoiceConnection
 
 
 class ClientConnections:
@@ -14,14 +15,16 @@ class ClientConnections:
     # Объекты классов подключений
     _service_connection: ServiceConnection = None
     _message_connection: MessageConnection = None
+    #_voice_connection: VoiceConnection = None
 
     # Объект ChatInterface
     _chat_interface: ChatInterface = ChatInterface()
 
     # Данные сервеа
-    _SERVER_IP = "26.181.96.20"  # IP
+    _SERVER_IP = "26.36.124.241"  # IP
     _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
+    _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса
 
     @staticmethod
     def start_client(user, chats: queue.Queue, main_window_dynamic_update_cb):
@@ -80,6 +83,11 @@ class ClientConnections:
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
                                  user, callback)
 
+    # TODO: преобразовать правильно
+    #@staticmethod
+    #def _init_voice_connection(user, socket_pointer: socket.socket) -> VoiceConnection:
+        #return VoiceConnection(socket_pointer, user)
+
     @staticmethod
     def _init_chats(chats_queue: queue.Queue):
         if ClientConnections._service_connection is None:
@@ -125,6 +133,10 @@ class ClientConnections:
         db_index = ClientConnections._chat_interface.chat.scroll_db_index
         ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data={"index": index,
                                                                                                         "db_index": db_index})
+
+    @staticmethod
+    def get_chat_id() -> object:
+        return ClientConnections._chat_interface.chat
 
     @staticmethod
     def close() -> None:

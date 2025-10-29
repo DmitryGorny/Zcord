@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <title>WebRTC P2P Chat</title>
+  <style>
+    body { background: #111; color: #eee; text-align: center; font-family: sans-serif; }
+    video { width: 45%; margin: 10px; border-radius: 10px; background: #222; }
+    button { margin: 10px; padding: 10px 20px; font-size: 16px; }
+  </style>
+</head>
+<body>
+  <h2>WebRTC P2P</h2>
+  <video id="localVideo" autoplay playsinline muted></video>
+  <video id="remoteVideo" autoplay playsinline></video>
+  <br>
+  <button id="shareScreen">Поделиться экраном</button>
+  <button id="unshareScreen">Перестать делится экраном</button>
+  <script>
+    const room = prompt("Введите имя комнаты:", "testroom") || "default";
+    const ws = new WebSocket(`ws://localhost:8080/ws?room=${room}`);
+    const localVideo = document.getElementById("localVideo");
+    const remoteVideo = document.getElementById("remoteVideo");
+
+    let pc = null;
+    let localStream = null;
+
+    function createBlackStream() {
+      const canvas = document.createElement("canvas");
+      canvas.width = 640;
+      canvas.height = 480;
+      const ctx = canvas.getContext("2d");
+      ctx.fillStyle = "black";
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      const stream = canvas.captureStream(1); // 1 FPS — чтобы не нагружать
+      return stream;
+    }
+
+    document.getElementById("unshareScreen").addEventListener("click", async () => {
+        try {
+            localVideo.srcObject.getTracks().forEach(track => track.stop());
+            const cameraStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
+            localVideo.srcObject = cameraStream;
+            // Если есть активное соединение — отправляем поток
+            if (pc) {
+              const sender = pc.getSenders().find(s => s.track.kind === "video");
+              if (sender) {
+                sender.replaceTrack(cameraStream.getVideoTracks()[0]);
+              } else {
+                cameraStream.getTracks().forEach(track => pc.addTrack(track, cameraStream));
+              }
+              localVideo.srcObject = cameraStream;
+            }
+        } catch (err) {
+            console.error("Ошибка при получении камеры:", err);
+            const blackStream = createBlackStream();
+            localVideo.srcObject = null;
+            const sender = pc.getSenders().find(s => s.track.kind === "video");
+            if (sender) {
+                sender.replaceTrack(blackStream.getVideoTracks()[0]);
+            }
+        }
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify(pc.localDescription));
+    });
+
+    document.getElementById("shareScreen").addEventListener("click", async () => {
+      try {
+        const screenStream = await navigator.mediaDevices.getDisplayMedia({
+          video: { cursor: "always" },
+          audio: true
+        });
+
+        localVideo.srcObject = screenStream;
+
+        // Если есть активное соединение — отправляем поток
+        if (pc) {
+          const sender = pc.getSenders().find(s => s.track.kind === "video");
+          if (sender) {
+            sender.replaceTrack(screenStream.getVideoTracks()[0]);
+          } else {
+            screenStream.getTracks().forEach(track => pc.addTrack(track, screenStream));
+          }
+        }
+
+        screenStream.getVideoTracks()[0].onended = () => {
+          console.log("Пользователь перестал делиться экраном");
+        };
+      } catch (err) {
+        console.error("Ошибка при получении экрана:", err);
+      }
+      const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        ws.send(JSON.stringify(pc.localDescription));
+    });
+
+    async function createPeerConnection() {
+      pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      pc.ontrack = (event) => {
+        console.log("Пришёл поток от пира");
+        remoteVideo.srcObject = event.streams[0];
+      };
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
+        }
+      };
+      try {
+      if (!localStream) {
+        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+        localVideo.srcObject = localStream;
+        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
+      }} catch (err) {
+          localVideo.srcObject = null
+      }
+    }
+      // Получение сигналов от других клиентов
+      ws.onmessage = async (event) => {
+        const data = JSON.parse(event.data);
+        console.log(data.type);
+
+        if (data.type === "offer") {
+          await pc.setRemoteDescription(new RTCSessionDescription(data));
+          const answer = await pc.createAnswer();
+          await pc.setLocalDescription(answer);
+          ws.send(JSON.stringify(pc.localDescription));
+
+        } else if (data.type === "answer") {
+          await pc.setRemoteDescription(new RTCSessionDescription(data));
+
+        } else if (data.type === "candidate" && data.candidate) {
+          try {
+            await pc.addIceCandidate(data.candidate);
+          } catch (e) {
+            console.error("Ошибка ICE:", e);
+          }
+
+        } else if (data.type === "peer-left") {
+          console.log("Пир вышел — очищаем соединение");
+          remoteVideo.srcObject = null;
+
+          if (pc) {
+            pc.close();
+            pc = null;
+          }
+          await createPeerConnection();
+        }
+      };
+
+    ws.onopen = async () => {
+      await createPeerConnection();
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      ws.send(JSON.stringify(pc.localDescription));
+    };
+  </script>
+</body>
+</html>

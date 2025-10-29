@@ -448,7 +448,7 @@ class UserStatusStrat(ServiceStrategy):
 
 class CallNotificationStrategy(ServiceStrategy):
     """Уведомление звонка"""
-    command_name = "CALL-NOTIFICATION"
+    command_name = "__CALL-NOTIFICATION__"
 
     def __init__(self):
         super().__init__()
@@ -456,8 +456,13 @@ class CallNotificationStrategy(ServiceStrategy):
     async def execute(self, msg: dict) -> None:
         user_id = msg["user_id"]
         chat_id = msg["chat_id"]
-
-        for friend in self._server_pointer.clients[user_id].friends[chat_id]:
-            friend_id = friend.id
-            self._server_pointer.clients[friend_id].send_message(msg_type='CALL-NOTIFICATION',
-                                                                 extra_data={'user_id': user_id})
+        call_flag = msg["call_flg"]
+        print("Сервер принял ивент звонка")
+        friend = self._server_pointer.clients[str(user_id)].friends[str(chat_id)]
+        friend_id = friend.id
+        try:
+            await self._server_pointer.clients[str(friend_id)].send_message('__CALL-NOTIFICATION__', {'user_id': user_id,
+                                                                                           'chat_id': chat_id,
+                                                                                           'call_flg': call_flag})
+        except KeyError as e:
+            pass

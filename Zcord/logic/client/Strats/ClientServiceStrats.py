@@ -53,6 +53,7 @@ class UserStatusReceive(ClientsStrategies):
         sender_nickname = msg["nickname"]
         receiver_nickname = self.service_connection_pointer.user.getNickName()
         color = sender_status['color']
+
         target = "self" if sender_nickname == receiver_nickname else "friend"
         self.service_connection_pointer.call_main_dynamic_update("CHANGE-ACTIVITY", {'target': target,
                                                                                      'color': color,
@@ -91,15 +92,20 @@ class ConnectToMessageServer(ClientsStrategies):
         self.service_connection_pointer.send_message(msg_type="CACHE-REQUEST")
 
 
+
 class CallNotificationStrat(ClientsStrategies):
-    header_name = "CALL-NOTIFICATION"
+    header_name = "__CALL-NOTIFICATION__"
 
     def __init__(self):
         super(CallNotificationStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"]  # Юзер позвонивший
-        # self.service_connection_pointer.chat.socket_controller. ########
+        user_id = msg["user_id"] #Юзер позвонивший
+        chat_id = str(msg["chat_id"])
+        call_flg = int(msg["call_flg"])
+        call_flg = bool(call_flg)
+        print("Клиент принял ивент звонка")
+        self.service_connection_pointer.chat.socket_controller.receive_call(chat_id, call_flg)
 
 
 class FriendshipRequestSendStrat(ClientsStrategies):
@@ -157,6 +163,7 @@ class AcceptFriendRequestStrat(ClientsStrategies):
             self.service_connection_pointer.call_main_dynamic_update('ACCEPT-REQUEST-OTHERS', {'user_id': sender_id,
                                                                                                'chat_id': chat_id,
                                                                                                'sender_nickname': sender_nickname,
+                                                                                               'friend_id': receiver_id
                                                                                                })
         else:
             self.service_connection_pointer.user.add_friend(username=friend_nickname,

@@ -9,6 +9,8 @@ from logic.Main.MainWidnowChats.group_chat.GroupInList import GroupInList
 from logic.Main.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
+from logic.Main.Parameters.Params_Window import ParamsWindow
+from logic.Main.Chat.View.Voice_params.VoiceParamsClass import VoiceParamsClass
 from logic.Main.miniProfile.MiniProfile import MiniProfile, Overlay
 from qframelesswindow import FramelessWindow
 from logic.Main.TitleBar.TitleBar import CustomTitleBar
@@ -53,6 +55,10 @@ class MainWindow(FramelessWindow):
         self.dynamic_update.connect(self.dynamic_update_slot)
         # Сигналы
 
+        self.voicepr = VoiceParamsClass()
+        self.parameters = ParamsWindow(self.ui, self.voicepr)
+        self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         # Работа с друзьями
         self._friends: FriendsWidget = FriendsWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._friends.get_widget())
@@ -71,7 +77,6 @@ class MainWindow(FramelessWindow):
 
         # Чаты
         self._friendsChatOptions: List[ChatInList] = self.create_chats()
-        self._groups_options: List[GroupInList] = self.create_groups()
 
         self.WidgetForFriendsScroll = QtWidgets.QWidget()
         self.WidgetForRoomsScroll = QtWidgets.QWidget()

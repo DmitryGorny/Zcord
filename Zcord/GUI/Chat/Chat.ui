@@ -347,6 +347,63 @@ QPushButton {
                  <number>25</number>
                 </property>
                 <item>
+                 <widget class="QPushButton" name="videoCall">
+                  <property name="sizePolicy">
+                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                    <horstretch>0</horstretch>
+                    <verstretch>0</verstretch>
+                   </sizepolicy>
+                  </property>
+                  <property name="minimumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="maximumSize">
+                   <size>
+                    <width>40</width>
+                    <height>40</height>
+                   </size>
+                  </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
+                  <property name="styleSheet">
+                   <string notr="true">QPushButton {
+	border:2px solid white;
+	background-color:black;
+}
+QPushButton:checked {
+	border: 2px solid #e6a23c;
+	background-color: red;
+}
+QPushButton:hover {
+	background-color: rgba(229, 229, 229, 55);
+}
+QPushButton:checked:hover {
+	background-color: red;
+}</string>
+                  </property>
+                  <property name="text">
+                   <string/>
+                  </property>
+                  <property name="icon">
+                   <iconset>
+                    <normaloff>../icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg</normaloff>../icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                  </property>
+                  <property name="iconSize">
+                   <size>
+                    <width>28</width>
+                    <height>28</height>
+                   </size>
+                  </property>
+                  <property name="checkable">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+                <item>
                  <widget class="QPushButton" name="muteMic">
                   <property name="sizePolicy">
                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

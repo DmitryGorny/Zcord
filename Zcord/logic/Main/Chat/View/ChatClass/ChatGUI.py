@@ -190,6 +190,37 @@ class Ui_Chat(object):
         self.wrapperForButtons = QtWidgets.QHBoxLayout(self.horizontalFrame)
         self.wrapperForButtons.setSpacing(25)
         self.wrapperForButtons.setObjectName("wrapperForButtons")
+        self.videoCall = QtWidgets.QPushButton(parent=self.horizontalFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.videoCall.sizePolicy().hasHeightForWidth())
+        self.videoCall.setSizePolicy(sizePolicy)
+        self.videoCall.setMinimumSize(QtCore.QSize(40, 40))
+        self.videoCall.setMaximumSize(QtCore.QSize(40, 40))
+        self.videoCall.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.videoCall.setStyleSheet("QPushButton {\n"
+"    border:2px solid white;\n"
+"    background-color:black;\n"
+"}\n"
+"QPushButton:checked {\n"
+"    border: 2px solid #e6a23c;\n"
+"    background-color: red;\n"
+"}\n"
+"QPushButton:hover {\n"
+"    background-color: rgba(229, 229, 229, 55);\n"
+"}\n"
+"QPushButton:checked:hover {\n"
+"    background-color: red;\n"
+"}")
+        self.videoCall.setText("")
+        icon2 = QtGui.QIcon()
+        icon2.addPixmap(QtGui.QPixmap("GUI/icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.videoCall.setIcon(icon2)
+        self.videoCall.setIconSize(QtCore.QSize(28, 28))
+        self.videoCall.setCheckable(True)
+        self.videoCall.setObjectName("videoCall")
+        self.wrapperForButtons.addWidget(self.videoCall)
         self.muteMic = QtWidgets.QPushButton(parent=self.horizontalFrame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
@@ -214,9 +245,9 @@ class Ui_Chat(object):
 "    background-color: red;\n"
 "}")
         self.muteMic.setText("")
-        icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("GUI/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.muteMic.setIcon(icon2)
+        icon3 = QtGui.QIcon()
+        icon3.addPixmap(QtGui.QPixmap("GUI/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.muteMic.setIcon(icon3)
         self.muteMic.setIconSize(QtCore.QSize(28, 28))
         self.muteMic.setCheckable(True)
         self.muteMic.setObjectName("muteMic")
@@ -245,9 +276,9 @@ class Ui_Chat(object):
 "    background-color: red;\n"
 "}")
         self.muteHeadphones.setText("")
-        icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap("GUI/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.muteHeadphones.setIcon(icon3)
+        icon4 = QtGui.QIcon()
+        icon4.addPixmap(QtGui.QPixmap("GUI/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.muteHeadphones.setIcon(icon4)
         self.muteHeadphones.setIconSize(QtCore.QSize(28, 28))
         self.muteHeadphones.setCheckable(True)
         self.muteHeadphones.setFlat(False)
@@ -265,9 +296,9 @@ class Ui_Chat(object):
         self.leaveCall.setStyleSheet("border-color:#BB271A;\n"
 "background-color:#BB271A;")
         self.leaveCall.setText("")
-        icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap("GUI/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.leaveCall.setIcon(icon4)
+        icon5 = QtGui.QIcon()
+        icon5.addPixmap(QtGui.QPixmap("GUI/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.leaveCall.setIcon(icon5)
         self.leaveCall.setIconSize(QtCore.QSize(28, 28))
         self.leaveCall.setObjectName("leaveCall")
         self.wrapperForButtons.addWidget(self.leaveCall, 0, QtCore.Qt.AlignmentFlag.AlignVCenter)
@@ -377,9 +408,9 @@ class Ui_Chat(object):
 "border-radius:25%;\n"
 "border:3px solid white;")
         self.Attcahment_button.setText("")
-        icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap("GUI/icon/attach_file_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Attcahment_button.setIcon(icon5)
+        icon6 = QtGui.QIcon()
+        icon6.addPixmap(QtGui.QPixmap("GUI/icon/attach_file_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Attcahment_button.setIcon(icon6)
         self.Attcahment_button.setIconSize(QtCore.QSize(30, 30))
         self.Attcahment_button.setObjectName("Attcahment_button")
         self.Chat_input.addWidget(self.Attcahment_button)
@@ -396,9 +427,9 @@ class Ui_Chat(object):
 "border-radius:25%;\n"
 "border:3px solid white;")
         self.Send_button.setText("")
-        icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap("GUI/icon/send_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.Send_button.setIcon(icon6)
+        icon7 = QtGui.QIcon()
+        icon7.addPixmap(QtGui.QPixmap("GUI/icon/send_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Send_button.setIcon(icon7)
         self.Send_button.setIconSize(QtCore.QSize(30, 30))
         self.Send_button.setObjectName("Send_button")
         self.Chat_input.addWidget(self.Send_button)

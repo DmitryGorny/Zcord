@@ -6,7 +6,6 @@ import threading
 import uuid
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
 from logic.client.VoiceChat.voice_handler import VoiceHandler
-from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 # Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | user_id | payload...
 PKT_HDR = b"V1"
@@ -17,12 +16,12 @@ HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
 class VoiceConnection(IConnection, BaseConnection):
     _flg = False
 
-    def __init__(self, user, server_host="127.0.0.1", server_port=55559, room="default_room"):
+    def __init__(self, user, chat_obj, server_host="127.0.0.1", server_port=55559, room="default_room"):
         self.server = (server_host, server_port)
         self.room = room
         self.token = uuid.uuid4().hex
         self._user = user
-        self.chat_obj = ClientConnections.get_chat_id()
+        self.chat_obj = chat_obj
 
         # TCP
         self.reader: asyncio.StreamReader | None = None
@@ -271,25 +270,25 @@ class CallManager:
             self._thread = None
             self._initialized = True
 
-    def start_call(self, user, host="26.36.207.48", port=55559, room="room1"):
+    def start_call(self, user, chat_obj, host="localhost", port=55559, room="room1"):
         if self.client is not None:
             print("Клиент уже запущен")
             return
 
         self._thread = threading.Thread(
             target=self._run_call,
-            args=(user, host, port, room),
+            args=(user, host, port, room, chat_obj),
             daemon=True
         )
         self._thread.start()
         print("Звонок запущен")
 
-    def _run_call(self, user, host, port, room):
+    def _run_call(self, user, host, port, room, chat_obj):
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
 
         try:
-            self.client = VoiceConnection(user=user, server_host=host, server_port=port, room=room)
+            self.client = VoiceConnection(user=user, chat_obj=chat_obj, server_host=host, server_port=port, room=room)
             # создаем задачу, но не блокируемся на ней
             self._task = self._loop.create_task(self.client.run())
             self._loop.run_forever()

@@ -7,6 +7,7 @@ from logic.client.Chat.ClientChat import ChatInterface
 from logic.client.message_client import MessageConnection
 from logic.client.service_client import ServiceConnection
 #from logic.client.voice_client import VoiceConnection
+from logic.client.voice_client import CallManager
 
 
 class ClientConnections:
@@ -21,7 +22,7 @@ class ClientConnections:
     _chat_interface: ChatInterface = ChatInterface()
 
     # Данные сервеа
-    _SERVER_IP = "26.36.124.241"  # IP
+    _SERVER_IP = "26.36.207.48"  # IP
     _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
     _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
     _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса
@@ -143,3 +144,5 @@ class ClientConnections:
         ClientConnections.send_service_message(msg_type="END-SESSION")
         ClientConnections._service_connection.close()
         ClientConnections._message_connection.close()
+        #ClientConnections._voice_connection.close()
+        CallManager().stop_call()

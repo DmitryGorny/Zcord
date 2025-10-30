@@ -38,7 +38,8 @@ class ChatModel:
         """Запуск звонка - синхронный вызов"""
         success = self.call_manager.start_call(
             user=user,
-            host="26.36.124.241",
+            chat_obj=ClientConnections.get_chat_id(),
+            host="26.36.207.48",
             port=55559,
             room=chat_id
         )

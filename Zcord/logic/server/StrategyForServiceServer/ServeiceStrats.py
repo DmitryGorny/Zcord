@@ -390,13 +390,14 @@ class DeleteFriendRequestStrat(ServiceStrategy):
         self._api_client.delete_friendship(friendship['id'])
         friend = self._api_client.get_user_by_id(int(friend_id))
         self._server_pointer.clients[sender_id].delete_friend(friend_id)
+        chat_id = self._server_pointer.clients[sender_id].get_chat_by_user_id(friend_id).chat_id
         self._server_pointer.clients[sender_id].delete_chat_by_user_id(friend_id)
 
         try:
             await self._server_pointer.clients[friend_id].send_message("DELETE-FRIEND",
                                                                        {'friend_id': sender_id,
                                                                         'sender_nickname': msg['sender_nickname'],
-                                                                        'chat_id': friendship['id']
+                                                                        'chat_id': chat_id
                                                                         })
             self._server_pointer.clients[friend_id].delete_friend(sender_id)
         except KeyError:
@@ -405,10 +406,10 @@ class DeleteFriendRequestStrat(ServiceStrategy):
         await self._server_pointer.clients[sender_id].send_message("DELETE-FRIEND",
                                                                    {'friend_id': friend_id,
                                                                     'friend_nickname': friend['nickname'],
-                                                                    'chat_id': friendship['id']
+                                                                    'chat_id': chat_id
                                                                     })
 
-        await self._sender_to_msg_server_func('DELETE-FRIEND', {'chat_id': friendship['id']})
+        await self._sender_to_msg_server_func('DELETE-FRIEND', {'chat_id': chat_id})
 
 
 class UserStatusStrat(ServiceStrategy):

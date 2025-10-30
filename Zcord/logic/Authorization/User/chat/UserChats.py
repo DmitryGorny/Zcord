@@ -20,7 +20,6 @@ class UserChats:
         fabric = CreateChat()
 
         chat_db = self._db.get_chats(user_id=self.__user.id, is_group=False)
-
         for chat_attrs in chat_db:
             user1 = chat_attrs['DM']['user1']
             user2 = chat_attrs['DM']['user2']

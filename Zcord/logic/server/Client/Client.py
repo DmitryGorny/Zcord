@@ -144,6 +144,7 @@ class Chat:
         self._chat_id = chat_id
 
         self._members: List[Friend] = []
+        self._current_voice_members: List[Client] = []
 
     @property
     def chat_id(self) -> str:
@@ -154,10 +155,24 @@ class Chat:
 
     def get_member_by_id(self, user_id) -> Friend:
         try:
+
             return next(filter(lambda x: str(x.id) == str(user_id), self._members))
-        except IndexError as e:
+        except StopIteration as e:
             print(e)
             return None
 
     def get_members(self) -> List[Friend]:
         return self._members.copy()
+
+    #Работа с войс румой
+    def add_voice_member(self, friend: Client) -> None:
+        self._current_voice_members.append(friend)
+
+    def delete_voice_member_by_id(self, user_id: str) -> None:
+        for friend in self._current_voice_members:
+            if friend.id == user_id:
+                self._current_voice_members.remove(friend)
+                return
+
+    def get_voice_members(self) -> List[Client]:
+        return self._current_voice_members.copy()

@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserView, FriendshipView, FriendsAddingView, MessageView
+from .views import UserView, FriendshipView, FriendsAddingView, MessageView, ChatsView
 
 urlpatterns = [
     path('users/', UserView.as_view({
@@ -56,5 +56,20 @@ urlpatterns = [
     }), name='message_bulk_update'),
     path('messages-unseen-count/', MessageView.as_view({
         'get': 'get_unseen_count',
-    }), name='messages-unseen-count')
+    }), name='messages-unseen-count'),
+
+    path('chats/', ChatsView.as_view({
+        'get': 'list',
+        'post': 'create'
+    }), name='chats'),
+    path('chats/<', ChatsView.as_view({
+        'get': 'list',
+        'post': 'create'
+    }), name='chats-dm'),
+    path('chats/delete/<str:DM_id>/', ChatsView.as_view({
+        'delete': 'destroy'
+    }), name='chats-dm-destroy'),
+    path('chats/delete/groups/<str:groups_id>/', ChatsView.as_view({
+        'delete': 'destroy'
+    }), name='chats-group-destroy'),
 ]

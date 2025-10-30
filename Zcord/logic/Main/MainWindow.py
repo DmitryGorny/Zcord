@@ -4,7 +4,8 @@ from typing import List
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt
 from logic.Authorization.User.User import User
-from logic.Main.MainWidnowChats.ChatInList import ChatInList
+from logic.Main.MainWidnowChats.DM_chat.ChatInList import ChatInList
+from logic.Main.MainWidnowChats.group_chat.GroupInList import GroupInList
 from logic.Main.MainWindowGUI import Ui_Zcord
 from logic.Main.Friends.FriendsWidget import FriendsWidget
 from logic.client.ClientConnections.ClientConnections import ClientConnections
@@ -65,18 +66,26 @@ class MainWindow(FramelessWindow):
         if self._friends.has_requests():
             self.friend_request_alert()
 
+        # Параметры
+        # self.parameters = ParamsWindow(self.ui, self.voicepr)
+        # self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
+        # self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
         self.ui.UsersLogo.clicked.connect(self.showProfile)
 
         # Чаты
         self._friendsChatOptions: List[ChatInList] = self.create_chats()
+        self._groups_options: List[GroupInList] = self.create_groups()
 
-        self.WidgetForScroll = QtWidgets.QWidget()
+        self.WidgetForFriendsScroll = QtWidgets.QWidget()
+        self.WidgetForRoomsScroll = QtWidgets.QWidget()
 
         # Конектим сигналы к кнопкам всем селом
         self.ui.AddFriends.clicked.connect(self.add_friend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
+        self.ui.ShowRooms.clicked.connect(self.show_groups_list)
         self.ui.SettingsButton.clicked.connect(self.show_parameters)
         self.ui.ScrollFriends.setVisible(False)
 
@@ -87,18 +96,35 @@ class MainWindow(FramelessWindow):
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
         self.showFriendList()
+        self.show_groups_list()
 
         self.initializeChatsInScrollArea()
+        self.initialize_groups_in_scroll_area()
 
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
     def create_chats(self) -> List[ChatInList]:
         """Создает GUI объекты чатов ChatInList и возвращает их список"""
         chats_list: List[ChatInList] = []
         for attrs in self.__user.get_chats():
+            if not attrs['is_dm']:
+                continue
+
             chats_list.append(ChatInList(attrs['nickname'], attrs['chat_id'], attrs["chat_ui"]))
             self.ui.stackedWidget_2.addWidget(
                 attrs["chat_ui"])  # Передается UI объекта ChatView для отображения самого чата
         return chats_list
+
+    def create_groups(self) -> List[GroupInList]:
+        """Создает GUI объекты чатов GroupInList и возвращает их список"""
+        groups_list: List[GroupInList] = []
+        for attrs in self.__user.get_chats():
+            if attrs['is_dm']:
+                continue
+
+            groups_list.append(GroupInList(attrs['group_name'], attrs['chat_id'], attrs["group_ui"]))
+            self.ui.stackedWidget_2.addWidget(
+                attrs["group_ui"])  # Передается UI объекта ChatView для отображения самого чата
+        return groups_list
 
     def add_chat_to_view(self, chat_id: str, friend_nick: str, ui) -> ChatInList:
         chat = ChatInList(friend_nick, str(chat_id), ui)
@@ -124,7 +150,7 @@ class MainWindow(FramelessWindow):
         for chat in self._friendsChatOptions:
             self.createChatWidget(chat, layoutFinal)
 
-        self.WidgetForScroll.setLayout(layoutFinal)
+        self.WidgetForFriendsScroll.setLayout(layoutFinal)
 
         self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
         self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
@@ -163,22 +189,75 @@ class MainWindow(FramelessWindow):
                                                         border-radius: 5px;
                                                      }""")
 
-        self.ui.ScrollFriends.setWidget(self.WidgetForScroll)
+        self.ui.ScrollFriends.setWidget(self.WidgetForFriendsScroll)
+
+    def initialize_groups_in_scroll_area(self):
+        """Добавляет объекты ChatInList в ScrollFriends"""
+        layoutFinal = QtWidgets.QVBoxLayout()
+        layoutFinal.setSpacing(5)
+        layoutFinal.setContentsMargins(0, 0, 0, 0)
+
+        for chat in self._groups_options:
+            self.createChatWidget(chat, layoutFinal)
+
+        self.WidgetForRoomsScroll.setLayout(layoutFinal)
+
+        self.ui.stackedWidget_2.addWidget(self.ui.WrapperForHomeScreen)
+        self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
+
+        self.ui.ScrollRooms.setMaximumHeight(350)
+
+        self.ui.ScrollRooms.setStyleSheet("""QScrollArea {
+                                                        border:none;
+                                                    }
+                                                    
+                                                    QScrollBar:vertical {
+                                                        border:none;
+                                                        width:10px;
+                                                        height:20px;
+                                                        
+                                                    }
+                                                    
+                                                     QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+                                                     {
+                                                         heigth:0;
+                                                     }
+                                                     QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+                                                     {
+                                                         background: none;
+                                                     }
+                                                     QScrollBar::add-line:vertical {
+                                                            height: 0px;
+                                                     }
+                                                            
+                                                    QScrollBar::sub-line:vertical {
+                                                            height: 0px;
+                                                     }
+                                                     QScrollBar::handle:vertical {
+                                                        background: orange;
+                                                        min-height:10px;
+                                                        border-radius: 5px;
+                                                     }""")
+
+        self.ui.ScrollRooms.setWidget(self.WidgetForRoomsScroll)
 
     def choose_chat(self):
         sender = self.sender()
+        option_object = None
+        try:
+            option_object = list(filter(lambda x: x.username == sender.text, self._friendsChatOptions))[0]
+        except IndexError:
+            option_object = list(filter(lambda x: x.username == sender.text, self._groups_options))[0]
 
-        chat = list(filter(lambda x: x.username == sender.text, self._friendsChatOptions))[0]
+        self.__user.change_chat(option_object.id)
 
-        self.__user.change_chat(chat.id)
-
-        self.ui.stackedWidget_2.setCurrentWidget(chat.chat_ui)
+        self.ui.stackedWidget_2.setCurrentWidget(option_object.chat_ui)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
         friend_ChatInList = list(filter(lambda x: x.username == friendNick, self._friendsChatOptions))[0]
         friend_ChatInList.changeIndicatorColor(color)
 
-    def createChatWidget(self, chat_option: ChatInList, layoutFinal):
+    def createChatWidget(self, chat_option, layoutFinal):
         """Создает объекь ClikableFrame для дальнейшей вставки в ScrollArea"""
         self.QFr = ClikableFrame(chat_option.username)
         self.QFr.clicked.connect(self.choose_chat)
@@ -208,8 +287,11 @@ class MainWindow(FramelessWindow):
 
         return layoutFinal
 
-    def updateChatList(self, chat):
-        self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
+    def updateChatList(self, chat, layout=None):
+        if layout is None:
+            self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
+        else:
+            self.createChatWidget(chat, self.ui.ScrollRooms.widget().layout())
 
     def deleteChatFromUI(self, chat):
         """Удаляет чат из ScrollFriends"""
@@ -224,8 +306,24 @@ class MainWindow(FramelessWindow):
         if len(self._friendsChatOptions) == 0:
             self.ui.ScrollFriends.setVisible(False)
 
+    def delete_group_from_ui(self, group):
+        for i in range(self.ui.ScrollRooms.widget().layout().count()):
+            widgetToDelete = self.ui.ScrollRooms.widget().layout().itemAt(i).widget()
+            if self.ui.ScrollRooms.widget().layout().itemAt(i).widget().text == group.username:
+                self.ui.ScrollRooms.widget().layout().takeAt(i)
+                widgetToDelete.deleteLater()
+                self.ui.ScrollRooms.widget().layout().update()
+                break
+
+        if len(self._friendsChatOptions) == 0:
+            self.ui.ScrollRooms.setVisible(False)
+
     def unseenMessages(self, chat_id: str, newValue: int):
-        chat = list(filter(lambda x: x.id == chat_id, self._friendsChatOptions))[0]
+        print(self._friendsChatOptions)
+        try:
+            chat = list(filter(lambda x: x.id == chat_id, self._friendsChatOptions))[0]
+        except IndexError:
+            chat = list(filter(lambda x: x.id == chat_id, self._groups_options))[0]
         if newValue == 0:
             chat.messageNumber.setVisible(False)
             return
@@ -244,6 +342,19 @@ class MainWindow(FramelessWindow):
             self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
 
         return chat_gui
+
+    def show_groups_list(self):
+        if len(self._friendsChatOptions) == 0:
+            if not self.ui.ScrollRooms.isVisible():
+                return
+            else:
+                self.ui.ScrollRooms.setVisible(False)
+                return
+
+        if not self.ui.ScrollRooms.isVisible():
+            self.ui.ScrollRooms.setVisible(True)
+        else:
+            self.ui.ScrollRooms.setVisible(False)
 
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
 
@@ -302,22 +413,22 @@ class MainWindow(FramelessWindow):
                 self.friend_request_alert()
             case "ACCEPT-REQUEST-OTHERS":
                 self._friends.remove_others_request(args['user_id'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['sender_nickname'], friend_id=args['friend_id'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], friend_id=args['user_id'])
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
-                                            'nickname': args['sender_nickname'],
+                                            'is_dm': True,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.friend_request_alert()
                 self.updateChatList(chat_gui)
             case "ACCEPT-REQUEST-SELF":
                 self._friends.remove_your_request(args['user_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], username=args['friend_nickname'], friend_id=args['user_id'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'], friend_id=args['user_id'])
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
-                                            'nickname': args['friend_nickname'],
+                                            'is_dm': True,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.updateChatList(chat_gui)
             case "DECLINE-REQUEST-OTHERS":

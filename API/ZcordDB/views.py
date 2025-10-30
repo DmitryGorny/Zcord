@@ -5,7 +5,8 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 from .Paginations import LimitPagination
-from .models import Users, Friendship, Message, FriendsAdding
+from .models import Users, Friendship, Message, FriendsAdding, Chats
+from .serializers.ChatsSerializer import ChatsSerializer
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
 from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer, MessageBulkUpdateSerializer
@@ -64,6 +65,19 @@ class FriendshipView(viewsets.ModelViewSet):
         self.perform_create(serializer)
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+    def destroy(self, request, *args, **kwargs):
+        pk = kwargs.get('pk')
+        if pk:
+            return super().destroy(request, *args, **kwargs)
+
+        user1_id = kwargs.get('user1_id')
+        user2_id = kwargs.get('user2_id')
+
+        if user1_id and user2_id:
+            Friendship.objects.get(Q(user1_id=user1_id, user2_id=user2_id) |
+                                   Q(user1_id=user2_id, user2_id=user1_id)).delete()
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class FriendsAddingView(viewsets.ModelViewSet):
     queryset = FriendsAdding.objects.all()
@@ -184,3 +198,38 @@ class MessageView(viewsets.ModelViewSet):
             "status": "success",
             "count": count
         }, status=status.HTTP_201_CREATED)
+
+
+class ChatsView(viewsets.ModelViewSet):
+    queryset = Chats.objects.all()
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["DM_id", 'group_id']
+    serializer_class = ChatsSerializer
+
+    def get_queryset(self):
+        queryset = super(ChatsView, self).get_queryset()
+        user_id = self.request.query_params.get('user_id')
+        is_group = self.request.query_params.get('is_group')
+
+        if user_id and is_group:
+            is_group = bool(int(is_group))
+            if not is_group:
+                return queryset.filter(Q(DM__user1=user_id) | Q(DM__user2=user_id), is_group=is_group)
+            return queryset.filter(group__members__id=user_id, is_group=is_group)
+
+        return queryset
+
+    def destroy(self, request, *args, **kwargs):
+        dm_id = kwargs.get('DM_id')
+        group_id = kwargs.get('group_id')
+
+        obj = Chats.objects.filter(DM_id=dm_id).first()
+        if not obj and group_id:
+            obj = Chats.objects.filter(group_id=group_id).first()
+
+        if not obj:
+            return Response({'detail': 'Объект не найден'}, status=status.HTTP_404_NOT_FOUND)
+
+        obj.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+

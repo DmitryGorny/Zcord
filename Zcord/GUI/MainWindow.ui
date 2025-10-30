@@ -682,166 +682,244 @@ QScrollBar:vertical {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QFrame" name="RoomsColumn">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>0</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">color:#808994;</string>
-                  </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_4">
-                   <property name="spacing">
-                    <number>2</number>
-                   </property>
+                 <widget class="QFrame" name="RoomList">
+                  <layout class="QVBoxLayout" name="verticalLayout_9">
                    <property name="leftMargin">
                     <number>0</number>
                    </property>
-                   <property name="rightMargin">
-                    <number>5</number>
+                   <property name="topMargin">
+                    <number>0</number>
                    </property>
-                   <item alignment="Qt::AlignLeft">
-                    <widget class="QPushButton" name="ShowRooms">
+                   <property name="rightMargin">
+                    <number>0</number>
+                   </property>
+                   <property name="bottomMargin">
+                    <number>0</number>
+                   </property>
+                   <item>
+                    <widget class="QFrame" name="RoomsColumn">
                      <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                        <horstretch>0</horstretch>
                        <verstretch>0</verstretch>
                       </sizepolicy>
                      </property>
                      <property name="minimumSize">
                       <size>
-                       <width>110</width>
-                       <height>28</height>
+                       <width>0</width>
+                       <height>0</height>
                       </size>
                      </property>
                      <property name="maximumSize">
                       <size>
-                       <width>28</width>
-                       <height>28</height>
+                       <width>16777215</width>
+                       <height>16777215</height>
                       </size>
-                     </property>
-                     <property name="cursor">
-                      <cursorShape>PointingHandCursor</cursorShape>
                      </property>
                      <property name="styleSheet">
-                      <string notr="true">color:white;
+                      <string notr="true">color:#808994;</string>
+                     </property>
+                     <layout class="QHBoxLayout" name="horizontalLayout_4">
+                      <property name="spacing">
+                       <number>2</number>
+                      </property>
+                      <property name="leftMargin">
+                       <number>0</number>
+                      </property>
+                      <property name="rightMargin">
+                       <number>5</number>
+                      </property>
+                      <item alignment="Qt::AlignLeft">
+                       <widget class="QPushButton" name="ShowRooms">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>110</width>
+                          <height>28</height>
+                         </size>
+                        </property>
+                        <property name="maximumSize">
+                         <size>
+                          <width>28</width>
+                          <height>28</height>
+                         </size>
+                        </property>
+                        <property name="cursor">
+                         <cursorShape>PointingHandCursor</cursorShape>
+                        </property>
+                        <property name="styleSheet">
+                         <string notr="true">color:white;
 border:none;
 font-size:20px;</string>
-                     </property>
-                     <property name="text">
-                      <string>Комнаты</string>
-                     </property>
-                     <property name="icon">
-                      <iconset resource="res-rec.qrc">
-                       <normaloff>:/icons/icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
-                     </property>
-                     <property name="iconSize">
-                      <size>
-                       <width>24</width>
-                       <height>24</height>
-                      </size>
-                     </property>
-                    </widget>
-                   </item>
-                   <item alignment="Qt::AlignRight">
-                    <widget class="QWidget" name="widget_3" native="true">
-                     <property name="sizePolicy">
-                      <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
-                       <horstretch>0</horstretch>
-                       <verstretch>0</verstretch>
-                      </sizepolicy>
-                     </property>
-                     <property name="minimumSize">
-                      <size>
-                       <width>20</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <widget class="QPushButton" name="AddRoom">
-                      <property name="geometry">
-                       <rect>
-                        <x>0</x>
-                        <y>4</y>
-                        <width>20</width>
-                        <height>20</height>
-                       </rect>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="minimumSize">
-                       <size>
-                        <width>20</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>20</width>
-                        <height>20</height>
-                       </size>
-                      </property>
-                      <property name="cursor">
-                       <cursorShape>PointingHandCursor</cursorShape>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">border:none;
+                        </property>
+                        <property name="text">
+                         <string>Комнаты</string>
+                        </property>
+                        <property name="icon">
+                         <iconset resource="res-rec.qrc">
+                          <normaloff>:/icons/icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/chevron_right_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                        </property>
+                        <property name="iconSize">
+                         <size>
+                          <width>24</width>
+                          <height>24</height>
+                         </size>
+                        </property>
+                       </widget>
+                      </item>
+                      <item alignment="Qt::AlignRight">
+                       <widget class="QWidget" name="widget_3" native="true">
+                        <property name="sizePolicy">
+                         <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                          <horstretch>0</horstretch>
+                          <verstretch>0</verstretch>
+                         </sizepolicy>
+                        </property>
+                        <property name="minimumSize">
+                         <size>
+                          <width>20</width>
+                          <height>0</height>
+                         </size>
+                        </property>
+                        <widget class="QPushButton" name="AddRoom">
+                         <property name="geometry">
+                          <rect>
+                           <x>0</x>
+                           <y>4</y>
+                           <width>20</width>
+                           <height>20</height>
+                          </rect>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="minimumSize">
+                          <size>
+                           <width>20</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>20</width>
+                           <height>20</height>
+                          </size>
+                         </property>
+                         <property name="cursor">
+                          <cursorShape>PointingHandCursor</cursorShape>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">border:none;
 font-size:20px;
 color:white;</string>
-                      </property>
-                      <property name="text">
-                       <string>+</string>
-                      </property>
-                     </widget>
-                     <widget class="QPushButton" name="room_alert">
-                      <property name="geometry">
-                       <rect>
-                        <x>10</x>
-                        <y>0</y>
-                        <width>10</width>
-                        <height>10</height>
-                       </rect>
-                      </property>
-                      <property name="sizePolicy">
-                       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                        <horstretch>0</horstretch>
-                        <verstretch>0</verstretch>
-                       </sizepolicy>
-                      </property>
-                      <property name="maximumSize">
-                       <size>
-                        <width>10</width>
-                        <height>10</height>
-                       </size>
-                      </property>
-                      <property name="styleSheet">
-                       <string notr="true">border:1px solid #DA3E44;
+                         </property>
+                         <property name="text">
+                          <string>+</string>
+                         </property>
+                        </widget>
+                        <widget class="QPushButton" name="room_alert">
+                         <property name="geometry">
+                          <rect>
+                           <x>10</x>
+                           <y>0</y>
+                           <width>10</width>
+                           <height>10</height>
+                          </rect>
+                         </property>
+                         <property name="sizePolicy">
+                          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                           <horstretch>0</horstretch>
+                           <verstretch>0</verstretch>
+                          </sizepolicy>
+                         </property>
+                         <property name="maximumSize">
+                          <size>
+                           <width>10</width>
+                           <height>10</height>
+                          </size>
+                         </property>
+                         <property name="styleSheet">
+                          <string notr="true">border:1px solid #DA3E44;
 background:#DA3E44;
 border-radius:5%;
 text-align: center; </string>
-                      </property>
-                      <property name="text">
-                       <string/>
-                      </property>
-                     </widget>
+                         </property>
+                         <property name="text">
+                          <string/>
+                         </property>
+                        </widget>
+                       </widget>
+                      </item>
+                     </layout>
                     </widget>
+                   </item>
+                   <item>
+                    <layout class="QVBoxLayout" name="List_2">
+                     <item>
+                      <widget class="QScrollArea" name="ScrollRooms">
+                       <property name="sizePolicy">
+                        <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                         <horstretch>0</horstretch>
+                         <verstretch>0</verstretch>
+                        </sizepolicy>
+                       </property>
+                       <property name="maximumSize">
+                        <size>
+                         <width>16777215</width>
+                         <height>50</height>
+                        </size>
+                       </property>
+                       <property name="styleSheet">
+                        <string notr="true">QScrollArea {
+	border:none;
+}
+
+QScrollBar:vertical {
+	border:none;
+	width:10px;
+	height:20px;
+	background-color:#656c76;
+}
+
+ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+ {
+     background: none;
+ }
+ QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+ {
+     background: none;
+ }</string>
+                       </property>
+                       <property name="verticalScrollBarPolicy">
+                        <enum>Qt::ScrollBarAsNeeded</enum>
+                       </property>
+                       <property name="horizontalScrollBarPolicy">
+                        <enum>Qt::ScrollBarAsNeeded</enum>
+                       </property>
+                       <property name="widgetResizable">
+                        <bool>true</bool>
+                       </property>
+                       <widget class="QWidget" name="scrollAreaWidgetContents_3">
+                        <property name="geometry">
+                         <rect>
+                          <x>0</x>
+                          <y>0</y>
+                          <width>254</width>
+                          <height>50</height>
+                         </rect>
+                        </property>
+                       </widget>
+                      </widget>
+                     </item>
+                    </layout>
                    </item>
                   </layout>
                  </widget>

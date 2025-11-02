@@ -6,6 +6,7 @@ import msgspec
 import re
 from logic.server.Client.Client import Client
 from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy, UserInfoStrat
+from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseServerStrategy
 
 
 class Server:
@@ -83,19 +84,29 @@ class Server:
                 break
 
     async def handle_server(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        """Сокет обрабатывающий подключение серверов"""
         writer.write(b'DISCOVER')  # Запрос на информацию о сервере
+        await writer.drain()
         while True:
             try:
                 msg = await reader.read(4096)
-                msg = msg.decode('utf-8')
-                if msg == 'MESSAGE-SERVER':
+                msg = json.loads(msg.decode("utf-8"))
+
+                typ = msg.get("t")
+
+                if typ == 'MESSAGE-SERVER':
                     Server.servers["message-server"] = writer
+                    print("Подключен message")
                     continue
-                elif msg == 'VOICE-SERVER':
+                elif typ == 'VOICE-SERVER':
                     Server.servers["voice-server"] = writer
-                    print("Подключен войс")
+                    print("Подключен voice")
                     continue
+
+                try:
+                    strategy = ChooseServerStrategy().get_strategy(typ, Server)
+                    await strategy.execute(msg)
+                except Exception as e:
+                    print(e)
 
             except ConnectionResetError:
                 writer.close()
@@ -104,7 +115,7 @@ class Server:
 
 
 async def main():
-    IP = "26.181.96.20"
+    IP = "26.36.124.241"
     PORT_FO_USERS = 55558
 
     server_user = await asyncio.start_server(
@@ -114,17 +125,25 @@ async def main():
         reuse_address=True,
     )
 
-    PORT_FOR_SERVERS = 55569
+    PORT_FOR_MESSAGE = 55569
+    PORT_FOR_VOICE = 55571
 
-    server_service = await asyncio.start_server(
+    server_message_service = await asyncio.start_server(
         lambda r, w: Server().handle_server(r, w),
         IP,
-        PORT_FOR_SERVERS
+        PORT_FOR_MESSAGE
     )
 
-    async with server_service, server_user:
+    server_voice_service = await asyncio.start_server(
+        lambda r, w: Server().handle_server(r, w),
+        IP,
+        PORT_FOR_VOICE
+    )
+
+    async with server_message_service, server_voice_service, server_user:
         await asyncio.gather(
-            server_service.serve_forever(),
+            server_message_service.serve_forever(),
+            server_voice_service.serve_forever(),
             server_user.serve_forever()
         )
 

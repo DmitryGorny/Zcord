@@ -146,7 +146,11 @@ color:white;</string>
               <height>50</height>
              </size>
             </property>
-            <layout class="QHBoxLayout" name="horizontalLayout"/>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <layout class="QHBoxLayout" name="miniIconsCall"/>
+             </item>
+            </layout>
            </widget>
           </item>
           <item>

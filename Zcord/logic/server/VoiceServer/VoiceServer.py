@@ -84,7 +84,6 @@ class TcpSignalServer:
                     break
                 client.last_seen = time.time()
                 msg = json.loads(line.decode("utf-8"))
-                print(msg)
                 await self.handle_message(client, msg)
         except asyncio.CancelledError:
             pass
@@ -137,6 +136,8 @@ class TcpSignalServer:
 
         print(f"[TCP] {client.addr_str()} присоединился к комнате '{room}', участников={len(lst)}")
 
+        await self._send_service_msg(obj={"t": "__ICON-CALL__", "user_id": client.user_id, "chat_id": room, "username": client.user})
+
         # Новому клиенту отправляем список уже присутствующих пиров
         if len(lst) >= 2:
             peers_dicts = [c.to_dict() for c in lst if c != client]
@@ -155,6 +156,7 @@ class TcpSignalServer:
             lst.remove(client)
             print(f"[TCP] {client.addr_str()} вышел из комнаты '{room}', участников={len(lst)}")
 
+            await self._send_service_msg(obj={"t": "__LEFT-ICON-CALL__", "user_id": client.user_id, "chat_id": room})
             await self._broadcast_room(room, {"t": "peer_left", "client": client.to_dict()}, skip=client)
 
         # чистка комнаты если пустая TODO: Не знаю нужно ли??
@@ -183,10 +185,55 @@ class TcpSignalServer:
         except Exception as e:
             print(f"[TCP] ошибка send {client.addr_str()}: {e}")
 
+    async def _send_service_msg(self, obj: dict):
+        try:
+            self.service_writer.write((json.dumps(obj) + "\n").encode("utf-8"))
+            await self.service_writer.drain()
+        except Exception as e:
+            print(f"[TCP] ошибка _send_service_msg {self.service_writer}: {e}")
+
+    async def connect_service_server(self, host, port):
+        """Асинхронное подключение к внешнему сервисному серверу"""
+        try:
+            reader, writer = await asyncio.open_connection(host, port)
+            self.service_reader = reader
+            self.service_writer = writer
+            print(f"[SERVICE] Подключен к сервисному серверу {host}:{port}")
+
+            # Фоновая задача на прослушивание входящих сообщений
+            asyncio.create_task(self._listen_service())
+        except Exception as e:
+            print(f"[SERVICE] Ошибка подключения: {e}")
+
+    async def _listen_service(self):
+        try:
+            while True:
+                line = await self.service_reader.read(1024)
+                if not line:
+                    break
+                msg = line.decode('utf-8')
+
+                if msg == "DISCOVER":
+                    obj = {'t': 'VOICE-SERVER'}
+                    await self._send_service_msg(obj)
+                    continue
+                try:
+                    data = json.loads(msg)
+                    print("[SERVICE] Получено:", data)
+                    # Тут можно добавить вызов нужных стратегий обработки
+                except json.JSONDecodeError:
+                    pass
+        except Exception as e:
+            print(f"[SERVICE] Ошибка: {e}")
+
 
 async def main():
+    HOST = "26.36.124.241"
     srv = TcpSignalServer()
-    await srv.serve("26.181.96.20", 55559)
+    await asyncio.gather(
+        srv.serve(HOST, 55559),
+        srv.connect_service_server(HOST, 55571),
+    )
 
 if __name__ == "__main__":
     asyncio.run(main())

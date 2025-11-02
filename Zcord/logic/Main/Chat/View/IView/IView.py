@@ -3,7 +3,7 @@ from typing import Optional, Union
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
 from logic.Main.Chat.View.CallDialog.CallView import Call
-from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
+from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon, MiniUserIcon
 from logic.Main.Chat.View.dm_view.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 
@@ -59,6 +59,8 @@ class BaseChatView(IView):
     disconnectReceived = QtCore.pyqtSignal(object)
     callReceived = QtCore.pyqtSignal(bool)
     speechDetector = QtCore.pyqtSignal(bool, int)
+    iconCall = QtCore.pyqtSignal(int, str)
+    iconCallLeft = QtCore.pyqtSignal(int)
 
     def __init__(self, chatId, user, controller):
         super(BaseChatView, self).__init__()
@@ -75,6 +77,8 @@ class BaseChatView(IView):
         self.disconnectReceived.connect(self.left_icon)
         self.callReceived.connect(self.show_call_widget)
         self.speechDetector.connect(self.speech_detector)
+        self.iconCall.connect(self.icon_call)
+        self.iconCallLeft.connect(self.icon_call_left)
         # Сигналы
 
         self.ui = Ui_Chat()
@@ -98,6 +102,7 @@ class BaseChatView(IView):
 
         # Словарь по иконкам юзеров: {client: icon}
         self.client_icons = {}
+        self.client_mini_icons = {}
         # Переменные мутов
         self.microphone_mute = False
         self.headphone_mute = False
@@ -265,3 +270,14 @@ class BaseChatView(IView):
             self.client_icons[int(user_id)].speech_animation(flg)
         except KeyError as e:
             pass
+
+    def icon_call(self, user_id, username):
+        if int(user_id) not in self.client_mini_icons.keys():
+            newcomer = MiniUserIcon(user_id, username)
+            self.client_mini_icons[int(user_id)] = newcomer
+            self.ui.miniIconsCall.addWidget(newcomer.ui.widget_2)
+
+    def icon_call_left(self, user_id):
+        if int(user_id) in self.client_mini_icons.keys():
+            self.ui.miniIconsCall.removeWidget(self.client_mini_icons[int(user_id)].ui.widget_2)
+            del self.client_mini_icons[int(user_id)]

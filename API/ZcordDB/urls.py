@@ -62,7 +62,7 @@ urlpatterns = [
         'get': 'list',
         'post': 'create'
     }), name='chats'),
-    path('chats/<', ChatsView.as_view({
+    path('chats/', ChatsView.as_view({
         'get': 'list',
         'post': 'create'
     }), name='chats-dm'),

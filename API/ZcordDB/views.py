@@ -5,8 +5,9 @@ from rest_framework import generics, status
 from rest_framework.response import Response
 
 from .Paginations import LimitPagination
-from .models import Users, Friendship, Message, FriendsAdding, Chats
+from .models import Users, Friendship, Message, FriendsAdding, Chats, GroupRequest
 from .serializers.ChatsSerializer import ChatsSerializer
+from .serializers.GroupsRequestSerializer import GroupsRequestSerializer
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
 from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer, MessageBulkUpdateSerializer
@@ -78,6 +79,7 @@ class FriendshipView(viewsets.ModelViewSet):
                                    Q(user1_id=user2_id, user2_id=user1_id)).delete()
 
         return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class FriendsAddingView(viewsets.ModelViewSet):
     queryset = FriendsAdding.objects.all()
@@ -233,3 +235,25 @@ class ChatsView(viewsets.ModelViewSet):
         obj.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
+class GroupsRequestView(viewsets.ModelViewSet):
+    queryset = GroupRequest.objects.all()
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["sender__id", "receiver__id"]
+    serializer_class = GroupsRequestSerializer
+
+    def get_queryset(self):
+        queryset = super().get_queryset()
+
+        sender_id = self.request.query_params.get('sender_id')
+        receiver_id = self.request.query_params.get('receiver_id')
+
+        if sender_id:
+            queryset = queryset.filter(sender__id=sender_id)
+            return queryset
+
+        if receiver_id:
+            queryset = queryset.filter(receiver__id=receiver_id)
+            return queryset
+
+        return queryset

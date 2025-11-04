@@ -226,3 +226,10 @@ class APIClient:
 
     def delete_dm_chat(self, DM_id):
         return self._request('DELETE', f'chats/delete/{DM_id}/')
+
+    #Работа с заявками в группу
+    def get_groups_requests_by_receiver_id(self, receiver_id):
+        params = {
+            'receiver_id': receiver_id,
+        }
+        return self._request('GET', f'chats/', params=params)

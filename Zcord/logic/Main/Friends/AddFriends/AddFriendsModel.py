@@ -1,9 +1,8 @@
 import typing
-from typing import List, Callable, Dict
+from typing import Callable
 
 from PyQt6.QtCore import QObject, pyqtSignal
 
-from logic.Authorization.User.User import User
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 from logic.db_client.api_client import APIClient
 

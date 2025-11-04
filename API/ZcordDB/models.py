@@ -102,3 +102,11 @@ class Message(models.Model):
 
     def __str__(self):
         return f"{self.sender}: {self.message}"
+
+
+class GroupRequest(models.Model):
+    group = models.ForeignKey(Groups, on_delete=models.CASCADE)
+    chat = models.ForeignKey(Chats, on_delete=models.CASCADE)
+    sender = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='invite_sender')
+    receiver = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='invite_receiver')
+    created_at = models.DateTimeField(auto_now_add=True)

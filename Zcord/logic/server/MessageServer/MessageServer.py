@@ -138,7 +138,9 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
 
             try:
                 if server_msg == "DISCOVER":
-                    main_server_socket.send(b'MESSAGE-SERVER')
+                    obj = {'t': 'MESSAGE-SERVER'}
+                    data = (json.dumps(obj) + "\n").encode("utf-8")
+                    main_server_socket.send(data)
                     continue
 
                 buffer += server_msg
@@ -179,7 +181,7 @@ def receive(server_socket):
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     PORT = 55557
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))

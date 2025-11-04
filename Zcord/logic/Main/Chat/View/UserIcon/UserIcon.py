@@ -2,6 +2,7 @@ from PyQt6.QtWidgets import QFrame, QWidget
 from PyQt6.QtCore import QTimer, Qt, QPoint
 
 from logic.Main.Chat.View.Animation.AnimatedCall import AnimatedBorderButton
+from logic.Main.Chat.View.UserIcon.MiniUserIconQt import Ui_Mini_Icon
 from logic.Main.Chat.View.UserIcon.UserIconQt import Ui_Icon
 from logic.Main.Chat.View.UserIcon.ContextMenuIcon import Ui_Frame
 from logic.client.SettingController.settings_controller import VoiceSettingsController
@@ -94,3 +95,14 @@ class UserIcon(QWidget):
 
     def default_animation(self):
         self.ui.User2_icon_2.setStyleSheet(self.default_icon)
+
+
+class MiniUserIcon(QWidget):
+    def __init__(self, user_id, username):
+        super().__init__()
+
+        self.ui = Ui_Mini_Icon()
+        self.ui.setupUi(self)
+
+        self.ui.UsersLogoinChat.setText(username[0].upper())
+        self.ui.UsersLogoinChat.show()

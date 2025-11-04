@@ -90,6 +90,12 @@ class ChatController:
             self._views[str(chat_id)].clear_unseen.emit()
 
         # Voice
+        def icon_call(self, chat_id: str, user_id: int, username: str):
+            self._views[str(chat_id)].iconCall.emit(user_id, username)
+
+        def icon_call_left(self, chat_id: str, user_id: int):
+            self._views[str(chat_id)].iconCallLeft.emit(user_id)
+
         def receive_mute(self, device: str, chat_id: str, mute_pos: bool, client: object):
             self._views[str(chat_id)].muteDevice.emit(device, mute_pos, client)
 

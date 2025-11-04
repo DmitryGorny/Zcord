@@ -92,7 +92,6 @@ class ConnectToMessageServer(ClientsStrategies):
         self.service_connection_pointer.send_message(msg_type="CACHE-REQUEST")
 
 
-
 class CallNotificationStrat(ClientsStrategies):
     header_name = "__CALL-NOTIFICATION__"
 
@@ -215,3 +214,28 @@ class DeclineFriendRequestStrat(ClientsStrategies):
             self.service_connection_pointer.call_main_dynamic_update('DECLINE-REQUEST-SELF',
                                                                      {'receiver_id': str(receiver_id),
                                                                       'friend_nickname': friend_nickname})
+
+
+class CallConnectionIconStrat(ClientsStrategies):
+    header_name = "__ICON-CALL__"
+
+    def __init__(self):
+        super(CallConnectionIconStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        chat_id = msg["chat_id"]
+        user_id = msg["user_id"]
+        username = msg["username"]
+        self.service_connection_pointer.chat.socket_controller.icon_call(chat_id, user_id, username)
+
+
+class CallConnectionIconLeftStrat(ClientsStrategies):
+    header_name = "__LEFT-ICON-CALL__"
+
+    def __init__(self):
+        super(CallConnectionIconLeftStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        chat_id = msg["chat_id"]
+        user_id = msg["user_id"]
+        self.service_connection_pointer.chat.socket_controller.icon_call_left(chat_id, user_id)

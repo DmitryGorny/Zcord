@@ -1,12 +1,14 @@
 from django.shortcuts import get_object_or_404
+from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
 from rest_framework import generics, status
 from rest_framework.response import Response
 
 from .Paginations import LimitPagination
-from .models import Users, Friendship, Message, FriendsAdding, Chats, GroupRequest
+from .models import *
 from .serializers.ChatsSerializer import ChatsSerializer
+from .serializers.GroupsMembersSerializer import GroupsMembersSerializer
 from .serializers.GroupsRequestSerializer import GroupsRequestSerializer
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
@@ -204,8 +206,9 @@ class MessageView(viewsets.ModelViewSet):
 
 class ChatsView(viewsets.ModelViewSet):
     queryset = Chats.objects.all()
-    filter_backends = [filters.SearchFilter]
-    search_fields = ["DM_id", 'group_id']
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ["DM__id", 'group__id']
+    filterset_fields = ["is_group"]
     serializer_class = ChatsSerializer
 
     def get_queryset(self):
@@ -257,3 +260,11 @@ class GroupsRequestView(viewsets.ModelViewSet):
             return queryset
 
         return queryset
+
+
+class GroupsMembers(viewsets.ModelViewSet):
+    queryset = GroupsMembers.objects.all()
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter]
+    search_fields = ["user__id"]
+    filterset_fields = ["group"]
+    serializer_class = GroupsMembersSerializer

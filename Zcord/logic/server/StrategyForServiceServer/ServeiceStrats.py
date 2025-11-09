@@ -1,7 +1,5 @@
 # Реализации интерфейса Strategy для сервера сервисных сообщений (Server)
 import json
-from datetime import timedelta, datetime
-
 from logic.db_client.api_client import APIClient
 from logic.server.Client.Client import Client
 from logic.server.Strategy import Strategy
@@ -379,7 +377,7 @@ class DeleteFriendRequestStrat(ServiceStrategy):
     def __init__(self):
         super().__init__()
 
-    async def execute(self, msg: dict) -> None:  # Дописать отсылку сообщения на месседж сервер
+    async def execute(self, msg: dict) -> None:
         friend_id: str = str(msg['receiver_id'])
         sender_id: str = str(msg['sender_id'])
         try:
@@ -469,3 +467,74 @@ class CallNotificationStrategy(ServiceStrategy):
                                                                        {'user_id': user_id,
                                                                         'chat_id': chat_id,
                                                                         'call_flg': call_flag})
+
+
+class GroupRequestAccept(ServiceStrategy):
+    command_name = "GROUP-REQUEST-ACCEPTED"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        request_receiver = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+
+        try:
+            group = self._api_client.search_chat_by_id(int(group_id), True)[0]
+        except IndexError as e:  # TODO: Придумать че-нить чтобы уведомить пользователя об удалении группы
+            print(e)
+            return
+
+        # TODO: Везде ли чаты создаются по id из chats?
+        self._server_pointer.clients[request_receiver].add_chat(group['id'], group['group']['members'])
+
+        for members_id in group['group']['members']:
+            try:
+                member_client = self._server_pointer.clients[str(members_id)]
+                member_client.send_message('USER-JOINED-GROUP', {'user_id': request_receiver,
+                                                                 'group_id': group_id,
+                                                                 'group_name': group['group']["group_name"],
+                                                                 'members': group['group']['members']})
+                chat = member_client.get_chat_by_id(group_id)
+                chat.create_and_add_member(request_receiver)
+            except KeyError as e:
+                print(e)
+
+        self._api_client.add_group_member(int(request_receiver), int(group_id))
+        self._server_pointer.clients[request_receiver].send_message('USER-JOINED-GROUP', {'user_id': request_receiver,
+                                                                                          'group_id': group_id})
+
+
+class GroupRejectAccept(ServiceStrategy):
+    command_name = "GROUP-REQUEST-REJECTED"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        request_receiver = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+
+        try:
+            group = self._api_client.search_chat_by_id(int(group_id), True)[0]
+        except IndexError as e:  # TODO: Придумать че-нить чтобы уведомить пользователя об удалении группы
+            print(e)
+            return
+
+        # TODO: Везде ли чаты создаются по id из chats?
+        self._server_pointer.clients[request_receiver].delete_chat(group['id'])
+
+        for members_id in group['group']['members']:
+            try:
+                member_client = self._server_pointer.clients[str(members_id)]
+                member_client.send_message('USER-LEFT-GROUP', {'user_id': request_receiver,
+                                                               'group_id': group_id})
+                chat = member_client.get_chat_by_id(group_id)
+                chat.create_and_add_member(request_receiver)
+            except KeyError as e:
+                print(e)
+
+        row_id = self._api_client.search_group_member(int(request_receiver), int(group_id))['id']
+        self._api_client.delete_group_member_by_id(row_id)
+        self._server_pointer.clients[request_receiver].send_message('USER-LEFT-GROUP', {'user_id': request_receiver,
+                                                                                        'group_id': group_id})

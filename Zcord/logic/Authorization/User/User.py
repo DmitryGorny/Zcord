@@ -81,6 +81,9 @@ class User(BaseUser):
     def add_chat(self, friend_id: str, chat_id: str):
         return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
+    def add_group_chat(self, group_name: str, chat_id: str, members: str):
+        return self._chats_model.add_group_chat(chat_id=chat_id, group_name=group_name, members=members)
+
     def add_friend(self, username: str,  user_id: str):
         from datetime import datetime
         now = datetime.now()
@@ -122,4 +125,7 @@ class User(BaseUser):
         for group_view in self._chats_model.get_groups_props():
             groups_attrs.append(group_view)
         return groups_attrs
+
+    def get_group_by_id(self, group_id: str):
+        return self._chats_model.get_group_by_id(group_id=group_id)
 

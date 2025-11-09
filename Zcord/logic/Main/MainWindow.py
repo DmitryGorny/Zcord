@@ -4,6 +4,7 @@ from typing import List
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt
 from logic.Authorization.User.User import User
+from logic.Main.GroupsListRequests.GroupsListRequest import GroupsListRequestWidget
 from logic.Main.MainWidnowChats.DM_chat.ChatInList import ChatInList
 from logic.Main.MainWidnowChats.group_chat.GroupInList import GroupInList
 from logic.Main.MainWindowGUI import Ui_Zcord
@@ -23,9 +24,6 @@ class MainWindow(FramelessWindow):
         super(MainWindow, self).__init__()
         self.ui = Ui_Zcord()
         self.ui.setupUi(self)
-
-        self.setAttribute(Qt.WidgetAttribute.WA_TranslucentBackground, True)
-        self.setResizeEnabled(True)
 
         self._title_bar = CustomTitleBar(self)
         self.setTitleBar(self._title_bar)
@@ -58,7 +56,7 @@ class MainWindow(FramelessWindow):
         self.voicepr = VoiceParamsClass()
         self.parameters = ParamsWindow(self.ui, self.voicepr)
         self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+
         # Работа с друзьями
         self._friends: FriendsWidget = FriendsWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._friends.get_widget())
@@ -66,10 +64,9 @@ class MainWindow(FramelessWindow):
         if self._friends.has_requests():
             self.friend_request_alert()
 
-        # Параметры
-        # self.parameters = ParamsWindow(self.ui, self.voicepr)
-        # self.ui.stackedWidget.addWidget(self.parameters.ui_pr.MAIN)
-        # self.ui.pushButton.setIcon(QIcon("GUI/icon/forum_400dp_333333_FILL0_wght400_GRAD0_opsz48.svg"))
+        # Работа с группами
+        self._groups: GroupsListRequestWidget = GroupsListRequestWidget(self.__user)
+        self.ui.stackedWidget_2.addWidget(self._groups.get_widget())
 
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
@@ -86,6 +83,7 @@ class MainWindow(FramelessWindow):
         self.ui.AddFriends.clicked.connect(self.add_friend)
         self.ui.ShowFreind.clicked.connect(self.showFriendList)
         self.ui.ShowRooms.clicked.connect(self.show_groups_list)
+        self.ui.AddRoom.clicked.connect(self.add_groups)
         self.ui.SettingsButton.clicked.connect(self.show_parameters)
         self.ui.ScrollFriends.setVisible(False)
 
@@ -132,6 +130,12 @@ class MainWindow(FramelessWindow):
         self.ui.stackedWidget_2.addWidget(
             ui)
         return chat
+
+    def add_group_to_view(self, group_id: str, group_name: str, ui):
+        group = GroupInList(group_id, group_name, ui)
+        self._groups_options.append(group)
+        self.ui.stackedWidget_2.addWidget(ui)
+        return group
 
     def call_chat(self):
         queueToSend = queue.Queue()
@@ -398,6 +402,26 @@ class MainWindow(FramelessWindow):
         self.ui.stackedWidget_2.setCurrentWidget(self._friends.get_widget())
 
     # <---------------------------------------------Работа с друзьями-------------------------------------------------->
+
+    # <---------------------------------------------Работа с группами-------------------------------------------------->
+    def showGroupList(self):
+        print(self._groups_options)
+        if len(self._groups_options) == 0:
+            if not self.ui.ScrollRooms.isVisible():
+                return
+            else:
+                self.ui.ScrollRooms.setVisible(False)
+                return
+
+        if not self.ui.ScrollRooms.isVisible():
+            self.ui.ScrollRooms.setVisible(True)
+        else:
+            self.ui.ScrollRooms.setVisible(False)
+
+    def add_groups(self):
+        self.ui.stackedWidget_2.setCurrentWidget(self._groups.get_widget())
+
+    # <---------------------------------------------Работа с группами-------------------------------------------------->
     @QtCore.pyqtSlot(str, dict)
     def dynamic_update_slot(self, command: str, args: dict):
         match command:
@@ -413,7 +437,8 @@ class MainWindow(FramelessWindow):
                 self.friend_request_alert()
             case "ACCEPT-REQUEST-OTHERS":
                 self._friends.remove_others_request(args['user_id'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], friend_id=args['user_id'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'],
+                                            friend_id=args['user_id'])  # TODO: Перенести в клиент
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
@@ -424,7 +449,8 @@ class MainWindow(FramelessWindow):
             case "ACCEPT-REQUEST-SELF":
                 self._friends.remove_your_request(args['user_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
-                chat = self.__user.add_chat(chat_id=args['chat_id'], friend_id=args['user_id'])
+                chat = self.__user.add_chat(chat_id=args['chat_id'],
+                                            friend_id=args['user_id'])  # TODO: Перенести в клиент
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
                                                  ui=chat.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
@@ -451,6 +477,12 @@ class MainWindow(FramelessWindow):
                     self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
+            case "JOINED-GROUP-SELF":
+                group = self.__user.get_group_by_id(group_id=args['group_id'])
+                self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'], ui=group['ui'])
+                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                                            'is_dm': False,
+                                            'socket_controller': self.__user.get_socket_controller()})
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():
@@ -485,14 +517,14 @@ class MainWindow(FramelessWindow):
         if hasattr(self, "miniProfile"):
             self.miniProfile.center_child_window()
 
-    def updateWindowMargins(self):
-        if self.isMaximized():
-            screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
-            self.setGeometry(screen_geometry)
-            self.updateOverlayGeometry()
-            self.updateMiniProfilePosition()
-        else:
-            self.updateMiniProfilePosition()
+    # def updateWindowMargins(self):
+    # if self.isMaximized():
+    # screen_geometry = QtWidgets.QApplication.primaryScreen().availableGeometry()
+    # self.setGeometry(screen_geometry)
+    # self.updateOverlayGeometry()
+    # self.updateMiniProfilePosition()
+    # else:
+    # self.updateMiniProfilePosition()
 
 
 class ClikableFrame(QtWidgets.QFrame):

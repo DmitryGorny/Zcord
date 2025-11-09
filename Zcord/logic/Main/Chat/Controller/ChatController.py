@@ -110,3 +110,5 @@ class ChatController:
 
         def vad_animation(self, chat_id: str, speech_flg: bool, user_id: int):
             self._views[str(chat_id)].speechDetector.emit(speech_flg, user_id)
+
+

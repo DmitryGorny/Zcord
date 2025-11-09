@@ -210,7 +210,7 @@ border:3px solid white;</string>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="InfoButton">
+              <widget class="QPushButton" name="DeleteButton">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -236,14 +236,14 @@ border:3px solid white;</string>
                 <string notr="true">background-color:r#BB271A;
 border:none;
 border-radius:15%;
-border:3px solid #BB271A;</string>
+border:3px solid white;</string>
                </property>
                <property name="text">
                 <string/>
                </property>
                <property name="icon">
                 <iconset resource="../res-rec.qrc">
-                 <normaloff>:/icons/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/person_remove_46dp_BB271A_FILL0_wght400_GRAD0_opsz48.svg</iconset>
+                 <normaloff>:/icons/icon/group_add_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/group_add_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</iconset>
                </property>
                <property name="iconSize">
                 <size>

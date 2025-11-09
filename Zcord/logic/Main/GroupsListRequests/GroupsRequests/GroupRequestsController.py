@@ -13,5 +13,7 @@ class GroupRequestsController:
         self._model.connect_remove_requests(self._view.remove_request)
         self._model.connect_add_requests(self._view.add_request)
 
+        self._model.get_groups_rejects()
+
     def get_widget(self):
         return self._view.get_widget()

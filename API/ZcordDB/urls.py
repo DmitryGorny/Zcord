@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import UserView, FriendshipView, FriendsAddingView, MessageView, ChatsView
+from .views import UserView, FriendshipView, FriendsAddingView, MessageView, ChatsView, GroupsRequestView, GroupsMembers
 
 urlpatterns = [
     path('users/', UserView.as_view({
@@ -62,17 +62,27 @@ urlpatterns = [
         'get': 'list',
         'post': 'create'
     }), name='chats'),
-    path('chats/', ChatsView.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='chats-dm'),
     path('chats/delete/<str:DM_id>/', ChatsView.as_view({
         'delete': 'destroy'
     }), name='chats-dm-destroy'),
     path('chats/delete/groups/<str:groups_id>/', ChatsView.as_view({
         'delete': 'destroy'
     }), name='chats-group-destroy'),
+
+    path('groups-members/', GroupsMembers.as_view({
+        'get': 'list',
+        'post': 'create',
+    }), name='groups-members'),
+    path('groups-members/<int:pk>/', GroupsMembers.as_view({
+        'get': 'retrieve',
+        'delete': 'destroy',
+    }), name='groups-members-by-group-id'),
+
     path('groups-requests/', GroupsRequestView.as_view({
         'get': 'list'
-    }), name='groups-requests')
+    }), name='groups-requests'),
+    path('groups-requests/<int:pk>/', GroupsRequestView.as_view({
+        'get': 'retrieve',
+        'delete': 'destroy'
+    }), name='groups-requests-pk')
 ]

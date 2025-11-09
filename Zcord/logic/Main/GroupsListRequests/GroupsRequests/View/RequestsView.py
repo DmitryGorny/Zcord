@@ -27,8 +27,8 @@ class IRequestsView(Protocol):
 
 
 class RequestsView(QtWidgets.QWidget):
-    request_accepted_model = pyqtSignal(str)
-    request_declined_model = pyqtSignal(str)
+    request_accepted_model = pyqtSignal(str, str)
+    request_declined_model = pyqtSignal(str, str)
 
     def __init__(self):
         super(RequestsView, self).__init__()
@@ -38,19 +38,23 @@ class RequestsView(QtWidgets.QWidget):
 
         self._requests_widgets: Dict[str, RequestWidget] = {}
 
-    def add_request(self, group_id: str, group_name: str) -> None:
-        request = RequestWidget(group_name=group_name, group_id=group_id)
-        request.connect_accept_requests(lambda: self.request_accepted_model.emit(group_id))
-        request.connect_decline_requests(lambda: self.request_declined_model.emit(group_id))
+        self._ui.group_request.setSpacing(10)
+        self._ui.group_request.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self._ui.group_request.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
-        item = QtWidgets.QListWidgetItem(self._ui.group_request)
+    def add_request(self, group_id: str, group_name: str, request_id: str) -> None:
+        request = RequestWidget(group_name=group_name, group_id=group_id)
+        request.connect_accept_requests(lambda: self.request_accepted_model.emit(group_id, request_id))
+        request.connect_decline_requests(lambda: self.request_declined_model.emit(group_id, request_id))
+
+        item = QtWidgets.QListWidgetItem()
         item.setSizeHint(request.sizeHint())
         self._ui.group_request.addItem(item)
         self._ui.group_request.setItemWidget(item, request.get_widget())
+        request.widget = item
 
         if group_id not in self._requests_widgets.keys():
             self._requests_widgets[group_id] = request
-            request.index = self._ui.group_request.count() - 1
 
     def remove_request(self, group_id: str) -> None:
         if group_id not in self._requests_widgets.keys():
@@ -58,7 +62,7 @@ class RequestsView(QtWidgets.QWidget):
 
         widget = self._requests_widgets[group_id]
 
-        item = widget.get_widget()
+        item = widget.widget
         widget = self._ui.group_request.itemWidget(item)
         self._ui.group_request.removeItemWidget(item)
         if widget:

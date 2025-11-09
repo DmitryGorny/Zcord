@@ -58,24 +58,41 @@ class UserChats:
         self._chats_controller.add_view(chat_id, chat)
         return chat
 
+    def add_group_chat(self, chat_id: str, group_name: str, members: str):
+        fabric = CreateChat()
+
+        group = fabric.create_chat(is_dm=False,
+                                   group_id=str(chat_id),
+                                   group_name=group_name,
+                                   user_obj=self.__user,
+                                   controller=self._chats_controller,
+                                   members=members)
+        self._groups.append(group)
+        self._chats_controller.add_view(chat_id, group)
+        return group
+
     def get_socket_controller(self) -> ChatController.SocketController:
         return self._chats_controller.get_socket_controller()
 
     def chats_props(self) -> dict:
         """Поочередно возвращает атрибуты каждого класса"""
         for chat in self._dm_chats:
-            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id], "chat_ui": chat.ui.MAIN, 'is_dm': True}
+            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id],
+                   "chat_ui": chat.ui.MAIN, 'is_dm': True}
 
         for group in self._groups:
-            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users, "group_ui": group.ui.MAIN, 'is_dm': False}
+            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users,
+                   "group_ui": group.ui.MAIN, 'is_dm': False}
 
     def chats_props_without_ui(self) -> dict:
         """Поочередно возвращает атрибуты каждого класса"""
         for chat in self._dm_chats:
-            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id], 'is_dm': True}
+            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id],
+                   'is_dm': True}
 
         for group in self._groups:
-            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users, 'is_dm': False}
+            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users,
+                   'is_dm': False}
 
     def get_dm_chats(self) -> List[ChatView]:
         return self._dm_chats.copy()
@@ -88,3 +105,11 @@ class UserChats:
         chat = list(filter(lambda x: str(x.chat_id) == str(chat_id), self._dm_chats))[0]
         self._dm_chats.remove(chat)
         self._chats_controller.delete_chat(chat_id)
+
+    def get_group_by_id(self, group_id: str) -> dict | None:
+        try:
+            group = next(filter(lambda x: x.chat_id == group_id, self._groups))
+            return {'chat_id': group.chat_id, 'group_name': group.group_name, 'users': group.get_users, 'ui': group.ui}
+        except StopIteration as e:
+            print(e)
+            return None

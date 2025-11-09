@@ -5,14 +5,17 @@ from typing import List, Dict, Type
 
 
 class Client:
-    def __init__(self, user_id: str, nick, last_online: str, writer: asyncio.StreamWriter = None):
+    def __init__(self, user_id: str, nick, last_online: str = None, writer: asyncio.StreamWriter = None):
         self._id = user_id
         self._nick = nick
         self._writer = writer
         self._activityStatus = None
         self.__friends: Dict[str, Friend] = {}
         self._chats: Dict[str, Chat] = {}
-        self._last_online = datetime.datetime.strptime(last_online, "%Y-%m-%dT%H:%M:%S.%f")
+
+        if last_online is not None:
+            self._last_online = datetime.datetime.strptime(last_online, "%Y-%m-%dT%H:%M:%S.%f")
+
         self.__message_chat_id = 0  # id чата, в котором сейчас пользователь (аналог old_chat_code из message_server)
 
     @property
@@ -62,10 +65,11 @@ class Client:
                                            friendship_status=status,
                                            last_online=time_str)
 
-    def add_chat(self, chat_id: str, friends_id: list[str]) -> None:
+    def add_chat(self, chat_id: str, friends_id: list[int]) -> None:
         chat = Chat(chat_id)
         for friend_id in friends_id:
             if str(friend_id) not in self.__friends.keys():
+                chat.add_member(GroupMember(str(friend_id)))
                 continue
             chat.add_member(self.__friends[str(friend_id)])
 
@@ -139,21 +143,31 @@ class Friend(Client):
         self._friendship_status = val
 
 
-class Chat:
+class GroupMember(Client):
+    """Класс под пользователя, не являющегося другом"""
+    def __init__(self, user_id: str, nick: str = 'Undefined', last_online=''):
+        super(GroupMember, self).__init__(user_id, nick)
+
+
+class Chat:  # TODO: Проверить добавляются ли Friend в группу
     def __init__(self, chat_id: str):
         self._chat_id = chat_id
 
-        self._members: List[Friend] = []
+        self._members: List[Client] = []
         self._current_voice_members: List[Client] = []
 
     @property
     def chat_id(self) -> str:
         return self._chat_id
 
-    def add_member(self, friend: Friend) -> None:
+    def add_member(self, friend: Client) -> None:
         self._members.append(friend)
 
-    def get_member_by_id(self, user_id) -> Friend:
+    def create_and_add_member(self, user_id: str):
+        member = GroupMember(user_id)
+        self._members.append(member)
+
+    def get_member_by_id(self, user_id) -> Client | None:
         try:
 
             return next(filter(lambda x: str(x.id) == str(user_id), self._members))
@@ -161,10 +175,10 @@ class Chat:
             print(e)
             return None
 
-    def get_members(self) -> List[Friend]:
+    def get_members(self) -> list[Client]:
         return self._members.copy()
 
-    #Работа с войс румой
+    # Работа с войс румой
     def add_voice_member(self, friend: Client) -> None:
         self._current_voice_members.append(friend)
 

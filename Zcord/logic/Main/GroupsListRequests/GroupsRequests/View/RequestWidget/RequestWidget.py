@@ -1,6 +1,7 @@
 from typing import Callable
 
-from PyQt6 import QtWidgets
+from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtWidgets import QListWidgetItem
 
 from logic.Main.GroupsListRequests.GroupsRequests.View.RequestWidget.GroupRequestQt import Ui_GroupRequest
 
@@ -18,7 +19,7 @@ class RequestWidget(QtWidgets.QWidget):
         self._ui.GroupName.setText(self._group_name)
         self._ui.GroupIcon.setText(self._group_name[0])
 
-        self.index = 0
+        self._widget = None
 
     def get_widget(self) -> QtWidgets.QFrame:
         return self._ui.Group_wrapper
@@ -28,3 +29,12 @@ class RequestWidget(QtWidgets.QWidget):
 
     def connect_decline_requests(self, cb: Callable) -> None:
         self._ui.decline_request.clicked.connect(cb)
+
+    @property
+    def widget(self) -> QListWidgetItem:
+        return self._widget
+
+    @widget.setter
+    def widget(self, widget: QListWidgetItem) -> None:
+        if isinstance(widget, QListWidgetItem):
+            self._widget = widget

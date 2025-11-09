@@ -239,3 +239,23 @@ class CallConnectionIconLeftStrat(ClientsStrategies):
         chat_id = msg["chat_id"]
         user_id = msg["user_id"]
         self.service_connection_pointer.chat.socket_controller.icon_call_left(chat_id, user_id)
+
+
+class UserJoinedGroupStrat(ClientsStrategies):
+    header_name = "USER-JOINED-GROUP"
+
+    def __init__(self):
+        super(UserJoinedGroupStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg["chat_id"])
+        joined_user = str(msg["user_id"])
+        group_name = str(msg["group_name"])
+        members = msg['members'] #TODO: Проверить приходит ли массив или строка
+
+        if joined_user == self.service_connection_pointer.user.id:
+            self.service_connection_pointer.call_main_dynamic_update('JOINED-GROUP-SELF',
+                                                                     {'group_id': group_id,
+                                                                      'group_name': group_name,})
+            self.service_connection_pointer.user.add_group_chat(group_name=group_name, chat_id=group_id, members=members)
+

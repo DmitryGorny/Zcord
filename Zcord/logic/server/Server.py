@@ -75,6 +75,7 @@ class Server:
                     if isinstance(strategy, UserInfoStrat):
                         msg['writer'] = writer
                     try:
+                        print(msg)
                         await strategy.execute(msg)
                     except AttributeError as e:  # Пока чисто для отладки, т.к. незнакомых команд быть не может????
                         print(e)
@@ -115,7 +116,7 @@ class Server:
 
 
 async def main():
-    IP = "26.36.124.241"
+    IP = "26.181.96.20"
     PORT_FO_USERS = 55558
 
     server_user = await asyncio.start_server(

@@ -27,7 +27,7 @@ class IGroupRequestModel(Protocol):
 
 
 class GroupRequestModel(QObject):
-    add_request_view = pyqtSignal(str, str)
+    add_request_view = pyqtSignal(str, str, str)
     remove_request_view = pyqtSignal(str)
 
     def __init__(self, user):
@@ -35,29 +35,28 @@ class GroupRequestModel(QObject):
         self._api_client = APIClient()
         self._user = user
 
-    def accept_request(self, group_id: str) -> None:
+    def accept_request(self, group_id: str, request_id: str) -> None:
         try:
             ClientConnections.send_service_message(msg_type='GROUP-REQUEST-ACCEPTED',
-                                                   extra_data={'receiver_id': self._user.id,
-                                                               'group_id': group_id})
+                                                   extra_data={'group_id': group_id,
+                                                               'request_id': request_id})
         except Exception as e:
             print(e)
         self.remove_request_view.emit(group_id)
 
-    def reject_request(self, group_id: str) -> None:
+    def reject_request(self, group_id: str, request_id: str) -> None:
         try:
             ClientConnections.send_service_message(msg_type='GROUP-REQUEST-REJECTED',
-                                                   extra_data={'receiver_id': self._user.id,
-                                                               'group_id': group_id})
+                                                   extra_data={'group_id': group_id,
+                                                               'request_id': request_id})
         except Exception as e:
             print(e)
         self.remove_request_view.emit(group_id)
 
     def get_groups_rejects(self) -> None:
         group_requests = self._api_client.get_groups_requests_by_receiver_id(str(self._user.id))
-
         for request in group_requests:
-            self.add_request_view.emit(str(request['id']), request['group']['group_name'])
+            self.add_request_view.emit(str(request['group']['id']), request['group']['group_name'], str(request['id']))
 
     def connect_add_requests(self, cb: Callable) -> None:
         self.add_request_view.connect(cb)

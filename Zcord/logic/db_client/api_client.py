@@ -185,9 +185,23 @@ class APIClient:
         }
         return self._request("GET", 'messages-unseen-count/', params=params)
 
-    # Работа с группами
+    # Работа с участниками групп
     def get_users_group(self, user_id):
         return self._request('GET', f'groups-members/?user_id={user_id}/')
+
+    def add_group_member(self, user_id, group_id):
+        data = {
+            "role": False,
+            "user": user_id,
+            "group": group_id
+        }
+        return self._request('POST', 'groups-members/', json=data)
+
+    def search_group_member(self, user_id, group_id):
+        return self._request('GET', f'chats/?search={user_id}&group={group_id}')
+
+    def delete_group_member_by_id(self, row_id):
+        return self._request('DELETE', f'groups-members/{row_id}')
 
     # Работа с чатами
     def get_chats(self, user_id, is_group):
@@ -227,9 +241,12 @@ class APIClient:
     def delete_dm_chat(self, DM_id):
         return self._request('DELETE', f'chats/delete/{DM_id}/')
 
-    #Работа с заявками в группу
+    def search_chat_by_id(self, chat_id, is_group):
+        return self._request('GET', f'chats/?search={chat_id}&is_group={is_group}')
+
+    # Работа с заявками в группу
     def get_groups_requests_by_receiver_id(self, receiver_id):
         params = {
             'receiver_id': receiver_id,
         }
-        return self._request('GET', f'chats/', params=params)
+        return self._request('GET', f'groups-requests/', params=params)

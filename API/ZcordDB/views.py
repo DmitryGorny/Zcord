@@ -171,14 +171,28 @@ class MessageView(viewsets.ModelViewSet):
 
         serializer.is_valid(raise_exception=True)
         messages_data = serializer.validated_data.get('messages', [])
-        messages_to_create = [
-            Message(
-                chat=msg['chat'],
-                sender=msg['sender'],
-                message=msg['message'],
-                was_seen=msg.get('was_seen', False)
-            ) for msg in messages_data
-        ]
+        messages_to_create = []
+        for msg in messages_data: #TODO: Потом при добавлении возможности скинуть картинки и ГС добавить ifы
+            if msg['type'] == MessageType.TEXT:
+                message = Message(
+                        chat=msg['chat'],
+                        sender=msg['sender'],
+                        message=msg['message'],
+                        was_seen=msg.get('was_seen', False),
+                        type=msg['type']
+                    )
+                messages_to_create.append(message)
+
+            if msg['type'] == MessageType.SERVICE:
+                message = Message(
+                        chat=msg['chat'],
+                        sender=msg['sender'],
+                        service_message=msg['service_message'],
+                        was_seen=msg.get('was_seen', False),
+                        type=msg['type']
+                    )
+                messages_to_create.append(message)
+
         Message.objects.bulk_create(messages_to_create)
 
         return Response({
@@ -201,7 +215,7 @@ class MessageView(viewsets.ModelViewSet):
         return Response({
             "status": "success",
             "count": count
-        }, status=status.HTTP_201_CREATED)
+        }, status=status.HTTP_200_OK)
 
 
 class ChatsView(viewsets.ModelViewSet):

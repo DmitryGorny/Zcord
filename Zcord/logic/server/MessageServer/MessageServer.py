@@ -42,22 +42,13 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
         return cache
 
     @staticmethod
-    def broadcast(msg):
-        chat_code = msg[0]
-
-        message_to_send = {
-            "type": "CHAT-MESSAGE",
-            "chat": msg[0],
-            "message": msg[1],
-            "created_at": msg[2],
-            "sender": msg[3],
-            "was_seen": msg[4]
-        }
-
-        for client in MessageRoom.ids_in_chats[chat_code]:
+    def broadcast(chat_id: str, message_dict: dict):
+        message_dict['msg_type'] = 'CHAT-MESSAGE'
+        for client in MessageRoom.ids_in_chats[chat_id]:
             try:
-                MessageRoom.clients.send(client, json.dumps(message_to_send).encode('utf-8'))
-            except KeyError:
+                MessageRoom.clients.send(client, json.dumps(message_dict).encode('utf-8'))
+            except KeyError as e:
+                print(e)
                 continue
 
     @staticmethod
@@ -67,7 +58,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
             msg_type = "RECEIVE-CACHE-SCROLL"
 
         message = {
-            "type": msg_type,
+            "msg_type": msg_type,
             "cache": cache_list,
             "index": index
         }
@@ -80,7 +71,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
     @staticmethod
     def send_info_message(client_identent: str, msg_type: str, data: Dict[str, str] = None):
         message = {
-            "type": msg_type,
+            "msg_type": msg_type,
         }
 
         if data is not None:
@@ -117,7 +108,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
                 except json.JSONDecodeError:
                     continue
                 for msg in arr:
-                    strategy = MessageRoom._strat_choose.get_strategy(msg["type"], MessageRoom)
+                    strategy = MessageRoom._strat_choose.get_strategy(msg["msg_type"], MessageRoom)
                     try:
                         strategy.execute(msg)
                     except AttributeError as e:

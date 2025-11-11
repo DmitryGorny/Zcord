@@ -99,7 +99,7 @@ class CallNotificationStrat(ClientsStrategies):
         super(CallNotificationStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"] #Юзер позвонивший
+        user_id = msg["user_id"]  # Юзер позвонивший
         chat_id = str(msg["chat_id"])
         call_flg = int(msg["call_flg"])
         call_flg = bool(call_flg)
@@ -251,11 +251,12 @@ class UserJoinedGroupStrat(ClientsStrategies):
         group_id = str(msg["chat_id"])
         joined_user = str(msg["user_id"])
         group_name = str(msg["group_name"])
-        members = msg['members'] #TODO: Проверить приходит ли массив или строка
+        members = msg['members']  # TODO: Проверить приходит ли массив или строка
 
         if joined_user == self.service_connection_pointer.user.id:
             self.service_connection_pointer.call_main_dynamic_update('JOINED-GROUP-SELF',
                                                                      {'group_id': group_id,
-                                                                      'group_name': group_name,})
-            self.service_connection_pointer.user.add_group_chat(group_name=group_name, chat_id=group_id, members=members)
+                                                                      'group_name': group_name, })
+            self.service_connection_pointer.user.add_group_chat(group_name=group_name, chat_id=group_id,
+                                                                members=members)
 

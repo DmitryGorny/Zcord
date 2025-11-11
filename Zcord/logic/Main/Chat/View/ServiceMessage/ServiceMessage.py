@@ -1,24 +1,20 @@
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtWidgets import QSizePolicy
-from logic.Main.Chat.View.Message.MessageWidget import Ui_Form
+
+from logic.Main.Chat.View.ServiceMessage.ServiceMessageQt import Ui_ServiceMessage
 
 
-class Message(QtWidgets.QWidget):
-    def __init__(self, text, username):
-        super(Message, self).__init__()
+class ServiceMessage(QtWidgets.QWidget):
+    def __init__(self, text):
+        super(ServiceMessage, self).__init__()
 
-        self.ui = Ui_Form()
+        self.ui = Ui_ServiceMessage()
         self.ui.setupUi(self)
 
-        self.ui.UserLogo.setText(username[0])
-        self.ui.Users_Name.setText(username)
-        self.ui.Message_.setSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
         self.ui.Message_.setMaximumWidth(400)
         self.ui.Message_Text.setWordWrap(True)
-        self.ui.Message_Text.setSizePolicy(QSizePolicy.Policy.Maximum, QSizePolicy.Policy.MinimumExpanding)
         self.ui.Message_Text.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
         self.ui.Message_Text.setText(text)
-        self.ui.Message_Text.setMaximumWidth(400)
         # self.ui.Message_.setMidLineWidth(400)
         self.ui.Message_.setContentsMargins(0, 0, 0, 0)
 

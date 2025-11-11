@@ -121,7 +121,7 @@ class MainWindow(FramelessWindow):
 
             groups_list.append(GroupInList(attrs['group_name'], attrs['chat_id'], attrs["group_ui"]))
             self.ui.stackedWidget_2.addWidget(
-                attrs["group_ui"])  # Передается UI объекта ChatView для отображения самого чата
+                attrs["group_ui"])  # Передается UI объекта GroupView для отображения самого чата
         return groups_list
 
     def add_chat_to_view(self, chat_id: str, friend_nick: str, ui) -> ChatInList:
@@ -291,8 +291,8 @@ class MainWindow(FramelessWindow):
 
         return layoutFinal
 
-    def updateChatList(self, chat, layout=None):
-        if layout is None:
+    def update_chats_groups_list(self, chat, is_group=False):
+        if not is_group:
             self.createChatWidget(chat, self.ui.ScrollFriends.widget().layout())
         else:
             self.createChatWidget(chat, self.ui.ScrollRooms.widget().layout())
@@ -323,7 +323,6 @@ class MainWindow(FramelessWindow):
             self.ui.ScrollRooms.setVisible(False)
 
     def unseenMessages(self, chat_id: str, newValue: int):
-        print(self._friendsChatOptions)
         try:
             chat = list(filter(lambda x: x.id == chat_id, self._friendsChatOptions))[0]
         except IndexError:
@@ -405,7 +404,6 @@ class MainWindow(FramelessWindow):
 
     # <---------------------------------------------Работа с группами-------------------------------------------------->
     def showGroupList(self):
-        print(self._groups_options)
         if len(self._groups_options) == 0:
             if not self.ui.ScrollRooms.isVisible():
                 return
@@ -441,11 +439,11 @@ class MainWindow(FramelessWindow):
                                             friend_id=args['user_id'])  # TODO: Перенести в клиент
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['sender_nickname'],
                                                  ui=chat.ui.MAIN)
-                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                ClientConnections.add_chat({'chat_id': args['chat_id'],  # TODO: Перенести в клиент
                                             'is_dm': True,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.friend_request_alert()
-                self.updateChatList(chat_gui)
+                self.update_chats_groups_list(chat_gui)
             case "ACCEPT-REQUEST-SELF":
                 self._friends.remove_your_request(args['user_id'])
                 self._friends.remove_add_friend_widget(args['friend_nickname'])
@@ -453,10 +451,10 @@ class MainWindow(FramelessWindow):
                                             friend_id=args['user_id'])  # TODO: Перенести в клиент
                 chat_gui = self.add_chat_to_view(chat_id=args['chat_id'], friend_nick=args['friend_nickname'],
                                                  ui=chat.ui.MAIN)
-                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                ClientConnections.add_chat({'chat_id': args['chat_id'],  # TODO: Перенести в клиент
                                             'is_dm': True,
                                             'socket_controller': self.__user.get_socket_controller()})
-                self.updateChatList(chat_gui)
+                self.update_chats_groups_list(chat_gui)
             case "DECLINE-REQUEST-OTHERS":
                 self._friends.show_hide_alert()
                 has_reqs = self._friends.has_requests()
@@ -479,10 +477,12 @@ class MainWindow(FramelessWindow):
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
             case "JOINED-GROUP-SELF":
                 group = self.__user.get_group_by_id(group_id=args['group_id'])
-                self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'], ui=group['ui'])
+                group_ui = self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'],
+                                                  ui=group['ui'])
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
                                             'is_dm': False,
                                             'socket_controller': self.__user.get_socket_controller()})
+                self.update_chats_groups_list(group_ui)
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

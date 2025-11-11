@@ -23,15 +23,15 @@ class ChatModel:
     def enable_scroll_cache(self):
         self._block_scroll_cache = False
 
-    def send_message(self, text: str):
+    def send_text_message(self, text: str):
         ClientConnections.send_chat_message(text)
+
+    def send_service_message(self, service_message: str): # TODO: Надо?
+        ClientConnections.send_chat_service_message(service_message=service_message)
 
     def block_user(self, user, friend_nick):
         pass
-        #friendAdding = FriendAdding(user)
-        #friendAdding.deleteFriendRequest(friend_nick)
-        #friendAdding.BlockUser(friend_nick)
-        #ClientConnections.send_service_message(f"__DELETE-REQUEST__&{friend_nick}")
+
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id):

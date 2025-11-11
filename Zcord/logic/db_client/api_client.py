@@ -250,3 +250,6 @@ class APIClient:
             'receiver_id': receiver_id,
         }
         return self._request('GET', f'groups-requests/', params=params)
+
+    def delete_request(self, request_id):
+        return self._request('DELETE', f'groups-requests/{request_id}/')

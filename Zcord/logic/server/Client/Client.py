@@ -35,7 +35,7 @@ class Client:
         return self.__friends
 
     @friends.setter
-    def friends(self, friends: List[Dict[str, str]]) -> None:  # TODO: Подумать над хранением группы
+    def friends(self, friends: List[Dict[str, str]]) -> None:
         for friend_attrs in friends:
             fr = Friend(friend_attrs['id'],  # TODO: Подумать над фабрикой
                         friend_attrs['nickname'],
@@ -68,7 +68,7 @@ class Client:
     def add_chat(self, chat_id: str, friends_id: list[int]) -> None:
         chat = Chat(chat_id)
         for friend_id in friends_id:
-            if str(friend_id) not in self.__friends.keys():
+            if str(friend_id) not in self.__friends.keys(): # TODO: Вот тут приколдес с самодобавлением
                 chat.add_member(GroupMember(str(friend_id)))
                 continue
             chat.add_member(self.__friends[str(friend_id)])
@@ -145,7 +145,7 @@ class Friend(Client):
 
 class GroupMember(Client):
     """Класс под пользователя, не являющегося другом"""
-    def __init__(self, user_id: str, nick: str = 'Undefined', last_online=''):
+    def __init__(self, user_id: str, nick: str = 'Undefined'):
         super(GroupMember, self).__init__(user_id, nick)
 
 
@@ -177,6 +177,15 @@ class Chat:  # TODO: Проверить добавляются ли Friend в г
 
     def get_members(self) -> list[Client]:
         return self._members.copy()
+
+    def delete_member_by_id(self, user_id: str) -> None:
+        try:
+            member = next(filter(lambda x: x.id == user_id, self._members))
+        except StopIteration as e:
+            print(e)
+            return
+
+        self._members.remove(member)
 
     # Работа с войс румой
     def add_voice_member(self, friend: Client) -> None:

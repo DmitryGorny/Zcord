@@ -22,19 +22,38 @@ class MessageConnection(IConnection, BaseConnection):
 
         self._main_window_dynamic_update = main_callback
 
-    def send_message(self, current_chat_id: int, message=None, msg_type: str = "CHAT-MESSAGE",
-                     extra_data: dict = None) -> None:
+    def send_message(self, current_chat_id: int, message: str) -> None:
+        """Метод для отпраки сообщений с флагом text"""
         msg = {
-            "type": msg_type,
+            "msg_type": 'CHAT-MESSAGE',
+            "chat_id": current_chat_id,
+            "user_id": self._user.id,
+            "message": message,
+            "type": 'text'
+        }
+
+        self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
+
+    def send_service_message(self, current_chat_id: str, service_message: str):
+        """Метод для отправки сообщений с флагом service"""
+        msg = {
+            "msg_type": 'CHAT-MESSAGE',
+            "chat_id": current_chat_id,
+            "user_id": self._user.id,
+            'service_message': service_message,
+            "type": 'service'
+        }
+        self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
+
+    def send_message_server_service(self, current_chat_id: str, msg_type: str, data: dict):
+        """Метод для отправки сервисных сообщений на message-server"""
+        msg = {
+            "msg_type": msg_type,
             "chat_id": current_chat_id,
             "user_id": self._user.id,
         }
 
-        if extra_data is None:
-            msg["message"] = message
-        else:
-            msg = msg | extra_data
-
+        msg = msg | data
         self._message_server_tcp.sendall((json.dumps(msg)).encode('utf-8'))
 
     def call_main_dynamic_update(self, command: str, args: dict):
@@ -63,7 +82,7 @@ class MessageConnection(IConnection, BaseConnection):
                     continue
                 for msg in arr:
                     try:
-                        strategy = self._choose_strategy.get_strategy(msg["type"], self)
+                        strategy = self._choose_strategy.get_strategy(msg["msg_type"], self)
                         strategy.execute(msg)
                     except TypeError as e:
                         print(e)

@@ -3,6 +3,7 @@ from typing import Optional, Union
 from PyQt6 import QtWidgets, QtCore
 from logic.Main.Chat.View.Message.Message import Message
 from logic.Main.Chat.View.CallDialog.CallView import Call
+from logic.Main.Chat.View.ServiceMessage.ServiceMessage import ServiceMessage
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon, MiniUserIcon
 from logic.Main.Chat.View.dm_view.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
@@ -48,7 +49,7 @@ class IView(QtWidgets.QWidget, metaclass=QWidgetABCMeta):
 
 
 class BaseChatView(IView):
-    messageReceived = QtCore.pyqtSignal(str, str, str, int, bool)
+    messageReceived = QtCore.pyqtSignal(str, dict, int)
     clear_layout = QtCore.pyqtSignal()
     enable_scroll_bar = QtCore.pyqtSignal()
     change_unseen_status_signal = QtCore.pyqtSignal(int)
@@ -107,8 +108,6 @@ class BaseChatView(IView):
         self.microphone_mute = False
         self.headphone_mute = False
 
-
-
     def ask_for_cached_messages(self, val):
         if val <= int(self.ui.ChatScroll.verticalScrollBar().maximum() / 4):
             self._controller.ask_for_cached_message()
@@ -135,25 +134,42 @@ class BaseChatView(IView):
         self._controller.send_message(message_text)
         self.ui.Chat_input_.clear()
 
-    @QtCore.pyqtSlot(str, str, str, int, bool)
-    def receive_message(self, sender, text, date, messageIndex=1, wasSeen: bool = False):  # Нужно еще 20 аргументов
+    @QtCore.pyqtSlot(str, dict, int)
+    def receive_message(self, msg_type: str, message_dict: dict[str, str], index_of_message: int = 1):
+        if msg_type == 'text':
+            self.receive_text_message(message_dict, index_of_message)
+        elif msg_type == 'service':
+            self.receive_service_message(message_dict, index_of_message)
+
+    def receive_text_message(self, message_dict: dict[str, str], messageIndex=1):  # Нужно еще 20 аргументов
         if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
             self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
-        if len(text) == 0:
-            return
 
-        message = Message(text, sender)
-        message.ui.date_label.setText(date)
+        text = message_dict['message']
+        sender_id = message_dict['sender']
+        date = message_dict['created_at']
+        was_seen = message_dict['was_seen']
 
-        qss = ""
-        if sender == self._user.getNickName():
+        qss = ''
+
+        try:
+            sender = next((fr["nickname"] for fr in self._user.getFriends() if fr["id"] == str(sender_id)))
+        except StopIteration:
+            sender = self._user.getNickName()
             qss = """QFrame {
                     background-color:rgba(38,40,45,255);
                     border-radius:25%;
                     border:2px solid white;
                     }
                     }"""
-        if not wasSeen:
+
+        if len(message_dict['message']) == 0:
+            return
+
+        message = Message(text, sender)
+        message.ui.date_label.setText(date)
+
+        if not was_seen:
             message.ui.WasSeenlabel.setText("Unseen")
             self.unseenMessages.append(message.ui)
 
@@ -168,6 +184,39 @@ class BaseChatView(IView):
         else:
             self.ui.ChatScroll.insertItem(0, widget)
             # self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
+
+        self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
+
+        if messageIndex == 1:
+            self.ui.ChatScroll.setCurrentItem(widget)
+
+        return True
+
+    def receive_service_message(self, message_dict: dict[str, str], messageIndex=1):  # Нужно еще 20 аргументов
+        if self.ui.ChatScroll.verticalScrollBar().signalsBlocked():
+            self.ui.ChatScroll.verticalScrollBar().blockSignals(False)
+
+        text = message_dict['service_message']
+        date = message_dict['created_at']
+        was_seen = message_dict['was_seen']
+
+        if len(text) == 0:
+            return
+
+        message = ServiceMessage(text)
+        message.ui.date_label.setText(date)
+
+        if not was_seen:
+            message.ui.WasSeenlabel.setText("Unseen")
+            self.unseenMessages.append(message.ui)
+
+        widget = QtWidgets.QListWidgetItem()
+        widget.setSizeHint(message.ui.Message_.sizeHint())
+
+        if messageIndex == 1:
+            self.ui.ChatScroll.addItem(widget)
+        else:
+            self.ui.ChatScroll.insertItem(0, widget)
 
         self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
 

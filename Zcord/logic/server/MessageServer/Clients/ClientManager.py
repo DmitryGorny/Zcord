@@ -24,7 +24,8 @@ class ClientManager:
     def send(self, client_identent: str, message: Any) -> None:
         try:
             self._clients_with_sockets[client_identent].send(message)
-        except KeyError:
+        except KeyError as e:
+            print(e)
             return None
 
     def remove_client(self, client_identent: str) -> None:

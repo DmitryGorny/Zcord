@@ -141,7 +141,7 @@ class EndSessionStrat(MessageStrategy):
 
 
 class ChatMessageStrat(
-    MessageStrategy):  # TODO: Для групп ввести метку is_group = msg["is_group"], придумать что-то для was_seen
+    MessageStrategy):
     command_name = "CHAT-MESSAGE"
 
     def __init__(self):
@@ -150,16 +150,24 @@ class ChatMessageStrat(
     def execute(self, msg: dict) -> None:
         chat_code = str(msg["chat_id"])
         user_id = str(msg["user_id"])
-        message = msg["message"]
         date_now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S.%fZ")
+        message_type = msg['type']
+
         message_to_send = {  # id 0, потом когда доабвляем в базу AI сам его назначит
             "id": '0',
             "chat": chat_code,
-            "message": message,
             "sender": user_id,
             "created_at": date_now,
-            "was_seen": False
+            "was_seen": False,
+            "type": message_type
         }
+
+        if message_type == 'service':
+            service_message = msg['service_message']
+            message_to_send['service_message'] = service_message
+        if message_type == 'text':
+            message = msg["message"]
+            message_to_send['message'] = message
 
         result = self._messageRoom_pointer.cache_chat.add_value(chat_code, message_to_send)
         # Проверка на переполненость кэша и последующая отсылка в БД
@@ -172,7 +180,7 @@ class ChatMessageStrat(
             message_to_send["was_seen"] = True
 
         # Рассылка сообщений
-        self._messageRoom_pointer.broadcast((chat_code, message, date_now, user_id, message_to_send["was_seen"]))
+        self._messageRoom_pointer.broadcast(str(message_to_send['chat']), message_to_send)
 
         # Отправка unseen тем, кто не в чате
         for user in self._messageRoom_pointer.unseen_messages.get_users(chat_id=chat_code, user_id=user_id):
@@ -231,7 +239,7 @@ class ScrollRequestCacheStrategy(MessageStrategy):
         if index == - 1:
             return
 
-        #Логика запроса кэша из локального хранилища
+        # Логика запроса кэша из локального хранилища
         cache = self._messageRoom_pointer.cache_chat.get_cache_by_scroll(chat_id, index)
 
         if cache is not None and len(cache["cache"]) > 0:
@@ -261,7 +269,8 @@ class ScrollRequestCacheStrategy(MessageStrategy):
                                                                   "chat_id": chat_id})
 
             # Вычисление и обновление данных по непрочитанным сообщениям
-            self._messageRoom_pointer.unseen_messages.subtract_users_count(chat_id=chat_id, user_id=user_id, number=count)
+            self._messageRoom_pointer.unseen_messages.subtract_users_count(chat_id=chat_id, user_id=user_id,
+                                                                           number=count)
             unseen = self._messageRoom_pointer.unseen_messages.get_user_count(chat_id=chat_id, user_id=user_id)
             self._messageRoom_pointer.send_info_message(user_id, "UNSEEN-COUNTER",
                                                         data={"message_number": unseen,
@@ -323,3 +332,4 @@ class DeleteFriendStrat(MessageStrategy):
         del self._messageRoom_pointer.ids_in_chats[chat_id]
         self._messageRoom_pointer.cache_chat.clear_cache(chat_id)
         self._messageRoom_pointer.unseen_messages.delete_user(chat_id)
+

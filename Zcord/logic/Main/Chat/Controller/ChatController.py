@@ -26,7 +26,7 @@ class ChatController:
         self._model.ask_for_cached_messages()
 
     def send_message(self, text: str) -> None:
-        self._model.send_message(text)
+        self._model.send_text_message(text)
 
     def get_socket_controller(self) -> 'ChatController.SocketController':
         return self.SocketController(self._views, self._model)
@@ -70,8 +70,11 @@ class ChatController:
         def clear_layout(self, chat_id: str):
             self._views[chat_id].clear_chat_layout()
 
-        def recieve_message(self, chat_id: str, sender, text, date, messageIndex=1, wasSeen: bool = False):
-            self._views[chat_id].messageReceived.emit(sender, text, date, messageIndex, wasSeen)
+        def receive_message(self, chat_id: str, message_dict: dict[str, str], messageIndex=1):
+            self._views[chat_id].messageReceived.emit(message_dict['type'], message_dict, messageIndex)
+
+        def send_chat_service_server(self, service_message: str):  # TODO: Надо?
+            self._model.send_service_message(service_message)
 
         def enable_scroll_bar(self, chat_id: str):
             self._views[chat_id].enable_scroll_bar.emit()
@@ -110,5 +113,3 @@ class ChatController:
 
         def vad_animation(self, chat_id: str, speech_flg: bool, user_id: int):
             self._views[str(chat_id)].speechDetector.emit(speech_flg, user_id)
-
-

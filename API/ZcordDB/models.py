@@ -80,6 +80,13 @@ class Chats(models.Model):
     group = models.ForeignKey(Groups, on_delete=models.CASCADE, null=True, blank=True)
 
 
+class MessageType(models.TextChoices):
+    TEXT = "text", "Текст"
+    SERVICE = "service", "Сервисное"
+    IMAGE = "image", "Картинка"
+    VOICE = "voice", "Голосовое"
+
+
 class Message(models.Model):
     UNSEEN = False
     SEEN = True
@@ -91,9 +98,13 @@ class Message(models.Model):
 
     chat = models.ForeignKey(Chats, on_delete=models.CASCADE)
     sender = models.ForeignKey(Users, on_delete=models.CASCADE)
-    message = models.TextField()
+    message = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     was_seen = models.BooleanField(choices=CHOICES, default=UNSEEN)
+    type = models.CharField(max_length=20, choices=MessageType.choices)
+    image_url = models.URLField(null=True, blank=True)
+    voice_file = models.FileField(upload_to="voice/", null=True, blank=True)
+    service_message = models.TextField(null=True, blank=True)
 
     class Meta:
         verbose_name = 'Сообщение'

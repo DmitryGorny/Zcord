@@ -52,25 +52,15 @@ class ReceiveChatMessageStrat(ClientsStrategies):
 
     def execute(self, msg: dict) -> None:
         dt = datetime.strptime(msg["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
-        date_now = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
-
-        friends = self._message_connection_pointer.user.getFriends()
+        date = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
         if self._message_connection_pointer.chat is None:
             raise ValueError("chat = None, не прошла инициализация")
 
-        try:
-            nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(msg["sender"])))
-        except StopIteration:
-            nickname = self._message_connection_pointer.user.getNickName()
-
-        self._message_connection_pointer.chat.socket_controller.recieve_message(
-            str(self._message_connection_pointer.chat.chat_id),
-            nickname,
-            msg["message"],
-            date_now,
-            1,
-            msg["was_seen"])
+        msg['created_at'] = date
+        print(msg)
+        self._message_connection_pointer.chat.socket_controller.receive_message(
+            str(self._message_connection_pointer.chat.chat_id), msg)
 
 
 class ReceiveCacheStrat(ClientsStrategies):
@@ -80,7 +70,6 @@ class ReceiveCacheStrat(ClientsStrategies):
         super(ReceiveCacheStrat, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        friends = self._message_connection_pointer.user.getFriends()
         try:
             index = msg["index"]
             self._message_connection_pointer.chat.scroll_index = index
@@ -89,24 +78,15 @@ class ReceiveCacheStrat(ClientsStrategies):
 
         scroll_db_counter = 0
         for message in msg["cache"]:
-            try:
-                nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
-            except StopIteration:
-                nickname = self._message_connection_pointer.user.getNickName()
-
-            message["sender"] = nickname
-
             dt = datetime.strptime(message["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
             date_now = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
             if self._message_connection_pointer.chat is None:
                 raise ValueError("chat = None, не прошла инициализация")
 
-            self._message_connection_pointer.chat.socket_controller.recieve_message(
-                str(self._message_connection_pointer.chat.chat_id),
-                message["sender"],
-                message["message"], date_now, 1,
-                message["was_seen"])  # пофиксить и переделать change_chat
+            message['created_at'] = date_now
+            self._message_connection_pointer.chat.socket_controller.receive_message(
+                str(self._message_connection_pointer.chat.chat_id), message)
 
             if message["id"] != "0":
                 scroll_db_counter += 1
@@ -124,7 +104,6 @@ class ReceiveScrollCache(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         flg = True
         message_from_db = False
-        friends = self._message_connection_pointer.user.getFriends()
         try:
             index = msg["index"]
             self._message_connection_pointer.chat.scroll_index = index
@@ -138,26 +117,15 @@ class ReceiveScrollCache(ClientsStrategies):
 
         counter_for_db_scroll_index = 0
         for message in msg["cache"]:
-            try:
-                nickname = next((fr["nickname"] for fr in friends if fr["id"] == str(message["sender"])))
-            except StopIteration:
-                nickname = self._message_connection_pointer.user.getNickName()
-
-            message["sender"] = nickname
-
             dt = datetime.strptime(message["created_at"], "%Y-%m-%dT%H:%M:%S.%fZ")
             date_now = dt.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
 
             if self._message_connection_pointer.chat is None:
                 raise ValueError("chat = None, не прошла инициализация")
 
-            self._message_connection_pointer.chat.socket_controller.recieve_message(
-                str(self._message_connection_pointer.chat.chat_id),
-                message["sender"],
-                message["message"],
-                date_now,
-                0,
-                message["was_seen"])
+            message['created_at'] = date_now
+            self._message_connection_pointer.chat.socket_controller.receive_message(
+                str(self._message_connection_pointer.chat.chat_id), message, 0)
 
             if message["id"] != "0":
                 counter_for_db_scroll_index += 1

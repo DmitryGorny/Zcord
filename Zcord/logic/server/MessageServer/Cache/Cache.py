@@ -7,9 +7,9 @@ class Message(NamedTuple):
     id: str
     sender: str
     chat: str
-    message: str
     created_at: str
     was_seen: bool
+    type: str
 
 
 class CacheManager:

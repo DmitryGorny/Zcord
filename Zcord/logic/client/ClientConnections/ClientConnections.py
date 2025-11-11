@@ -6,7 +6,7 @@ import queue
 from logic.client.Chat.ClientChat import ChatInterface
 from logic.client.message_client import MessageConnection
 from logic.client.service_client import ServiceConnection
-#from logic.client.voice_client import VoiceConnection
+# from logic.client.voice_client import VoiceConnection
 from logic.client.voice_client import CallManager
 
 
@@ -16,7 +16,7 @@ class ClientConnections:
     # Объекты классов подключений
     _service_connection: ServiceConnection = None
     _message_connection: MessageConnection = None
-    #_voice_connection: VoiceConnection = None
+    # _voice_connection: VoiceConnection = None
 
     # Объект ChatInterface
     _chat_interface: ChatInterface = ChatInterface()
@@ -78,16 +78,17 @@ class ClientConnections:
         return MessageConnection(socket_pointer, user, callback)
 
     @staticmethod
-    def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket, callback) -> ServiceConnection:
+    def _init_service_connection(user, socket_pointer: socket.socket, msg_socket: socket.socket,
+                                 callback) -> ServiceConnection:
         return ServiceConnection(socket_pointer,
                                  msg_socket,
                                  {"IP": ClientConnections._SERVER_IP, "PORT": ClientConnections._MESSAGE_SERVER_PORT},
                                  user, callback)
 
     # TODO: преобразовать правильно
-    #@staticmethod
-    #def _init_voice_connection(user, socket_pointer: socket.socket) -> VoiceConnection:
-        #return VoiceConnection(socket_pointer, user)
+    # @staticmethod
+    # def _init_voice_connection(user, socket_pointer: socket.socket) -> VoiceConnection:
+    # return VoiceConnection(socket_pointer, user)
 
     @staticmethod
     def _init_chats(chats_queue: queue.Queue):
@@ -114,26 +115,30 @@ class ClientConnections:
 
     @staticmethod
     def send_service_message(msg_type: str, message: str = None, extra_data: Dict[str, str] = None) -> None:
+        """Для сервисных сообщений на Server"""
         current_chat = ClientConnections._chat_interface.current_chat_id
         ClientConnections._service_connection.send_message(msg_type, message, current_chat, extra_data)
 
     @staticmethod
     def send_chat_message(message: str = None) -> None:
+        """Для тесктовых сообщений на MessageServer"""
         current_chat = ClientConnections._chat_interface.current_chat_id
         ClientConnections._message_connection.send_message(current_chat, message=message)
 
     @staticmethod
-    def send_message_server_message(msg_type: str, extra_data: dict):
+    def send_chat_service_message(service_message: str):
+        """Для сообщений сервисной работы на MessageServer"""
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data=extra_data)
+        ClientConnections._message_connection.send_service_message(current_chat, service_message)
 
     @staticmethod
     def ask_for_scroll_cache(msg_type: str):
         current_chat = ClientConnections._chat_interface.current_chat_id
         index = ClientConnections._chat_interface.chat.scroll_index
         db_index = ClientConnections._chat_interface.chat.scroll_db_index
-        ClientConnections._message_connection.send_message(current_chat, msg_type=msg_type, extra_data={"index": index,
-                                                                                                        "db_index": db_index})
+        ClientConnections._message_connection.send_message_server_service(current_chat, msg_type=msg_type,
+                                                                          data={"index": index,
+                                                                                "db_index": db_index})
 
     @staticmethod
     def get_chat_id() -> object:
@@ -144,5 +149,5 @@ class ClientConnections:
         ClientConnections.send_service_message(msg_type="END-SESSION")
         ClientConnections._service_connection.close()
         ClientConnections._message_connection.close()
-        #ClientConnections._voice_connection.close()
+        # ClientConnections._voice_connection.close()
         CallManager().stop_call()

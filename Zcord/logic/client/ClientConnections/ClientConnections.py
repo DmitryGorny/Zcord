@@ -47,6 +47,7 @@ class ClientConnections:
 
         try:
             service_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            service_tcp.settimeout(5.0)
             service_tcp.connect((ClientConnections._SERVER_IP, ClientConnections._SERVER_PORT))
         except ConnectionRefusedError:
             print("Не удалось подключится")
@@ -54,6 +55,7 @@ class ClientConnections:
 
         try:
             message_tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            message_tcp.settimeout(5.0)
         except ConnectionRefusedError:
             print("Не удалось подключится")
             exit(0)

@@ -14,16 +14,16 @@ class Ui_ServiceMessage(object):
         ServiceMessage.setObjectName("ServiceMessage")
         ServiceMessage.resize(671, 300)
         self.Message_ = QtWidgets.QFrame(parent=ServiceMessage)
-        self.Message_.setGeometry(QtCore.QRect(10, 70, 421, 101))
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Fixed)
+        self.Message_.setGeometry(QtCore.QRect(120, 50, 421, 100))
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.Message_.sizePolicy().hasHeightForWidth())
         self.Message_.setSizePolicy(sizePolicy)
-        self.Message_.setMinimumSize(QtCore.QSize(400, 90))
-        self.Message_.setMaximumSize(QtCore.QSize(16777215, 220))
+        self.Message_.setMinimumSize(QtCore.QSize(0, 100))
+        self.Message_.setMaximumSize(QtCore.QSize(16777215, 100))
         self.Message_.setStyleSheet("QFrame {\n"
-"background-color:rgba(38,40,45,255);\n"
+"background-color:rgba(56, 56, 56, 80);\n"
 "border-radius:25%;\n"
 "border:2px solid transparent;\n"
 "}\n"
@@ -42,7 +42,9 @@ class Ui_ServiceMessage(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.User.sizePolicy().hasHeightForWidth())
         self.User.setSizePolicy(sizePolicy)
-        self.User.setStyleSheet("border:none;")
+        self.User.setMinimumSize(QtCore.QSize(30, 0))
+        self.User.setStyleSheet("border:none;\n"
+"background-color:none;")
         self.User.setObjectName("User")
         self._2 = QtWidgets.QHBoxLayout(self.User)
         self._2.setContentsMargins(-1, 0, -1, 5)
@@ -68,9 +70,12 @@ class Ui_ServiceMessage(object):
         self.Message_Text.setSizePolicy(sizePolicy)
         self.Message_Text.setStyleSheet("color:white;\n"
 "font-size:16px;\n"
-"margin-left:30px;\n"
-"border:none;")
+"border:none;\n"
+"background-color:none;\n"
+"\n"
+"")
         self.Message_Text.setText("")
+        self.Message_Text.setAlignment(QtCore.Qt.AlignmentFlag.AlignCenter)
         self.Message_Text.setObjectName("Message_Text")
         self.Message.addWidget(self.Message_Text)
         self.horizontalFrame = QtWidgets.QFrame(parent=self.Message_)
@@ -82,6 +87,7 @@ class Ui_ServiceMessage(object):
         self.horizontalFrame.setMaximumSize(QtCore.QSize(16777215, 20))
         self.horizontalFrame.setStyleSheet("border:none;\n"
 "margin:0px;\n"
+"background-color:none;\n"
 "padding:0px;")
         self.horizontalFrame.setObjectName("horizontalFrame")
         self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalFrame)
@@ -100,7 +106,6 @@ class Ui_ServiceMessage(object):
         self.horizontalLayout.addWidget(self.WasSeenlabel, 0, QtCore.Qt.AlignmentFlag.AlignRight)
         self.Message.addWidget(self.horizontalFrame)
         self.Message.setStretch(0, 1)
-        self.Message.setStretch(1, 3)
         self.Message.setStretch(2, 1)
 
         self.retranslateUi(ServiceMessage)

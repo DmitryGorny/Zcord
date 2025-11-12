@@ -60,7 +60,7 @@ class CallConnectionIconStrategy(ServiceStrategy):
         username = msg["username"]
         chat = self._server_pointer.clients[str(user_id)].get_chat_by_id(str(chat_id))
         for member in chat.get_members():
-            await self._server_pointer.clients[member.id].send_text_message('__ICON-CALL__',
+            await self._server_pointer.clients[member.id].send_message('__ICON-CALL__',
                                                                             {'user_id': user_id,
                                                                         'username': username,
                                                                         'chat_id': chat_id})
@@ -79,6 +79,6 @@ class CallConnectionIconLeftStrategy(ServiceStrategy):
         chat_id = msg["chat_id"]
         chat = self._server_pointer.clients[str(user_id)].get_chat_by_id(str(chat_id))
         for member in chat.get_members():
-            await self._server_pointer.clients[member.id].send_text_message('__LEFT-ICON-CALL__',
+            await self._server_pointer.clients[member.id].send_message('__LEFT-ICON-CALL__',
                                                                             {'user_id': user_id,
                                                                         'chat_id': chat_id})

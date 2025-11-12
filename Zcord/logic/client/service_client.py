@@ -79,6 +79,8 @@ class ServiceConnection(IConnection, BaseConnection):
                     strategy = self._choose_strategy.get_strategy(msg["message_type"], self, self._user.getNickName())
                     strategy.execute(msg)
                 continue
+            except socket.timeout:
+                continue
             except os.error as e:
                 if not self._flg:
                     print("Сокет закрылся корректно")

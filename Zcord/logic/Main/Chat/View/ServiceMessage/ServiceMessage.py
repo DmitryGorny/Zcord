@@ -10,8 +10,6 @@ class ServiceMessage(QtWidgets.QWidget):
 
         self.ui = Ui_ServiceMessage()
         self.ui.setupUi(self)
-
-        self.ui.Message_.setMaximumWidth(400)
         self.ui.Message_Text.setWordWrap(True)
         self.ui.Message_Text.setTextInteractionFlags(QtCore.Qt.TextInteractionFlag.TextBrowserInteraction)
         self.ui.Message_Text.setText(text)

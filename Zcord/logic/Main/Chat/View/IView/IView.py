@@ -150,6 +150,8 @@ class BaseChatView(IView):
         date = message_dict['created_at']
         was_seen = message_dict['was_seen']
 
+        layout = QtWidgets.QHBoxLayout()
+        layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
         qss = ''
 
         try:
@@ -162,6 +164,7 @@ class BaseChatView(IView):
                     border:2px solid white;
                     }
                     }"""
+            layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
 
         if len(message_dict['message']) == 0:
             return
@@ -176,6 +179,10 @@ class BaseChatView(IView):
         if len(qss) != 0:
             message.ui.Message_.setStyleSheet(qss)
 
+        outer_widget = QtWidgets.QWidget()
+        outer_widget.setFixedHeight(message.ui.Message_.height() + 10)
+        layout.addWidget(message.ui.Message_)
+        outer_widget.setLayout(layout)
         widget = QtWidgets.QListWidgetItem()
         widget.setSizeHint(message.ui.Message_.sizeHint())
 
@@ -185,7 +192,7 @@ class BaseChatView(IView):
             self.ui.ChatScroll.insertItem(0, widget)
             # self.scroll_pos = self.ui.ChatScroll.verticalScrollBar().value()
 
-        self.ui.ChatScroll.setItemWidget(widget, message.ui.Message_)
+        self.ui.ChatScroll.setItemWidget(widget, outer_widget)
 
         if messageIndex == 1:
             self.ui.ChatScroll.setCurrentItem(widget)

@@ -89,6 +89,8 @@ class MessageConnection(IConnection, BaseConnection):
                     except KeyError as i:
                         print(i)
                 continue
+            except socket.timeout:
+                continue
             except os.error as e:
                 if not self._flg:
                     print("Сокет закрылся корректно")

@@ -2,8 +2,8 @@ from typing import Callable, Protocol, List, Dict
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import pyqtSignal
 
-from logic.Main.GroupsListRequests.GroupsRequests.View.RequestWidget.RequestWidget import RequestWidget
-from logic.Main.GroupsListRequests.GroupsRequests.View.RequestsQt import Ui_Groups_Requests
+from logic.Main.Groups.GroupsRequests.View.RequestWidget.RequestWidget import RequestWidget
+from logic.Main.Groups.GroupsRequests.View.RequestsQt import Ui_Groups_Requests
 
 
 class IRequestsView(Protocol):

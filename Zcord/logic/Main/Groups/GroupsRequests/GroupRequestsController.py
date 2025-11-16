@@ -1,5 +1,5 @@
-from logic.Main.GroupsListRequests.GroupsRequests.GroupRequestsModel import GroupRequestModel, IGroupRequestModel
-from logic.Main.GroupsListRequests.GroupsRequests.View.RequestsView import IRequestsView, RequestsView
+from logic.Main.Groups.GroupsRequests.GroupRequestsModel import GroupRequestModel, IGroupRequestModel
+from logic.Main.Groups.GroupsRequests.View.RequestsView import IRequestsView, RequestsView
 
 
 class GroupRequestsController:

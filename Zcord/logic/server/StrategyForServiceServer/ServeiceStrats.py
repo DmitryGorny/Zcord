@@ -6,6 +6,7 @@ from logic.server.Strategy import Strategy
 from abc import abstractmethod
 from typing import Callable
 
+#TODO: Везде добавить проверку на success ответ от БД!!!!!!!!!!!!!!!!!!!!!!
 
 class ChooseStrategy:
     def __init__(self):

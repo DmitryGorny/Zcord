@@ -1,5 +1,7 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/task_alt_100dp_48752C_FILL0_wght400_GRAD0_opsz48.svg</file>
+    <file>icon/task_alt_42dp_48752C_FILL0_wght400_GRAD0_opsz40.svg</file>
     <file>icon/group_add_24dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg</file>
     <file>icon/person_cancel_46dp_8B1A10_FILL0_wght400_GRAD0_opsz48.svg</file>
     <file>icon/person_add_46dp_018741_FILL0_wght400_GRAD0_opsz48.svg</file>

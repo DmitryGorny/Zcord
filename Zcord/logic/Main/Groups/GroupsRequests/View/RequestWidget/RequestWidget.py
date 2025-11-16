@@ -3,7 +3,7 @@ from typing import Callable
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtWidgets import QListWidgetItem
 
-from logic.Main.GroupsListRequests.GroupsRequests.View.RequestWidget.GroupRequestQt import Ui_GroupRequest
+from logic.Main.Groups.GroupsRequests.View.RequestWidget.GroupRequestQt import Ui_GroupRequest
 
 
 class RequestWidget(QtWidgets.QWidget):

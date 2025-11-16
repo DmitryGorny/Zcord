@@ -5,7 +5,7 @@ from typing import List
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import Qt
 from logic.Authorization.User.User import User
-from logic.Main.GroupsListRequests.GroupsListRequest import GroupsListRequestWidget
+from logic.Main.Groups.GroupsListRequest import GroupsListRequestWidget
 from logic.Main.MainWidnowChats.DM_chat.ChatInList import ChatInList
 from logic.Main.MainWidnowChats.group_chat.GroupInList import GroupInList
 from logic.Main.MainWindowGUI import Ui_Zcord
@@ -68,6 +68,7 @@ class MainWindow(FramelessWindow):
         # Работа с группами
         self._groups: GroupsListRequestWidget = GroupsListRequestWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._groups.get_widget())
+
 
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого

@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>CreateGroupForm</class>
+ <widget class="QWidget" name="CreateGroupForm">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>778</width>
+    <height>640</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="CG_Wrapper">
+   <property name="geometry">
+    <rect>
+     <x>-10</x>
+     <y>0</y>
+     <width>761</width>
+     <height>621</height>
+    </rect>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <item alignment="Qt::AlignHCenter">
+     <widget class="QFrame" name="Wrapper">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>500</width>
+        <height>0</height>
+       </size>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>20</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QFrame" name="spinner_frame">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>200</width>
+           <height>0</height>
+          </size>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_4">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <layout class="QHBoxLayout" name="spinner_layout">
+            <item alignment="Qt::AlignHCenter">
+             <widget class="QLabel" name="label_4">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">color:white;
+font-size:16px;</string>
+              </property>
+              <property name="text">
+               <string>Создаем группу</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignTop">
+        <widget class="QLabel" name="label">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">color:white;
+font-size:18px;</string>
+         </property>
+         <property name="text">
+          <string>Название группы:</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLineEdit" name="GroupName_input">
+         <property name="minimumSize">
+          <size>
+           <width>250</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLineEdit{ 
+width:250px;
+height:30px;
+border: 2px solid #323338;
+border-radius: 10px;
+background-color:#1e1f22;
+font-size:16px;
+color:#808994;
+text-align:left;
+padding-left:27px;
+}
+
+</string>
+         </property>
+         <property name="inputMask">
+          <string/>
+         </property>
+         <property name="text">
+          <string/>
+         </property>
+         <property name="maxLength">
+          <number>50</number>
+         </property>
+         <property name="placeholderText">
+          <string>Название группы</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="is_private">
+         <property name="styleSheet">
+          <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+}</string>
+         </property>
+         <property name="text">
+          <string>Приватная группа (только по приглашению)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="is_inviteGromAdmin">
+         <property name="styleSheet">
+          <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+}</string>
+         </property>
+         <property name="text">
+          <string>Приглашения только от администратора</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="is_password">
+         <property name="styleSheet">
+          <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+}</string>
+         </property>
+         <property name="text">
+          <string>Вход по паролю</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QFrame" name="password_wrapper">
+         <layout class="QVBoxLayout" name="verticalLayout_3">
+          <property name="leftMargin">
+           <number>0</number>
+          </property>
+          <property name="topMargin">
+           <number>0</number>
+          </property>
+          <property name="rightMargin">
+           <number>0</number>
+          </property>
+          <property name="bottomMargin">
+           <number>0</number>
+          </property>
+          <item>
+           <widget class="QLabel" name="label_2">
+            <property name="styleSheet">
+             <string notr="true">color:white;
+font-size:18px;</string>
+            </property>
+            <property name="text">
+             <string>Пароль:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="Password_input">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLineEdit{ 
+width:250px;
+height:30px;
+border: 2px solid #323338;
+border-radius: 10px;
+background-color:#1e1f22;
+font-size:16px;
+color:#808994;
+text-align:left;
+padding-left:27px;
+}
+
+</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>Пароль</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLabel" name="label_3">
+            <property name="styleSheet">
+             <string notr="true">color:white;
+font-size:18px;</string>
+            </property>
+            <property name="text">
+             <string>Повторить пароль:</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QLineEdit" name="RepeatPassword_input">
+            <property name="minimumSize">
+             <size>
+              <width>250</width>
+              <height>0</height>
+             </size>
+            </property>
+            <property name="styleSheet">
+             <string notr="true">QLineEdit{ 
+width:250px;
+height:30px;
+border: 2px solid #323338;
+border-radius: 10px;
+background-color:#1e1f22;
+font-size:16px;
+color:#808994;
+text-align:left;
+padding-left:27px;
+}
+
+</string>
+            </property>
+            <property name="text">
+             <string/>
+            </property>
+            <property name="placeholderText">
+             <string>Повторить пароль</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignHCenter">
+     <widget class="QFrame" name="Errors">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>500</width>
+        <height>70</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">
+border:4px solid #BF092F;
+border-radius:25%;</string>
+      </property>
+      <layout class="QVBoxLayout">
+       <property name="leftMargin">
+        <number>20</number>
+       </property>
+       <property name="topMargin">
+        <number>10</number>
+       </property>
+       <property name="bottomMargin">
+        <number>10</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="ErrorText">
+         <property name="styleSheet">
+          <string notr="true">border:none;
+font-size:18px;
+color:#BF092F;</string>
+         </property>
+         <property name="text">
+          <string>Ошибка: поле &quot;Название группы&quot; не было заполнено</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item alignment="Qt::AlignHCenter">
+     <widget class="QPushButton" name="createGroup_button">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="minimumSize">
+       <size>
+        <width>151</width>
+        <height>50</height>
+       </size>
+      </property>
+      <property name="cursor">
+       <cursorShape>PointingHandCursor</cursorShape>
+      </property>
+      <property name="styleSheet">
+       <string notr="true"> QPushButton {
+border:1px solid orange;
+border-radius:25%;
+background-color:orange;
+color:white;
+font-size:18px;
+}
+
+QPushButton:hover {
+	background-color: rgba(255, 211, 121, 200);
+	border:1px solid rgba(255, 211, 121, 200);
+}</string>
+      </property>
+      <property name="text">
+       <string>Создать</string>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

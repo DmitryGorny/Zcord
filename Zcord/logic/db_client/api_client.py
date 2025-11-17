@@ -197,6 +197,14 @@ class APIClient:
         }
         return self._request('POST', 'groups-members/', json=data)
 
+    def add_group_admin(self, user_id, group_id):
+        data = {
+            "role": True,
+            "user": user_id,
+            "group": group_id
+        }
+        return self._request('POST', 'groups-members/', json=data)
+
     def search_group_member(self, user_id, group_id):
         return self._request('GET', f'chats/?search={user_id}&group={group_id}')
 
@@ -253,3 +261,21 @@ class APIClient:
 
     def delete_request(self, request_id):
         return self._request('DELETE', f'groups-requests/{request_id}/')
+
+    # Работа с группами
+    def check_unique_group_name(self, group_name):
+        return self._request('GET', f'groups/groups-name-unique/?group_name={group_name}')
+
+    def create_group(self, group_name, is_private, is_invite_from_admin, is_password, admin_id, password=None):
+        params = {
+            'group_name': group_name,
+            'is_private': is_private,
+            'is_invite_from_admin': is_invite_from_admin,
+            'is_password': is_password,
+            'user_admin': admin_id
+        }
+
+        if is_password:
+            params['password'] = password
+
+        return self._request('POST', f'groups/', json=params)

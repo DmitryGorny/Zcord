@@ -77,7 +77,10 @@ class ServiceConnection(IConnection, BaseConnection):
                     continue
                 for msg in arr:
                     strategy = self._choose_strategy.get_strategy(msg["message_type"], self, self._user.getNickName())
-                    strategy.execute(msg)
+                    try:
+                        strategy.execute(msg)
+                    except AttributeError:
+                        continue
                 continue
             except socket.timeout:
                 continue

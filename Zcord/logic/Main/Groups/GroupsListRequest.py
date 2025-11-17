@@ -43,3 +43,6 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
 
     def _select_requests_page(self) -> None:
         self._ui.stackedWidget.setCurrentWidget(self._pages['requests'])
+
+    def group_was_created(self) -> None:
+        self._create_group_controller.group_created()

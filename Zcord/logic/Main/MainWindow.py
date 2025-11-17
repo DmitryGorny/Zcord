@@ -69,7 +69,6 @@ class MainWindow(FramelessWindow):
         self._groups: GroupsListRequestWidget = GroupsListRequestWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._groups.get_widget())
 
-
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
         self.ui.UsersLogo.clicked.connect(self.showProfile)
@@ -131,10 +130,11 @@ class MainWindow(FramelessWindow):
         self._friendsChatOptions.append(chat)
         self.ui.stackedWidget_2.addWidget(
             ui)
+        print(f'Родитель: {ui.parent()}')
         return chat
 
     def add_group_to_view(self, group_id: str, group_name: str, ui):
-        group = GroupInList(group_id, group_name, ui)
+        group = GroupInList(chat_id=group_id, name=group_name, chat_ui=ui)
         self._groups_options.append(group)
         self.ui.stackedWidget_2.addWidget(ui)
         return group
@@ -260,7 +260,10 @@ class MainWindow(FramelessWindow):
         self.ui.stackedWidget_2.setCurrentWidget(option_object.chat_ui)
 
     def change_friend_activity_indeicator_color(self, friendNick, color):
-        friend_ChatInList = list(filter(lambda x: x.username == friendNick, self._friendsChatOptions))[0]
+        try:
+            friend_ChatInList = list(filter(lambda x: x.username == friendNick, self._friendsChatOptions))[0]
+        except IndexError:
+            return
         friend_ChatInList.changeIndicatorColor(color)
 
     def createChatWidget(self, chat_option, layoutFinal):
@@ -348,19 +351,6 @@ class MainWindow(FramelessWindow):
 
         return chat_gui
 
-    def show_groups_list(self):
-        if len(self._friendsChatOptions) == 0:
-            if not self.ui.ScrollRooms.isVisible():
-                return
-            else:
-                self.ui.ScrollRooms.setVisible(False)
-                return
-
-        if not self.ui.ScrollRooms.isVisible():
-            self.ui.ScrollRooms.setVisible(True)
-        else:
-            self.ui.ScrollRooms.setVisible(False)
-
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
 
     def showProfile(self):
@@ -405,8 +395,9 @@ class MainWindow(FramelessWindow):
     # <---------------------------------------------Работа с друзьями-------------------------------------------------->
 
     # <---------------------------------------------Работа с группами-------------------------------------------------->
-    def showGroupList(self):
-        if len(self._groups_options) == 0:
+
+    def show_groups_list(self):
+        if len(self._friendsChatOptions) == 0:
             if not self.ui.ScrollRooms.isVisible():
                 return
             else:
@@ -477,14 +468,30 @@ class MainWindow(FramelessWindow):
                     self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
-            case "JOINED-GROUP-SELF":
+            case "ADD-GROUP":
                 group = self.__user.get_group_by_id(group_id=args['group_id'])
                 group_ui = self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'],
                                                   ui=group['ui'])
                 ClientConnections.add_chat({'chat_id': args['chat_id'],
                                             'is_dm': False,
                                             'socket_controller': self.__user.get_socket_controller()})
-                self.update_chats_groups_list(group_ui)
+                self.update_chats_groups_list(group_ui, True)
+            case "GROUP-CREATED":
+                # TODO: По какой-то ебучей причине parent в ui.MAIN задается только в MainWindow, а в клиенте нет
+                group = self.__user.add_group_chat(chat_id=args['group_id'],
+                                                   group_name=args['group_name'],
+                                                   is_private=args['is_private'],
+                                                   is_admin_invite=args['is_admin_invite'],
+                                                   is_password=args['is_password'],
+                                                   admin_id=args['admin_id'],
+                                                   members=[int(self.__user.id)])
+                group_ui = self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'],
+                                                  ui=group.ui.MAIN)
+                ClientConnections.add_chat({'chat_id': args['group_id'],
+                                            'is_dm': False,
+                                            'socket_controller': self.__user.get_socket_controller()})
+                self.update_chats_groups_list(group_ui, True)
+                self._groups.group_was_created()
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

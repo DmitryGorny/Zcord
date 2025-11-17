@@ -42,7 +42,11 @@ class UserChats:
                                            group_name=group_name,
                                            user_obj=self.__user,
                                            controller=self._chats_controller,
-                                           members=group['group']['members'])
+                                           members=group['group']['members'],
+                                           is_private=group['group']['is_private'],
+                                           is_password=group['group']['is_password'],
+                                           is_admin_invite=group['group']['is_invite_from_admin'],
+                                           admin_id=group['group']['user_admin'])
             self._groups.append(group_obj)
             self._chats_controller.add_view(str(group['id']), group_obj)
 
@@ -58,7 +62,7 @@ class UserChats:
         self._chats_controller.add_view(chat_id, chat)
         return chat
 
-    def add_group_chat(self, chat_id: str, group_name: str, members: str):
+    def add_group_chat(self, chat_id: str, group_name: str, members: list, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
         fabric = CreateChat()
 
         group = fabric.create_chat(is_dm=False,
@@ -66,7 +70,11 @@ class UserChats:
                                    group_name=group_name,
                                    user_obj=self.__user,
                                    controller=self._chats_controller,
-                                   members=members)
+                                   members=members,
+                                   is_private=is_private,
+                                   is_admin_invite=is_admin_invite,
+                                   is_password=is_password,
+                                   admin_id=admin_id)
         self._groups.append(group)
         self._chats_controller.add_view(chat_id, group)
         return group
@@ -109,7 +117,7 @@ class UserChats:
     def get_group_by_id(self, group_id: str) -> dict | None:
         try:
             group = next(filter(lambda x: x.chat_id == group_id, self._groups))
-            return {'chat_id': group.chat_id, 'group_name': group.group_name, 'users': group.get_users, 'ui': group.ui}
+            return {'chat_id': group.chat_id, 'group_name': group.group_name, 'users': group.get_users, 'ui': group.ui.MAIN}
         except StopIteration as e:
             print(e)
             return None

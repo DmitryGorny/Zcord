@@ -254,9 +254,32 @@ class UserJoinedGroupStrat(ClientsStrategies):
         members = msg['members']  # TODO: Проверить приходит ли массив или строка
 
         if joined_user == self.service_connection_pointer.user.id:
-            self.service_connection_pointer.call_main_dynamic_update('JOINED-GROUP-SELF',
+            self.service_connection_pointer.call_main_dynamic_update('ADD-GROUP',
                                                                      {'group_id': group_id,
                                                                       'group_name': group_name, })
             self.service_connection_pointer.user.add_group_chat(group_name=group_name, chat_id=group_id,
                                                                 members=members)
 
+
+class GroupCreatedStrat(ClientsStrategies):
+    header_name = "GROUP-CREATED-SUCCESS"
+
+    def __init__(self):
+        super(GroupCreatedStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_json = msg['group_json']
+        group_id = str(group_json['id'])
+        group_name = group_json["group_name"]
+        is_private = group_json['is_private']
+        is_invite_from_admin = group_json["is_invite_from_admin"]
+        is_password = group_json["is_password"]
+        admin_id = str(group_json["user_admin"])
+
+        self.service_connection_pointer.call_main_dynamic_update('GROUP-CREATED',
+                                                                 {'group_id': group_id,
+                                                                  'group_name': group_name,
+                                                                  'is_private': is_private,
+                                                                  'is_admin_invite': is_invite_from_admin,
+                                                                  'is_password': is_password,
+                                                                  'admin_id': admin_id})

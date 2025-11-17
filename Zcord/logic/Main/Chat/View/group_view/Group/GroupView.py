@@ -7,12 +7,11 @@ from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 
 
 class GroupView(BaseChatView):
-    def __init__(self, chatId, group_name, user, controller, members):
+    def __init__(self, chatId, group_name, user, controller, members, is_private, is_password, is_admin_invite, admin_id):
         super(GroupView, self).__init__(chatId, user, controller)
 
         self.ui = Ui_Group()
         self.ui.setupUi(self)
-
         self.ui.GroupName.setText(group_name)
         self.ui.GroupIcon.setText(group_name[0])
 
@@ -33,6 +32,11 @@ class GroupView(BaseChatView):
         self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
 
         self._users: List[str] = members.copy()
+
+        self._is_private = is_private
+        self._is_admin_invite = is_admin_invite
+        self._is_password = is_password
+        self._admin_id = admin_id
 
     @property
     def group_name(self) -> str:

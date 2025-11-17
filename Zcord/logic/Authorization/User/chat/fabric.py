@@ -17,4 +17,12 @@ class CreateChat(ChatFabric):
         if is_dm:
             return ChatView(kwargs["chat_id"], kwargs["friend_id"], kwargs["user_obj"], kwargs['controller'])
         else:
-            return GroupView(kwargs["group_id"], kwargs["group_name"], kwargs["user_obj"], kwargs['controller'], kwargs['members'])
+            return GroupView(kwargs["group_id"],
+                             kwargs["group_name"],
+                             kwargs["user_obj"],
+                             kwargs['controller'],
+                             kwargs['members'],
+                             kwargs['is_private'],
+                             kwargs['is_password'],
+                             kwargs['is_admin_invite'],
+                             kwargs['admin_id'])

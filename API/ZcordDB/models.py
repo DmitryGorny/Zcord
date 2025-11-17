@@ -56,6 +56,11 @@ class Groups(models.Model):
     group_name = models.CharField()
     created_at = models.DateTimeField(auto_now_add=True)
     members = models.ManyToManyField(Users, through='GroupsMembers', related_name='groups')
+    user_admin = models.ForeignKey(Users, on_delete=models.CASCADE,  related_name='admin')
+    is_private = models.BooleanField(default=False)
+    is_invite_from_admin = models.BooleanField(default=False)
+    is_password = models.BooleanField(default=False)
+    password = models.CharField(max_length=255, null=True, blank=True)
 
     class Meta:
         verbose_name = 'Группа'

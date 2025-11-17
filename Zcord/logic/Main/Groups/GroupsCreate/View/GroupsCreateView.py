@@ -48,6 +48,7 @@ class GroupsCreateView(QtWidgets.QWidget):
         self._create_group_ui.createGroup_button.clicked.connect(self.send_form)
 
         self._create_group_ui.is_password.toggled.connect(self._create_group_ui.password_wrapper.setVisible)
+        self._create_group_ui.is_private.toggled.connect(lambda t: self._create_group_ui.is_password.setVisible(not t))
 
         self._create_group_ui.password_wrapper.setVisible(False)
 
@@ -73,7 +74,7 @@ class GroupsCreateView(QtWidgets.QWidget):
             if len(self._create_group_ui.Password_input.text()) == 0:
                 self._create_group_ui.ErrorText.setText('Ошибка: Поле "Пароль" не было заполнено')
                 return
-            if len(self._create_group_ui.RepeatPassword_input.text()):
+            if len(self._create_group_ui.RepeatPassword_input.text()) == 0:
                 self._create_group_ui.ErrorText.setText('Ошибка: Поле "Повторить пароль" не было заполнено')
                 return
             if self._create_group_ui.Password_input.text().strip() != self._create_group_ui.RepeatPassword_input.text().strip():
@@ -84,6 +85,11 @@ class GroupsCreateView(QtWidgets.QWidget):
             self._create_group_ui.Errors.setHidden(True)
 
         self.send_form_model.emit(group_name, is_private, is_invite_from_admin, is_password, password)
+
+    def name_error(self) -> None:
+        if self._create_group_ui.Errors.isHidden():
+            self._create_group_ui.Errors.setHidden(False)
+        self._create_group_ui.ErrorText.setText("Ошибка: такое название группы уже существует")
 
     def get_widget(self) -> QtWidgets.QFrame:
         return self._ui.Column

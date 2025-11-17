@@ -71,7 +71,7 @@
           </size>
          </property>
          <property name="styleSheet">
-          <string notr="true">background-color:transperent;</string>
+          <string notr="true">border:none;</string>
          </property>
          <property name="text">
           <string/>

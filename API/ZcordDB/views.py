@@ -1,8 +1,9 @@
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404
 from django_filters.rest_framework import DjangoFilterBackend
 from rest_framework import viewsets, filters
 from rest_framework.decorators import action
-from rest_framework import generics, status
+from rest_framework import status
 from rest_framework.response import Response
 
 from .Paginations import LimitPagination
@@ -10,6 +11,7 @@ from .models import *
 from .serializers.ChatsSerializer import ChatsSerializer
 from .serializers.GroupsMembersSerializer import GroupsMembersSerializer
 from .serializers.GroupsRequestSerializer import GroupsRequestSerializer
+from .serializers.GroupsSerializer import GroupsSerializer
 from .serializers.UserSerializer import UserSerializer
 from .serializers.FriendshipSerializer import FriendshipSerializer
 from .serializers.MessageSerializer import MessageSerializer, MessageBulkSerializer, MessageBulkUpdateSerializer
@@ -172,25 +174,25 @@ class MessageView(viewsets.ModelViewSet):
         serializer.is_valid(raise_exception=True)
         messages_data = serializer.validated_data.get('messages', [])
         messages_to_create = []
-        for msg in messages_data: #TODO: Потом при добавлении возможности скинуть картинки и ГС добавить ifы
+        for msg in messages_data:  # TODO: Потом при добавлении возможности скинуть картинки и ГС добавить ifы
             if msg['type'] == MessageType.TEXT:
                 message = Message(
-                        chat=msg['chat'],
-                        sender=msg['sender'],
-                        message=msg['message'],
-                        was_seen=msg.get('was_seen', False),
-                        type=msg['type']
-                    )
+                    chat=msg['chat'],
+                    sender=msg['sender'],
+                    message=msg['message'],
+                    was_seen=msg.get('was_seen', False),
+                    type=msg['type']
+                )
                 messages_to_create.append(message)
 
             if msg['type'] == MessageType.SERVICE:
                 message = Message(
-                        chat=msg['chat'],
-                        sender=msg['sender'],
-                        service_message=msg['service_message'],
-                        was_seen=msg.get('was_seen', False),
-                        type=msg['type']
-                    )
+                    chat=msg['chat'],
+                    sender=msg['sender'],
+                    service_message=msg['service_message'],
+                    was_seen=msg.get('was_seen', False),
+                    type=msg['type']
+                )
                 messages_to_create.append(message)
 
         Message.objects.bulk_create(messages_to_create)
@@ -276,9 +278,25 @@ class GroupsRequestView(viewsets.ModelViewSet):
         return queryset
 
 
-class GroupsMembers(viewsets.ModelViewSet):
+class GroupsMembersView(viewsets.ModelViewSet):
     queryset = GroupsMembers.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
     search_fields = ["user__id"]
     filterset_fields = ["group"]
     serializer_class = GroupsMembersSerializer
+
+
+class GroupsView(viewsets.ModelViewSet):
+    queryset = Groups.objects.all()
+    filter_backends = [filters.SearchFilter]
+    search_fields = ["id"]
+    serializer_class = GroupsSerializer
+
+    @action(detail=False, methods=['get'], url_path='groups-name-unique/')
+    def check_name(self, request):
+        group_name = request.query_params.get('group_name')
+        if not group_name:
+            return Response({"error": "group_name param required"}, status=400)
+
+        exists = Groups.objects.filter(group_name=group_name).exists()
+        return Response({"unique": not exists})

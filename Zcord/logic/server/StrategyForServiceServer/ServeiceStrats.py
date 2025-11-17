@@ -1,12 +1,16 @@
 # Реализации интерфейса Strategy для сервера сервисных сообщений (Server)
 import json
+
+import bcrypt
+
 from logic.db_client.api_client import APIClient
 from logic.server.Client.Client import Client
 from logic.server.Strategy import Strategy
 from abc import abstractmethod
 from typing import Callable
 
-#TODO: Везде добавить проверку на success ответ от БД!!!!!!!!!!!!!!!!!!!!!!
+
+# TODO: Везде добавить проверку на success ответ от БД!!!!!!!!!!!!!!!!!!!!!!
 
 class ChooseStrategy:
     def __init__(self):
@@ -208,9 +212,9 @@ class SendFriendRequest(ServiceStrategy):
 
         try:
             await self._server_pointer.clients[friend_id].send_message("FRIENDSHIP-REQUEST-SEND",
-                                                                            {'sender_id': user_id,
-                                                                             'receiver_id': friend_id,
-                                                                             'sender_nick': sender_nick})
+                                                                       {'sender_id': user_id,
+                                                                        'receiver_id': friend_id,
+                                                                        'sender_nick': sender_nick})
             self._server_pointer.clients[friend_id].add_friend(sender_nick,
                                                                user_id,
                                                                '1')
@@ -218,8 +222,8 @@ class SendFriendRequest(ServiceStrategy):
             pass  # TODO: подумать на очередью????
 
         await self._server_pointer.clients[user_id].send_message("FRIENDSHIP-REQUEST-SEND", {'sender_id': user_id,
-                                                                                                  'receiver_id': friend_id,
-                                                                                                  'receiver_nick': receiver_nick})
+                                                                                             'receiver_id': friend_id,
+                                                                                             'receiver_nick': receiver_nick})
 
         self._server_pointer.clients[user_id].add_friend(receiver_nick,
                                                          friend_id,
@@ -247,15 +251,15 @@ class RecallFriendRequest(ServiceStrategy):
             self._api_client.delete_friendship(friendship_id)
         try:
             await self._server_pointer.clients[str(friend_id)].send_message("FRIEND-REQUEST-RECALL",
-                                                                                 {'sender_id': sender_id,
-                                                                                  'friend_id': friend_id})
+                                                                            {'sender_id': sender_id,
+                                                                             'friend_id': friend_id})
             self._server_pointer.clients[str(friend_id)].delete_friend(sender_id)
         except KeyError:
             pass
 
         await self._server_pointer.clients[str(sender_id)].send_message("FRIEND-REQUEST-RECALL",
-                                                                             {'sender_id': sender_id,
-                                                                              'friend_id': friend_id})
+                                                                        {'sender_id': sender_id,
+                                                                         'friend_id': friend_id})
 
         self._server_pointer.clients[str(sender_id)].delete_friend(str(friend_id))
 
@@ -285,11 +289,11 @@ class AcceptFriendRequestStrat(ServiceStrategy):
 
         try:
             await self._server_pointer.clients[friend_id].send_message("ACCEPT-FRIEND",
-                                                                            {'sender_id': sender_id,
-                                                                             'friend_id': friend_id,
-                                                                             'chat_id': friendship['id'],
-                                                                             'friend_nickname': friend['nickname'],
-                                                                             'sender_nickname': sender['nickname']})
+                                                                       {'sender_id': sender_id,
+                                                                        'friend_id': friend_id,
+                                                                        'chat_id': friendship['id'],
+                                                                        'friend_nickname': friend['nickname'],
+                                                                        'sender_nickname': sender['nickname']})
             self._server_pointer.clients[friend_id].friends[sender_id].friendship_status = '2'
             self._server_pointer.clients[friend_id].add_chat(str(friendship['id']), [str(sender_id)])
         except KeyError as e:
@@ -298,13 +302,13 @@ class AcceptFriendRequestStrat(ServiceStrategy):
 
         try:
             await self._server_pointer.clients[sender_id].send_message("ACCEPT-FRIEND", {'sender_id': sender_id,
-                                                                                              'friend_id': friend_id,
-                                                                                              'chat_id': friendship[
-                                                                                                  'id'],
-                                                                                              'friend_nickname': friend[
-                                                                                                  'nickname'],
-                                                                                              'sender_nickname': sender[
-                                                                                                  'nickname']})
+                                                                                         'friend_id': friend_id,
+                                                                                         'chat_id': friendship[
+                                                                                             'id'],
+                                                                                         'friend_nickname': friend[
+                                                                                             'nickname'],
+                                                                                         'sender_nickname': sender[
+                                                                                             'nickname']})
             self._server_pointer.clients[sender_id].friends[friend_id].friendship_status = '2'
             self._server_pointer.clients[sender_id].add_chat(str(friendship['id']), [str(friend_id)])
         except KeyError as e:
@@ -355,20 +359,20 @@ class DeclineFriendRequestStrat(ServiceStrategy):
 
         try:
             await self._server_pointer.clients[friend_id].send_message("DECLINE-FRIEND",
-                                                                            {'sender_id': sender_id,
-                                                                             'friend_id': friend_id,
-                                                                             'friend_nickname': friend['nickname']
-                                                                             })
+                                                                       {'sender_id': sender_id,
+                                                                        'friend_id': friend_id,
+                                                                        'friend_nickname': friend['nickname']
+                                                                        })
             self._server_pointer.clients[friend_id].delete_friend(str(sender_id))
         except KeyError:
             pass
 
         try:
             await self._server_pointer.clients[sender_id].send_message("DECLINE-FRIEND",
-                                                                            {'sender_id': sender_id,
-                                                                             'friend_id': friend_id,
-                                                                             'friend_nickname': friend['nickname']
-                                                                             })
+                                                                       {'sender_id': sender_id,
+                                                                        'friend_id': friend_id,
+                                                                        'friend_nickname': friend['nickname']
+                                                                        })
             self._server_pointer.clients[sender_id].delete_friend(str(friend_id))
         except KeyError:
             pass
@@ -396,19 +400,19 @@ class DeleteFriendRequestStrat(ServiceStrategy):
 
         try:
             await self._server_pointer.clients[friend_id].send_message("DELETE-FRIEND",
-                                                                            {'friend_id': sender_id,
-                                                                             'sender_nickname': msg['sender_nickname'],
-                                                                             'chat_id': chat_id
-                                                                             })
+                                                                       {'friend_id': sender_id,
+                                                                        'sender_nickname': msg['sender_nickname'],
+                                                                        'chat_id': chat_id
+                                                                        })
             self._server_pointer.clients[friend_id].delete_friend(sender_id)
         except KeyError:
             pass
 
         await self._server_pointer.clients[sender_id].send_message("DELETE-FRIEND",
-                                                                        {'friend_id': friend_id,
-                                                                         'friend_nickname': friend['nickname'],
-                                                                         'chat_id': chat_id
-                                                                         })
+                                                                   {'friend_id': friend_id,
+                                                                    'friend_nickname': friend['nickname'],
+                                                                    'chat_id': chat_id
+                                                                    })
 
         await self._sender_to_msg_server_func('DELETE-FRIEND', {'chat_id': chat_id})
 
@@ -467,9 +471,9 @@ class CallNotificationStrat(ServiceStrategy):
             if member.id not in self._server_pointer.clients.keys():
                 continue
             await self._server_pointer.clients[member.id].send_message('__CALL-NOTIFICATION__',
-                                                                            {'user_id': user_id,
-                                                                             'chat_id': chat_id,
-                                                                             'call_flg': call_flag})
+                                                                       {'user_id': user_id,
+                                                                        'chat_id': chat_id,
+                                                                        'call_flg': call_flag})
 
 
 class GroupRequestAcceptStrat(ServiceStrategy):
@@ -496,9 +500,9 @@ class GroupRequestAcceptStrat(ServiceStrategy):
             try:
                 member_client = self._server_pointer.clients[str(members_id)]
                 member_client.send_message('USER-JOINED-GROUP', {'user_id': request_receiver,
-                                                                      'group_id': group_id,
-                                                                      'group_name': group['group']["group_name"],
-                                                                      'members': group['group']['members']})
+                                                                 'group_id': group_id,
+                                                                 'group_name': group['group']["group_name"],
+                                                                 'members': group['group']['members']})
                 chat = member_client.get_chat_by_id(group_id)
                 chat.create_and_add_member(request_receiver)
             except KeyError as e:
@@ -506,13 +510,14 @@ class GroupRequestAcceptStrat(ServiceStrategy):
 
         self._api_client.add_group_member(int(request_receiver), int(group_id))
         self._server_pointer.clients[request_receiver].send_message('USER-JOINED-GROUP',
-                                                                         {'user_id': request_receiver,
-                                                                          'group_id': group_id})
+                                                                    {'user_id': request_receiver,
+                                                                     'group_id': group_id})
         self._api_client.delete_request(request_id)
 
         nickname = self._server_pointer.clients[request_receiver].nick
         await self._sender_to_msg_server_func('CHAT-MESSAGE', {'chat_id': group_id,
-                                                               'user_id': self._server_pointer.clients[request_receiver].id,
+                                                               'user_id': self._server_pointer.clients[
+                                                                   request_receiver].id,
                                                                'type': 'service',
                                                                'service_message': f'Пользователь {nickname} присоединился к группе'})
 
@@ -551,7 +556,7 @@ class UserLeftGroupStrat(ServiceStrategy):
             try:
                 member_client = self._server_pointer.clients[str(members_id)]
                 member_client.send_message('USER-LEFT-GROUP', {'user_id': request_receiver,
-                                                                    'group_id': group_id})
+                                                               'group_id': group_id})
                 chat = member_client.get_chat_by_id(group_id)
                 chat.delete_member_by_id(request_receiver)
             except KeyError as e:
@@ -560,5 +565,55 @@ class UserLeftGroupStrat(ServiceStrategy):
         row_id = self._api_client.search_group_member(int(request_receiver), int(group_id))['id']
         self._api_client.delete_group_member_by_id(row_id)
         self._server_pointer.clients[request_receiver].send_message('USER-LEFT-GROUP',
-                                                                         {'user_id': request_receiver,
-                                                                          'group_id': group_id})
+                                                                    {'user_id': request_receiver,
+                                                                     'group_id': group_id})
+
+        nickname = self._server_pointer.clients[request_receiver].nick
+        await self._sender_to_msg_server_func('CHAT-MESSAGE', {'chat_id': group_id,
+                                                               'user_id': self._server_pointer.clients[
+                                                                   request_receiver].id,
+                                                               'type': 'service',
+                                                               'service_message': f'Пользователь {nickname} покинул группу'})
+
+
+class CreateGroupStrat(ServiceStrategy):
+    command_name = "GROUP-CREATE"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        creator_id = str(msg['user_id'])
+        group_name = msg['group_name']
+        is_private = msg['is_private']
+        is_invite_from_admin = msg['is_invite_from_admin']
+        is_password = msg['is_password']
+        password = msg['password']
+
+        if is_password:
+            password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode('utf-8')
+
+        group = self._api_client.create_group(group_name=group_name,
+                                              is_private=is_private,
+                                              is_invite_from_admin=is_invite_from_admin,
+                                              is_password=is_password,
+                                              password=password,
+                                              admin_id=int(creator_id))
+
+        try:
+            group_id = group['id']
+        except KeyError:
+            self._server_pointer.clients[creator_id].send_message('GROUP-CREATION-ERROR')
+            return
+
+        self._api_client.create_group_chat(group_id)
+
+        member = self._api_client.add_group_admin(int(creator_id), group_id)
+
+        try:
+            member['id']
+            del group['password']
+            await self._server_pointer.clients[creator_id].send_message('GROUP-CREATED-SUCCESS', {'group_json': group})
+        except KeyError:
+            self._server_pointer.clients[creator_id].send_message('GROUP-CREATION-ERROR')
+            return

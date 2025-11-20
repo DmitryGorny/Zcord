@@ -68,7 +68,7 @@ class Client:
     def add_chat(self, chat_id: str, friends_id: list[int]) -> None:
         chat = Chat(chat_id)
         for friend_id in friends_id:
-            if str(friend_id) not in self.__friends.keys(): # TODO: Вот тут приколдес с самодобавлением
+            if str(friend_id) not in self.__friends.keys(): # TODO: Вот тут приколдес с самодобавлением???
                 chat.add_member(GroupMember(str(friend_id)))
                 continue
             chat.add_member(self.__friends[str(friend_id)])

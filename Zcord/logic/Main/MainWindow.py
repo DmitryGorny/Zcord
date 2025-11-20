@@ -1,9 +1,7 @@
 import queue
 import sys
-import threading
 from typing import List
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import Qt
 from logic.Authorization.User.User import User
 from logic.Main.Groups.GroupsListRequest import GroupsListRequestWidget
 from logic.Main.MainWidnowChats.DM_chat.ChatInList import ChatInList
@@ -130,7 +128,6 @@ class MainWindow(FramelessWindow):
         self._friendsChatOptions.append(chat)
         self.ui.stackedWidget_2.addWidget(
             ui)
-        print(f'Родитель: {ui.parent()}')
         return chat
 
     def add_group_to_view(self, group_id: str, group_name: str, ui):
@@ -249,11 +246,10 @@ class MainWindow(FramelessWindow):
 
     def choose_chat(self):
         sender = self.sender()
-        option_object = None
         try:
-            option_object = list(filter(lambda x: x.username == sender.text, self._friendsChatOptions))[0]
+            option_object = list(filter(lambda x: x.id == sender.id, self._friendsChatOptions))[0]
         except IndexError:
-            option_object = list(filter(lambda x: x.username == sender.text, self._groups_options))[0]
+            option_object = list(filter(lambda x: x.id == sender.id, self._groups_options))[0]
 
         self.__user.change_chat(option_object.id)
 
@@ -268,7 +264,7 @@ class MainWindow(FramelessWindow):
 
     def createChatWidget(self, chat_option, layoutFinal):
         """Создает объекь ClikableFrame для дальнейшей вставки в ScrollArea"""
-        self.QFr = ClikableFrame(chat_option.username)
+        self.QFr = ClikableFrame(chat_option.username, chat_option.id)
         self.QFr.clicked.connect(self.choose_chat)
 
         layout = chat_option.ui.Friend
@@ -537,9 +533,10 @@ class MainWindow(FramelessWindow):
 
 
 class ClikableFrame(QtWidgets.QFrame):
-    def __init__(self, text):
+    def __init__(self, text, id):
         super(ClikableFrame, self).__init__()
         self.text = text
+        self.id = id
 
     clicked = QtCore.pyqtSignal()
 

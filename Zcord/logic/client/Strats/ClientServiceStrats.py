@@ -71,7 +71,6 @@ class SendFirstInfo(ClientsStrategies):
             "friends": self.service_connection_pointer.user.getFriends(),
             "status": {'status_name': self.service_connection_pointer.user.status.name,
                        'color': self.service_connection_pointer.user.status.color},
-            "id": self.service_connection_pointer.user.id,
             "last_online": self.service_connection_pointer.user.last_online,
             'chats': self.service_connection_pointer.user.get_chats(True)
         }

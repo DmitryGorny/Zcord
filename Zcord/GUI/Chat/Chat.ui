@@ -210,7 +210,7 @@ border:3px solid white;</string>
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="DeleteButton">
+              <widget class="QPushButton" name="InviteToGroup">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -405,7 +405,7 @@ QPushButton:checked:hover {
                   </property>
                   <property name="icon">
                    <iconset>
-                    <normaloff>../icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg</normaloff>../icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg</iconset>
+                    <normaloff>../../../../../.designer/icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg</normaloff>../../../../../.designer/icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg</iconset>
                   </property>
                   <property name="iconSize">
                    <size>

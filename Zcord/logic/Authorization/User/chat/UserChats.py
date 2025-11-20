@@ -5,7 +5,7 @@ from logic.Main.Chat.View.dm_view.ChatClass.ChatView import ChatView
 
 from logic.Main.Chat.View.group_view.Group.GroupView import GroupView
 from logic.db_client.api_client import APIClient
-from .fabric import CreateChat
+from .fabric import CreateChat, CreateDMChat, CreateGroupChat
 
 
 class UserChats:
@@ -17,7 +17,7 @@ class UserChats:
         self._db = APIClient()
 
     def init_dm_chats(self) -> None:
-        fabric = CreateChat()
+        fabric = CreateDMChat()
 
         chat_db = self._db.get_chats(user_id=self.__user.id, is_group=False)
         for chat_attrs in chat_db:
@@ -33,7 +33,7 @@ class UserChats:
             self._chats_controller.add_view(str(chat_attrs['id']), chat)
 
     def init_groups(self):
-        fabric = CreateChat()
+        fabric = CreateGroupChat()
         groups = self._db.get_chats(user_id=self.__user.id, is_group=True)
         for group in groups:
             group_name = group['group']['group_name']
@@ -51,7 +51,7 @@ class UserChats:
             self._chats_controller.add_view(str(group['id']), group_obj)
 
     def add_dm_chat(self, chat_id: str, friend_id: str):
-        fabric = CreateChat()
+        fabric = CreateDMChat()
 
         chat = fabric.create_chat(is_dm=True,
                                   chat_id=str(chat_id),
@@ -63,7 +63,7 @@ class UserChats:
         return chat
 
     def add_group_chat(self, chat_id: str, group_name: str, members: list, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
-        fabric = CreateChat()
+        fabric = CreateGroupChat()
 
         group = fabric.create_chat(is_dm=False,
                                    group_id=str(chat_id),

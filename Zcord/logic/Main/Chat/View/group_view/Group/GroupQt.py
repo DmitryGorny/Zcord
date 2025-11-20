@@ -103,7 +103,7 @@ class Ui_Group(object):
 "border:3px solid white;")
         self.CallButton.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap(":/icons/icon/call_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon.addPixmap(QtGui.QPixmap("GUI/icon/call_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.CallButton.setIcon(icon)
         self.CallButton.setIconSize(QtCore.QSize(30, 30))
         self.CallButton.setObjectName("CallButton")
@@ -123,7 +123,7 @@ class Ui_Group(object):
 "border:3px solid white;")
         self.InfoButton.setText("")
         icon1 = QtGui.QIcon()
-        icon1.addPixmap(QtGui.QPixmap(":/icons/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon1.addPixmap(QtGui.QPixmap("GUI/icon/info_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.InfoButton.setIcon(icon1)
         self.InfoButton.setIconSize(QtCore.QSize(30, 30))
         self.InfoButton.setObjectName("InfoButton")
@@ -215,7 +215,7 @@ class Ui_Group(object):
 "}")
         self.muteMic.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap(":/icons/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap("GUI/icon/mic_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.muteMic.setIcon(icon2)
         self.muteMic.setIconSize(QtCore.QSize(28, 28))
         self.muteMic.setCheckable(True)
@@ -246,7 +246,7 @@ class Ui_Group(object):
 "}")
         self.muteHeadphones.setText("")
         icon3 = QtGui.QIcon()
-        icon3.addPixmap(QtGui.QPixmap(":/icons/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon3.addPixmap(QtGui.QPixmap("GUI/icon/headset_off_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.muteHeadphones.setIcon(icon3)
         self.muteHeadphones.setIconSize(QtCore.QSize(28, 28))
         self.muteHeadphones.setCheckable(True)
@@ -266,7 +266,7 @@ class Ui_Group(object):
 "background-color:#BB271A;")
         self.leaveCall.setText("")
         icon4 = QtGui.QIcon()
-        icon4.addPixmap(QtGui.QPixmap(":/icons/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon4.addPixmap(QtGui.QPixmap("GUI/icon/call_end_28dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.leaveCall.setIcon(icon4)
         self.leaveCall.setIconSize(QtCore.QSize(28, 28))
         self.leaveCall.setObjectName("leaveCall")
@@ -357,7 +357,7 @@ class Ui_Group(object):
 "QPushButton:hover {\n"
 "background-color:#656c76;\n"
 "color:black;\n"
-"background-image: url(:/icons/icon/search_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg); \n"
+"background-image: url(GUI/icon/search_24dp_000000_FILL0_wght400_GRAD0_opsz24.svg); \n"
 "background-repeat: no-repeat;\n"
 "background-position: left;\n"
 "}")
@@ -378,7 +378,7 @@ class Ui_Group(object):
 "border:3px solid white;")
         self.Attcahment_button.setText("")
         icon5 = QtGui.QIcon()
-        icon5.addPixmap(QtGui.QPixmap(":/icons/icon/attach_file_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon5.addPixmap(QtGui.QPixmap("GUI/icon/attach_file_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Attcahment_button.setIcon(icon5)
         self.Attcahment_button.setIconSize(QtCore.QSize(30, 30))
         self.Attcahment_button.setObjectName("Attcahment_button")
@@ -397,7 +397,7 @@ class Ui_Group(object):
 "border:3px solid white;")
         self.Send_button.setText("")
         icon6 = QtGui.QIcon()
-        icon6.addPixmap(QtGui.QPixmap(":/icons/icon/send_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon6.addPixmap(QtGui.QPixmap("GUI/icon/send_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.Send_button.setIcon(icon6)
         self.Send_button.setIconSize(QtCore.QSize(30, 30))
         self.Send_button.setObjectName("Send_button")

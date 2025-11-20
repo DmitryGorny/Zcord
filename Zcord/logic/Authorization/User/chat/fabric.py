@@ -8,21 +8,23 @@ from logic.Main.Chat.View.group_view.Group.GroupView import GroupView
 
 class ChatFabric(ABC):
     @abstractmethod
-    def create_chat(self, is_dm: bool, **kwargs) -> BaseChatView:
+    def create_chat(self, **kwargs) -> BaseChatView:
         pass
 
 
-class CreateChat(ChatFabric):
-    def create_chat(self, is_dm: bool, **kwargs) -> BaseChatView:
-        if is_dm:
-            return ChatView(kwargs["chat_id"], kwargs["friend_id"], kwargs["user_obj"], kwargs['controller'])
-        else:
-            return GroupView(kwargs["group_id"],
-                             kwargs["group_name"],
-                             kwargs["user_obj"],
-                             kwargs['controller'],
-                             kwargs['members'],
-                             kwargs['is_private'],
-                             kwargs['is_password'],
-                             kwargs['is_admin_invite'],
-                             kwargs['admin_id'])
+class CreateDMChat(ChatFabric):
+    def create_chat(self, **kwargs) -> ChatView:
+        return ChatView(kwargs["chat_id"], kwargs["friend_id"], kwargs["user_obj"], kwargs['controller'])
+
+
+class CreateGroupChat(ChatFabric):
+    def create_chat(self, **kwargs) -> GroupView:
+        return GroupView(kwargs["group_id"],
+                         kwargs["group_name"],
+                         kwargs["user_obj"],
+                         kwargs['controller'],
+                         kwargs['members'],
+                         kwargs['is_private'],
+                         kwargs['is_password'],
+                         kwargs['is_admin_invite'],
+                         kwargs['admin_id'])

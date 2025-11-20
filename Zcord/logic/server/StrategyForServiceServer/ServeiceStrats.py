@@ -4,9 +4,9 @@ import json
 import bcrypt
 
 from logic.db_client.api_client import APIClient
-from logic.server.Client.Client import Client
+from logic.server.Service.infrastructure.Client.Client import Client
 from logic.server.Strategy import Strategy
-from abc import abstractmethod
+from abc import abstractmethod, ABC
 from typing import Callable
 
 
@@ -49,6 +49,27 @@ class ServiceStrategy(Strategy):
 
     @abstractmethod
     async def execute(self, msg: dict) -> None:
+        pass
+
+
+class ILayer(ABC):
+    """Реализация общего для нескольких стратегий функционала"""
+
+    @abstractmethod
+    def execute_layer(self, msg: dict) -> None:
+        pass
+
+
+class BaseLayer(ILayer):
+    def __init__(self):
+        self._api_client = APIClient()
+        self._server_pointer = None
+
+    def set_data(self, server_pointer):
+        self._server_pointer = server_pointer
+
+    @abstractmethod
+    def execute_layer(self, msg: dict) -> None:
         pass
 
 
@@ -476,16 +497,13 @@ class CallNotificationStrat(ServiceStrategy):
                                                                         'call_flg': call_flag})
 
 
-class GroupRequestAcceptStrat(ServiceStrategy):
-    command_name = "GROUP-REQUEST-ACCEPTED"
-
+class AddUserToGroupLayer(BaseLayer):
     def __init__(self):
-        super().__init__()
+        super(AddUserToGroupLayer, self).__init__()
 
-    async def execute(self, msg: dict) -> None:
+    def execute_layer(self, msg: dict) -> None:
         request_receiver = str(msg['user_id'])
         group_id = str(msg['group_id'])
-        request_id = str(msg['request_id'])
 
         try:
             group = self._api_client.search_chat_by_id(int(group_id), True)[0]
@@ -493,7 +511,7 @@ class GroupRequestAcceptStrat(ServiceStrategy):
             print(e)
             return
 
-        # TODO: Везде ли чаты создаются по id из chats?
+        # TODO: Везде ли чаты создаются по id из chats db?
         self._server_pointer.clients[request_receiver].add_chat(group['id'], group['group']['members'])
 
         for members_id in group['group']['members']:
@@ -512,6 +530,23 @@ class GroupRequestAcceptStrat(ServiceStrategy):
         self._server_pointer.clients[request_receiver].send_message('USER-JOINED-GROUP',
                                                                     {'user_id': request_receiver,
                                                                      'group_id': group_id})
+
+
+class GroupRequestAcceptStrat(ServiceStrategy):
+    command_name = "GROUP-REQUEST-ACCEPTED"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        request_receiver = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+        request_id = str(msg['request_id'])
+
+        add_user_layer = AddUserToGroupLayer()
+        add_user_layer.set_data(self._server_pointer)
+        add_user_layer.execute_layer(msg)
+
         self._api_client.delete_request(request_id)
 
         nickname = self._server_pointer.clients[request_receiver].nick
@@ -576,7 +611,7 @@ class UserLeftGroupStrat(ServiceStrategy):
                                                                'service_message': f'Пользователь {nickname} покинул группу'})
 
 
-class CreateGroupStrat(ServiceStrategy):
+class CreateGroupStrat(ServiceStrategy):  # TODO: Добавить создание чата в классе Client
     command_name = "GROUP-CREATE"
 
     def __init__(self):
@@ -617,3 +652,6 @@ class CreateGroupStrat(ServiceStrategy):
         except KeyError:
             self._server_pointer.clients[creator_id].send_message('GROUP-CREATION-ERROR')
             return
+
+        await self._sender_to_msg_server_func('CREATE-GROUP', {'chat_id': group_id,
+                                                               'creator_id': creator_id})

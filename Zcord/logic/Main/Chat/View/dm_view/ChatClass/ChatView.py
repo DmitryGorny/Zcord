@@ -1,7 +1,4 @@
-from typing import List
-
 from PyQt6 import QtCore, QtWidgets
-
 from logic.Main.Chat.View.CallDialog.CallView import Call
 from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
@@ -77,4 +74,6 @@ class ChatView(BaseChatView):
     @property
     def friend_id(self):
         return self._friend_id
+
+
 

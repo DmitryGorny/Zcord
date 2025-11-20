@@ -333,3 +333,17 @@ class DeleteFriendStrat(MessageStrategy):
         self._messageRoom_pointer.cache_chat.clear_cache(chat_id)
         self._messageRoom_pointer.unseen_messages.delete_user(chat_id)
 
+
+class CreateGroupStrat(MessageStrategy):
+    command_name = "CREATE-GROUP"
+
+    def __init__(self):
+        super(CreateGroupStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        creator_id = str(msg["creator_id"])
+        chat_id = str(msg["chat_id"])
+
+        self._messageRoom_pointer.ids_in_chats[chat_id] = []
+        self._messageRoom_pointer.cache_chat.init_cache(chat_id)
+        self._messageRoom_pointer.unseen_messages.add_user(chat_id, creator_id)

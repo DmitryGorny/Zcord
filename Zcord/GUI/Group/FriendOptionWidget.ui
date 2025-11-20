@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>FriendOption</class>
+ <widget class="QWidget" name="FriendOption">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>550</width>
+    <height>300</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="Friend_wrapper">
+   <property name="geometry">
+    <rect>
+     <x>30</x>
+     <y>60</y>
+     <width>501</width>
+     <height>80</height>
+    </rect>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>0</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="maximumSize">
+    <size>
+     <width>1000</width>
+     <height>80</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">QFrame, QPushButton {
+background-color:#323338;
+border-radius:15%;
+}
+
+QLabel {
+	font-size:20px;
+	color:white;
+}</string>
+   </property>
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,0">
+    <property name="rightMargin">
+     <number>40</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="FriendNickWrapp">
+      <layout class="QHBoxLayout" name="horizontalLayout_2">
+       <property name="spacing">
+        <number>15</number>
+       </property>
+       <property name="leftMargin">
+        <number>10</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QPushButton" name="FriendIcon">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">background-color:purple;
+width:50px;
+height:50px;
+border-radius:25px;
+color:White;
+font-size:25px;
+text-align:center;
+</string>
+         </property>
+         <property name="text">
+          <string>G</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="FriendName">
+         <property name="styleSheet">
+          <string notr="true">font-size:20px;
+color:white;</string>
+         </property>
+         <property name="text">
+          <string>Имя пользователя</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QCheckBox" name="add_to_group_box">
+      <property name="styleSheet">
+       <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 23px;
+    height: 23px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+	background-image: url(:/icons/icon/check_30dp_FFFFFF_FILL0_wght400_GRAD0_opsz24.svg);
+	background-position:center;
+}</string>
+      </property>
+      <property name="text">
+       <string/>
+      </property>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../res-rec.qrc"/>
+ </resources>
+ <connections/>
+</ui>

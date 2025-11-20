@@ -128,12 +128,6 @@ class ClientConnections:
         ClientConnections._message_connection.send_message(current_chat, message=message)
 
     @staticmethod
-    def send_chat_service_message(service_message: str):
-        """Для сообщений сервисной работы на MessageServer"""
-        current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._message_connection.send_service_message(current_chat, service_message)
-
-    @staticmethod
     def ask_for_scroll_cache(msg_type: str):
         current_chat = ClientConnections._chat_interface.current_chat_id
         index = ClientConnections._chat_interface.chat.scroll_index

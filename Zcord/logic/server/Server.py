@@ -3,8 +3,7 @@ import json
 from typing import Dict
 
 import msgspec
-import re
-from logic.server.Client.Client import Client
+from logic.server.Service.infrastructure.Client.Client import Client
 from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy, UserInfoStrat
 from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseServerStrategy
 

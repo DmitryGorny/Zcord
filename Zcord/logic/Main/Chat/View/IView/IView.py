@@ -89,7 +89,6 @@ class BaseChatView(IView):
 
         self._chat_id = chatId
         self._user = user
-
         self._old_max_scroll = None
         self._old_value_scroll = None
 

@@ -26,9 +26,6 @@ class ChatModel:
     def send_text_message(self, text: str):
         ClientConnections.send_chat_message(text)
 
-    def send_service_message(self, service_message: str): # TODO: Надо?
-        ClientConnections.send_chat_service_message(service_message=service_message)
-
     def block_user(self, user, friend_nick):
         pass
 

@@ -33,6 +33,7 @@ class VoiceSettingsController(QObject):
                 self.head_index = self.loaded_data["headphones_index"]
                 self.volume_mic_settings = self.loaded_data["volume_mic"]
                 self.volume_head_settings = self.loaded_data["volume_head"]
+                self.ags = self.loaded_data["ags"]
             with open('Resources/settings/Voice/friend_voice.json', 'r', encoding='utf-8') as file:
                 self.loaded_data_2 = json.load(file)
                 self.volume_friend = self.loaded_data_2["volume_friend"]
@@ -66,6 +67,9 @@ class VoiceSettingsController(QObject):
 
     def current_output_device(self) -> int:
         return self.head_index
+
+    def is_state_ags(self) -> bool:
+        return self.ags
 
 
 class ChatSettingController:

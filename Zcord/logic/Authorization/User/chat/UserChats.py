@@ -5,7 +5,7 @@ from logic.Main.Chat.View.dm_view.ChatClass.ChatView import ChatView
 
 from logic.Main.Chat.View.group_view.Group.GroupView import GroupView
 from logic.db_client.api_client import APIClient
-from .fabric import CreateChat, CreateDMChat, CreateGroupChat
+from .fabric import CreateDMChat, CreateGroupChat
 
 
 class UserChats:

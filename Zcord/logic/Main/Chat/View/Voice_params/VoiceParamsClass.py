@@ -14,6 +14,8 @@ class VoiceParamsClass(QtWidgets.QWidget):
         self.ui_voice_pr = Ui_VoiceParams()
         self.ui_voice_pr.setupUi(self)
 
+        self.ui_voice_pr.AutoGainControl.toggled.connect(self.enable_ags)
+
         #self.ui_voice_pr.pushButton.clicked.connect(self.call_noise_profile)
         self.ui_voice_pr.pushButton_2.clicked.connect(self.check_mic_volume)
 
@@ -35,6 +37,9 @@ class VoiceParamsClass(QtWidgets.QWidget):
             self.ui_voice_pr.VolumeOHeadphonesSlider.setValue(int(VoiceSettingsController().output_volume() * 10))
         except Exception as e:
             print(e)
+
+        if VoiceSettingsController().is_state_ags():
+            self.ui_voice_pr.AutoGainControl.toggle()
 
         self.default_mic = self.p.get_default_input_device_info()['index']
         self.default_head = self.p.get_default_output_device_info()['index']
@@ -75,6 +80,12 @@ class VoiceParamsClass(QtWidgets.QWidget):
             audio_send.VoiceConnection.noise_profile = None
             self.is_noise_down = False"""
 
+    def enable_ags(self, checked: bool):
+        if checked:
+            self.save_settings()
+        else:
+            self.save_settings()
+
     def change_voice_volume(self):
         current_volume = self.ui_voice_pr.VolumeOfMicSlider.value() / 10.0
         self.ui_voice_pr.label_6.setText(f"{current_volume}")
@@ -96,7 +107,8 @@ class VoiceParamsClass(QtWidgets.QWidget):
             "headphones_index": self.ui_voice_pr.ChooseHeadPhonesBox.currentData(),
             "microphone_index": self.ui_voice_pr.ChooseMicroBox.currentData(),
             "volume_mic": self.ui_voice_pr.VolumeOfMicSlider.value(),
-            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value()
+            "volume_head": self.ui_voice_pr.VolumeOHeadphonesSlider.value(),
+            "ags": self.ui_voice_pr.AutoGainControl.isChecked()
         }
         with open('Resources/settings/Voice/settings_voice.json', 'w', encoding='utf-8') as file:
             json.dump(data, file, ensure_ascii=False, indent=4)

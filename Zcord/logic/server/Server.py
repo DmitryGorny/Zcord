@@ -3,7 +3,7 @@ import json
 from typing import Dict
 
 import msgspec
-from logic.server.Service.infrastructure.Client.Client import Client
+from logic.server.Service.core.Client.Client import Client
 from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy, UserInfoStrat
 from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseServerStrategy
 
@@ -115,7 +115,7 @@ class Server:
 
 
 async def main():
-    IP = "26.181.96.20"
+    IP = "26.36.124.241"
     PORT_FO_USERS = 55558
 
     server_user = await asyncio.start_server(

@@ -14,7 +14,6 @@ from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseSer
 
 
 class Server:
-    clients: Dict[str, Client] = {}
     servers: Dict[str, asyncio.StreamWriter] = {
         "message-server": None,
         "voice-server": None
@@ -96,10 +95,9 @@ class Server:
                     continue
 
                 for msg in arr:
-                    type = msg["msg_type"]
+                    msg_type = msg["msg_type"]
                     group_name = msg['group']
-
-                    strategy = self._choose_strategy.get_strategy(group_name=group_name, command=type)
+                    strategy = self._choose_strategy.get_strategy(group_name=group_name, command=msg_type)
                     try:
                         await strategy.execute(msg)
                     except AttributeError as e:

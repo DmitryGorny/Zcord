@@ -17,7 +17,7 @@ class IClient(Protocol):
         raise NotImplementedError
 
     @property
-    def last_online(self) -> datetime.datetime:
+    def last_online(self) -> datetime:
         raise NotImplementedError
 
     @message_chat_id.setter

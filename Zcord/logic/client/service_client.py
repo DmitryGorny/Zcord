@@ -45,8 +45,9 @@ class ServiceConnection(IConnection, BaseConnection):
         except Exception as e:
             print(e)
 
-    def send_message(self, msg_type: str, message=None, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
+    def send_message(self, group: str, msg_type: str, message=None, current_chat_id: int = 0, extra_data: Dict[str, str] = None): # = 0 в случае, когда chat_id не играет роли
         msg = {
+            'group': group,
             'msg_type': msg_type,
             "chat_id": current_chat_id,
             "user_id": self._user.id,

@@ -75,7 +75,8 @@ class SendFirstInfo(ClientsStrategies):
             'chats': self.service_connection_pointer.user.get_chats(True)
         }
 
-        self.service_connection_pointer.send_message(msg_type="USER-INFO",
+        self.service_connection_pointer.send_message(group='CLIENT',
+                                                     msg_type="USER-INFO",
                                                      message=self.service_connection_pointer.serialize(
                                                          dictToSend).decode('utf-8'))
 

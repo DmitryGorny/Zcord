@@ -1,7 +1,7 @@
 import asyncio
 from typing import Protocol, Dict
 
-from logic.server.Service.core.MessageServiceCommunictaion.IMessageServiceDispatcher import IMessageServiceDispatcher
+from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
 from logic.server.Service.core.enteties.Enteties import IClient
 
 

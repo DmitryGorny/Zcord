@@ -1,14 +1,13 @@
 import json
 
-from logic.server.Service.core.services.client.IClientService import IClientService
 from logic.server.Service.infrastructure.strats.IStrat import IServiceStrat, ClientStrategyKeeper
 
 
-class UserInfoStrat(IServiceStrat, ClientStrategyKeeper):
+class UserInfoStrat(ClientStrategyKeeper):
     command_name = "USER-INFO"
 
-    def __init__(self, service: IClientService):
-        super(UserInfoStrat, self).__init__(service)
+    def __init__(self):
+        super(UserInfoStrat, self).__init__()
 
     async def execute(self, msg: dict) -> None:
         user_id = str(msg["user_id"])
@@ -30,11 +29,11 @@ class UserInfoStrat(IServiceStrat, ClientStrategyKeeper):
                                         chats=chats)
 
 
-class EndSessionStrategy(IServiceStrat, ClientStrategyKeeper):
+class EndSessionStrategy(ClientStrategyKeeper):
     command_name = "END-SESSION"
 
-    def __init__(self, service: IClientService):
-        super().__init__(service)
+    def __init__(self):
+        super().__init__()
 
     async def execute(self, msg: dict) -> None:
         user_id = str(msg["user_id"])

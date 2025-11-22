@@ -13,13 +13,7 @@ class IServiceStrat(ABC):
         raise NotImplementedError
 
 
-class IKeeper(Protocol):
-
-    def __init_subclass__(cls, **kwargs):
-        raise NotImplementedError
-
-
-class StratsGroupKeeper(IKeeper):
+class StratsGroupKeeper:
     groups = {}
 
     def __init_subclass__(cls, **kwargs):  # Приколдес

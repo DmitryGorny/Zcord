@@ -116,10 +116,10 @@ class ClientConnections:
         ClientConnections._service_connection.chat = chat
 
     @staticmethod
-    def send_service_message(msg_type: str, message: str = None, extra_data: Dict[str, str] = None) -> None:
+    def send_service_message(group: str, msg_type: str, message: str = None, extra_data: Dict[str, str] = None) -> None:
         """Для сервисных сообщений на Server"""
         current_chat = ClientConnections._chat_interface.current_chat_id
-        ClientConnections._service_connection.send_message(msg_type, message, current_chat, extra_data)
+        ClientConnections._service_connection.send_message(group, msg_type, message, current_chat, extra_data)
 
     @staticmethod
     def send_chat_message(message: str = None) -> None:
@@ -142,7 +142,7 @@ class ClientConnections:
 
     @staticmethod
     def close() -> None:
-        ClientConnections.send_service_message(msg_type="END-SESSION")
+        ClientConnections.send_service_message(group='CLIENT', msg_type="END-SESSION")
         ClientConnections._service_connection.close()
         ClientConnections._message_connection.close()
         # ClientConnections._voice_connection.close()

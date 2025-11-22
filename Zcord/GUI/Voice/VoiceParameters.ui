@@ -708,7 +708,7 @@ background-color:white;
 </string>
                  </property>
                  <property name="icon">
-                  <iconset resource="res-rec.qrc">
+                  <iconset>
                    <normaloff>:/icons/icon/close_24dp_999999_FILL0_wght400_GRAD0_opsz24.svg</normaloff>:/icons/icon/close_24dp_999999_FILL0_wght400_GRAD0_opsz24.svg</iconset>
                  </property>
                  <property name="iconSize">
@@ -850,7 +850,7 @@ border:2px solid white;</string>
           <verstretch>0</verstretch>
          </sizepolicy>
         </property>
-        <layout class="QVBoxLayout" name="InputModedad">
+        <layout class="QHBoxLayout" name="horizontalLayout_7">
          <property name="spacing">
           <number>15</number>
          </property>
@@ -866,25 +866,6 @@ border:2px solid white;</string>
          <property name="bottomMargin">
           <number>0</number>
          </property>
-         <item>
-          <widget class="QLabel" name="label_9">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="styleSheet">
-            <string notr="true">QLabel {
-	color:white;
-	font-size:18px;
-}</string>
-           </property>
-           <property name="text">
-            <string>Режим ввода</string>
-           </property>
-          </widget>
-         </item>
          <item>
           <widget class="QFrame" name="Choose">
            <property name="sizePolicy">
@@ -903,6 +884,25 @@ border:2px solid white;</string>
             <property name="rightMargin">
              <number>0</number>
             </property>
+            <item>
+             <widget class="QLabel" name="label_9">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+	color:white;
+	font-size:18px;
+}</string>
+              </property>
+              <property name="text">
+               <string>Режим ввода</string>
+              </property>
+             </widget>
+            </item>
             <item>
              <widget class="QRadioButton" name="radioButton">
               <property name="sizePolicy">
@@ -973,6 +973,78 @@ QRadioButton::indicator:checked {
               </property>
               <property name="text">
                <string>По нажатию</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QFrame" name="AGS">
+           <property name="frameShape">
+            <enum>QFrame::StyledPanel</enum>
+           </property>
+           <property name="frameShadow">
+            <enum>QFrame::Raised</enum>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_4">
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>350</width>
+                <height>25</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+	color:white;
+	font-size:18px;
+}</string>
+              </property>
+              <property name="text">
+               <string>Автоматическая регулировка усиления</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QRadioButton" name="AutoGainControl">
+              <property name="maximumSize">
+               <size>
+                <width>100</width>
+                <height>16777215</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QRadioButton {
+color:white;
+font-size:20px;
+}
+
+/* внешний кружок */
+QRadioButton::indicator {
+    width: 16px;
+    height: 16px;
+    border-radius: 8px;
+    border: 1.4px solid white;
+    background: transparent;
+    margin-right: 6px;
+}
+
+/* точка при checked */
+QRadioButton::indicator:checked {
+    background: grey;
+}
+</string>
+              </property>
+              <property name="text">
+               <string>AGS</string>
               </property>
              </widget>
             </item>

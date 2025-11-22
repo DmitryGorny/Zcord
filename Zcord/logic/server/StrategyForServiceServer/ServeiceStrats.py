@@ -4,7 +4,7 @@ import json
 import bcrypt
 
 from logic.db_client.api_client import APIClient
-from logic.server.Service.infrastructure.Client.Client import Client
+from logic.server.Service.core.Client.Client import Client
 from logic.server.Strategy import Strategy
 from abc import abstractmethod, ABC
 from typing import Callable

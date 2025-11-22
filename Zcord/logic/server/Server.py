@@ -14,6 +14,7 @@ from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseSer
 
 
 class Server:
+    clients: Dict[str, Client] = {}
     servers: Dict[str, asyncio.StreamWriter] = {
         "message-server": None,
         "voice-server": None

@@ -65,6 +65,8 @@ class VoiceHandler:
 
         if not self.is_mic_mute:
             data = self.adjust_volume(data, VoiceSettingsController().input_volume())
+            if VoiceSettingsController().is_state_ags():
+                data = self.agc_process(data)
             if seq % 5 == 0:
                 self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
@@ -155,6 +157,28 @@ class VoiceHandler:
             return payload
         payload = audioop.mul(payload, 2, volume)  # Здесь 2 потому что paInt16
         return payload
+
+    def agc_process(self, data, target_rms=3000, max_gain=10.0):
+        """Функция для автоматического регулирования усиления"""
+        # Текущий RMS (для 16-бит)
+        rms = audioop.rms(data, 2)
+
+        if rms <= 0:
+            return data
+
+        # Желаемое усиление
+        desired_gain = target_rms / rms
+
+        # Ограничиваем
+        desired_gain = min(desired_gain, max_gain)
+
+        # Применяем усиление через audioop
+        amplified = audioop.mul(data, 2, desired_gain)
+
+        # Ограничиваем, чтобы не было клиппинга
+        amplified = audioop.maxpp(amplified, 2)
+
+        return amplified
 
     # селф мьюты
     def mute_mic_self(self, flg):

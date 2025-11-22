@@ -1,23 +1,50 @@
 import asyncio
 import json
-from typing import Dict
-
+from typing import Dict, Callable
 import msgspec
-from logic.server.Service.infrastructure.Client.Client import Client
-from logic.server.StrategyForServiceServer.ServeiceStrats import ChooseStrategy, UserInfoStrat
+from logic.server.Service.application.client.ClientService import ClientService
+from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
+from logic.server.Service.infrastructure.MessageServiceCommunication.MessageServiceDispatcher import \
+    MessageServiceDispatcher
+from logic.server.Service.infrastructure.repositories.chat.ChatRepo import ChatRepo
+from logic.server.Service.infrastructure.repositories.client.ClientRepo import ClientRepo
+from logic.server.Service.infrastructure.repositories.friend.FriendRepo import FriendRepo
+from logic.server.Service.infrastructure.strats.strats_choose.ChooseStrategy import ChooseStrategy
 from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseServerStrategy
 
 
 class Server:
-    clients: Dict[str, Client] = {}
     servers: Dict[str, asyncio.StreamWriter] = {
         "message-server": None,
         "voice-server": None
     }
 
-    def deserialize(self, msg):
-        cache = msgspec.json.decode(msg)
-        return cache
+    def __init__(self):
+        self._message_service_dispatcher: IMessageServiceDispatcher = MessageServiceDispatcher()
+        # Все репозитории
+        self._repositories = {'client_repo': ClientRepo(self._message_service_dispatcher),
+                              'chat_repo': ChatRepo(),
+                              'friend_repo': FriendRepo()}
+
+        # Все сервисы
+        self._services = {'client_service': ClientService(client_repo=self._repositories['client_repo'],
+                                                          chat_repo=self._repositories['chat_repo'],
+                                                          friend_repo=self._repositories['friend_repo'])}
+
+        self._choose_strategy = ChooseStrategy(client_service=self._services['client_service'],
+                                               friend_service=None,
+                                               chat_service=None)
+
+    def server_connected(self, server_name: str, writer: asyncio.StreamWriter):
+        # TODO: Переписать с Enum
+        Server.servers[server_name] = writer
+
+        if server_name == 'message-server':
+            self._message_service_dispatcher.define_sender_func(self.send_decorator(Server.servers["message-server"]))
+
+    async def create_task(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        await self.handle(reader, writer)
+
     @staticmethod
     def serialize(data):
         ser = msgspec.json.encode(data)
@@ -53,7 +80,6 @@ class Server:
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         # Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
-        send_to_message_server = self.send_decorator(Server.servers["message-server"])
         writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
         await writer.drain()
         while True:
@@ -69,19 +95,29 @@ class Server:
                     continue
 
                 for msg in arr:
-                    message = msg["msg_type"]
-                    strategy = ChooseStrategy().get_strategy(message, send_to_message_server, Server)
-                    if isinstance(strategy, UserInfoStrat):
-                        msg['writer'] = writer
+                    type = msg["msg_type"]
+                    group_name = msg['group']
+
+                    strategy = self._choose_strategy.get_strategy(group_name=group_name, command=type)
                     try:
-                        print(msg)
                         await strategy.execute(msg)
-                    except AttributeError as e:  # Пока чисто для отладки, т.к. незнакомых команд быть не может????
+                    except AttributeError as e:
                         print(e)
                     continue
 
             except ConnectionResetError:
                 break
+
+
+class ServersHandler:
+    def __init__(self, server_connected_signal: Callable):
+        self._servers: Dict[str, asyncio.StreamWriter | None] = {'message-server': None,
+                                                                 'voice-server': None}
+
+        self._server_connected = server_connected_signal
+
+    async def task_creator(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
+        await self.handle_server(reader, writer)
 
     async def handle_server(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         writer.write(b'DISCOVER')  # Запрос на информацию о сервере
@@ -94,12 +130,14 @@ class Server:
                 typ = msg.get("t")
 
                 if typ == 'MESSAGE-SERVER':
-                    Server.servers["message-server"] = writer
+                    self._servers["message-server"] = writer
+                    self._server_connected('message-server', writer)
                     print("Подключен message")
                     continue
                 elif typ == 'VOICE-SERVER':
-                    Server.servers["voice-server"] = writer
+                    self._servers["voice-server"] = writer
                     print("Подключен voice")
+                    self._server_connected("voice-server", writer)
                     continue
 
                 try:
@@ -114,38 +152,46 @@ class Server:
                 break
 
 
-async def main():
-    IP = "26.181.96.20"
-    PORT_FO_USERS = 55558
+class Runner:
+    def __init__(self):
+        self._servers_handler = ServersHandler(server_connected_signal=self.server_connected)
+        self._service_server = Server()
 
-    server_user = await asyncio.start_server(
-        lambda r, w: Server().handle(r, w),
-        IP,
-        PORT_FO_USERS,
-        reuse_address=True,
-    )
+    def server_connected(self, server_name: str, writer: asyncio.StreamWriter):
+        self._service_server.server_connected(server_name, writer)
 
-    PORT_FOR_MESSAGE = 55569
-    PORT_FOR_VOICE = 55571
+    async def main(self):
+        IP = "26.181.96.20"
+        PORT_FO_USERS = 55558
 
-    server_message_service = await asyncio.start_server(
-        lambda r, w: Server().handle_server(r, w),
-        IP,
-        PORT_FOR_MESSAGE
-    )
-
-    server_voice_service = await asyncio.start_server(
-        lambda r, w: Server().handle_server(r, w),
-        IP,
-        PORT_FOR_VOICE
-    )
-
-    async with server_message_service, server_voice_service, server_user:
-        await asyncio.gather(
-            server_message_service.serve_forever(),
-            server_voice_service.serve_forever(),
-            server_user.serve_forever()
+        server_user = await asyncio.start_server(
+            lambda r, w: self._service_server.handle(r, w),
+            IP,
+            PORT_FO_USERS,
+            reuse_address=True,
         )
 
+        PORT_FOR_MESSAGE = 55569
+        PORT_FOR_VOICE = 55571
 
-asyncio.run(main())
+        server_message_service = await asyncio.start_server(
+            lambda r, w: self._servers_handler.handle_server(r, w),
+            IP,
+            PORT_FOR_MESSAGE
+        )
+
+        server_voice_service = await asyncio.start_server(
+            lambda r, w: self._servers_handler.handle_server(r, w),
+            IP,
+            PORT_FOR_VOICE
+        )
+
+        async with server_message_service, server_voice_service, server_user:
+            await asyncio.gather(
+                server_message_service.serve_forever(),
+                server_voice_service.serve_forever(),
+                server_user.serve_forever()
+            )
+
+
+asyncio.run(Runner().main())

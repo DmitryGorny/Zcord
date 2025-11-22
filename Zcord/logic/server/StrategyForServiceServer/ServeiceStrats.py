@@ -99,37 +99,6 @@ class ChangeChatStrategy(ServiceStrategy):
         return
 
 
-class EndSessionStrategy(ServiceStrategy):
-    command_name = "END-SESSION"
-
-    def __init__(self):
-        super().__init__()
-
-    async def execute(self, msg: dict) -> None:
-        user_id = str(msg["user_id"])
-        for friend_id in self._server_pointer.clients[user_id].friends.keys():
-            friend = self._server_pointer.clients[user_id].friends[friend_id]
-            if friend.id not in self._server_pointer.clients:
-                continue
-
-            if friend.friendship_status == '1':
-                continue
-
-            friend_obj = self._server_pointer.clients[friend.id]
-
-            await friend_obj.send_message('USER-STATUS', {
-                "user-status": {'color': 'grey', 'user-status': 'Невидимка'},
-                "nickname": self._server_pointer.clients[user_id].nick,
-            })
-
-        if not self._server_pointer.clients[user_id].writer.is_closing():
-            self._server_pointer.clients[user_id].writer.close()
-            await self._server_pointer.clients[user_id].writer.wait_closed()
-        del self._server_pointer.clients[user_id]
-        await self._sender_to_msg_server_func("END-SESSION", {"user_id": user_id})
-        raise ConnectionResetError  # Чтобы задача стопалась
-
-
 class RequestCacheStrategy(ServiceStrategy):
     command_name = "CACHE-REQUEST"
 
@@ -144,70 +113,6 @@ class RequestCacheStrategy(ServiceStrategy):
         for chat in client.chats:
             chats_ids.append(chat)
         await self._sender_to_msg_server_func("CACHE-REQUEST", {"chats_ids": ",".join(chats_ids), 'user_id': user_id})
-
-
-class UserInfoStrat(ServiceStrategy):
-    command_name = "USER-INFO"
-
-    def __init__(self):
-        super().__init__()
-
-    async def execute(self, msg: dict) -> None:
-        user_id = msg["user_id"]
-        nickname = msg["nickname"]
-        writer = msg['writer']
-        data = json.loads(msg["message"])
-        id = str(data["id"])
-        last_online = data["last_online"]
-        friends = data["friends"]
-
-        status = data['status']
-        chats = data['chats']
-        client_obj = Client(id, nickname, last_online, writer)
-        client_obj.friends = friends
-        client_obj.status = status
-        for chat in chats:
-            client_obj.add_chat(chat['chat_id'], chat['friends_id'])
-
-        chats = {f'{chat["chat_id"]}': [] for chat in chats}
-
-        self._server_pointer.clients[id] = client_obj
-        client_ip = writer.transport.get_extra_info('socket').getpeername()
-
-        await client_obj.send_message("__CONNECT__", {
-            "connect": 1
-        })
-
-        await self._sender_to_msg_server_func("USER-INFO",
-                                              {"serialize_1": self._server_pointer.serialize(chats).decode('utf-8'),
-                                               "serialize_2": self._server_pointer.serialize({'user_id': str(user_id),
-                                                                                              "IP": client_ip[
-                                                                                                  0]}).decode('utf-8')})
-
-        user_status = {'color': status['color'], 'user-status': status['status_name']}
-        for chat_id in self._server_pointer.clients[id].friends.keys():
-            friend = self._server_pointer.clients[id].friends[chat_id]
-            if friend.id not in self._server_pointer.clients:
-                continue
-
-            if friend.friendship_status == '1':
-                continue
-
-            friend_obj = self._server_pointer.clients[friend.id]
-
-            await friend_obj.send_message('USER-STATUS', {
-                "user-status": user_status,
-                "nickname": nickname,
-            })
-            try:
-                friend_status = self._server_pointer.clients[friend.id].status
-            except KeyError:
-                continue
-
-            await self._server_pointer.clients[id].send_message('USER-STATUS', {
-                "user-status": friend_status,
-                "nickname": friend_obj.nick,
-            })
 
 
 class SendFriendRequest(ServiceStrategy):

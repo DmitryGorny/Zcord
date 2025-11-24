@@ -16,7 +16,7 @@ class IServiceStrat(ABC):
 class StratsGroupKeeper:
     groups = {}
 
-    def __init_subclass__(cls, **kwargs):  # Приколдес
+    def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if hasattr(cls, "group_name"):
             cls.groups[cls.group_name] = cls
@@ -28,7 +28,7 @@ class ClientStrategyKeeper(StratsGroupKeeper):
     group_name = "CLIENT"
     commands = {}
 
-    def __init_subclass__(cls, **kwargs):  # Приколдес
+    def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if hasattr(cls, "command_name"):
             cls.commands[cls.command_name] = cls

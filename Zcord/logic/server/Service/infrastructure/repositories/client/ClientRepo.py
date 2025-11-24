@@ -23,6 +23,13 @@ class ClientRepo(IClientRepo):
 
         self._clients[client_id] = client
 
+    async def send_message(self, client_id: str, msg_type: str, extra_data: dict) -> None:
+        client = self.get_client(client_id)
+        if client is None:
+            print('Client doesnt exist')
+            return
+        await client.send_message(msg_type, extra_data)
+
     def delete_client(self, client_id: str) -> None:
         if client_id not in self._clients.keys():
             raise ValueError("Такого юзера нет")
@@ -62,6 +69,10 @@ class ClientRepo(IClientRepo):
 
     async def change_client_activity_status(self, client_id: str, status: dict[str, str]) -> None:
         client = self.get_client(client_id)
+        if client is None:
+            print('Client doesnt exist')
+            return
+
         await client.send_message('USER-STATUS', {
             "user-status": status,
             "nickname": client.nick,

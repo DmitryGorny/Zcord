@@ -12,6 +12,9 @@ class IClientRepo(Protocol):
     def get_client(self, client_id: str) -> IClient | None:
         raise NotImplementedError
 
+    async def send_message(self, client_id: str, msg_type: str, extra_data: dict) -> None:
+        pass
+
     def add_client(self, client_id: str, client_name: str, last_online: str, writer: asyncio.StreamWriter) -> None:
         raise NotImplementedError
 

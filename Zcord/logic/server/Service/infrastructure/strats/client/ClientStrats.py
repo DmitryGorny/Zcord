@@ -3,7 +3,7 @@ import json
 from logic.server.Service.infrastructure.strats.IStrat import IServiceStrat, ClientStrategyKeeper
 
 
-class UserInfoStrat(ClientStrategyKeeper):
+class UserInfoStrat(ClientStrategyKeeper, IServiceStrat):
     command_name = "USER-INFO"
 
     def __init__(self):
@@ -29,7 +29,7 @@ class UserInfoStrat(ClientStrategyKeeper):
                                         chats=chats)
 
 
-class EndSessionStrategy(ClientStrategyKeeper):
+class EndSessionStrategy(ClientStrategyKeeper, IServiceStrat):
     command_name = "END-SESSION"
 
     def __init__(self):
@@ -37,5 +37,5 @@ class EndSessionStrategy(ClientStrategyKeeper):
 
     async def execute(self, msg: dict) -> None:
         user_id = str(msg["user_id"])
-        await self._service.user_left(client_id=user_id)
+        await self._service.user_left(client_id=user_id, status={'color': 'grey', 'user-status': 'Невидимка'})
         raise ConnectionResetError  # Чтобы задача стопалась

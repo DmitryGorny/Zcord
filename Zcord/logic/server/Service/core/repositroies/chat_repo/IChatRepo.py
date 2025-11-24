@@ -6,7 +6,7 @@ from logic.client.Chat.ClientChat import IChat
 class IChatRepo:
     _chats: Dict[str, IChat]
 
-    def add_chat(self, chat_id: str, friends_id: list[int]) -> None:
+    def add_chat(self, chat_id: str, friends_id: list[str]) -> None:
         raise NotImplementedError
 
     def add_chats(self, chats: list[dict]):

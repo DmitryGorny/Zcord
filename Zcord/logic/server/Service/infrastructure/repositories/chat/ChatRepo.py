@@ -9,10 +9,13 @@ class ChatRepo(IChatRepo):
     def __init__(self):
         self._chats: Dict[str, IChat] = {}
 
-    def add_chat(self, chat_id: str, friends_id: list[int]) -> None:
+    def add_chat(self, chat_id: str, friends_id: list[str]) -> None:
         chat = Chat(chat_id)
         for friend_id in friends_id:
             chat.add_member(ChatMember(str(friend_id)))
+
+        if chat_id in self._chats.keys():
+            raise ValueError("Такой чат уже есть")
 
         self._chats[chat_id] = chat
 

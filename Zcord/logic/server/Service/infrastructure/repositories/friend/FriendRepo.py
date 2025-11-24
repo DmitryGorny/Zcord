@@ -7,29 +7,43 @@ from logic.server.Service.infrastructure.enteties.Enteties import Friend
 
 class FriendRepo(IFriendRepo):
     def __init__(self):
-        self._friends: Dict[str, IFriend] = {} # client_id: Friend
-
-    @property
-    def friends(self) -> dict:
-        return self._friends
+        self._friends: Dict[str, list[IFriend]] = {}  # client_id: [Friend]
 
     def add_friend(self, client_id: str, friend_name: str, friend_id: str, status: str = '2') -> None:
         from datetime import datetime
         now = datetime.now()
         time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%f")
-        self._friends[client_id] = Friend(user_id=friend_id,
-                                          nick=friend_name,
-                                          friendship_status=status,
-                                          last_online=time_str)
+
+        if client_id not in self._friends:
+            self._friends[client_id] = []
+        self._friends[client_id].append(Friend(user_id=friend_id,
+                                               nick=friend_name,
+                                               friendship_status=status,
+                                               last_online=time_str))
 
     def add_friends(self, client_id: str, friends: list[dict[str, str]]) -> None:
+        if client_id not in self._friends:
+            self._friends[client_id] = []
+
         for friend_attrs in friends:
             fr = Friend(friend_attrs['id'],  # TODO: Подумать над фабрикой
                         friend_attrs['nickname'],
                         str(friend_attrs['status']),
                         friend_attrs["last_online"])
 
-            self._friends[client_id] = fr
+            self._friends[client_id].append(fr)
 
     def delete_friend(self, client_id: str, friend_id: str) -> None:
-        del self._friends[client_id]
+        if client_id in self._friends.keys():
+            del self._friends[client_id]
+
+        if friend_id in self._friends.keys():
+            del self._friends[friend_id]
+
+    def change_friendship_status(self, client_id: str, friend_id: str, status: str) -> None:
+        try:
+            friend = next(filter(lambda x: x.id == str(friend_id), self._friends[client_id]))
+            friend.friendship_status = status
+        except StopIteration as e:
+            print(e)
+            return

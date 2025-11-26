@@ -18,9 +18,15 @@ class StratsFabric:
         if strategy_cls is None:
             return None
 
-        if strats_keeper is ClientStrategyKeeper:
-            return strategy_cls(self._client_service)
-        if strats_keeper is FriendStrategyKeeper:
-            return strategy_cls(self._friend_service)
-        if strats_keeper is ChatStrategyKeeper:
-            return strategy_cls(self._chat_service)
+        if isinstance(strats_keeper, ClientStrategyKeeper):
+            strat = strategy_cls()
+            strat.set_service(self._client_service)
+            return strat
+        if isinstance(strats_keeper, FriendStrategyKeeper):
+            strat = strategy_cls()
+            strat.set_service(self._friend_service)
+            return strat
+        if isinstance(strats_keeper, ChatStrategyKeeper):
+            strat = strategy_cls()
+            strat.set_service(self._chat_service)
+            return strat

@@ -80,7 +80,8 @@ class AddFriendModel(QObject):
 
     def send_friend_request(self, friend_nick: str, user_id: str) -> None:
         try:
-            ClientConnections.send_service_message(msg_type="FRIENDSHIP-REQUEST-SEND",
+            ClientConnections.send_service_message(group='FRIEND',
+                                                   msg_type="FRIENDSHIP-REQUEST-SEND",
                                                    extra_data={'friend_id': str(user_id),
                                                                'user_id': str(self._user.id),
                                                                'friend_nick': friend_nick,
@@ -93,7 +94,8 @@ class AddFriendModel(QObject):
 
     def recall_friend_request(self, username: str, user_id: int) -> None:
         try:
-            ClientConnections.send_service_message(msg_type="FRIENDSHIP-REQUEST-RECALL",
+            ClientConnections.send_service_message(group='FRIEND',
+                                                   msg_type="FRIENDSHIP-REQUEST-RECALL",
                                                    extra_data={'friend_id': str(user_id),
                                                                'sender_id': str(self._user.id)})
         except Exception as e:

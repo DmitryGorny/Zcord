@@ -9,7 +9,7 @@ class IClientRepo(Protocol):
     _clients: Dict[str, IClient]
     _service_message_connection: IMessageServiceDispatcher
 
-    def get_client(self, client_id: str) -> IClient | None:
+    def _get_client(self, client_id: str) -> IClient | None:
         raise NotImplementedError
 
     async def send_message(self, client_id: str, msg_type: str, extra_data: dict) -> None:
@@ -33,6 +33,16 @@ class IClientRepo(Protocol):
     async def notify_message_server_add(self, client_id: str, chats: list[dict], writer: asyncio.StreamWriter) -> None:
         raise NotImplementedError
 
-    async def change_client_activity_status(self, client_id: str, status: dict[str, str]) -> None:
+    async def change_client_activity_status(self, client_id: str, sender_id: str, status: dict[str, str]) -> None:
         raise NotImplementedError
+
+    def get_clients_current_chat(self, client_id: str) -> int | None:
+        raise NotImplementedError
+
+    def set_client_current_chat(self, client_id: str, chat_id: int) -> bool:
+        raise NotImplementedError
+
+    def get_client_online_stat(self, client_id: str) -> dict:
+        raise NotImplementedError
+
 

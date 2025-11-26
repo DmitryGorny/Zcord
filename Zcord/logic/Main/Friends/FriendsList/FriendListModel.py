@@ -33,7 +33,7 @@ class FriendListModel(QObject):
 
     def get_friends(self) -> None:
         if len(self._user.getFriends()) == 0:
-            return #TODO: Сделать виджет отсутсвия друзей
+            return  # TODO: Сделать виджет отсутсвия друзей
 
         for friend_attrs in self._user.getFriends():
             if friend_attrs['status'] == '2':
@@ -41,9 +41,11 @@ class FriendListModel(QObject):
 
     def remove_friend(self, friend_id) -> None:
         try:
-            ClientConnections.send_service_message(msg_type="DELETE-FRIEND", extra_data={'receiver_id': friend_id,
-                                                                                         'sender_id': str(self._user.id),
-                                                                                         'sender_nickname': self._user.getNickName()})
+            ClientConnections.send_service_message(group='FRIEND',
+                                                   msg_type="DELETE-FRIEND",
+                                                   extra_data={'receiver_id': friend_id,
+                                                               'sender_id': str(self._user.id),
+                                                               'sender_nickname': self._user.getNickName()})
             self.remove_friend_view.emit(friend_id)
         except Exception as e:
             print(e)
@@ -53,4 +55,3 @@ class FriendListModel(QObject):
 
     def connect_add_friend(self, callback: Callable) -> None:
         self.add_friend_view.connect(callback)
-

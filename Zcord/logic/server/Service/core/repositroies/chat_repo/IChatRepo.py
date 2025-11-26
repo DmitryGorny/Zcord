@@ -15,10 +15,7 @@ class IChatRepo:
     def delete_chat(self, chat_id: str) -> None:
         raise NotImplementedError
 
-    def get_chat_by_user_id(self, user_id: str):
-        raise NotImplementedError
-
-    def delete_chat_by_user_id(self, user_id: str) -> None:
+    def get_chats_by_user_id(self, user_id: str) -> list[IChat]:
         raise NotImplementedError
 
     def get_chat_by_id(self, chat_id: str):

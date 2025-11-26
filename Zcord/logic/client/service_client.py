@@ -79,6 +79,7 @@ class ServiceConnection(IConnection, BaseConnection):
                 for msg in arr:
                     strategy = self._choose_strategy.get_strategy(msg["message_type"], self, self._user.getNickName())
                     try:
+                        print(msg)
                         strategy.execute(msg)
                     except AttributeError:
                         continue

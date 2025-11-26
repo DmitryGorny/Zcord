@@ -2,13 +2,20 @@ import asyncio
 import json
 from typing import Dict, Callable
 import msgspec
+
+from logic.server.Service.application.chat.ChatService import ChatService
 from logic.server.Service.application.client.ClientService import ClientService
+from logic.server.Service.application.friend.FriendshipService import FriendService
 from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
 from logic.server.Service.infrastructure.MessageServiceCommunication.MessageServiceDispatcher import \
     MessageServiceDispatcher
+from logic.server.Service.infrastructure.repositories.chat.ChatDBRepo import ChatDBRepo
 from logic.server.Service.infrastructure.repositories.chat.ChatRepo import ChatRepo
+from logic.server.Service.infrastructure.repositories.client.ClientDBRepo import ClientDBRepo
 from logic.server.Service.infrastructure.repositories.client.ClientRepo import ClientRepo
+from logic.server.Service.infrastructure.repositories.friend.FriendDBRepo import FriendDBRepo
 from logic.server.Service.infrastructure.repositories.friend.FriendRepo import FriendRepo
+from logic.server.Service.infrastructure.strats.client.ClientStrats import UserInfoStrat
 from logic.server.Service.infrastructure.strats.strats_choose.ChooseStrategy import ChooseStrategy
 from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseServerStrategy
 
@@ -19,21 +26,35 @@ class Server:
         "voice-server": None
     }
 
-    def __init__(self):
+    def __init__(self):  # TODO: Сделать фабрику
         self._message_service_dispatcher: IMessageServiceDispatcher = MessageServiceDispatcher()
         # Все репозитории
         self._repositories = {'client_repo': ClientRepo(self._message_service_dispatcher),
                               'chat_repo': ChatRepo(),
-                              'friend_repo': FriendRepo()}
+                              'friend_repo': FriendRepo(),
+                              'client_db_repo': ClientDBRepo(),
+                              'chat_db_repo': ChatDBRepo(),
+                              'friend_db_repo': FriendDBRepo()}
 
         # Все сервисы
         self._services = {'client_service': ClientService(client_repo=self._repositories['client_repo'],
                                                           chat_repo=self._repositories['chat_repo'],
-                                                          friend_repo=self._repositories['friend_repo'])}
+                                                          friend_repo=self._repositories['friend_repo']),
+                          'friend_service': FriendService(client_repo=self._repositories['client_repo'],
+                                                          chat_repo=self._repositories['chat_repo'],
+                                                          friend_repo=self._repositories['friend_repo'],
+                                                          chat_db_rp=self._repositories['chat_db_repo'],
+                                                          client_db_rp=self._repositories['client_db_repo'],
+                                                          friend_db_rp=self._repositories['friend_db_repo'],
+                                                          msg_communication=self._message_service_dispatcher),
+                          'chat_service': ChatService(client_repo=self._repositories['client_repo'],
+                                                      chat_repo=self._repositories['chat_repo'],
+                                                      chat_db_rp=self._repositories['chat_db_repo'],
+                                                      msg_communication=self._message_service_dispatcher)}
 
         self._choose_strategy = ChooseStrategy(client_service=self._services['client_service'],
-                                               friend_service=None,
-                                               chat_service=None)
+                                               friend_service=self._services['friend_service'],
+                                               chat_service=self._services['chat_service'])
 
     def server_connected(self, server_name: str, writer: asyncio.StreamWriter):
         # TODO: Переписать с Enum
@@ -81,6 +102,7 @@ class Server:
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         # Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
+        self._message_service_dispatcher.define_sender_func(self.send_decorator(Server.servers['message-server']))
         await writer.drain()
         while True:
 
@@ -98,6 +120,8 @@ class Server:
                     msg_type = msg["msg_type"]
                     group_name = msg['group']
                     strategy = self._choose_strategy.get_strategy(group_name=group_name, command=msg_type)
+                    if isinstance(strategy, UserInfoStrat):
+                        msg['writer'] = writer
                     try:
                         await strategy.execute(msg)
                     except AttributeError as e:

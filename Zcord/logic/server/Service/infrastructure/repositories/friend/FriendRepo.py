@@ -35,15 +35,24 @@ class FriendRepo(IFriendRepo):
 
     def delete_friend(self, client_id: str, friend_id: str) -> None:
         if client_id in self._friends.keys():
-            del self._friends[client_id]
+            for fr in self._friends[client_id]:
+                if fr.id == friend_id:
+                    self._friends[client_id].remove(fr)
 
         if friend_id in self._friends.keys():
-            del self._friends[friend_id]
+            for fr in self._friends[client_id]:
+                if fr.id == friend_id:
+                    self._friends[client_id].remove(fr)
 
     def change_friendship_status(self, client_id: str, friend_id: str, status: str) -> None:
+        if client_id not in self._friends.keys():
+            return
         try:
             friend = next(filter(lambda x: x.id == str(friend_id), self._friends[client_id]))
             friend.friendship_status = status
         except StopIteration as e:
             print(e)
             return
+
+    def get_client_friends(self, client_id: str) -> List[IFriend]:
+        return self._friends[client_id]

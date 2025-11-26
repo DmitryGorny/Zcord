@@ -21,16 +21,20 @@ class ClientService(IClientService):
         self._friend_repo.add_friends(client_id=user_id, friends=friends)
         self._chat_repo.add_chats(chats=chats)
         await self._client_repo.connect_message_socket(user_id)
-        await self._client_repo.change_client_activity_status(user_id, status)
-
-        for friend_attr in friends:
-            await self.change_client_activity_status(friend_attr['id'], status)
+        await self._client_repo.change_client_activity_status(user_id, user_id, status)
+        for friend_attr in friends: # TODO: В случае кастомных статусов присылать еще и онлайн статус друга
+            await self.change_client_activity_status(friend_attr['id'], user_id, status)
+            await self.change_client_activity_status(user_id, friend_attr['id'],
+                                                     self._client_repo.get_client_online_stat(friend_attr['id']))
 
         await self._client_repo.notify_message_server_add(user_id, chats, writer)
 
     async def user_left(self, client_id: str, status: dict[str, str]):
-        await self.change_client_activity_status(client_id, status)
+        friends = self._friend_repo.get_client_friends(client_id=client_id)
+        for friend in friends:
+            await self.change_client_activity_status(friend.id, client_id, status)
         await self._client_repo.close_client_writer(client_id)
+        self._client_repo.delete_client(client_id)
 
-    async def change_client_activity_status(self, client_id: str, status: dict[str, str]) -> None:
-        await self._client_repo.change_client_activity_status(client_id, status)
+    async def change_client_activity_status(self, client_id: str, sender_id: str, status: dict[str, str]) -> None:
+        await self._client_repo.change_client_activity_status(client_id, sender_id, status)

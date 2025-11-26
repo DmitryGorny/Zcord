@@ -15,7 +15,7 @@ class ChatRepo(IChatRepo):
             chat.add_member(ChatMember(str(friend_id)))
 
         if chat_id in self._chats.keys():
-            raise ValueError("Такой чат уже есть")
+            return
 
         self._chats[chat_id] = chat
 
@@ -25,19 +25,16 @@ class ChatRepo(IChatRepo):
 
     def delete_chat(self, chat_id: str) -> None:
         if chat_id not in self._chats.keys():
-            raise ValueError("Чат с таким id не существует")
+            return
         del self._chats[chat_id]
 
-    def get_chat_by_user_id(self, user_id: str):
+    def get_chats_by_user_id(self, user_id: str) -> list[IChat]:
+        chats = []
         for chat in self._chats.values():
             if chat.get_member_by_id(user_id) is not None:
-                return chat
-
-    def delete_chat_by_user_id(self, user_id: str) -> None:
-        for chat_id in self._chats.keys():
-            if self._chats[chat_id].get_member_by_id(user_id) is not None:
-                del self._chats[chat_id]
-                return
+                chats.append(chat)
+        return chats
 
     def get_chat_by_id(self, chat_id: str):
         return self._chats[chat_id]
+

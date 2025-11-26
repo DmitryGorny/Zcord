@@ -89,7 +89,7 @@ class ConnectToMessageServer(ClientsStrategies):
 
     def execute(self, msg: dict) -> None:
         self.service_connection_pointer.connect_to_msg_server()  # TODO: Отловить ошибки подключения
-        self.service_connection_pointer.send_message(msg_type="CACHE-REQUEST")
+        self.service_connection_pointer.send_message(group='CHAT', msg_type="CACHE-REQUEST")
 
 
 class CallNotificationStrat(ClientsStrategies):
@@ -182,20 +182,10 @@ class DeleteFriendRequestStrat(ClientsStrategies):
     def execute(self, msg: dict) -> None:
         sender_id = msg['friend_id']
         chat_id = str(msg['chat_id'])
-        try:
-            sender_nickname = msg['sender_nickname']
-            self.service_connection_pointer.user.delete_friend(friend_id=sender_id)
-            self.service_connection_pointer.user.delete_chat(chat_id, True)
-            self.service_connection_pointer.call_main_dynamic_update('DELETE-FRIEND', {'chat_id': chat_id,
-                                                                                       'sender_nickname': sender_nickname,
-                                                                                       })
-        except KeyError:
-            friend_nickname = msg['friend_nickname']
-            self.service_connection_pointer.user.delete_friend(friend_id=sender_id)
-            self.service_connection_pointer.user.delete_chat(chat_id, True)
-            self.service_connection_pointer.call_main_dynamic_update('DELETE-FRIEND', {'chat_id': chat_id,
-                                                                                       'friend_nickname': friend_nickname,
-                                                                                       })
+
+        self.service_connection_pointer.user.delete_friend(friend_id=sender_id)
+        self.service_connection_pointer.user.delete_chat(chat_id, True)
+        self.service_connection_pointer.call_main_dynamic_update('DELETE-FRIEND', {'chat_id': chat_id})
 
 
 class DeclineFriendRequestStrat(ClientsStrategies):

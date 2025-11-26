@@ -37,7 +37,7 @@ class FriendService(IFriendService):
         await self._client_repo.send_message(client_id=user_id, msg_type="FRIENDSHIP-REQUEST-SEND",
                                              extra_data={'sender_id': user_id,
                                                          'receiver_id': friend_id,
-                                                         'sender_nick': sender_nick})
+                                                         'receiver_nick': receiver_nick})
         await self._client_repo.send_message(client_id=friend_id, msg_type="FRIENDSHIP-REQUEST-SEND",
                                              extra_data={'sender_id': user_id,
                                                          'receiver_id': friend_id,
@@ -46,7 +46,7 @@ class FriendService(IFriendService):
         self._friend_repo.add_friend(client_id=user_id, friend_name=receiver_nick, friend_id=friend_id, status='1')
         self._friend_repo.add_friend(client_id=friend_id, friend_name=sender_nick, friend_id=friend_id, status='1')
 
-    def friend_request_recall(self, friend_id: str, sender_id: str) -> None:
+    async def friend_request_recall(self, friend_id: str, sender_id: str) -> None:
         friendship = self._friend_db_repo.get_friendship_by_users_id(int(sender_id), int(friend_id))[0]
         friendship_id = friendship['id']
 
@@ -55,20 +55,22 @@ class FriendService(IFriendService):
         if delete_friend_request is not None:
             self._friend_db_repo.delete_friendship(friendship_id)
 
-        self._client_repo.send_message(client_id=friend_id, msg_type="FRIEND-REQUEST-RECALL",
+        await self._client_repo.send_message(client_id=friend_id, msg_type="FRIEND-REQUEST-RECALL",
                                        extra_data={'sender_id': sender_id,
                                                    'friend_id': friend_id})
-        self._client_repo.send_message(client_id=sender_id, msg_type="FRIEND-REQUEST-RECALL",
+        await self._client_repo.send_message(client_id=sender_id, msg_type="FRIEND-REQUEST-RECALL",
                                        extra_data={'sender_id': sender_id,
                                                    'friend_id': friend_id})
 
         self._friend_repo.delete_friend(sender_id, friend_id)
 
     async def friend_request_accepted(self, friend_id: str, sender_id: str) -> None:
+        ###### Проверить создается ли значение дружбы в словаре при перезаходе (глянуть ClientsService, а именно инит друзей и
+        #что приходит с клиента, в частности проверить приходят ли друзья со статусом дружбы 1
         friendship = self._friend_db_repo.get_friendship_by_users_id(int(sender_id), int(friend_id))[0]
         self._friend_db_repo.patch_friendship_status(friendship['id'], 2)
         # TODO: Вот это все какая-то полная хуйня, проверить как можно получить ник отправителя на клиенте
-        self._chat_db_repo.create_dm_chat(friendship['id'])
+        self._chat_db_repo.create_dm_chat(int(friendship['id']))
         friend = self._client_db_repo.get_user_by_id(int(friend_id))
         sender = self._client_db_repo.get_user_by_id(int(sender_id))
         self._friend_db_repo.delete_friendship_request(int(sender_id), int(friend_id), friendship['id'])
@@ -94,16 +96,18 @@ class FriendService(IFriendService):
         # Добавление чата
         self._chat_repo.add_chat(str(friendship['id']), [str(friend_id), str(sender_id)])
 
+        # Рассылка нового статуса онлайна
+        await self._client_repo.change_client_activity_status(client_id=sender_id,
+                                                              sender_id=friend_id,
+                                                              status={'color': 'green', 'user-status': 'В сети'})
+        await self._client_repo.change_client_activity_status(client_id=friend_id,
+                                                              sender_id=sender_id,
+                                                              status={'color': 'green', 'user-status': 'В сети'})
+
         # Уведомление месседж сервера
         await self._msg_server_communication.send_msg_server("ADD-FRIEND", {"sender_id": sender_id,
                                                                             "receiver_id": friend_id,
                                                                             "chat_id": friendship['id']})
-
-        # Рассылка нового статуса онлайна
-        await self._client_repo.change_client_activity_status(client_id=sender_id,
-                                                              status={'color': 'green', 'user-status': 'В сети'})
-        await self._client_repo.change_client_activity_status(client_id=friend_id,
-                                                              status={'color': 'green', 'user-status': 'В сети'})
 
     async def friend_request_rejected(self, friend_id: str, sender_id: str) -> None:
         friendship = self._friend_db_repo.get_friendship_by_users_id(int(sender_id), int(friend_id))[0]
@@ -124,6 +128,32 @@ class FriendService(IFriendService):
 
         self._friend_repo.delete_friend(sender_id, friend_id)
 
+    async def friend_delete(self, friend_id: str, sender_id: str) -> None:
+        friendship = self._friend_db_repo.get_friendship_by_users_id(int(sender_id), int(friend_id))[0]
 
-    def friend_delete(self) -> None:
-        pass
+        chats = self._chat_db_repo.get_chats(int(sender_id), False)
+
+        chat_id = '0'
+        print(chats)
+        for chat in chats:
+            if chat['DM']['user1'] == int(friend_id) or chat['DM']['user2'] == int(friend_id):
+                chat_id = str(chat['DM']['id'])
+                self._chat_repo.delete_chat(chat_id)
+                break
+
+        if chat_id == '0':
+            return
+
+        await self._client_repo.send_message(client_id=sender_id, msg_type='DELETE-FRIEND',
+                                             extra_data={'friend_id': sender_id,
+                                                         'chat_id': chat_id
+                                                         })
+        await self._client_repo.send_message(client_id=friend_id, msg_type='DELETE-FRIEND',
+                                             extra_data={'friend_id': sender_id,
+                                                         'chat_id': chat_id
+                                                         })
+
+        self._friend_db_repo.delete_friendship(friendship['id'])
+        self._friend_repo.delete_friend(client_id=sender_id, friend_id=friend_id)
+        self._friend_repo.delete_friend(client_id=sender_id, friend_id=friend_id)
+        await self._msg_server_communication.send_msg_server('DELETE-FRIEND', {'chat_id': chat_id})

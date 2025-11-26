@@ -19,7 +19,8 @@ class StratsGroupKeeper:
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)
         if hasattr(cls, "group_name"):
-            cls.groups[cls.group_name] = cls
+            if StratsGroupKeeper in cls.__bases__:
+                cls.groups[cls.group_name] = cls
 
 
 class ClientStrategyKeeper(StratsGroupKeeper):
@@ -54,7 +55,7 @@ class FriendStrategyKeeper(StratsGroupKeeper):
     def __init__(self):
         self._service: IFriendService | None = None
 
-    def set_service(self, service: IClientService):
+    def set_service(self, service: IFriendService):
         self._service = service
 
 
@@ -72,5 +73,5 @@ class ChatStrategyKeeper(StratsGroupKeeper):
     def __init__(self):
         self._service: IChatService | None = None
 
-    def set_service(self, service: IClientService):
+    def set_service(self, service: IChatService):
         self._service = service

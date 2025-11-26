@@ -107,8 +107,8 @@ class UserInfoStrategy(MessageStrategy):
         super(UserInfoStrategy, self).__init__()
 
     def execute(self, msg: dict) -> None:
-        serialize_1 = json.loads(msg["serialize_1"])
-        serialize_2 = json.loads(msg["serialize_2"])
+        serialize_1 = msg["serialize_1"]
+        serialize_2 = msg["serialize_2"]
 
         user_id = str(serialize_2["user_id"])
         IP = serialize_2["IP"]

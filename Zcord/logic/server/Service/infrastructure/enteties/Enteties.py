@@ -92,29 +92,33 @@ class ChatMember(IChatMember):
     def __init__(self, user_id: str):
         self._id = user_id
 
+    @property
+    def user_id(self) -> str:
+        return self._id
+
 
 class Chat(IChat):  # TODO: Проверить добавляются ли Friend в группу
     def __init__(self, chat_id: str):
         self._chat_id = chat_id
 
-        self._members: List[ChatMember] = []
-        self._current_voice_members: List[ChatMember] = []
+        self._members: List[IChatMember] = []
+        self._current_voice_members: List[IChatMember] = []
 
     @property
     def chat_id(self) -> str:
         return self._chat_id
 
-    def add_member(self, friend: ChatMember) -> None:
+    def add_member(self, friend: IChatMember) -> None:
         self._members.append(friend)
 
     def create_and_add_member(self, user_id: str):
         member = ChatMember(user_id)
         self._members.append(member)
 
-    def get_member_by_id(self, user_id) -> ChatMember | None:
+    def get_member_by_id(self, user_id) -> IChatMember | None:
         try:
 
-            return next(filter(lambda x: str(x.id) == str(user_id), self._members))
+            return next(filter(lambda x: str(x.user_id) == str(user_id), self._members))
         except StopIteration as e:
             print(e)
             return None

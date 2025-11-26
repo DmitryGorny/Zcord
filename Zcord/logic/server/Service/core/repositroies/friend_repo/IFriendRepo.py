@@ -17,3 +17,7 @@ class IFriendRepo:
 
     def change_friendship_status(self, client_id: str, friend_id: str, status: str) -> None:
         raise NotImplementedError
+
+    def get_client_friends(self, client_id: str) -> List[IFriend]:
+        raise NotImplementedError
+

@@ -102,3 +102,9 @@ class ClientRepo(IClientRepo):
         if client is None:
             return
         return client.status
+
+    def get_client_nick(self, client_id: str) -> str:
+        client = self._get_client(client_id)
+        if client is None:
+            return None
+        return client.nick

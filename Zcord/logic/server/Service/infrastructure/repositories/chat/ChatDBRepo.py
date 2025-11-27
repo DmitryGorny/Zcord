@@ -21,3 +21,26 @@ class ChatDBRepo(IChatDBRepo):
     def search_chat_by_id(self, chat_id: int, is_group: bool) -> list[dict]:
         return self._api_client.search_chat_by_id(chat_id, is_group)
 
+    def add_group_member(self, user_id: int, group_id: int) -> None:
+        self._api_client.add_group_member(user_id, group_id)
+
+    def delete_group_request(self, request_id: int) -> None:
+        self._api_client.delete_group_request(request_id)
+
+    def delete_group_member_by_id(self, member_id: int) -> None:
+        self._api_client.delete_group_member_by_id(member_id)
+
+    def search_group_member(self, user_id: int, group_id: int) -> None:
+        self._api_client.search_group_member(user_id, group_id)
+
+    def create_group(self, group_name: str, is_private: bool, is_invite_from_admin: bool, is_password: bool,
+                     password: str, creator_id: str) -> dict:
+        return self._api_client.create_group(group_name=group_name,
+                                             is_private=is_private,
+                                             is_invite_from_admin=is_invite_from_admin,
+                                             is_password=is_password,
+                                             password=password,
+                                             admin_id=int(creator_id))
+
+    def add_group_admin(self, user_id: int, group_id: int) -> dict:
+        return self._api_client.add_group_admin(user_id, group_id)

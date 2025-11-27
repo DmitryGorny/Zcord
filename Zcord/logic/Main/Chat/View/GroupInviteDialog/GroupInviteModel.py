@@ -5,7 +5,7 @@ from PyQt6.QtCore import QObject
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 
-class GroupInviteModel(QObject):# TODO: добавить подтверждение создания группы
+class GroupInviteModel(QObject):  # TODO: добавить подтверждение создания группы
     def __init__(self, user):
         super(GroupInviteModel, self).__init__()
         self._user = user
@@ -15,12 +15,13 @@ class GroupInviteModel(QObject):# TODO: добавить подтвержден�
             return
 
         try:
-            ClientConnections.send_service_message('CREATE-GROUP', extra_data={'creator_id': self._user.id,
-                                                                               'group_name': group_name,
-                                                                               'is_private': True,
-                                                                               'is_invite_from_admin': False,
-                                                                               'is_password': False,
-                                                                               'password': '',
-                                                                               })
+            ClientConnections.send_service_message(group='CHAT', msg_type='CREATE-GROUP',
+                                                   extra_data={'creator_id': self._user.id,
+                                                               'group_name': group_name,
+                                                               'is_private': True,
+                                                               'is_invite_from_admin': False,
+                                                               'is_password': False,
+                                                               'password': '',
+                                                               })
         except Exception as e:
             print(e)

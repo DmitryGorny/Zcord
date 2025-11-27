@@ -97,6 +97,9 @@ class IChat(Protocol):
     def get_members(self) -> list[IChatMember]:
         raise NotImplementedError
 
+    def get_members_len(self) -> int:
+        raise NotImplementedError
+
     def delete_member_by_id(self, user_id: str) -> None:
         raise NotImplementedError
 

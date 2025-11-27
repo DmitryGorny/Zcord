@@ -15,3 +15,7 @@ class IClientService(Protocol):
 
     async def user_status(self, client_id: str, status: dict[str, str]) -> None:
         raise NotImplementedError
+
+    async def call_notification(self, user_id: str, chat_id: str, call_flg) -> None:
+        raise NotImplementedError
+

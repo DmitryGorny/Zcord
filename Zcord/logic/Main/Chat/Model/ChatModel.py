@@ -9,8 +9,8 @@ class ChatModel:
         self.call_manager = CallManager()
         self._block_scroll_cache = False
 
-    def call_notification(self):
-        ClientConnections.send_service_message(msg_type="CALL-NOTIFICATION")
+    #def call_notification(self):
+     #   ClientConnections.send_service_message(msg_type="CALL-NOTIFICATION")
 
     def ask_for_cached_messages(self):
         if not self._block_scroll_cache:
@@ -40,12 +40,12 @@ class ChatModel:
             port=55559,
             room=chat_id
         )
-        ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
+        ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
 
     def stop_call(self):
         """Остановка звонка - синхронный вызов"""
         success = self.call_manager.stop_call()
-        ClientConnections.send_service_message(msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
+        ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
 
     def get_voice_flg(self):
         return self.call_manager.get_voice_flg()

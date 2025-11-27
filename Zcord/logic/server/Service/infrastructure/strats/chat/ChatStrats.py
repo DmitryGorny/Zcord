@@ -26,3 +26,63 @@ class ChangeChatStrategy(ChatStrategyKeeper, IServiceStrat):
         chat_code = int(msg["chat_id"])
 
         await self._service.change_chat(user_id=user_id, chat_code=chat_code)
+
+
+class GroupRejectAcceptStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "GROUP-REQUEST-REJECTED"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        request_id = str(msg['request_id'])
+        self._service.group_request_rejected(request_id)
+
+
+class GroupRequestAcceptStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "GROUP-REQUEST-ACCEPTED"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        request_receiver = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+        request_id = str(msg['request_id'])
+        await self._service.add_user_group(request_receiver=request_receiver,
+                                           group_id=group_id,
+                                           request_id=request_id)
+
+
+class UserLeftGroupStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "USER-LEFT-GROUP"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        request_receiver = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+        await self._service.user_left_group(request_receiver=request_receiver, group_id=group_id)
+
+
+class CreateGroupStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "GROUP-CREATE"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        creator_id = str(msg['user_id'])
+        group_name = msg['group_name']
+        is_private = msg['is_private']
+        is_invite_from_admin = msg['is_invite_from_admin']
+        is_password = msg['is_password']
+        password = msg['password']
+        await self._service.create_group(creator_id=creator_id,
+                                         group_name=group_name,
+                                         is_private=is_private,
+                                         is_invite_from_admin=is_invite_from_admin,
+                                         is_password=is_password,
+                                         password=password)
+

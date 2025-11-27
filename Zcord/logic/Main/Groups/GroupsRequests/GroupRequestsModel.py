@@ -37,7 +37,7 @@ class GroupRequestModel(QObject):
 
     def accept_request(self, group_id: str, request_id: str) -> None:
         try:
-            ClientConnections.send_service_message(msg_type='GROUP-REQUEST-ACCEPTED',
+            ClientConnections.send_service_message(group='CHAT', msg_type='GROUP-REQUEST-ACCEPTED',
                                                    extra_data={'group_id': group_id,
                                                                'request_id': request_id})
         except Exception as e:
@@ -46,7 +46,7 @@ class GroupRequestModel(QObject):
 
     def reject_request(self, group_id: str, request_id: str) -> None:
         try:
-            ClientConnections.send_service_message(msg_type='GROUP-REQUEST-REJECTED',
+            ClientConnections.send_service_message(group='CHAT', msg_type='GROUP-REQUEST-REJECTED',
                                                    extra_data={'group_id': group_id,
                                                                'request_id': request_id})
         except Exception as e:

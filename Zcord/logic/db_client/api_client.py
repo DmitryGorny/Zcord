@@ -259,7 +259,7 @@ class APIClient:
         }
         return self._request('GET', f'groups-requests/', params=params)
 
-    def delete_request(self, request_id):
+    def delete_group_request(self, request_id):
         return self._request('DELETE', f'groups-requests/{request_id}/')
 
     # Работа с группами

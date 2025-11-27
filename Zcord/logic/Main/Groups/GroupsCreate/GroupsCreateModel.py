@@ -24,7 +24,7 @@ class GroupsCreateModel(QObject):
             return
 
         try:
-            ClientConnections.send_service_message(msg_type='GROUP-CREATE', extra_data={'group_name': group_name,
+            ClientConnections.send_service_message(group='CHAT', msg_type='GROUP-CREATE', extra_data={'group_name': group_name,
                                                                                         'is_private': is_private,
                                                                                         'is_invite_from_admin': is_invite_from_admin,
                                                                                         'is_password': is_password,

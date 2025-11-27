@@ -22,7 +22,7 @@ class ClientService(IClientService):
         self._chat_repo.add_chats(chats=chats)
         await self._client_repo.connect_message_socket(user_id)
         await self._client_repo.change_client_activity_status(user_id, user_id, status)
-        for friend_attr in friends: # TODO: В случае кастомных статусов присылать еще и онлайн статус друга
+        for friend_attr in friends:  # TODO: В случае кастомных статусов присылать еще и онлайн статус друга
             await self._change_client_activity_status(friend_attr['id'], user_id, status)
             await self._change_client_activity_status(user_id, friend_attr['id'],
                                                       self._client_repo.get_client_online_stat(friend_attr['id']))
@@ -44,3 +44,12 @@ class ClientService(IClientService):
         await self._change_client_activity_status(client_id=client_id, sender_id=client_id, status=status)
         for friend in friends:
             await self._change_client_activity_status(client_id=friend.id, sender_id=client_id, status=status)
+
+    async def call_notification(self, user_id: str, chat_id: str, call_flg) -> None:
+        chat = self._chat_repo.get_chat_by_id(chat_id=chat_id)
+
+        for member in chat.get_members():
+            await self._client_repo.send_message(client_id=member.id, msg_type='__CALL-NOTIFICATION__',
+                                                 extra_data={'user_id': user_id,
+                                                             'chat_id': chat_id,
+                                                             'call_flg': call_flg})

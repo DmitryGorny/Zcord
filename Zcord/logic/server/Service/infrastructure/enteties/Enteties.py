@@ -111,6 +111,9 @@ class Chat(IChat):  # TODO: Проверить добавляются ли Frien
     def add_member(self, friend: IChatMember) -> None:
         self._members.append(friend)
 
+    def get_members_len(self) -> int:
+        return len(self._members)
+
     def create_and_add_member(self, user_id: str):
         member = ChatMember(user_id)
         self._members.append(member)

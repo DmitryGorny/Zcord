@@ -45,4 +45,7 @@ class IClientRepo(Protocol):
     def get_client_online_stat(self, client_id: str) -> dict:
         raise NotImplementedError
 
+    def get_client_nick(self, client_id: str) -> str:
+        raise NotImplementedError
+
 

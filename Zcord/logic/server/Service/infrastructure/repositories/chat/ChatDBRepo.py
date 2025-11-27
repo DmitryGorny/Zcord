@@ -9,8 +9,8 @@ class ChatDBRepo(IChatDBRepo):
     def get_chats(self, user_id: int, is_group: bool) -> list[dict]:
         return self._api_client.get_chats(user_id, is_group)
 
-    def create_dm_chat(self, chat_id: int) -> None:
-        self._api_client.create_dm_chat(chat_id)
+    def create_dm_chat(self, chat_id: int) -> list[dict]:
+        return self._api_client.create_dm_chat(chat_id)
 
     def create_group_chat(self, group_id: int) -> None:
         self._api_client.create_group_chat(group_id)

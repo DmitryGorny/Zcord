@@ -153,7 +153,7 @@ class StatusWidget(QtWidgets.QMenu):
 
     def clicked(self, actvity_status):
         if isinstance(actvity_status, Online):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={
+            ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={
                 'status_name': "В сети",
                 'color': "#008000"})
             self.miniProfile.change_activity_color("#008000")
@@ -162,7 +162,7 @@ class StatusWidget(QtWidgets.QMenu):
             return
 
         if isinstance(actvity_status, DisturbBlock):
-            ClientConnections.send_service_message(msg_type="USER-STATUS",
+            ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS",
                                                    extra_data={'status_name': "Не беспокоить",
                                                                'color': "red"})
             self.miniProfile.change_activity_color("red")
@@ -171,7 +171,7 @@ class StatusWidget(QtWidgets.QMenu):
             return
 
         if isinstance(actvity_status, Hidden):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'status_name': "Невидимка",
+            ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={'status_name': "Невидимка",
                                                                                        'color': "grey"})
             self.miniProfile.change_activity_color("grey")
             self.miniProfile.change_status_text("Невидимка")
@@ -179,7 +179,7 @@ class StatusWidget(QtWidgets.QMenu):
             return
 
         if isinstance(actvity_status, AFK):
-            ClientConnections.send_service_message(msg_type="USER-STATUS", extra_data={'status_name': "Не активен",
+            ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={'status_name': "Не активен",
                                                                                        'color': "yellow"})
             self.miniProfile.change_activity_color("yellow")
             self.miniProfile.change_status_text("Не активен")

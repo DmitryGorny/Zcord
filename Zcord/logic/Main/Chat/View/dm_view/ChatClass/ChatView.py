@@ -1,8 +1,10 @@
 from PyQt6 import QtCore, QtWidgets
 from logic.Main.Chat.View.CallDialog.CallView import Call
+from logic.Main.Chat.View.GroupInviteDialog.GroupInviteController import GroupInviteController
 from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.dm_view.ChatClass.ChatGUI import Ui_Chat
+from logic.Main.miniProfile.MiniProfile import Overlay
 
 
 class ChatView(BaseChatView):
@@ -46,6 +48,9 @@ class ChatView(BaseChatView):
         self.ui.leaveCall.clicked.connect(self.stop_call)
         self.ui.muteMic.clicked.connect(self.mute_mic_self)
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
+        self.ui.InviteToGroup.clicked.connect(self.show_group_invite)
+
+        self._group_invite_dial_controller: GroupInviteController = GroupInviteController(self._user, self._friend_id)
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self):
@@ -75,5 +80,23 @@ class ChatView(BaseChatView):
     def friend_id(self):
         return self._friend_id
 
+    def show_group_invite(self):
+        self._group_invite_dial_controller.update_friends()
+        dial = self._group_invite_dial_controller.get_widget()
+
+        overlay = Overlay(dial)
+        overlay.setParent(self.ui.Column)
+        dial.setParent(self.ui.Column)
+        new_rect = QtCore.QRect(
+            self.ui.Column.rect().x(),
+            self.ui.Column.rect().y(),
+            self.ui.Column.width(),
+            self.ui.Column.height()
+        )
+        overlay.setGeometry(new_rect)
+        overlay.show()
+        dial.raise_()
+
+        dial.exec()
 
 

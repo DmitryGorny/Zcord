@@ -24,6 +24,7 @@ class MessageConnection(IConnection, BaseConnection):
 
     def send_message(self, current_chat_id: int, message: str) -> None:
         """Метод для отпраки сообщений с флагом text"""
+
         msg = {
             "msg_type": 'CHAT-MESSAGE',
             "chat_id": current_chat_id,

@@ -5,7 +5,7 @@ from logic.Main.Chat.View.dm_view.ChatClass.ChatView import ChatView
 
 from logic.Main.Chat.View.group_view.Group.GroupView import GroupView
 from logic.db_client.api_client import APIClient
-from .fabric import CreateDMChat, CreateGroupChat
+from .fabric import CreateDMChat, CreateGroupChat, GroupMemberCreator
 
 
 class UserChats:
@@ -34,15 +34,20 @@ class UserChats:
 
     def init_groups(self):
         fabric = CreateGroupChat()
+        member_fabric = GroupMemberCreator()
         groups = self._db.get_chats(user_id=self.__user.id, is_group=True)
-        for group in groups:
+        for group in groups: # TODO: Оптимизация
+            members = []
+            for user in group['group']['users']:
+                members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id'])))
+
             group_name = group['group']['group_name']
             group_obj = fabric.create_chat(is_dm=False,
                                            group_id=group['id'],
                                            group_name=group_name,
                                            user_obj=self.__user,
                                            controller=self._chats_controller,
-                                           members=group['group']['members'],
+                                           members=members,
                                            is_private=group['group']['is_private'],
                                            is_password=group['group']['is_password'],
                                            is_admin_invite=group['group']['is_invite_from_admin'],
@@ -62,8 +67,13 @@ class UserChats:
         self._chats_controller.add_view(chat_id, chat)
         return chat
 
-    def add_group_chat(self, chat_id: str, group_name: str, members: list, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
+    def add_group_chat(self, chat_id: str, group_name: str, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
         fabric = CreateGroupChat()
+        members = []
+        member_fabric = GroupMemberCreator()
+        groups = self._db.get_chat_by_id(chat_id=chat_id)
+        for user in groups['group']['users']:
+            members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id'])))
 
         group = fabric.create_chat(is_dm=False,
                                    group_id=str(chat_id),
@@ -99,7 +109,7 @@ class UserChats:
                    'is_dm': True}
 
         for group in self._groups:
-            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': group.get_users,
+            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': [str(member) for member in group.get_users],
                    'is_dm': False}
 
     def get_dm_chats(self) -> List[ChatView]:

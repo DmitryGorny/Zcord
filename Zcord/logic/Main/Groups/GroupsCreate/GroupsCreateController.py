@@ -5,9 +5,9 @@ from logic.Main.Groups.GroupsCreate.View.GroupsCreateView import GroupsCreateVie
 
 
 class GroupsCreateController:
-    def __init__(self):
+    def __init__(self, user):
         self._view = GroupsCreateView()
-        self._model = GroupsCreateModel()
+        self._model = GroupsCreateModel(user)
 
         self._view.send_form_model.connect(self._model.send_form)
         self._model.group_is_being_created_view.connect(self._view.creating_group)

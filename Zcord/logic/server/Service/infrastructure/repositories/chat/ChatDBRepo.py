@@ -12,8 +12,8 @@ class ChatDBRepo(IChatDBRepo):
     def create_dm_chat(self, chat_id: int) -> list[dict]:
         return self._api_client.create_dm_chat(chat_id)
 
-    def create_group_chat(self, group_id: int) -> None:
-        self._api_client.create_group_chat(group_id)
+    def create_group_chat(self, group_id: int) -> dict:
+        return self._api_client.create_group_chat(group_id)
 
     def delete_dm_chat(self, DM_id: int) -> None:
         self._api_client.delete_dm_chat(DM_id)
@@ -44,3 +44,7 @@ class ChatDBRepo(IChatDBRepo):
 
     def add_group_admin(self, user_id: int, group_id: int) -> dict:
         return self._api_client.add_group_admin(user_id, group_id)
+
+    def send_group_request(self, group_id: int, sender_id: int, receiver_id: int) -> dict:
+        return self._api_client.send_group_request(group_id, sender_id, receiver_id)
+

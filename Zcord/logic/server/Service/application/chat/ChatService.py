@@ -50,17 +50,20 @@ class ChatService(IChatService):
                                                                                  "current_chat_id": current_id,
                                                                                  "chat_code": chat_code})
 
-    async def add_user_group(self, request_receiver: str, group_id: str, request_id: str) -> None:
-        group = self._chat_db_repo.search_chat_by_id(chat_id=int(group_id), is_group=True)
-        for members_id in group['group']['members']:
+    async def add_user_group(self, request_receiver: str, group_id: str, request_id: str = None) -> None:
+        group = self._chat_db_repo.search_chat_by_id(chat_id=int(group_id), is_group=True)[0]
+        for user in group['group']['users']:
             try:
                 chat = self._chat_repo.get_chat_by_id(group_id)
-                await self._client_repo.send_message(members_id, 'USER-JOINED-GROUP', {'user_id': request_receiver,
-                                                                                       'group_id': group_id,
-                                                                                       'group_name': group['group'][
-                                                                                           "group_name"],
-                                                                                       'members': group['group'][
-                                                                                           'members']})
+                await self._client_repo.send_message(str(user['user_id']), 'USER-JOINED-GROUP',
+                                                     {'user_id': request_receiver,
+                                                      'group_id': group['id'],
+                                                      'group_name': group['group']["group_name"],
+                                                      'is_private': group['group']['is_private'],
+                                                      'is_password': group['group']['is_password'],
+                                                      'is_admin_invite': group['group']['is_invite_from_admin'],
+                                                      'admin_id': group['group']['user_admin']
+                                                      })
                 chat.create_and_add_member(request_receiver)
             except KeyError as e:
                 print(e)
@@ -68,9 +71,15 @@ class ChatService(IChatService):
         self._chat_db_repo.add_group_member(int(request_receiver), int(group_id))
         await self._client_repo.send_message(request_receiver, 'USER-JOINED-GROUP',
                                              {'user_id': request_receiver,
-                                              'group_id': group_id})
-
-        self._chat_db_repo.delete_group_request(int(request_id))
+                                              'group_id': group['id'],
+                                              'group_name': group['group']["group_name"],
+                                              'is_private': group['group']['is_private'],
+                                              'is_password': group['group']['is_password'],
+                                              'is_admin_invite': group['group']['is_invite_from_admin'],
+                                              'admin_id': group['group']['user_admin']
+                                              })
+        if request_id is not None:
+            self._chat_db_repo.delete_group_request(int(request_id))
         nickname = self._client_repo.get_client_nick(client_id=request_receiver)
         await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': group_id,
                                                                               'user_id': request_receiver,
@@ -82,7 +91,7 @@ class ChatService(IChatService):
 
     async def user_left_group(self, request_receiver: str, group_id: str) -> None:
         group = self._chat_db_repo.search_chat_by_id(chat_id=int(group_id), is_group=True)
-        for members_id in group['group']['members']:
+        for members_id in group[0]['group']['members']:
             try:
                 chat = self._chat_repo.get_chat_by_id(group_id)
                 await self._client_repo.send_message(members_id, 'USER-LEFT-GROUP', {'user_id': request_receiver,
@@ -109,8 +118,19 @@ class ChatService(IChatService):
                                                                               'type': 'service',
                                                                               'service_message': f'Пользователь {nickname} покинул группу'})
 
+    async def send_group_request(self, sender_id: str, receiver_id: str, group_id: str) -> None:
+        request = self._chat_db_repo.send_group_request(group_id=int(group_id),
+                                                        sender_id=int(sender_id),
+                                                        receiver_id=int(receiver_id))
+
+        await self._client_repo.send_message(receiver_id, 'GROUP-REQUEST',
+                                             {'sender_id': sender_id,
+                                              'group_id': group_id,
+                                              'request_id': request['id'],
+                                              'group_name': request['group']['group_name']})
+
     async def create_group(self, creator_id: str, group_name: str, is_private: bool,
-                           is_invite_from_admin: bool, is_password: bool, password: bool) -> None:
+                           is_invite_from_admin: bool, is_password: bool, password: bool, members: list[str]) -> None:
         if is_password:
             password = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode('utf-8')
 
@@ -127,17 +147,20 @@ class ChatService(IChatService):
             await self._client_repo.send_message(creator_id, 'GROUP-CREATION-ERROR', extra_data={})
             return
 
-        self._chat_db_repo.create_group_chat(group_id)
+        group_chat = self._chat_db_repo.create_group_chat(group_id)
 
         member = self._chat_db_repo.add_group_admin(int(creator_id), group_id)
 
         try:
             member['id']
             del group['password']
-            await self._client_repo.send_message(creator_id, 'GROUP-CREATED-SUCCESS', {'group_json': group})
+            await self._client_repo.send_message(creator_id, 'GROUP-CREATED-SUCCESS', {'group_json': group_chat})
         except KeyError:
             await self._client_repo.send_message(creator_id, 'GROUP-CREATION-ERROR', extra_data={})
             return
 
-        await self._msg_server_communication.send_msg_server('CREATE-GROUP', {'chat_id': group_id,
+        await self._msg_server_communication.send_msg_server('CREATE-GROUP', {'chat_id': group_chat['id'],
                                                                               'creator_id': creator_id})
+        if len(members) > 0:
+            for member_id in members:
+                await self.send_group_request(receiver_id=member_id, group_id=group_id, sender_id=creator_id)

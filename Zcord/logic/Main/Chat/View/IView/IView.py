@@ -153,9 +153,7 @@ class BaseChatView(IView):
         layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignLeft)
         qss = ''
 
-        try:
-            sender = next((fr["nickname"] for fr in self._user.getFriends() if fr["id"] == str(sender_id)))
-        except StopIteration:
+        if str(sender_id) == str(self._user.id):
             sender = self._user.getNickName()
             qss = """QFrame {
                     background-color:rgba(38,40,45,255);
@@ -164,6 +162,12 @@ class BaseChatView(IView):
                     }
                     }"""
             layout.setAlignment(QtCore.Qt.AlignmentFlag.AlignRight)
+        else:
+            try:
+                sender = next((fr["nickname"] for fr in self._user.getFriends() if fr["id"] == str(sender_id)))
+            except StopIteration:
+                group = next((gr for gr in self._user.get_groups() if gr["chat_id"] == self._chat_id))
+                sender = next((gm.nickname for gm in group['users'] if str(gm.user_id) == str(sender_id)))
 
         if len(message_dict['message']) == 0:
             return

@@ -6,85 +6,85 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>842</width>
-    <height>636</height>
+    <width>493</width>
+    <height>603</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
-  <widget class="QFrame" name="GroupInviteDialog">
-   <property name="geometry">
-    <rect>
-     <x>200</x>
-     <y>10</y>
-     <width>471</width>
-     <height>581</height>
-    </rect>
-   </property>
-   <property name="sizePolicy">
-    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-     <horstretch>0</horstretch>
-     <verstretch>0</verstretch>
-    </sizepolicy>
-   </property>
-   <property name="styleSheet">
-    <string notr="true">QFrame {
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <item>
+    <widget class="QFrame" name="GroupInviteDialog">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>471</width>
+       <height>581</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame {
 background-color:rgba(16,19,23,255);
 border:1px solid white;
 border-radius:45px;
 }</string>
-   </property>
-   <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
-    <property name="spacing">
-     <number>20</number>
-    </property>
-    <property name="topMargin">
-     <number>10</number>
-    </property>
-    <property name="bottomMargin">
-     <number>10</number>
-    </property>
-    <item alignment="Qt::AlignHCenter">
-     <widget class="QLabel" name="label_2">
-      <property name="styleSheet">
-       <string notr="true">color:white;
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1">
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <property name="topMargin">
+       <number>10</number>
+      </property>
+      <property name="bottomMargin">
+       <number>10</number>
+      </property>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_2">
+        <property name="styleSheet">
+         <string notr="true">color:white;
 font-size:18px;
 border:none;</string>
-      </property>
-      <property name="text">
-       <string>Добавить друзей в беседу</string>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QFrame" name="FriendsList">
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QListWidget" name="friend_list"/>
-       </item>
-       <item alignment="Qt::AlignHCenter">
-        <widget class="QPushButton" name="createGroup_button">
-         <property name="sizePolicy">
-          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize">
-          <size>
-           <width>151</width>
-           <height>50</height>
-          </size>
-         </property>
-         <property name="cursor">
-          <cursorShape>PointingHandCursor</cursorShape>
-         </property>
-         <property name="styleSheet">
-          <string notr="true"> QPushButton {
+        </property>
+        <property name="text">
+         <string>Добавить друзей в беседу</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="FriendsList">
+        <property name="styleSheet">
+         <string notr="true">border:none;</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4">
+         <item>
+          <widget class="QListWidget" name="friend_list"/>
+         </item>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QPushButton" name="createGroup_button">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>151</width>
+             <height>50</height>
+            </size>
+           </property>
+           <property name="cursor">
+            <cursorShape>PointingHandCursor</cursorShape>
+           </property>
+           <property name="styleSheet">
+            <string notr="true"> QPushButton {
 border:1px solid orange;
 border-radius:25%;
 background-color:orange;
@@ -96,17 +96,19 @@ QPushButton:hover {
 	background-color: rgba(255, 211, 121, 200);
 	border:1px solid rgba(255, 211, 121, 200);
 }</string>
-         </property>
-         <property name="text">
-          <string>Добавить</string>
-         </property>
-        </widget>
-       </item>
-      </layout>
-     </widget>
-    </item>
-   </layout>
-  </widget>
+           </property>
+           <property name="text">
+            <string>Добавить</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
  </widget>
  <resources/>
  <connections/>

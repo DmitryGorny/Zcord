@@ -223,7 +223,7 @@ class MessageView(viewsets.ModelViewSet):
 class ChatsView(viewsets.ModelViewSet):
     queryset = Chats.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    search_fields = ["DM__id", 'group__id']
+    search_fields = ["DM__id", 'group__id', ]
     filterset_fields = ["is_group"]
     serializer_class = ChatsSerializer
 
@@ -237,7 +237,6 @@ class ChatsView(viewsets.ModelViewSet):
             if not is_group:
                 return queryset.filter(Q(DM__user1=user_id) | Q(DM__user2=user_id), is_group=is_group)
             return queryset.filter(group__members__id=user_id, is_group=is_group)
-
         return queryset
 
     def destroy(self, request, *args, **kwargs):

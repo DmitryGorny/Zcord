@@ -10,7 +10,7 @@ class IRequestsView(Protocol):
     request_accepted_model: pyqtSignal
     request_declined_model: pyqtSignal
 
-    def add_request(self, group_id: str, group_name: str) -> None:
+    def add_request(self, group_id: str, group_name: str, request_id: str) -> None:
         pass
 
     def remove_request(self, group_id: str):
@@ -23,6 +23,9 @@ class IRequestsView(Protocol):
         pass
 
     def get_widget(self) -> QtWidgets.QFrame:
+        pass
+
+    def clear_page(self) -> None:
         pass
 
 
@@ -44,8 +47,8 @@ class RequestsView(QtWidgets.QWidget):
 
     def add_request(self, group_id: str, group_name: str, request_id: str) -> None:
         request = RequestWidget(group_name=group_name, group_id=group_id)
-        request.connect_accept_requests(lambda: self.request_accepted_model.emit(group_id, request_id))
-        request.connect_decline_requests(lambda: self.request_declined_model.emit(group_id, request_id))
+        request.connect_accept_requests(lambda: self.request_accepted_model.emit(str(group_id), str(request_id)))
+        request.connect_decline_requests(lambda: self.request_declined_model.emit(str(group_id), str(request_id)))
 
         item = QtWidgets.QListWidgetItem()
         item.setSizeHint(request.sizeHint())
@@ -77,3 +80,6 @@ class RequestsView(QtWidgets.QWidget):
 
     def connect_decline_accepted(self, cb: Callable) -> None:
         self.request_declined_model.connect(cb)
+
+    def clear_page(self) -> None:
+        self._ui.group_request.clear()

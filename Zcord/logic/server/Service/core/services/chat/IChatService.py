@@ -18,5 +18,8 @@ class IChatService(Protocol):
         raise NotImplementedError
 
     async def create_group(self, creator_id: str, group_name: str, is_private: bool,
-                           is_invite_from_admin: bool, is_password: bool, password: bool) -> None:
+                           is_invite_from_admin: bool, is_password: bool, password: bool, members: list[str]) -> None:
+        raise NotImplementedError
+
+    async def send_group_request(self, sender_id: str, receiver_id: str, group_id: str) -> None:
         raise NotImplementedError

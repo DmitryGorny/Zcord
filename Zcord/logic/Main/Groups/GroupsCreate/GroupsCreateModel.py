@@ -9,13 +9,14 @@ class GroupsCreateModel(QObject):
     name_is_not_unique_view = pyqtSignal()
     group_created_view = pyqtSignal()
 
-    def __init__(self):
+    def __init__(self, user):
         super(GroupsCreateModel, self).__init__()
         self._api_client = APIClient()
-
+        self._user = user
         self._form_sent = False
 
-    def send_form(self, group_name: str, is_private: bool, is_invite_from_admin: bool, is_password: bool, password: str = None) -> None:
+    def send_form(self, group_name: str, is_private: bool, is_invite_from_admin: bool, is_password: bool,
+                  password: str = None) -> None:
         if self._form_sent:
             return
 
@@ -24,11 +25,13 @@ class GroupsCreateModel(QObject):
             return
 
         try:
-            ClientConnections.send_service_message(group='CHAT', msg_type='GROUP-CREATE', extra_data={'group_name': group_name,
-                                                                                        'is_private': is_private,
-                                                                                        'is_invite_from_admin': is_invite_from_admin,
-                                                                                        'is_password': is_password,
-                                                                                        'password': password})
+            ClientConnections.send_service_message(group='CHAT', msg_type='GROUP-CREATE',
+                                                   extra_data={'group_name': group_name,
+                                                               'is_private': is_private,
+                                                               'is_invite_from_admin': is_invite_from_admin,
+                                                               'is_password': is_password,
+                                                               'password': password,
+                                                               'members': []})
         except Exception as e:
             print(e)
             return
@@ -45,4 +48,3 @@ class GroupsCreateModel(QObject):
     def group_created(self) -> None:
         self.group_created_view.emit()
         self._form_sent = False
-

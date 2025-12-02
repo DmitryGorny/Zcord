@@ -21,13 +21,14 @@ class ClientService(IClientService):
         self._friend_repo.add_friends(client_id=user_id, friends=friends)
         self._chat_repo.add_chats(chats=chats)
         await self._client_repo.connect_message_socket(user_id)
+
         await self._client_repo.change_client_activity_status(user_id, user_id, status)
+        await self._client_repo.notify_message_server_add(user_id, chats, writer)
+
         for friend_attr in friends:  # TODO: В случае кастомных статусов присылать еще и онлайн статус друга
             await self._change_client_activity_status(friend_attr['id'], user_id, status)
             await self._change_client_activity_status(user_id, friend_attr['id'],
                                                       self._client_repo.get_client_online_stat(friend_attr['id']))
-
-        await self._client_repo.notify_message_server_add(user_id, chats, writer)
 
     async def user_left(self, client_id: str, status: dict[str, str]):
         friends = self._friend_repo.get_client_friends(client_id=client_id)

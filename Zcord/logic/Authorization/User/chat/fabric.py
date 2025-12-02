@@ -1,5 +1,6 @@
 from abc import ABC, abstractmethod
 
+from logic.Authorization.User.chat.GroupMember import GroupMember
 from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.Main.Chat.View.dm_view.ChatClass.ChatView import ChatView
 
@@ -28,3 +29,14 @@ class CreateGroupChat(ChatFabric):
                          kwargs['is_password'],
                          kwargs['is_admin_invite'],
                          kwargs['admin_id'])
+
+
+class GroupMemberFabric(ABC):
+    @abstractmethod
+    def create_member(self, **kwargs) -> BaseChatView:
+        pass
+
+
+class GroupMemberCreator(GroupMemberFabric):
+    def create_member(self, **kwargs) -> GroupMember:
+        return GroupMember(kwargs['user_id'], kwargs['nickname'])

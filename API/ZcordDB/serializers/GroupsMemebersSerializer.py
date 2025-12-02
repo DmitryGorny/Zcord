@@ -1,12 +1,14 @@
 from rest_framework import serializers
 
-from .GroupsSerializer import GroupsSerializer
+from .UserSerializer import UserSerializer
 from ..models import GroupsMembers
 
 
-class GroupsMembersSerializer(serializers.ModelSerializer):
-    group = GroupsSerializer(read_only=True)
+class GroupsMembersDetailSerializer(serializers.ModelSerializer):
+    nickname = serializers.CharField(source="user.nickname", read_only=True)
+    user_id = serializers.CharField(source="user.id", read_only=True)
 
     class Meta:
         model = GroupsMembers
-        fields = ['id', 'user', 'group']
+        fields = ['nickname', 'user_id']
+

@@ -110,7 +110,6 @@ class MiniProfile(QtWidgets.QDialog):  # TODO: Сделать MVC
         self.ui.ChangeActivity.setText(text)
 
 
-@singleton
 class Overlay(QtWidgets.QWidget):
     def __init__(self, dialog, parent=None):
         super().__init__(parent)

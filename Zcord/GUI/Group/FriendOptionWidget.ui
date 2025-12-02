@@ -110,6 +110,7 @@ color:white;</string>
        <string notr="true">QCheckBox {
 color:white;
 font-size:20px;
+background-color:#323338;
 }
 
 QCheckBox::indicator {
@@ -117,7 +118,6 @@ QCheckBox::indicator {
     height: 23px;
     border-radius: 9px;
     border: 2px solid orange;
-    background: transparent;
 }
 
 QCheckBox::indicator:hover {

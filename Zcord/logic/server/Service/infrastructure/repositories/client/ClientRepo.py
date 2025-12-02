@@ -67,13 +67,13 @@ class ClientRepo(IClientRepo):
     def _get_client(self, client_id: str) -> Client | None:
         client = self._clients.get(str(client_id), None)
         if client is None:
-            print(f'Client {client_id} doesnt exist')
+            return None
         return client
 
     async def change_client_activity_status(self, client_id: str, sender_id: str, status: dict[str, str]) -> None:
         client = self._get_client(client_id)
         sender = self._get_client(sender_id)
-        if client is None:
+        if client is None or sender is None:
             return
         await client.send_message('USER-STATUS', {
             "user-status": status,

@@ -63,7 +63,13 @@ urlpatterns = [
         'get': 'list',
         'post': 'create'
     }), name='chats'),
+    path('chats/<int:pk>/', ChatsView.as_view({
+        'get': 'retrieve'
+    }), name='chats-pk'),
     path('chats/delete/<str:DM_id>/', ChatsView.as_view({
+        'delete': 'destroy'
+    }), name='chats-dm-destroy'),
+    path('chats/delete/<str:group_id>/', ChatsView.as_view({
         'delete': 'destroy'
     }), name='chats-dm-destroy'),
     path('chats/delete/groups/<str:groups_id>/', ChatsView.as_view({
@@ -80,7 +86,8 @@ urlpatterns = [
     }), name='groups-members-by-group-id'),
 
     path('groups-requests/', GroupsRequestView.as_view({
-        'get': 'list'
+        'get': 'list',
+        'post': 'create'
     }), name='groups-requests'),
     path('groups-requests/<int:pk>/', GroupsRequestView.as_view({
         'get': 'retrieve',

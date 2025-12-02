@@ -67,7 +67,7 @@ class UserLeftGroupStrat(ChatStrategyKeeper, IServiceStrat):
 
 
 class CreateGroupStrat(ChatStrategyKeeper, IServiceStrat):
-    command_name = "GROUP-CREATE"
+    command_name = "CREATE-GROUP"
 
     def __init__(self):
         super().__init__()
@@ -79,10 +79,12 @@ class CreateGroupStrat(ChatStrategyKeeper, IServiceStrat):
         is_invite_from_admin = msg['is_invite_from_admin']
         is_password = msg['is_password']
         password = msg['password']
+        members = msg['members']
         await self._service.create_group(creator_id=creator_id,
                                          group_name=group_name,
                                          is_private=is_private,
                                          is_invite_from_admin=is_invite_from_admin,
                                          is_password=is_password,
-                                         password=password)
+                                         password=password,
+                                         members=members)
 

@@ -17,3 +17,10 @@ class GroupRequestsController:
 
     def get_widget(self):
         return self._view.get_widget()
+
+    def request_received(self, group_id: str, group_name: str, request_id: int):
+        self._view.add_request(group_id=group_id, group_name=group_name, request_id=request_id)
+
+    def reload_page(self):
+        self._view.clear_page()
+        self._model.get_groups_rejects()

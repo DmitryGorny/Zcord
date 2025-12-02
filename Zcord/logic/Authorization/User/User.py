@@ -81,10 +81,9 @@ class User(BaseUser):
     def add_chat(self, friend_id: str, chat_id: str):
         return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
-    def add_group_chat(self, group_name: str, chat_id: str, members: list, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
+    def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
         return self._chats_model.add_group_chat(chat_id=chat_id,
                                                 group_name=group_name,
-                                                members=members,
                                                 is_private=is_private,
                                                 is_admin_invite=is_admin_invite,
                                                 is_password=is_password,

@@ -252,6 +252,9 @@ class APIClient:
     def search_chat_by_id(self, chat_id, is_group):
         return self._request('GET', f'chats/?search={chat_id}&is_group={is_group}')
 
+    def get_chat_by_id(self, chat_id):
+        return self._request('GET', f'chats/{chat_id}/')
+
     # Работа с заявками в группу
     def get_groups_requests_by_receiver_id(self, receiver_id):
         params = {
@@ -261,6 +264,14 @@ class APIClient:
 
     def delete_group_request(self, request_id):
         return self._request('DELETE', f'groups-requests/{request_id}/')
+
+    def send_group_request(self, group_id: int, sender_id: int, receiver_id: int):
+        json = {
+            'group_id': group_id,
+            'sender': sender_id,
+            'receiver': receiver_id
+        }
+        return self._request('POST', f'groups-requests/', json=json)
 
     # Работа с группами
     def check_unique_group_name(self, group_name):

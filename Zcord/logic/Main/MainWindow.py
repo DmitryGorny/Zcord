@@ -363,7 +363,6 @@ class MainWindow(FramelessWindow):
         self.overlay.setGeometry(new_rect)
         self.overlay.show()
         self.miniProfile.raise_()
-
         self.miniProfile.show()
         self.miniProfile.exec()
 
@@ -464,11 +463,18 @@ class MainWindow(FramelessWindow):
                     self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
+            case 'GROUP_REQUEST_RECEIVE':
+                self._groups.request_received(args['group_id'], args['group_name'], args['request_id'])
             case "ADD-GROUP":
-                group = self.__user.get_group_by_id(group_id=args['group_id'])
+                group = self.__user.add_group_chat(chat_id=args['group_id'],
+                                                   group_name=args['group_name'],
+                                                   is_private=args['is_private'],
+                                                   is_admin_invite=args['is_admin_invite'],
+                                                   is_password=args['is_password'],
+                                                   admin_id=args['admin_id'])
                 group_ui = self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'],
-                                                  ui=group['ui'])
-                ClientConnections.add_chat({'chat_id': args['chat_id'],
+                                                  ui=group.ui.MAIN)
+                ClientConnections.add_chat({'chat_id': args['group_id'],
                                             'is_dm': False,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.update_chats_groups_list(group_ui, True)
@@ -479,8 +485,7 @@ class MainWindow(FramelessWindow):
                                                    is_private=args['is_private'],
                                                    is_admin_invite=args['is_admin_invite'],
                                                    is_password=args['is_password'],
-                                                   admin_id=args['admin_id'],
-                                                   members=[int(self.__user.id)])
+                                                   admin_id=args['admin_id'])
                 group_ui = self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'],
                                                   ui=group.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['group_id'],

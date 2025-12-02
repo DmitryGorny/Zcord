@@ -2,6 +2,7 @@ from typing import List
 
 from PyQt6 import QtCore, QtWidgets
 
+from logic.Authorization.User.chat.GroupMember import GroupMember
 from logic.Main.Chat.View.IView.IView import IView, BaseChatView
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 
@@ -31,7 +32,7 @@ class GroupView(BaseChatView):
 
         self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
 
-        self._users: List[str] = members.copy()
+        self._users: List[GroupMember] = members.copy()
 
         self._is_private = is_private
         self._is_admin_invite = is_admin_invite

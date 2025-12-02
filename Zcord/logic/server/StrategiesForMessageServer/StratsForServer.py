@@ -5,7 +5,6 @@ from datetime import datetime
 from logic.db_client.api_client import APIClient
 from logic.server.Strategy import Strategy
 from abc import abstractmethod
-from logic.server.StrategyForServiceServer.ServeiceStrats import ServiceStrategy
 
 CACHE_LIMIT = '15'
 
@@ -27,7 +26,14 @@ class ChooseStrategy:
         return self.__current_strategy
 
 
-class MessageStrategy(ServiceStrategy):
+class MessageStrategy(Strategy):
+    commands = {}
+
+    def __init_subclass__(cls, **kwargs):
+        super().__init_subclass__(**kwargs)
+        if hasattr(cls, "command_name"):
+            cls.commands[cls.command_name] = cls
+
     def __init__(self):
         super(MessageStrategy, self).__init__()
         self._messageRoom_pointer = None
@@ -58,6 +64,7 @@ class ChangeChatStrategy(MessageStrategy):
             print(e)
         except KeyError:
             print("Клик по тому же чату")
+        print(self._messageRoom_pointer.ids_in_chats)
         self._messageRoom_pointer.ids_in_chats[chat_code].append(user_id)
 
         cache = self._messageRoom_pointer.cache_chat.get_cache(chat_code)
@@ -112,7 +119,6 @@ class UserInfoStrategy(MessageStrategy):
 
         user_id = str(serialize_2["user_id"])
         IP = serialize_2["IP"]
-
         self._messageRoom_pointer.copyCacheChat(serialize_1)
         for chat_id in serialize_1.keys():
             self._messageRoom_pointer.cache_chat.init_cache(chat_id)

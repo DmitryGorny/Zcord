@@ -128,7 +128,6 @@ class ChatInterface:
 
         if chat is None:
             raise ValueError(f"Нет такого Chat() с id {chat_id}")
-        print(chat)
 
         self._chat = chat
 

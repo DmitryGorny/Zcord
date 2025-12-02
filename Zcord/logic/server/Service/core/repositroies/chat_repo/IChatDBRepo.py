@@ -8,19 +8,22 @@ class IChatDBRepo(Protocol):
     def create_dm_chat(self, chat_id: int) -> list[dict]:
         raise NotImplementedError
 
-    def create_group_chat(self, group_id: int) -> None:
+    def create_group_chat(self, group_id: int) -> list[dict]:
         raise NotImplementedError
 
     def delete_dm_chat(self, DM_id: int) -> None:
         raise NotImplementedError
 
-    def search_chat_by_id(self, chat_id: int, is_group: bool) -> list[dict]:
+    def search_chat_by_id(self, chat_id: int, is_group: bool) -> dict:
         raise NotImplementedError
 
     def add_group_member(self, user_id: int, group_id: int) -> None:
         raise NotImplementedError
 
     def delete_group_request(self, request_id: int) -> None:
+        raise NotImplementedError
+
+    def send_group_request(self, group_id: int, sender_id: int, receiver_id: int) -> dict:
         raise NotImplementedError
 
     def delete_group_member_by_id(self, member_id: int) -> None:
@@ -35,3 +38,4 @@ class IChatDBRepo(Protocol):
 
     def add_group_admin(self, user_id: int, group_id: int) -> dict:
         raise NotImplementedError
+

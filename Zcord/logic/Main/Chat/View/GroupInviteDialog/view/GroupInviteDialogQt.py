@@ -12,14 +12,16 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_GroupInviteDial(object):
     def setupUi(self, GroupInviteDial):
         GroupInviteDial.setObjectName("GroupInviteDial")
-        GroupInviteDial.resize(842, 636)
+        GroupInviteDial.resize(493, 603)
+        self.horizontalLayout = QtWidgets.QHBoxLayout(GroupInviteDial)
+        self.horizontalLayout.setObjectName("horizontalLayout")
         self.GroupInviteDialog = QtWidgets.QFrame(parent=GroupInviteDial)
-        self.GroupInviteDialog.setGeometry(QtCore.QRect(200, 10, 471, 581))
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.GroupInviteDialog.sizePolicy().hasHeightForWidth())
         self.GroupInviteDialog.setSizePolicy(sizePolicy)
+        self.GroupInviteDialog.setMinimumSize(QtCore.QSize(471, 581))
         self.GroupInviteDialog.setStyleSheet("QFrame {\n"
 "background-color:rgba(16,19,23,255);\n"
 "border:1px solid white;\n"
@@ -68,6 +70,7 @@ class Ui_GroupInviteDial(object):
         self.verticalLayout_4.addWidget(self.createGroup_button, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.verticalLayout.addWidget(self.FriendsList)
         self.verticalLayout.setStretch(1, 1)
+        self.horizontalLayout.addWidget(self.GroupInviteDialog)
 
         self.retranslateUi(GroupInviteDial)
         QtCore.QMetaObject.connectSlotsByName(GroupInviteDial)

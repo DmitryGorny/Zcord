@@ -120,9 +120,9 @@ class Server:
                     msg_type = msg["msg_type"]
                     group_name = msg['group']
                     strategy = self._choose_strategy.get_strategy(group_name=group_name, command=msg_type)
-                    print(msg)
                     if isinstance(strategy, UserInfoStrat):
                         msg['writer'] = writer
+                    print(msg)
                     try:
                         await strategy.execute(msg)
                     except AttributeError as e:

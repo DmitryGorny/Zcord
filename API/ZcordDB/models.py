@@ -121,8 +121,7 @@ class Message(models.Model):
 
 
 class GroupRequest(models.Model):
-    group = models.ForeignKey(Groups, on_delete=models.CASCADE)
-    chat = models.ForeignKey(Chats, on_delete=models.CASCADE)
+    group = models.ForeignKey(Groups, on_delete=models.CASCADE, related_name='group')
     sender = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='invite_sender')
     receiver = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='invite_receiver')
     created_at = models.DateTimeField(auto_now_add=True)

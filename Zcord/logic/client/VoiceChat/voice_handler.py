@@ -162,21 +162,17 @@ class VoiceHandler:
         """Функция для автоматического регулирования усиления"""
         # Текущий RMS (для 16-бит)
         rms = audioop.rms(data, 2)
-
+        # RMS считается нормальным если он от 2000 до 4000, в некоторых случаях эта функция может клипать звук до x10
+        # потому что AGS работает где-то помимо этой программы, сырые данный RMS будут недостоверными
         if rms <= 0:
             return data
 
         # Желаемое усиление
         desired_gain = target_rms / rms
-
         # Ограничиваем
         desired_gain = min(desired_gain, max_gain)
-
         # Применяем усиление через audioop
         amplified = audioop.mul(data, 2, desired_gain)
-
-        # Ограничиваем, чтобы не было клиппинга
-        amplified = audioop.maxpp(amplified, 2)
 
         return amplified
 

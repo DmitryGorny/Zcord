@@ -129,7 +129,6 @@ class VoiceConnection(IConnection, BaseConnection):
                 self._udp_send(pkt, msg_type="audio")
             except Exception:
                 pass
-        print("Вышел из _audio_input_thread")
 
     @property
     def user(self):

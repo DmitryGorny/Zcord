@@ -232,7 +232,7 @@ class TcpSignalServer:
 
 
 async def main():
-    HOST = "26.181.96.20"
+    HOST = "26.36.124.241"
     srv = TcpSignalServer()
     await asyncio.gather(
         srv.serve(HOST, 55559),

@@ -51,7 +51,24 @@ class ClientService(IClientService):
         chat = self._chat_repo.get_chat_by_id(chat_id=chat_id)
 
         for member in chat.get_members():
-            await self._client_repo.send_message(client_id=member.id, msg_type='__CALL-NOTIFICATION__',
+            await self._client_repo.send_message(client_id=member.user_id, msg_type='__CALL-NOTIFICATION__',
                                                  extra_data={'user_id': user_id,
                                                              'chat_id': chat_id,
                                                              'call_flg': call_flg})
+
+    async def icon_call_add(self, user_id: str, chat_id: str, username: str) -> None:
+        chat = self._chat_repo.get_chat_by_id(chat_id)
+        for member in chat.get_members():
+            await self._client_repo.send_message(client_id=member.user_id, msg_type='__ICON-CALL__',
+                                                 extra_data={'user_id': user_id,
+                                                             'username': username,
+                                                             'chat_id': chat_id})
+
+    async def icon_call_left(self, user_id: str, chat_id: str) -> None:
+        chat = self._chat_repo.get_chat_by_id(chat_id)
+        for member in chat.get_members():
+            await self._client_repo.send_message(client_id=member.user_id, msg_type='__LEFT-ICON-CALL__',
+                                                 extra_data={'user_id': user_id,
+                                                             'chat_id': chat_id})
+
+

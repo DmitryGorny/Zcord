@@ -36,5 +36,5 @@ class ChatRepo(IChatRepo):
         return chats
 
     def get_chat_by_id(self, chat_id: str):
-        return self._chats[chat_id]
+        return self._chats[str(chat_id)]
 

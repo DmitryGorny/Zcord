@@ -53,3 +53,45 @@ class UserStatusStrategy(ClientStrategyKeeper, IServiceStrat):
         user_id: str = str(msg['user_id'])
         user_status = {'color': color, 'user-status': user_status}
         await self._service.user_status(user_id, user_status)
+
+
+class CallNotificationStrategy(ClientStrategyKeeper, IServiceStrat):
+    command_name = "__CALL-NOTIFICATION__"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        user_id = msg["user_id"]
+        chat_id = msg["chat_id"]
+        call_flag = msg["call_flg"]
+        await self._service.call_notification(user_id, chat_id, call_flag)
+
+
+class CallConnectionIconStrategy(ClientStrategyKeeper):
+    """Добавление иконки пользователей которые находятся в звонке"""
+
+    command_name = "__ICON-CALL__"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        user_id = str(msg["user_id"])
+        chat_id = str(msg["chat_id"])
+        username = msg["username"]
+        await self._service.icon_call_add(user_id=user_id, chat_id=chat_id, username=username)
+
+
+class CallConnectionIconLeftStrategy(ClientStrategyKeeper):
+    """Удаление иконки пользователей которые находятся в звонке"""
+
+    command_name = "__LEFT-ICON-CALL__"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        user_id = str(msg["user_id"])
+        chat_id = str(msg["chat_id"])
+        await self._service.icon_call_left(user_id=user_id, chat_id=chat_id)

@@ -19,3 +19,9 @@ class IClientService(Protocol):
     async def call_notification(self, user_id: str, chat_id: str, call_flg) -> None:
         raise NotImplementedError
 
+    async def icon_call_add(self, user_id: str, chat_id: str, username: str) -> None:
+        raise NotImplementedError
+
+    async def icon_call_left(self, user_id: str, chat_id: str) -> None:
+        raise NotImplementedError
+

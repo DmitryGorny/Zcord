@@ -17,15 +17,18 @@ from logic.server.Service.infrastructure.repositories.friend.FriendDBRepo import
 from logic.server.Service.infrastructure.repositories.friend.FriendRepo import FriendRepo
 from logic.server.Service.infrastructure.strats.client.ClientStrats import UserInfoStrat
 from logic.server.Service.infrastructure.strats.strats_choose.ChooseStrategy import ChooseStrategy
-from logic.server.StrategyForServiceServer.ServiceServersStrats import ChooseServerStrategy
 
 
-class Server:
-    servers: Dict[str, asyncio.StreamWriter] = {
-        "message-server": None,
-        "voice-server": None
-    }
+class SingletonMeta(type):
+    _instances = {}
 
+    def __call__(cls, *args, **kwargs):
+        if cls not in cls._instances:
+            cls._instances[cls] = super().__call__(*args, **kwargs)
+        return cls._instances[cls]
+
+
+class OnionHandler(metaclass=SingletonMeta):
     def __init__(self):  # TODO: Сделать фабрику
         self._message_service_dispatcher: IMessageServiceDispatcher = MessageServiceDispatcher()
         # Все репозитории
@@ -56,12 +59,28 @@ class Server:
                                                friend_service=self._services['friend_service'],
                                                chat_service=self._services['chat_service'])
 
+    def define_message_communication(self, func: Callable) -> None:
+        self._message_service_dispatcher.define_sender_func(func)
+
+    def choose_strategy(self, group_name, command):
+        return self._choose_strategy.get_strategy(group_name, command)
+
+
+class Server:
+    servers: Dict[str, asyncio.StreamWriter] = {
+        "message-server": None,
+        "voice-server": None
+    }
+
+    def __init__(self):
+        self._onion_handler = OnionHandler()
+
     def server_connected(self, server_name: str, writer: asyncio.StreamWriter):
         # TODO: Переписать с Enum
         Server.servers[server_name] = writer
 
         if server_name == 'message-server':
-            self._message_service_dispatcher.define_sender_func(self.send_decorator(Server.servers["message-server"]))
+            self._onion_handler.define_message_communication(self.send_decorator(Server.servers["message-server"]))
 
     async def create_task(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         await self.handle(reader, writer)
@@ -100,9 +119,7 @@ class Server:
         return results
 
     async def handle(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
-        # Этот урод может не кидать исключения в процесе выполнения, только после KeyboardInterrupt
         writer.write(json.dumps({"message_type": '__USER-INFO__'}).encode('utf-8'))
-        self._message_service_dispatcher.define_sender_func(self.send_decorator(Server.servers['message-server']))
         await writer.drain()
         while True:
 
@@ -119,7 +136,7 @@ class Server:
                 for msg in arr:
                     msg_type = msg["msg_type"]
                     group_name = msg['group']
-                    strategy = self._choose_strategy.get_strategy(group_name=group_name, command=msg_type)
+                    strategy = self._onion_handler.choose_strategy(group_name=group_name, command=msg_type)
                     if isinstance(strategy, UserInfoStrat):
                         msg['writer'] = writer
                     try:
@@ -138,6 +155,8 @@ class ServersHandler:
                                                                  'voice-server': None}
 
         self._server_connected = server_connected_signal
+
+        self._onion_handler = OnionHandler()
 
     async def task_creator(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         await self.handle_server(reader, writer)
@@ -162,9 +181,9 @@ class ServersHandler:
                     print("Подключен voice")
                     self._server_connected("voice-server", writer)
                     continue
-
+                group_name = msg.get("g")
+                strategy = self._onion_handler.choose_strategy(group_name=group_name, command=typ)
                 try:
-                    strategy = ChooseServerStrategy().get_strategy(typ, Server)
                     await strategy.execute(msg)
                 except Exception as e:
                     print(e)

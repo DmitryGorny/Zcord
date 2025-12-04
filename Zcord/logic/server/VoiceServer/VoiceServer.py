@@ -5,6 +5,7 @@ import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
 
+
 # Протокол сообщений по TCP (NDJSON: JSON + "\n"):
 # 1) Регистрация/вход в комнату:
 #    {"t":"join_room","room":"room1","token":"<uuid>","user":"user1","udp_port":54321}
@@ -27,7 +28,9 @@ from typing import Dict, List, Optional
 #
 # Примечание: TCP-соединение само по себе является keep-alive'ом, отдельные UDP keep-alive не нужны.
 
-
+# ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ!!!!!!!!!!!!!
+# В отслыку сообщений на сервисный сервер в словарь добавлена еще и g (Группа), т.к. сейчас сратегии
+# разделены на группы (CLIENT, CHAT, FRIEND). Тебе, скорее всего, нужны будут только CLIENT
 @dataclass
 class ClientInfo:
     reader: asyncio.StreamReader
@@ -136,7 +139,8 @@ class TcpSignalServer:
 
         print(f"[TCP] {client.addr_str()} присоединился к комнате '{room}', участников={len(lst)}")
 
-        await self._send_service_msg(obj={"t": "__ICON-CALL__", "user_id": client.user_id, "chat_id": room, "username": client.user})
+        await self._send_service_msg(
+            obj={"g": "CLIENT", "t": "__ICON-CALL__", "user_id": client.user_id, "chat_id": room, "username": client.user})
 
         # Новому клиенту отправляем список уже присутствующих пиров
         if len(lst) >= 2:
@@ -156,7 +160,7 @@ class TcpSignalServer:
             lst.remove(client)
             print(f"[TCP] {client.addr_str()} вышел из комнаты '{room}', участников={len(lst)}")
 
-            await self._send_service_msg(obj={"t": "__LEFT-ICON-CALL__", "user_id": client.user_id, "chat_id": room})
+            await self._send_service_msg(obj={"g": "CLIENT", "t": "__LEFT-ICON-CALL__", "user_id": client.user_id, "chat_id": room})
             await self._broadcast_room(room, {"t": "peer_left", "client": client.to_dict()}, skip=client)
 
         # чистка комнаты если пустая TODO: Не знаю нужно ли??
@@ -228,12 +232,13 @@ class TcpSignalServer:
 
 
 async def main():
-    HOST = "26.36.124.241"
+    HOST = "26.181.96.20"
     srv = TcpSignalServer()
     await asyncio.gather(
         srv.serve(HOST, 55559),
         srv.connect_service_server(HOST, 55571),
     )
+
 
 if __name__ == "__main__":
     asyncio.run(main())

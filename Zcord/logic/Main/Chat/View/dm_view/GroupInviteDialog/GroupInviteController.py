@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets
 
-from logic.Main.Chat.View.GroupInviteDialog.GroupInviteModel import GroupInviteModel
-from logic.Main.Chat.View.GroupInviteDialog.view.GroupInviteView import GroupInviteView
+from logic.Main.Chat.View.dm_view.GroupInviteDialog.GroupInviteModel import GroupInviteModel
+from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.GroupInviteView import GroupInviteView
 
 
 class GroupInviteController:
@@ -20,3 +20,6 @@ class GroupInviteController:
 
     def update_friends(self):
         self._model.show_friends()
+
+    def reload_model(self):
+        self._model.reload_flag()

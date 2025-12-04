@@ -13,8 +13,10 @@ class GroupInviteModel(QObject):  # TODO: добавить подтвержде�
         super(GroupInviteModel, self).__init__()
         self._user = user
 
+        self._group_created = False
+
     def create_group(self, ids: List[str]) -> None:
-        if len(ids) == 0:
+        if len(ids) == 0 and self._group_created:
             return
         group_name = ''
         friends = self._user.getFriends()
@@ -39,8 +41,13 @@ class GroupInviteModel(QObject):  # TODO: добавить подтвержде�
                                                                })
         except Exception as e:
             print(e)
+            return
+        self._group_created = True
 
     def show_friends(self) -> None:
         self.clear_friend_list_view.emit()
         for friend in self._user.getFriends():
             self.show_friend_view.emit(friend['id'], friend['nickname'])
+
+    def reload_flag(self) -> None:
+        self._group_created = False

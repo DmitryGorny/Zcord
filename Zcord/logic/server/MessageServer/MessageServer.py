@@ -141,7 +141,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
                     continue
 
                 for server_msg in arr:
-                    type_msg = server_msg["type"]
+                    type_msg = server_msg["msg_type"]
                     strategy = MessageRoom._strat_choose.get_strategy(type_msg, MessageRoom)
                     try:
                         strategy.execute(server_msg)

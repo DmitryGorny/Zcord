@@ -3,8 +3,8 @@ from typing import List
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import pyqtSignal, QPropertyAnimation, QRect, QEasingCurve
 
-from logic.Main.Chat.View.GroupInviteDialog.view.FriendWidget.FriendWidget import FriendOptionWidget
-from logic.Main.Chat.View.GroupInviteDialog.view.GroupInviteDialogQt import Ui_GroupInviteDial
+from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.FriendWidget.FriendWidget import FriendOptionWidget
+from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.GroupInviteDialogQt import Ui_GroupInviteDial
 
 
 class GroupInviteView(QtWidgets.QDialog):  # TODO: В qt designer добавить ожидание подтверждения создания группы

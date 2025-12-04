@@ -81,7 +81,7 @@ class ChatService(IChatService):
         if request_id is not None:
             self._chat_db_repo.delete_group_request(int(request_id))
         nickname = self._client_repo.get_client_nick(client_id=request_receiver)
-        await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': group_id,
+        await self._msg_server_communication.send_msg_server(msg_type='CHAT-MESSAGE', mes_data={'chat_id': group['id'],
                                                                               'user_id': request_receiver,
                                                                               'type': 'service',
                                                                               'service_message': f'Пользователь {nickname} присоединился к группе'})

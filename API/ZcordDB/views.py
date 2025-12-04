@@ -163,6 +163,7 @@ class MessageView(viewsets.ModelViewSet):
         user_id = request.query_params.get('user_id')
 
         messages = Message.objects.filter(chat__id=chat_id, was_seen=False).exclude(sender=user_id)[:99]
+        print(messages)
         result = messages.aggregate(count=Count('id'))
 
         return Response(result)

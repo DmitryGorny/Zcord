@@ -72,6 +72,13 @@ class User(BaseUser):
 
         self.init_friends_and_chats()
 
+    @property
+    def current_chat(self):
+        return self._chats_model.current_chat
+
+    def _current_chat(self, chat_id: str):
+        self._chats_model.current_chat = chat_id
+
     def init_friends_and_chats(self) -> None:
         self._friends_model.init_friends()
 
@@ -81,7 +88,8 @@ class User(BaseUser):
     def add_chat(self, friend_id: str, chat_id: str):
         return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
-    def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
+    def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool,
+                       admin_id: str):
         return self._chats_model.add_group_chat(chat_id=chat_id,
                                                 group_name=group_name,
                                                 is_private=is_private,
@@ -89,7 +97,7 @@ class User(BaseUser):
                                                 is_password=is_password,
                                                 admin_id=admin_id)
 
-    def add_friend(self, username: str,  user_id: str):
+    def add_friend(self, username: str, user_id: str):
         from datetime import datetime
         now = datetime.now()
         time_str = now.strftime("%Y-%m-%dT%H:%M:%S.%fZ")
@@ -114,6 +122,7 @@ class User(BaseUser):
         self._friends_model.delete_friend(friend_id)
 
     def change_chat(self, chat_id: str) -> None:
+        self._current_chat(chat_id)
         ClientConnections.change_chat(chat_id)
 
     def get_socket_controller(self) -> ChatController.SocketController:
@@ -133,4 +142,3 @@ class User(BaseUser):
 
     def get_group_by_id(self, group_id: str):
         return self._chats_model.get_group_by_id(group_id=group_id)
-

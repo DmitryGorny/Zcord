@@ -479,7 +479,7 @@ class MainWindow(FramelessWindow):
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.update_chats_groups_list(group_ui, True)
             case "GROUP-CREATED":
-                # TODO: По какой-то ебучей причине parent в ui.MAIN задается только в MainWindow, а в клиенте нет
+                self.__user.current_chat.close_group_dialog()
                 group = self.__user.add_group_chat(chat_id=args['group_id'],
                                                    group_name=args['group_name'],
                                                    is_private=args['is_private'],

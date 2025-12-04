@@ -76,7 +76,7 @@ class Server:
 
         async def send_data_to_server(msg_type, mes_data: Dict[str, str]):
             message_header = {
-                "type": msg_type
+                "msg_type": msg_type
             }
             message = message_header | mes_data
 
@@ -122,7 +122,6 @@ class Server:
                     strategy = self._choose_strategy.get_strategy(group_name=group_name, command=msg_type)
                     if isinstance(strategy, UserInfoStrat):
                         msg['writer'] = writer
-                    print(msg)
                     try:
                         await strategy.execute(msg)
                     except AttributeError as e:

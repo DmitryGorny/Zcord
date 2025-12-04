@@ -48,4 +48,7 @@ class IClientRepo(Protocol):
     def get_client_nick(self, client_id: str) -> str:
         raise NotImplementedError
 
+    async def notify_message_server_left(self, user_id: str):
+        raise NotImplementedError
+
 

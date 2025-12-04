@@ -1,7 +1,7 @@
 from PyQt6 import QtWidgets
 from PyQt6.QtCore import pyqtSignal
 
-from logic.Main.Chat.View.GroupInviteDialog.view.FriendWidget.FriendWidgetQt import Ui_FriendOption
+from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.FriendWidget.FriendWidgetQt import Ui_FriendOption
 
 
 class FriendOptionWidget(QtWidgets.QWidget):

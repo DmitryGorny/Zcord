@@ -64,6 +64,10 @@ class ClientRepo(IClientRepo):
                                                                          "serialize_2": {'user_id': str(client_id),
                                                                                          "IP": client_ip[0]}})
 
+    async def notify_message_server_left(self, user_id: str):
+        await self._service_message_connection.send_msg_server(msg_type="END-SESSION",
+                                                               mes_data={"user_id": user_id})
+
     def _get_client(self, client_id: str) -> Client | None:
         client = self._clients.get(str(client_id), None)
         if client is None:

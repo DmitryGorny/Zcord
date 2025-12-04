@@ -1,6 +1,7 @@
 from typing import List
 
 from logic.Main.Chat.Controller.ChatController import ChatController
+from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.Main.Chat.View.dm_view.ChatClass.ChatView import ChatView
 
 from logic.Main.Chat.View.group_view.Group.GroupView import GroupView
@@ -15,6 +16,20 @@ class UserChats:
         self._chats_controller: ChatController = ChatController()  # Класс контроллера
         self.__user = user
         self._db = APIClient()
+
+        self._current_dm_chat: ChatView = None
+
+    @property
+    def current_chat(self) -> ChatView:
+        return self._current_dm_chat
+
+    @current_chat.setter
+    def current_chat(self, chat_id: str) -> None:
+        try:
+            chat = next(filter(lambda x: x.chat_id == chat_id, self._dm_chats))
+        except StopIteration:
+            return
+        self._current_dm_chat = chat
 
     def init_dm_chats(self) -> None:
         fabric = CreateDMChat()
@@ -36,7 +51,7 @@ class UserChats:
         fabric = CreateGroupChat()
         member_fabric = GroupMemberCreator()
         groups = self._db.get_chats(user_id=self.__user.id, is_group=True)
-        for group in groups: # TODO: Оптимизация
+        for group in groups:  # TODO: Оптимизация
             members = []
             for user in group['group']['users']:
                 members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id'])))
@@ -67,7 +82,8 @@ class UserChats:
         self._chats_controller.add_view(chat_id, chat)
         return chat
 
-    def add_group_chat(self, chat_id: str, group_name: str, is_private: bool, is_password: bool, is_admin_invite: bool, admin_id: str):
+    def add_group_chat(self, chat_id: str, group_name: str, is_private: bool, is_password: bool, is_admin_invite: bool,
+                       admin_id: str):
         fabric = CreateGroupChat()
         members = []
         member_fabric = GroupMemberCreator()
@@ -105,11 +121,13 @@ class UserChats:
     def chats_props_without_ui(self) -> dict:
         """Поочередно возвращает атрибуты каждого класса"""
         for chat in self._dm_chats:
-            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(), 'friends_id': [chat.friend_id],
+            yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(),
+                   'friends_id': [chat.friend_id, self.__user.id],
                    'is_dm': True}
 
         for group in self._groups:
-            yield {"chat_id": str(group.chat_id), "group_name": group.group_name, 'friends_id': [str(member) for member in group.get_users],
+            yield {"chat_id": str(group.chat_id), "group_name": group.group_name,
+                   'friends_id': [str(member) for member in group.get_users],
                    'is_dm': False}
 
     def get_dm_chats(self) -> List[ChatView]:
@@ -127,7 +145,8 @@ class UserChats:
     def get_group_by_id(self, group_id: str) -> dict | None:
         try:
             group = next(filter(lambda x: x.chat_id == group_id, self._groups))
-            return {'chat_id': group.chat_id, 'group_name': group.group_name, 'users': group.get_users, 'ui': group.ui.MAIN}
+            return {'chat_id': group.chat_id, 'group_name': group.group_name, 'users': group.get_users,
+                    'ui': group.ui.MAIN}
         except StopIteration as e:
             print(e)
             return None

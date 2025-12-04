@@ -1,4 +1,3 @@
-import json
 from abc import abstractmethod
 
 from logic.client.Strats.Strategy import Strategy
@@ -74,7 +73,6 @@ class SendFirstInfo(ClientsStrategies):
             "last_online": self.service_connection_pointer.user.last_online,
             'chats': self.service_connection_pointer.user.get_chats(True)
         }
-
         self.service_connection_pointer.send_message(group='CLIENT',
                                                      msg_type="USER-INFO",
                                                      message=self.service_connection_pointer.serialize(

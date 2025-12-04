@@ -36,6 +36,7 @@ class ClientService(IClientService):
             await self._change_client_activity_status(friend.id, client_id, status)
         await self._client_repo.close_client_writer(client_id)
         self._client_repo.delete_client(client_id)
+        await self._client_repo.notify_message_server_left(client_id)
 
     async def _change_client_activity_status(self, client_id: str, sender_id: str, status: dict[str, str]) -> None:
         await self._client_repo.change_client_activity_status(client_id, sender_id, status)

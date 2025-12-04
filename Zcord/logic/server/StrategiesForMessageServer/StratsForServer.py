@@ -64,7 +64,6 @@ class ChangeChatStrategy(MessageStrategy):
             print(e)
         except KeyError:
             print("Клик по тому же чату")
-        print(self._messageRoom_pointer.ids_in_chats)
         self._messageRoom_pointer.ids_in_chats[chat_code].append(user_id)
 
         cache = self._messageRoom_pointer.cache_chat.get_cache(chat_code)
@@ -137,6 +136,7 @@ class EndSessionStrat(MessageStrategy):
         user_id = str(msg["user_id"])
         self._messageRoom_pointer.clients.remove_client(client_identent=user_id)
         self._messageRoom_pointer.unseen_messages.delete_user(user_id=user_id)
+
         for id_chat in self._messageRoom_pointer.ids_in_chats.keys():  # TODO: Слишком медленно
             if user_id in self._messageRoom_pointer.ids_in_chats[id_chat]:
                 self._messageRoom_pointer.ids_in_chats[id_chat].remove(user_id)

@@ -3,7 +3,9 @@ from typing import List
 from PyQt6 import QtCore, QtWidgets
 
 from logic.Authorization.User.chat.GroupMember import GroupMember
+from logic.Main.Chat.View.CallDialog.CallView import Call
 from logic.Main.Chat.View.IView.IView import IView, BaseChatView
+from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 
 
@@ -39,6 +41,17 @@ class GroupView(BaseChatView):
         self._is_password = is_password
         self._admin_id = admin_id
 
+        """Окно приходящего звонка"""
+        self.call_dialog = Call(self.start_call, self._user.getNickName())
+        self.ui.CallButton.clicked.connect(self.start_call)
+
+        # Подключение кнопок войса
+        """Окно чата"""
+        self.ui.leaveCall.clicked.connect(self.stop_call)
+        self.ui.muteMic.clicked.connect(self.mute_mic_self)
+        self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
+
+
     @property
     def group_name(self) -> str:
         return self._group_name
@@ -46,3 +59,24 @@ class GroupView(BaseChatView):
     @property
     def get_users(self):
         return self._users.copy()
+
+    #  абстрактно здесь будет класс VOICE GUI
+    def start_call(self):
+        if self._controller.get_voice_flg():
+            return
+
+        self.ui.Call.show()
+
+        """Дальше здесь показана анимация дозвона до собеседника (но перед эти необходимо сделать синхронизацию 
+        иконок пользователей с сервером)"""
+        client = {
+            "user_id": self._user.id,
+            "user": self._user.getNickName()
+        }
+
+        newcomer = UserIcon(client, self._user, pre_create=True)
+        self.client_icons[int(client["user_id"])] = newcomer
+        self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
+
+        self._controller.start_call(self._user, self._chat_id)
+        self.call_dialog.hide_call_event()

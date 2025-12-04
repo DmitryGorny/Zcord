@@ -104,7 +104,6 @@ class ChatView(BaseChatView):
         self._groups_dialog.exec()
 
     def close_group_dialog(self):
-        print(self._groups_overlay.isVisible())
         if self._groups_overlay.isVisible():
             self._groups_overlay.close()
             self._groups_dialog.close()

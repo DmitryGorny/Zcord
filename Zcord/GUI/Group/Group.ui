@@ -139,6 +139,21 @@ color:white;</string>
            </widget>
           </item>
           <item>
+           <widget class="QFrame" name="horizontalFrame_2">
+            <property name="maximumSize">
+             <size>
+              <width>90</width>
+              <height>50</height>
+             </size>
+            </property>
+            <layout class="QHBoxLayout" name="horizontalLayout">
+             <item>
+              <layout class="QHBoxLayout" name="miniIconsCall"/>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
            <widget class="QFrame" name="CallAndInfoButtons">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">

@@ -65,8 +65,8 @@ class VoiceHandler:
 
         if not self.is_mic_mute:
             data = self.adjust_volume(data, VoiceSettingsController().input_volume())
-            if VoiceSettingsController().is_state_ags():
-                data = self.agc_process(data)
+            #if VoiceSettingsController().is_state_ags():
+                #data = self.agc_process(data)
             if seq % 5 == 0:
                 self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
         pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data

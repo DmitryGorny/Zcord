@@ -41,6 +41,8 @@ class GroupView(BaseChatView):
         self._is_password = is_password
         self._admin_id = admin_id
 
+        self.ui.Call.hide()
+
         """Окно приходящего звонка"""
         self.call_dialog = Call(self.start_call, self._user.getNickName())
         self.ui.CallButton.clicked.connect(self.start_call)

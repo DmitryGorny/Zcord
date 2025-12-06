@@ -1,4 +1,5 @@
 import asyncio
+import socket
 import json
 import datetime
 import time
@@ -42,6 +43,7 @@ class ClientInfo:
     token: Optional[str] = None
     room: Optional[str] = None
     udp_port: Optional[int] = None
+    udp_ready: bool = False
     last_seen: float = field(default_factory=time.time)
 
     def addr_str(self) -> str:
@@ -61,10 +63,37 @@ class ClientInfo:
 
 class TcpSignalServer:
     def __init__(self):
+        self.udp_sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        self.udp_sock.bind(("0.0.0.0", 55560))
+        self.udp_sock.setblocking(False)
+        self.client_by_token = {}
         # комнаты: room -> список клиентов
         self.rooms: Dict[str, List[ClientInfo]] = {}
         # быстрый поиск по writer
         self.client_by_writer: Dict[asyncio.StreamWriter, ClientInfo] = {}
+
+    async def udp_loop(self):
+        loop = asyncio.get_running_loop()
+        while True:
+            try:
+                data, addr = await loop.run_in_executor(None, self.udp_sock.recvfrom, 2048)
+            except BlockingIOError:
+                await asyncio.sleep(0.001)
+                continue
+            except Exception as e:
+                print("[UDP] error:", e)
+                continue
+
+            public_ip, public_port = addr
+            token = data.decode(errors="ignore")
+
+            client = self.client_by_token.get(token)
+            if client:
+                if not client.udp_ready:
+                    client.udp_ready = True
+                    client.udp_port = public_port
+                    print(f"[UDP] Получен UDP порт для {public_ip}, {public_port}")
+                    await self._maybe_send_peers(client)
 
     async def serve(self, host="0.0.0.0", port=55559):
         server = await asyncio.start_server(self.handle_client, host, port)
@@ -103,7 +132,6 @@ class TcpSignalServer:
 
     async def handle_message(self, client: ClientInfo, msg: dict):
         typ = msg.get("t")
-        print(msg)
         if typ == "join_room":
             await self._join_room(client, msg)
         elif typ == "leave":  # btw информационное сообщение, что с ним делать не ебу, управление всё равно отдаётся finally
@@ -119,18 +147,36 @@ class TcpSignalServer:
         if client.token == token:
             await self._broadcast_room(room, {"t": t, "client": client.to_dict(), }, skip=client)
 
+    async def _maybe_send_peers(self, client):
+        lst = self.rooms.get(client.room, [])
+        if len(lst) < 2:
+            return
+
+        # Проверяем, что у всех есть public UDP
+        for c in lst:
+            if not c.udp_port:
+                return
+
+        # Новому клиенту отправляем список уже присутствующих пиров
+        peers_dicts = [c.to_dict() for c in lst if c != client]
+        await self._send(client, {"t": "peer", "client": peers_dicts})
+
+        # И существующим участникам разошлём адрес нового
+        await self._broadcast_room(client.room, {"t": "peer", "client": [client.to_dict()]}, skip=client)
+
     async def _join_room(self, client: ClientInfo, msg: dict):
         room = msg.get("room") or "default_room"
         user_id = msg.get("user_id")
         token = msg.get("token")
         user = msg.get("user")
-        udp_port = msg.get("udp_port")
 
         client.user_id = user_id
         client.room = room
         client.token = token
         client.user = user
-        client.udp_port = udp_port
+        client.udp_ready = False
+
+        self.client_by_token[token] = client
 
         lst = self.rooms.setdefault(room, [])
 
@@ -141,14 +187,6 @@ class TcpSignalServer:
 
         await self._send_service_msg(
             obj={"g": "CLIENT", "t": "__ICON-CALL__", "user_id": client.user_id, "chat_id": room, "username": client.user})
-
-        # Новому клиенту отправляем список уже присутствующих пиров
-        if len(lst) >= 2:
-            peers_dicts = [c.to_dict() for c in lst if c != client]
-            await self._send(client, {"t": "peer", "client": peers_dicts})
-
-        # И существующим участникам разошлём адрес нового
-        await self._broadcast_room(room, {"t": "peer", "client": [client.to_dict()]}, skip=client)
 
     async def _leave_room(self, client: ClientInfo):
         if not client.room:
@@ -162,6 +200,8 @@ class TcpSignalServer:
 
             await self._send_service_msg(obj={"g": "CLIENT", "t": "__LEFT-ICON-CALL__", "user_id": client.user_id, "chat_id": room})
             await self._broadcast_room(room, {"t": "peer_left", "client": client.to_dict()}, skip=client)
+        token = client.token
+        self.client_by_token.pop(token, None)
 
         # чистка комнаты если пустая TODO: Не знаю нужно ли??
         if not lst:
@@ -232,11 +272,12 @@ class TcpSignalServer:
 
 
 async def main():
-    HOST = "26.36.124.241"
+    HOST = "212.8.227.220"
     srv = TcpSignalServer()
     await asyncio.gather(
         srv.serve(HOST, 55559),
         srv.connect_service_server(HOST, 55571),
+        srv.udp_loop(),
     )
 
 

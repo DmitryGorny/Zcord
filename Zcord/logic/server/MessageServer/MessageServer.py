@@ -172,7 +172,7 @@ def receive(server_socket):
 
 
 if __name__ == "__main__":
-    HOST = "26.36.124.241"
+    HOST = "212.8.227.220"
     PORT = 55557
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))

@@ -7,7 +7,7 @@ class APIClient:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.base_url = "http://127.0.0.1:8000/api"
+            cls._instance.base_url = "http://26.36.124.241:8000/api"
             cls._instance.session = requests.Session()  # Общая сессия
             cls._instance.session.headers.update({
                 'Content-Type': 'application/json',

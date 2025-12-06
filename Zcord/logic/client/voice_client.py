@@ -40,14 +40,24 @@ class VoiceConnection(IConnection, BaseConnection):
         self._voice_handler = None
 
     async def register(self):
-        msg = {"t": "join_room", "room": self.room, "token": self.token, "user_id": self.user.id, "user": self.user.getNickName(),
-               "udp_port": self.local_udp_port}
+        msg = {"t": "join_room", "room": self.room, "token": self.token, "user_id": self.user.id,
+               "user": self.user.getNickName()}
         print("Отправлено сообщение о входе на сервер")
         """Передаю отсюда свой токен для корректного отображения собственной иконки"""
         self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=[msg]) # TODO
         # мб засунуть в другое место??
 
         await self.send_message(msg, current_chat_id=0)
+
+        asyncio.create_task(self.send_udp_punch())
+
+    async def send_udp_punch(self):
+        for _ in range(8):
+            try:
+                self.udp.sendto(self.token.encode(), (self.server[0], 55560))
+            except:
+                pass
+            await asyncio.sleep(0.1)
 
     async def recv_server(self):
         """Читает уведомления сервера: peers, сервисные команды и т.п."""
@@ -203,8 +213,8 @@ class VoiceConnection(IConnection, BaseConnection):
         self.voice_handler = VoiceHandler(self.chat_obj, self.room, self.user, flg_callback=lambda: self.flg)
 
         # ждём, пока узнаем peer
-        while self.peer is None:
-            await asyncio.sleep(0.05)
+        #while self.peer is None:
+            #await asyncio.sleep(0.05)
 
         # стартуем прием/воспроизведение
         self.udp_recv_task = asyncio.create_task(self.recv_udp())

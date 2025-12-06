@@ -1,7 +1,7 @@
 {
-    "headphones_index": null,
-    "microphone_index": null,
+    "headphones_index": 4,
+    "microphone_index": 1,
     "volume_mic": 10,
     "volume_head": 10,
-    "ags": true
+    "ags": false
 }

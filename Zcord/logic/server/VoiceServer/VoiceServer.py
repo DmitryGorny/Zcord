@@ -88,6 +88,10 @@ class TcpSignalServer:
             token = data.decode(errors="ignore")
 
             client = self.client_by_token.get(token)
+
+            # отправка трафика обратно для nat сессии
+            self.udp_sock.sendto(b'', addr)
+
             if client:
                 if not client.udp_ready:
                     client.udp_ready = True

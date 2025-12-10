@@ -7,6 +7,8 @@ from logic.Main.Chat.View.CallDialog.CallView import Call
 from logic.Main.Chat.View.IView.IView import IView, BaseChatView
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
+from logic.Main.Chat.View.group_view.UserInviteDialog.UserInviteController import UserInviteController
+from logic.Main.miniProfile.MiniProfile import Overlay
 
 
 class GroupView(BaseChatView):
@@ -35,6 +37,7 @@ class GroupView(BaseChatView):
         self.ui.ChatScroll.setVerticalScrollMode(QtWidgets.QListWidget.ScrollMode.ScrollPerPixel)
 
         self._users: List[GroupMember] = members.copy()
+        self.ui.members_number.setText('{} участников,'.format(len(self._users)))
 
         self._is_private = is_private
         self._is_admin_invite = is_admin_invite
@@ -42,6 +45,17 @@ class GroupView(BaseChatView):
         self._admin_id = admin_id
 
         self.ui.Call.hide()
+
+        self._invite_dial_controller: UserInviteController = UserInviteController(self._user, self._chat_id)
+        self._invite_dialog = self._invite_dial_controller.get_widget()
+        self._invite_overlay = Overlay(self._invite_dialog)
+        self._invite_overlay.setParent(self.ui.Column)
+        self._invite_dialog.setParent(self.ui.Column)
+
+        self._invite_dialog.close()
+        self._invite_overlay.close()
+
+        self.ui.invite_user.clicked.connect(self.invite_users)
 
         """Окно приходящего звонка"""
         self.call_dialog = Call(self.start_call, self._user.getNickName())
@@ -82,3 +96,32 @@ class GroupView(BaseChatView):
 
         self._controller.start_call(self._user, self._chat_id)
         self.call_dialog.hide_call_event()
+
+    def invite_users(self):
+        self._invite_dial_controller.reload_model()
+        new_rect = QtCore.QRect(
+            self.ui.Column.rect().x(),
+            self.ui.Column.rect().y(),
+            self.ui.Column.width(),
+            self.ui.Column.height()
+        )
+        self._invite_overlay.setGeometry(new_rect)
+
+        self._invite_overlay.show()
+        self._invite_dialog.raise_()
+
+        self._invite_dialog.exec()
+
+    def close_invite_dialog(self):
+        if self._invite_overlay.isVisible():
+            self._invite_overlay.close()
+            self._invite_dialog.close()
+
+    def add_member_to_group(self, member: GroupMember) -> None:
+        self._users.append(member)
+
+    def show_number_of_members(self) -> None:
+        self.ui.members_number.setText('{} участников,'.format(len(self._users)))
+
+    def __str__(self):
+        return self._chat_id

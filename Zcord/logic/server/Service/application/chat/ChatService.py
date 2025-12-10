@@ -54,7 +54,7 @@ class ChatService(IChatService):
         group = self._chat_db_repo.search_chat_by_id(chat_id=int(group_id), is_group=True)[0]
         for user in group['group']['users']:
             try:
-                chat = self._chat_repo.get_chat_by_id(group_id)
+                chat = self._chat_repo.get_chat_by_id(group['id'])
                 await self._client_repo.send_message(str(user['user_id']), 'USER-JOINED-GROUP',
                                                      {'user_id': request_receiver,
                                                       'group_id': group['id'],
@@ -104,7 +104,7 @@ class ChatService(IChatService):
                 if chat.get_members_len() == 0:
                     self._chat_repo.delete_chat(chat.chat_id)
             except KeyError as e:
-                print(e)
+                print('[ChatService] {}'.format(e))
 
         row_id = self._chat_db_repo.search_group_member(int(request_receiver), int(group_id))['id']
         self._chat_db_repo.delete_group_member_by_id(row_id)
@@ -122,6 +122,11 @@ class ChatService(IChatService):
         request = self._chat_db_repo.send_group_request(group_id=int(group_id),
                                                         sender_id=int(sender_id),
                                                         receiver_id=int(receiver_id))
+        if request is None:
+            return
+
+        await self._client_repo.send_message(sender_id, 'GROUP-REQUEST-SENT',
+                                             {'group_id': group_id})
 
         await self._client_repo.send_message(receiver_id, 'GROUP-REQUEST',
                                              {'sender_id': sender_id,

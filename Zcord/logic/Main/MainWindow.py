@@ -465,6 +465,8 @@ class MainWindow(FramelessWindow):
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
             case 'GROUP_REQUEST_RECEIVE':
                 self._groups.request_received(args['group_id'], args['group_name'], args['request_id'])
+            case 'GROUP_REQUEST_SENT':
+                self.__user.group_request_sent(args['group_id'])
             case "ADD-GROUP":
                 group = self.__user.add_group_chat(chat_id=args['group_id'],
                                                    group_name=args['group_name'],
@@ -478,8 +480,13 @@ class MainWindow(FramelessWindow):
                                             'is_dm': False,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.update_chats_groups_list(group_ui, True)
+            case "USER-JOINED-GROUP":
+                self.__user.add_group_member(args['joined_user_id'], args['group_id'])
             case "GROUP-CREATED":
-                self.__user.current_chat.close_group_dialog()
+                try:
+                    self.__user.current_chat.close_group_dialog()
+                except AttributeError:
+                    pass
                 group = self.__user.add_group_chat(chat_id=args['group_id'],
                                                    group_name=args['group_name'],
                                                    is_private=args['is_private'],

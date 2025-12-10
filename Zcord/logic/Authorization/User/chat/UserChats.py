@@ -47,6 +47,16 @@ class UserChats:
             self._dm_chats.append(chat)
             self._chats_controller.add_view(str(chat_attrs['id']), chat)
 
+    def group_request_sent(self, group_id: str) -> None:
+        group = self._db.search_chat_by_id(int(group_id), True)[0]
+        try:
+            group = next(filter(lambda x: x.chat_id == group['id'], self._groups))
+        except StopIteration as e:
+            print('[UserChats] {}'.format(e))
+            return None
+
+        group.close_invite_dialog()
+
     def init_groups(self):
         fabric = CreateGroupChat()
         member_fabric = GroupMemberCreator()
@@ -149,4 +159,16 @@ class UserChats:
                     'ui': group.ui.MAIN}
         except StopIteration as e:
             print(e)
+            return None
+
+    def add_member_to_group(self, member_id: str, group_id: str) -> None:
+        user = self._db.get_user_by_id(user_id=int(member_id))
+        member_fabric = GroupMemberCreator()
+        member = member_fabric.create_member(nickname=user['nickname'], user_id=str(user['id']))
+        try:
+            group = next(filter(lambda x: str(x.chat_id) == group_id, self._groups))
+            group.add_member_to_group(member)
+            group.show_number_of_members()
+        except StopIteration as e:
+            print('[UserChats] {}'.format(e))
             return None

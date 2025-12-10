@@ -114,6 +114,9 @@ class User(BaseUser):
                 attrs_list.append(chat_attrs)
         return attrs_list
 
+    def group_request_sent(self, group_id: str) -> None:
+        self._chats_model.group_request_sent(group_id)
+
     def delete_chat(self, chat_id: str, is_dm: bool) -> None:
         if is_dm:
             self._chats_model.delete_dm_chat(chat_id)
@@ -142,3 +145,6 @@ class User(BaseUser):
 
     def get_group_by_id(self, group_id: str):
         return self._chats_model.get_group_by_id(group_id=group_id)
+
+    def add_group_member(self, member_id: str, group_id: str) -> None:
+        self._chats_model.add_member_to_group(member_id=member_id, group_id=group_id)

@@ -14,7 +14,7 @@ class Users(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f"{self.secondname} {self.firstname} {self.lastname}"
+        return f" {self.nickname}"
 
 
 class Friendship(models.Model):

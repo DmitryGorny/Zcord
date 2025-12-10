@@ -44,7 +44,7 @@ class VoiceConnection(IConnection, BaseConnection):
                "user": self.user.getNickName()}
         print("Отправлено сообщение о входе на сервер")
         """Передаю отсюда свой токен для корректного отображения собственной иконки"""
-        self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=[msg]) # TODO
+        self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=[msg])  # TODO
         # мб засунуть в другое место??
 
         await self.send_message(msg, current_chat_id=0)
@@ -82,6 +82,8 @@ class VoiceConnection(IConnection, BaseConnection):
                         self.voice_handler.reset_last_seq(p["user_id"])
                         print(f"[Client] peer: {self.peer}")
                         self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=peers)
+                        for _ in range(8):
+                            self._udp_send('12'.encode('utf-8'))
 
                 elif t == "peer_left":
                     client = msg.get("client")
@@ -213,8 +215,8 @@ class VoiceConnection(IConnection, BaseConnection):
         self.voice_handler = VoiceHandler(self.chat_obj, self.room, self.user, flg_callback=lambda: self.flg)
 
         # ждём, пока узнаем peer
-        #while self.peer is None:
-            #await asyncio.sleep(0.05)
+        # while self.peer is None:
+        # await asyncio.sleep(0.05)
 
         # стартуем прием/воспроизведение
         self.udp_recv_task = asyncio.create_task(self.recv_udp())

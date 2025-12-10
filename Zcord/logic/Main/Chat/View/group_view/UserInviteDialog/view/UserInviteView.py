@@ -3,30 +3,29 @@ from typing import List
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import pyqtSignal, QPropertyAnimation, QRect, QEasingCurve
 
-from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.FriendWidget.FriendWidget import FriendOptionWidget
-from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.GroupInviteDialogQt import Ui_GroupInviteDial
+from logic.Main.Chat.View.group_view.UserInviteDialog.view.FriendWidget.FriendWidget import FriendOptionWidget
+from logic.Main.Chat.View.group_view.UserInviteDialog.view.UserInviteDialogQt import Ui_UserInviteDial
 
 
-class GroupInviteView(QtWidgets.QDialog):  # TODO: В qt designer добавить ожидание подтверждения создания группы
-    create_group_model = pyqtSignal(list)
+class UserInviteView(QtWidgets.QDialog):  # TODO: В qt designer добавить ожидание подтверждения создания группы
+    invite_user_model = pyqtSignal(list)
 
-    def __init__(self, current_friend_id: str):
-        super(GroupInviteView, self).__init__()
-        self._ui = Ui_GroupInviteDial()
+    def __init__(self):
+        super(UserInviteView, self).__init__()
+        self._ui = Ui_UserInviteDial()
         self._ui.setupUi(self)
-        self._ui.createGroup_button.clicked.connect(self._create_group)
+        self._ui.invite_users_button.clicked.connect(self._invite_user)
         self._friends_options: dict[str, FriendOptionWidget] = {}
 
-        self._current_friend_id = current_friend_id
-        self._friends_ids_group: List[str] = [current_friend_id]
+        self._friends_ids_group: List[str] = []
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
         self._ui.friend_list.setSpacing(10)
+        self._ui.friend_list.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
+        self._ui.friend_list.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
     def add_friend_option(self, friend_id: str, friend_nick: str) -> None:
-        if self._current_friend_id == friend_id:
-            return
         friend_option = FriendOptionWidget(friend_id=friend_id, friend_name=friend_nick)
         friend_option.was_checked.connect(self._add_friend_to_group)
         friend_option.was_unchecked.connect(self._remove_friend_from_group)
@@ -50,8 +49,8 @@ class GroupInviteView(QtWidgets.QDialog):  # TODO: В qt designer добавит
         except ValueError as e:
             print(e)
 
-    def _create_group(self) -> None:
-        self.create_group_model.emit(self._friends_ids_group)
+    def _invite_user(self) -> None:
+        self.invite_user_model.emit(self._friends_ids_group)
 
     def get_widget(self) -> QtWidgets.QDialog:
         return self

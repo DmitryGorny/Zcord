@@ -20,9 +20,13 @@ class GroupsRequestSerializer(serializers.ModelSerializer):
         group = Groups.objects.filter(id=group_id).first() if group_id else None
         receiver = Users.objects.get(id=receiver_id)
         sender = Users.objects.get(id=sender_id)
-
-        return GroupRequest.objects.create(
-            sender=sender,
-            receiver=receiver,
-            group=group
-        )
+        if not GroupRequest.objects.filter(group=group, receiver=receiver).exists():
+            return GroupRequest.objects.create(
+                sender=sender,
+                receiver=receiver,
+                group=group
+            )
+        else:
+            raise serializers.ValidationError({
+            'error': 'Заявка уже существует'
+            })

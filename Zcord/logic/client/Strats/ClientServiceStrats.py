@@ -251,6 +251,10 @@ class UserJoinedGroupStrat(ClientsStrategies):
                                                                       'is_admin_invite': is_admin_invite,
                                                                       'is_password': is_password,
                                                                       'admin_id': admin_id})
+        else:
+            self.service_connection_pointer.call_main_dynamic_update('USER-JOINED-GROUP',
+                                                                     {'group_id': group_id,
+                                                                      'joined_user_id': joined_user,})
 
 
 class GroupCreatedStrat(ClientsStrategies):
@@ -293,3 +297,15 @@ class GroupRequestReceiveStrat(ClientsStrategies):
                                                                   'group_id': str(group_id[0]), # TODO: ПОЧЕМУ
                                                                   'request_id': request_id,
                                                                   'group_name': group_name})
+
+
+class GroupRequestSentStrat(ClientsStrategies):
+    header_name = "GROUP-REQUEST-SENT"
+
+    def __init__(self):
+        super(GroupRequestSentStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['group_id'])
+        self.service_connection_pointer.call_main_dynamic_update('GROUP_REQUEST_SENT',
+                                                                 {'group_id': group_id})

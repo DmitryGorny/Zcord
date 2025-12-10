@@ -22,6 +22,8 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
         self._ui.requests_button.clicked.connect(self._select_requests_page)
         self._ui.create_group.clicked.connect(self._select_create_group_page)
 
+        self._ui.groups_alert.setHidden(True)
+
     def get_widget(self) -> QtWidgets.QFrame:
         return self._ui.Wrapper
 
@@ -51,3 +53,18 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
 
     def request_received(self, group_id: str, group_name: str, request_id: int):
         self._requests_controller.request_received(group_id=group_id, group_name=group_name, request_id=request_id)
+
+    def show_alert(self):
+        if self._ui.groups_alert.isHidden():
+            self._ui.groups_alert.setHidden(False)
+
+    def hide_alert(self):
+        if not self._ui.groups_alert.isHidden() and not self._requests_controller.has_request():
+            self._ui.groups_alert.setHidden(True)
+
+    def has_requests(self) -> bool:
+        if self._requests_controller.has_request():
+            self._ui.groups_alert.setHidden(False)
+            return True
+        self._ui.groups_alert.setHidden(True)
+        return False

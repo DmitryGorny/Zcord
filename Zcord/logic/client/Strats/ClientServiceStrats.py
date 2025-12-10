@@ -244,7 +244,7 @@ class UserJoinedGroupStrat(ClientsStrategies):
         is_admin_invite = msg['is_admin_invite']
         admin_id = str(msg['admin_id'])
         if joined_user == str(self.service_connection_pointer.user.id):
-            self.service_connection_pointer.call_main_dynamic_update('ADD-GROUP',
+            self.service_connection_pointer.call_main_dynamic_update('JOIN-GROUP',
                                                                      {'group_id': group_id,
                                                                       'group_name': group_name,
                                                                       'is_private': is_private,
@@ -309,3 +309,16 @@ class GroupRequestSentStrat(ClientsStrategies):
         group_id = str(msg['group_id'])
         self.service_connection_pointer.call_main_dynamic_update('GROUP_REQUEST_SENT',
                                                                  {'group_id': group_id})
+
+
+class GroupRequestRejectedStrat(ClientsStrategies):
+    header_name = "GROUP-REQUEST-REJECTED"
+
+    def __init__(self):
+        super(GroupRequestRejectedStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        user_id = str(msg['user_id'])
+        if user_id == str(self.service_connection_pointer.user.id):
+            self.service_connection_pointer.call_main_dynamic_update('GROUP-REQUEST-REJECTED-SELF',
+                                                                    {})

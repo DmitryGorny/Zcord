@@ -28,6 +28,9 @@ class IRequestsView(Protocol):
     def clear_page(self) -> None:
         pass
 
+    def has_request(self) -> bool:
+        pass
+
 
 class RequestsView(QtWidgets.QWidget):
     request_accepted_model = pyqtSignal(str, str)
@@ -51,7 +54,7 @@ class RequestsView(QtWidgets.QWidget):
         request.connect_decline_requests(lambda: self.request_declined_model.emit(str(group_id), str(request_id)))
 
         item = QtWidgets.QListWidgetItem()
-        item.setSizeHint(request.sizeHint())
+        item.setSizeHint(request.get_widget().sizeHint())
         self._ui.group_request.addItem(item)
         self._ui.group_request.setItemWidget(item, request.get_widget())
         request.widget = item
@@ -83,3 +86,8 @@ class RequestsView(QtWidgets.QWidget):
 
     def clear_page(self) -> None:
         self._ui.group_request.clear()
+
+    def has_request(self) -> bool:
+        if len(self._requests_widgets) > 0:
+            return True
+        return False

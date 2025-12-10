@@ -24,3 +24,6 @@ class GroupRequestsController:
     def reload_page(self):
         self._view.clear_page()
         self._model.get_groups_rejects()
+
+    def has_request(self) -> bool:
+        return self._view.has_request()

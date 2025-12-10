@@ -67,6 +67,9 @@ class MainWindow(FramelessWindow):
         self._groups: GroupsListRequestWidget = GroupsListRequestWidget(self.__user)
         self.ui.stackedWidget_2.addWidget(self._groups.get_widget())
 
+        if self._groups.has_requests():
+            self.group_request_alert()
+
         # Лого
         self.ui.UsersLogo.setText(self.__user.getNickName()[0])  # Установка первой буквы в лого
         self.ui.UsersLogo.clicked.connect(self.showProfile)
@@ -465,9 +468,14 @@ class MainWindow(FramelessWindow):
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
             case 'GROUP_REQUEST_RECEIVE':
                 self._groups.request_received(args['group_id'], args['group_name'], args['request_id'])
+                self._groups.show_alert()
+                self.group_request_alert()
             case 'GROUP_REQUEST_SENT':
                 self.__user.group_request_sent(args['group_id'])
-            case "ADD-GROUP":
+            case 'GROUP-REQUEST-REJECTED-SELF':
+                self._groups.hide_alert()
+                self.group_request_alert()
+            case "JOIN-GROUP":
                 group = self.__user.add_group_chat(chat_id=args['group_id'],
                                                    group_name=args['group_name'],
                                                    is_private=args['is_private'],
@@ -480,6 +488,8 @@ class MainWindow(FramelessWindow):
                                             'is_dm': False,
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.update_chats_groups_list(group_ui, True)
+                self._groups.hide_alert()
+                self.group_request_alert()
             case "USER-JOINED-GROUP":
                 self.__user.add_group_member(args['joined_user_id'], args['group_id'])
             case "GROUP-CREATED":
@@ -506,6 +516,12 @@ class MainWindow(FramelessWindow):
             self.ui.friends_alert.setHidden(False)
         else:
             self.ui.friends_alert.setHidden(True)
+
+    def group_request_alert(self):
+        if self.ui.room_alert.isHidden() or self._groups.has_requests():
+            self.ui.room_alert.setHidden(False)
+        else:
+            self.ui.room_alert.setHidden(True)
 
     def change_self_activity_indicator_color(self, color):
         activity_indicator_qss = f"""background-color:{color};

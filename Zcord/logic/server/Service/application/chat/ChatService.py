@@ -86,8 +86,11 @@ class ChatService(IChatService):
                                                                               'type': 'service',
                                                                               'service_message': f'Пользователь {nickname} присоединился к группе'})
 
-    def group_request_rejected(self, request_id: str) -> None:
+    async def group_request_rejected(self, request_id: str, receiver_id: str) -> None:
         self._chat_db_repo.delete_group_request(int(request_id))
+
+        await self._client_repo.send_message(receiver_id, 'GROUP-REQUEST-REJECTED',
+                                             {'user_id': receiver_id})
 
     async def user_left_group(self, request_receiver: str, group_id: str) -> None:
         group = self._chat_db_repo.search_chat_by_id(chat_id=int(group_id), is_group=True)

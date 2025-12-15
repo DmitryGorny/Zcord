@@ -126,7 +126,7 @@ class Chat(IChat):  # TODO: Проверить добавляются ли Frien
             print(e)
             return None
 
-    def get_members(self) -> list[ChatMember]:
+    def get_members(self) -> list[IChatMember]:
         return self._members.copy()
 
     def delete_member_by_id(self, user_id: str) -> None:

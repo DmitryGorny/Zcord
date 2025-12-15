@@ -59,6 +59,30 @@ class UserStatusReceive(ClientsStrategies):
                                                                                      'sender_nickname': sender_nickname})
 
 
+class GroupMemberOffline(ClientsStrategies):
+    header_name = "GROUP-MEMBER-OFFLINE"
+
+    def __init__(self):
+        super(GroupMemberOffline, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg["sender_id"]
+        chat_id = msg["chat_id"]
+        self.service_connection_pointer.user.chat_member_offline(sender_id, chat_id)
+
+
+class GroupMemberOnline(ClientsStrategies):
+    header_name = "GROUP-MEMBER-ONLINE"
+
+    def __init__(self):
+        super(GroupMemberOnline, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        sender_id = msg["sender_id"]
+        chat_id = msg['chat_id']
+        self.service_connection_pointer.user.chat_member_online(sender_id, chat_id)
+
+
 class SendFirstInfo(ClientsStrategies):
     header_name = "__USER-INFO__"
 
@@ -254,7 +278,7 @@ class UserJoinedGroupStrat(ClientsStrategies):
         else:
             self.service_connection_pointer.call_main_dynamic_update('USER-JOINED-GROUP',
                                                                      {'group_id': group_id,
-                                                                      'joined_user_id': joined_user,})
+                                                                      'joined_user_id': joined_user, })
 
 
 class GroupCreatedStrat(ClientsStrategies):
@@ -294,7 +318,7 @@ class GroupRequestReceiveStrat(ClientsStrategies):
         group_name = msg['group_name']
         self.service_connection_pointer.call_main_dynamic_update('GROUP_REQUEST_RECEIVE',
                                                                  {'sender_id': sender_id,
-                                                                  'group_id': str(group_id[0]), # TODO: ПОЧЕМУ
+                                                                  'group_id': str(group_id[0]),  # TODO: ПОЧЕМУ
                                                                   'request_id': request_id,
                                                                   'group_name': group_name})
 
@@ -321,4 +345,4 @@ class GroupRequestRejectedStrat(ClientsStrategies):
         user_id = str(msg['user_id'])
         if user_id == str(self.service_connection_pointer.user.id):
             self.service_connection_pointer.call_main_dynamic_update('GROUP-REQUEST-REJECTED-SELF',
-                                                                    {})
+                                                                     {})

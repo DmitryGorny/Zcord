@@ -83,7 +83,7 @@
           <item>
            <widget class="QFrame" name="verticalFrame">
             <property name="sizePolicy">
-             <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+             <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
               <horstretch>0</horstretch>
               <verstretch>0</verstretch>
              </sizepolicy>
@@ -108,7 +108,7 @@
               <widget class="QFrame" name="UserIconAndNickInChat_2">
                <layout class="QHBoxLayout" name="LogoAndNickName_2">
                 <property name="spacing">
-                 <number>25</number>
+                 <number>15</number>
                 </property>
                 <property name="bottomMargin">
                  <number>5</number>
@@ -140,22 +140,42 @@ text-align:center;
                  </widget>
                 </item>
                 <item>
-                 <widget class="QLabel" name="GroupName">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
+                 <widget class="QPushButton" name="GroupName">
                   <property name="minimumSize">
                    <size>
-                    <width>50</width>
-                    <height>50</height>
+                    <width>135</width>
+                    <height>0</height>
                    </size>
                   </property>
+                  <property name="cursor">
+                   <cursorShape>PointingHandCursor</cursorShape>
+                  </property>
                   <property name="styleSheet">
-                   <string notr="true">font-size:26px;
-color:white;</string>
+                   <string notr="true">QPushButton {
+    font-size:26px;
+	color:white;
+	border:none;
+	padding:5px;
+	padding-left:10px;
+	padding-right:30px;
+	border-radius:15%;
+	text-align:left;
+}
+
+QPushButton:hover {
+    background: rgba(255, 255, 255, 40);
+	background-image:url(:/icons/icon/icons8-редактировать-25.png);
+    background-position:right; 
+	background-repeat:no-repeat;
+}
+
+QPushButton:pressed {
+     background: rgba(255, 255, 255, 90);
+	background-image:url(:/icons/icon/icons8-редактировать-25.png);
+    background-position:right; 
+	background-repeat:no-repeat;
+}
+</string>
                   </property>
                   <property name="text">
                    <string>Group-1</string>
@@ -167,9 +187,15 @@ color:white;</string>
              </item>
              <item>
               <widget class="QFrame" name="horizontalFrame">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
                <layout class="QHBoxLayout" name="horizontalLayout_2">
                 <property name="spacing">
-                 <number>0</number>
+                 <number>5</number>
                 </property>
                 <property name="leftMargin">
                  <number>15</number>
@@ -229,6 +255,21 @@ color:grey;</string>
               <verstretch>0</verstretch>
              </sizepolicy>
             </property>
+            <property name="styleSheet">
+             <string notr="true">QPushButton {
+    border:none;
+	border-radius:15%;
+}
+
+
+QPushButton:hover {
+    background: rgba(255, 255, 255, 40);
+}
+
+QPushButton:pressed {
+     background: rgba(255, 255, 255, 90);
+}</string>
+            </property>
             <layout class="QHBoxLayout" name="horizontalLayout_5">
              <property name="spacing">
               <number>10</number>
@@ -257,10 +298,7 @@ color:grey;</string>
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
                <property name="styleSheet">
-                <string notr="true">
-border:none;
-border-radius:15%;
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string/>
@@ -301,10 +339,7 @@ border-radius:15%;
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
                <property name="styleSheet">
-                <string notr="true">
-border:none;
-border-radius:15%;
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string/>
@@ -322,7 +357,7 @@ border-radius:15%;
               </widget>
              </item>
              <item>
-              <widget class="QPushButton" name="settings">
+              <widget class="QPushButton" name="show_members">
                <property name="sizePolicy">
                 <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                  <horstretch>0</horstretch>
@@ -345,17 +380,14 @@ border-radius:15%;
                 <cursorShape>PointingHandCursor</cursorShape>
                </property>
                <property name="styleSheet">
-                <string notr="true">
-border:none;
-border-radius:15%;
-</string>
+                <string notr="true"/>
                </property>
                <property name="text">
                 <string/>
                </property>
                <property name="icon">
                 <iconset resource="../res-rec.qrc">
-                 <normaloff>:/icons/icon/icons8-settings-46.png</normaloff>:/icons/icon/icons8-settings-46.png</iconset>
+                 <normaloff>:/icons/icon/icons8-группы-пользователей-48.png</normaloff>:/icons/icon/icons8-группы-пользователей-48.png</iconset>
                </property>
                <property name="iconSize">
                 <size>

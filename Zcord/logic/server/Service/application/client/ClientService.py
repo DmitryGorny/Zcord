@@ -30,10 +30,28 @@ class ClientService(IClientService):
             await self._change_client_activity_status(user_id, friend_attr['id'],
                                                       self._client_repo.get_client_online_stat(friend_attr['id']))
 
+        chats = self._chat_repo.get_chats_by_user_id(user_id=user_id)
+        for chat in chats: # TODO: Оптимизация
+            members = chat.get_members()
+            for member in members:
+                if member.user_id == user_id:
+                    continue
+                await self._client_repo.chat_member_online(member.user_id, user_id, chat.chat_id)
+                await self._client_repo.chat_member_online(user_id, member.user_id, chat.chat_id)
+
     async def user_left(self, client_id: str, status: dict[str, str]):
         friends = self._friend_repo.get_client_friends(client_id=client_id)
+        chats = self._chat_repo.get_chats_by_user_id(user_id=client_id)
         for friend in friends:
             await self._change_client_activity_status(friend.id, client_id, status)
+
+        for chat in chats: # TODO: Оптимизация
+            members = chat.get_members()
+            for member in members:
+                if member.user_id == client_id:
+                    continue
+                await self._client_repo.chat_member_offline(member.user_id, client_id, chat.chat_id)
+
         await self._client_repo.close_client_writer(client_id)
         self._client_repo.delete_client(client_id)
         await self._client_repo.notify_message_server_left(client_id)

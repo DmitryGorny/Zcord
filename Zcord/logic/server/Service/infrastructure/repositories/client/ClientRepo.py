@@ -19,8 +19,8 @@ class ClientRepo(IClientRepo):
                         last_online=last_online,
                         writer=writer)
         if client_id in self._clients.keys():
-            print(client_id, self._clients)
-            raise ConnectionError('Двойное подключение')
+            print('[ClientRepo] Двойное подключение')
+            return  # TODO: Отослать пакет, который убьет подключение
 
         self._clients[client_id] = client
 
@@ -32,7 +32,7 @@ class ClientRepo(IClientRepo):
 
     def delete_client(self, client_id: str) -> None:
         if client_id not in self._clients.keys():
-            raise ValueError("Такого юзера нет")
+            raise ValueError("[ClientRepo] Такого юзера нет")
 
         del self._clients[client_id]
 
@@ -85,6 +85,26 @@ class ClientRepo(IClientRepo):
         })
 
         client.status = status
+
+    async def chat_member_offline(self, client_id: str, sender_id: str, chat_id: str) -> None:
+        client = self._get_client(client_id)
+        sender = self._get_client(sender_id)
+        if client is None or sender is None:
+            return
+        await client.send_message('GROUP-MEMBER-OFFLINE', {
+            "sender_id": sender_id,
+            "chat_id": chat_id
+        })
+
+    async def chat_member_online(self, client_id: str, sender_id: str, chat_id: str) -> None:
+        client = self._get_client(client_id)
+        sender = self._get_client(sender_id)
+        if client is None or sender is None:
+            return
+        await client.send_message('GROUP-MEMBER-ONLINE', {
+            "sender_id": sender_id,
+            'chat_id': chat_id
+        })
 
     def get_clients_current_chat(self, client_id: str) -> int | None:
         client = self._get_client(client_id)

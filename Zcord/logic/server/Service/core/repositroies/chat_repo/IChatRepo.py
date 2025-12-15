@@ -1,6 +1,6 @@
 from typing import Dict
 
-from logic.client.Chat.ClientChat import IChat
+from logic.server.Service.core.enteties.Enteties import IChat
 
 
 class IChatRepo:

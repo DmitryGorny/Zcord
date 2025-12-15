@@ -11,8 +11,9 @@ from logic.Main.Chat.View.group_view.UserInviteDialog.UserInviteController impor
 from logic.Main.miniProfile.MiniProfile import Overlay
 
 
-class GroupView(BaseChatView):
-    def __init__(self, chatId, group_name, user, controller, members, is_private, is_password, is_admin_invite, admin_id):
+class GroupView(BaseChatView):  # TODO: Сделать ui private
+    def __init__(self, chatId, group_name, user, controller, members, is_private, is_password, is_admin_invite,
+                 admin_id):
         super(GroupView, self).__init__(chatId, user, controller)
 
         self.ui = Ui_Group()
@@ -67,6 +68,8 @@ class GroupView(BaseChatView):
         self.ui.muteMic.clicked.connect(self.mute_mic_self)
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
+        self._online_users_number = 0
+        self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
 
     @property
     def group_name(self) -> str:
@@ -122,6 +125,14 @@ class GroupView(BaseChatView):
 
     def show_number_of_members(self) -> None:
         self.ui.members_number.setText('{} участников,'.format(len(self._users)))
+
+    def group_member_offline(self, user_id: str) -> None:
+        self._online_users_number -= 1
+        self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
+
+    def group_member_online(self, member_id: str):
+        self._online_users_number += 1
+        self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
 
     def __str__(self):
         return self._chat_id

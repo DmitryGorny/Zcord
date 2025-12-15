@@ -77,6 +77,7 @@ class UserChats:
                                            is_password=group['group']['is_password'],
                                            is_admin_invite=group['group']['is_invite_from_admin'],
                                            admin_id=group['group']['user_admin'])
+            group_obj.group_member_online(str(self.__user.id))
             self._groups.append(group_obj)
             self._chats_controller.add_view(str(group['id']), group_obj)
 
@@ -111,6 +112,7 @@ class UserChats:
                                    is_admin_invite=is_admin_invite,
                                    is_password=is_password,
                                    admin_id=admin_id)
+        group.group_member_online(str(self.__user.id))
         self._groups.append(group)
         self._chats_controller.add_view(chat_id, group)
         return group
@@ -172,3 +174,19 @@ class UserChats:
         except StopIteration as e:
             print('[UserChats] {}'.format(e))
             return None
+
+    def chat_member_offline(self, user_id: str, chat_id: str):
+        try:
+            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
+        except StopIteration as e:
+            print('[UserChats] {}'.format(e))
+            return
+        group.group_member_offline(user_id)
+
+    def chat_member_online(self, member_id: str, chat_id: str) -> None:
+        try:
+            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
+        except StopIteration as e:
+            print('[UserChats] {}'.format(e))
+            return
+        group.group_member_online(member_id)

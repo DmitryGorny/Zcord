@@ -12,7 +12,7 @@ from PyQt6 import QtCore, QtGui, QtWidgets
 class Ui_Group(object):
     def setupUi(self, Group):
         Group.setObjectName("Group")
-        Group.resize(745, 673)
+        Group.resize(743, 673)
         self.MAIN = QtWidgets.QFrame(parent=Group)
         self.MAIN.setGeometry(QtCore.QRect(-10, -10, 761, 681))
         self.MAIN.setObjectName("MAIN")
@@ -45,7 +45,7 @@ class Ui_Group(object):
         self.TopBar.setContentsMargins(35, -1, 35, -1)
         self.TopBar.setObjectName("TopBar")
         self.verticalFrame = QtWidgets.QFrame(parent=self.TopBar_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Expanding, QtWidgets.QSizePolicy.Policy.Preferred)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.verticalFrame.sizePolicy().hasHeightForWidth())
@@ -59,7 +59,7 @@ class Ui_Group(object):
         self.UserIconAndNickInChat_2.setObjectName("UserIconAndNickInChat_2")
         self.LogoAndNickName_2 = QtWidgets.QHBoxLayout(self.UserIconAndNickInChat_2)
         self.LogoAndNickName_2.setContentsMargins(-1, -1, -1, 5)
-        self.LogoAndNickName_2.setSpacing(25)
+        self.LogoAndNickName_2.setSpacing(15)
         self.LogoAndNickName_2.setObjectName("LogoAndNickName_2")
         self.GroupIcon = QtWidgets.QPushButton(parent=self.UserIconAndNickInChat_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
@@ -78,25 +78,50 @@ class Ui_Group(object):
 "")
         self.GroupIcon.setObjectName("GroupIcon")
         self.LogoAndNickName_2.addWidget(self.GroupIcon)
-        self.GroupName = QtWidgets.QLabel(parent=self.UserIconAndNickInChat_2)
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.GroupName.sizePolicy().hasHeightForWidth())
-        self.GroupName.setSizePolicy(sizePolicy)
-        self.GroupName.setMinimumSize(QtCore.QSize(50, 50))
-        self.GroupName.setStyleSheet("font-size:26px;\n"
-"color:white;")
+        self.GroupName = QtWidgets.QPushButton(parent=self.UserIconAndNickInChat_2)
+        self.GroupName.setMinimumSize(QtCore.QSize(135, 0))
+        self.GroupName.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.GroupName.setStyleSheet("QPushButton {\n"
+"    font-size:26px;\n"
+"    color:white;\n"
+"    border:none;\n"
+"    padding:5px;\n"
+"    padding-left:10px;\n"
+"    padding-right:30px;\n"
+"    border-radius:15%;\n"
+"    text-align:left;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: rgba(255, 255, 255, 40);\n"
+"    background-image:url(GUI/icon/icons8-редактировать-25.png);\n"
+"    background-position:right; \n"
+"    background-repeat:no-repeat;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"     background: rgba(255, 255, 255, 90);\n"
+"    background-image:url(GUI/icon/icons8-редактировать-25.png);\n"
+"    background-position:right; \n"
+"    background-repeat:no-repeat;\n"
+"}\n"
+"")
         self.GroupName.setObjectName("GroupName")
         self.LogoAndNickName_2.addWidget(self.GroupName)
         self.verticalLayout_3.addWidget(self.UserIconAndNickInChat_2)
         self.horizontalFrame = QtWidgets.QFrame(parent=self.verticalFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.horizontalFrame.sizePolicy().hasHeightForWidth())
+        self.horizontalFrame.setSizePolicy(sizePolicy)
         self.horizontalFrame.setObjectName("horizontalFrame")
         self.horizontalLayout_2 = QtWidgets.QHBoxLayout(self.horizontalFrame)
         self.horizontalLayout_2.setContentsMargins(15, -1, -1, -1)
         self.horizontalLayout_2.setSpacing(0)
         self.horizontalLayout_2.setObjectName("horizontalLayout_2")
         self.members_number = QtWidgets.QPushButton(parent=self.horizontalFrame)
+        self.members_number.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
         self.members_number.setStyleSheet("font-size:16px;\n"
 "color:grey;\n"
 "border:none;")
@@ -124,6 +149,19 @@ class Ui_Group(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.CallAndInfoButtons.sizePolicy().hasHeightForWidth())
         self.CallAndInfoButtons.setSizePolicy(sizePolicy)
+        self.CallAndInfoButtons.setStyleSheet("QPushButton {\n"
+"    border:none;\n"
+"    border-radius:15%;\n"
+"}\n"
+"\n"
+"\n"
+"QPushButton:hover {\n"
+"    background: rgba(255, 255, 255, 40);\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"     background: rgba(255, 255, 255, 90);\n"
+"}")
         self.CallAndInfoButtons.setObjectName("CallAndInfoButtons")
         self.horizontalLayout_5 = QtWidgets.QHBoxLayout(self.CallAndInfoButtons)
         self.horizontalLayout_5.setSpacing(10)
@@ -137,10 +175,7 @@ class Ui_Group(object):
         self.CallButton.setMinimumSize(QtCore.QSize(45, 45))
         self.CallButton.setMaximumSize(QtCore.QSize(40, 40))
         self.CallButton.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.CallButton.setStyleSheet("\n"
-"border:none;\n"
-"border-radius:15%;\n"
-"")
+        self.CallButton.setStyleSheet("")
         self.CallButton.setText("")
         icon = QtGui.QIcon()
         icon.addPixmap(QtGui.QPixmap("GUI/icon/call_46dp_FFFFFF_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -157,10 +192,7 @@ class Ui_Group(object):
         self.invite_user.setMinimumSize(QtCore.QSize(45, 45))
         self.invite_user.setMaximumSize(QtCore.QSize(40, 40))
         self.invite_user.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.invite_user.setStyleSheet("\n"
-"border:none;\n"
-"border-radius:15%;\n"
-"")
+        self.invite_user.setStyleSheet("")
         self.invite_user.setText("")
         icon1 = QtGui.QIcon()
         icon1.addPixmap(QtGui.QPixmap("GUI/icon/icons8-add-male-user-group-46.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
@@ -168,26 +200,23 @@ class Ui_Group(object):
         self.invite_user.setIconSize(QtCore.QSize(30, 30))
         self.invite_user.setObjectName("invite_user")
         self.horizontalLayout_5.addWidget(self.invite_user)
-        self.settings = QtWidgets.QPushButton(parent=self.CallAndInfoButtons)
+        self.show_members = QtWidgets.QPushButton(parent=self.CallAndInfoButtons)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.settings.sizePolicy().hasHeightForWidth())
-        self.settings.setSizePolicy(sizePolicy)
-        self.settings.setMinimumSize(QtCore.QSize(45, 45))
-        self.settings.setMaximumSize(QtCore.QSize(40, 40))
-        self.settings.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.settings.setStyleSheet("\n"
-"border:none;\n"
-"border-radius:15%;\n"
-"")
-        self.settings.setText("")
+        sizePolicy.setHeightForWidth(self.show_members.sizePolicy().hasHeightForWidth())
+        self.show_members.setSizePolicy(sizePolicy)
+        self.show_members.setMinimumSize(QtCore.QSize(45, 45))
+        self.show_members.setMaximumSize(QtCore.QSize(40, 40))
+        self.show_members.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.show_members.setStyleSheet("")
+        self.show_members.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("GUI/icon/icons8-settings-46.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.settings.setIcon(icon2)
-        self.settings.setIconSize(QtCore.QSize(30, 30))
-        self.settings.setObjectName("settings")
-        self.horizontalLayout_5.addWidget(self.settings)
+        icon2.addPixmap(QtGui.QPixmap("GUI/icon/icons8-группы-пользователей-48.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.show_members.setIcon(icon2)
+        self.show_members.setIconSize(QtCore.QSize(30, 30))
+        self.show_members.setObjectName("show_members")
+        self.horizontalLayout_5.addWidget(self.show_members)
         self.TopBar.addWidget(self.CallAndInfoButtons)
         self.verticalLayout_2.addWidget(self.TopBar_2)
         self.ChatLayout = QtWidgets.QFrame(parent=self.Column)

@@ -134,17 +134,18 @@ class Server:
                     continue
 
                 for msg in arr:
-                    msg_type = msg["msg_type"]
-                    group_name = msg['group']
-                    strategy = self._onion_handler.choose_strategy(group_name=group_name, command=msg_type)
-                    if isinstance(strategy, UserInfoStrat):
-                        msg['writer'] = writer
                     try:
+                        msg_type = msg["msg_type"]
+                        group_name = msg['group']
+                        strategy = self._onion_handler.choose_strategy(group_name=group_name, command=msg_type)
+                        if isinstance(strategy, UserInfoStrat):
+                            msg['writer'] = writer
                         await strategy.execute(msg)
                     except AttributeError as e:
-                        print(e)
+                        print('[Server(client_tcp)] Ошибка: {}'.format(e))
+                    except KeyError as e:
+                        print('[Server(client_tcp)] Ошибка: {}'.format(e))
                     continue
-
             except ConnectionResetError:
                 break
 
@@ -174,11 +175,11 @@ class ServersHandler:
                 if typ == 'MESSAGE-SERVER':
                     self._servers["message-server"] = writer
                     self._server_connected('message-server', writer)
-                    print("Подключен message")
+                    print("[Server(servers_tcp)] Подключен message")
                     continue
                 elif typ == 'VOICE-SERVER':
                     self._servers["voice-server"] = writer
-                    print("Подключен voice")
+                    print("[Server(servers_tcp)] Подключен voice")
                     self._server_connected("voice-server", writer)
                     continue
                 group_name = msg.get("g")
@@ -186,11 +187,11 @@ class ServersHandler:
                 try:
                     await strategy.execute(msg)
                 except Exception as e:
-                    print(e)
+                    print(print('[Server(servers_tcp)] Ошибка: {}'.format(e)))
 
             except ConnectionResetError:
                 writer.close()
-                print("Отключён")
+                print("[Server(servers_tcp)] Отключён")
                 break
 
 

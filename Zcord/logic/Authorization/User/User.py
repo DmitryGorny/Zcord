@@ -148,3 +148,9 @@ class User(BaseUser):
 
     def add_group_member(self, member_id: str, group_id: str) -> None:
         self._chats_model.add_member_to_group(member_id=member_id, group_id=group_id)
+
+    def chat_member_offline(self, member_id: str, chat_id: str) -> None:
+        self._chats_model.chat_member_offline(member_id, chat_id)
+
+    def chat_member_online(self, member_id: str, chat_id: str) -> None:
+        self._chats_model.chat_member_online(member_id=member_id, chat_id=chat_id)

@@ -460,10 +460,13 @@ class MainWindow(FramelessWindow):
             case "UPDATE-MESSAGE-NUMBER":
                 self.unseenMessages(chat_id=args['chat_id'], newValue=args['message_number'])
             case "CHANGE-ACTIVITY":
+                status = self.__user.get_status_by_instance(args['status_instance'])
+                if status is None:
+                    return
                 if args['target'] == "self":
-                    self.change_self_activity_indicator_color(args['color'])
+                    self.change_self_activity_indicator_color(status.color)
                 elif args['target'] == "friend":
-                    self.change_friend_activity_indeicator_color(args['sender_nickname'], args['color'])
+                    self.change_friend_activity_indeicator_color(args['sender_nickname'], status.color)
                 else:
                     raise ValueError(f"Expected 'self' or 'friend' but {args[0]} was given")
             case 'GROUP_REQUEST_RECEIVE':

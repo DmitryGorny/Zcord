@@ -18,31 +18,49 @@ class Status:
     def set_option(self, option: Option):
         self.option = option
 
+    def __str__(self):
+        raise NotImplementedError
+
 
 # Классы под все статусы
 class Online(Status):
     def __init__(self):
         super(Online, self).__init__()
 
+    def __str__(self):
+        return 'online'
+
 
 class Hidden(Status):
     def __init__(self):
         super(Hidden, self).__init__()
+
+    def __str__(self):
+        return 'hidden'
 
 
 class DisturbBlock(Status):
     def __init__(self):
         super(DisturbBlock, self).__init__()
 
+    def __str__(self):
+        return 'disturb'
+
 
 class AFK(Status):
     def __init__(self):
         super(AFK, self).__init__()
 
+    def __str__(self):
+        return 'AFK'
+
 
 class Custom(Status):
     def __init__(self):
         super(Custom, self).__init__()
+
+    def __str__(self):
+        return 'cust'
 
 
 # Классы под все статусы

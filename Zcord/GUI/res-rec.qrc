@@ -1,5 +1,10 @@
 <RCC>
   <qresource prefix="icons">
+    <file>icon/icons8-star-20.png</file>
+    <file>icon/icons8-kick-20.png</file>
+    <file>icon/icons8-выход-32.png</file>
+    <file>icon/icons8-выход-52.png</file>
+    <file>icon/icons8-выход-64.png</file>
     <file>icon/icons8-редактировать-30.png</file>
     <file>icon/icons8-редактировать-25.png</file>
     <file>icon/icons8-группы-пользователей-48.png</file>

@@ -51,10 +51,5 @@ class IClientRepo(Protocol):
     async def notify_message_server_left(self, user_id: str):
         raise NotImplementedError
 
-    async def chat_member_offline(self, client_id: str, sender_id: str, chat_id: str) -> None:
-        raise NotImplementedError
-
-    async def chat_member_online(self, client_id: str, sender_id: str, chat_id: str) -> None:
-        raise NotImplementedError
 
 

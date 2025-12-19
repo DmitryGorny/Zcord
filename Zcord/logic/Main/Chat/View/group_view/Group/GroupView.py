@@ -8,6 +8,7 @@ from logic.Main.Chat.View.IView.IView import IView, BaseChatView
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 from logic.Main.Chat.View.group_view.UserInviteDialog.UserInviteController import UserInviteController
+from logic.Main.Chat.View.group_view.members_column.MembersColumnController import MembersColumnController
 from logic.Main.miniProfile.MiniProfile import Overlay
 
 
@@ -71,6 +72,12 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._online_users_number = 0
         self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
 
+        self.ui.members_column.setHidden(True)
+
+        self._members_column_controller = MembersColumnController(self.ui.members_column, self.ui.members_list, self._user)
+        self._members_column_controller.setup_members(self._users, self._admin_id)
+        self.ui.show_members.clicked.connect(self.show_hide_members_column)
+
     @property
     def group_name(self) -> str:
         return self._group_name
@@ -127,12 +134,23 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self.ui.members_number.setText('{} участников,'.format(len(self._users)))
 
     def group_member_offline(self, user_id: str) -> None:
+        self._members_column_controller.change_activity_color(user_id, 'grey')
         self._online_users_number -= 1
         self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
 
     def group_member_online(self, member_id: str):
+        self._members_column_controller.change_activity_color(member_id, 'green')
         self._online_users_number += 1
         self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
+
+    def group_member_activity(self, member_id: str, color: str):
+        self._members_column_controller.change_activity_color(member_id, color)
+
+    def group_member_status_changed(self, member_id: str, color: str):
+        self._members_column_controller.change_activity_color(member_id, color)
+
+    def show_hide_members_column(self) -> None:
+        self._members_column_controller.show_hide_members_column()
 
     def __str__(self):
         return self._chat_id

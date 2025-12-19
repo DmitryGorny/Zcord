@@ -39,4 +39,4 @@ class GroupMemberFabric(ABC):
 
 class GroupMemberCreator(GroupMemberFabric):
     def create_member(self, **kwargs) -> GroupMember:
-        return GroupMember(kwargs['user_id'], kwargs['nickname'])
+        return GroupMember(kwargs['user_id'], kwargs['nickname'], kwargs['is_admin'])

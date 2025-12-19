@@ -3,7 +3,7 @@ from typing import List, Dict
 from logic.Main.Chat.Controller.ChatController import ChatController
 from logic.Authorization.User.chat.UserChats import UserChats
 from logic.Authorization.User.friend.UserFriends import UserFriends
-from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK
+from logic.Main.ActivitySatus.Activity import Director, CreateStatus, Online, Hidden, DisturbBlock, AFK, Status
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 
 
@@ -46,6 +46,14 @@ class BaseUser:
     @status.setter
     def status(self, status) -> None:
         self._status = status
+
+    def get_status_by_instance(self, instance: str) -> Status | None:
+        try:
+            status = next(filter(lambda x: str(x) == instance, self._statuses))
+        except StopIteration as e:
+            print('[User] {}'.format(e))
+            return
+        return status
 
     @property
     def id(self):
@@ -149,8 +157,29 @@ class User(BaseUser):
     def add_group_member(self, member_id: str, group_id: str) -> None:
         self._chats_model.add_member_to_group(member_id=member_id, group_id=group_id)
 
-    def chat_member_offline(self, member_id: str, chat_id: str) -> None:
+    def group_member_change_status(self, member_id: str, status_instance: str):
+        status = self.get_status_by_instance(status_instance)
+        if status is None:
+            return
+
+        for group_view in self._chats_model.get_groups_props():
+            try:
+                group_member = next(filter(lambda member: member.user_id == member_id, group_view['users']))
+            except StopIteration:
+                continue
+
+            if isinstance(status, Online):
+                self._chat_member_online(member_id, group_view['chat_id'])
+                return
+
+            if isinstance(status, Hidden):
+                self._chat_member_offline(member_id, group_view['chat_id'])
+                return
+
+            self._chats_model.member_activity_status(member_id=member_id, chat_id=group_view['chat_id'], color=status.color)
+
+    def _chat_member_offline(self, member_id: str, chat_id: str) -> None:
         self._chats_model.chat_member_offline(member_id, chat_id)
 
-    def chat_member_online(self, member_id: str, chat_id: str) -> None:
+    def _chat_member_online(self, member_id: str, chat_id: str) -> None:
         self._chats_model.chat_member_online(member_id=member_id, chat_id=chat_id)

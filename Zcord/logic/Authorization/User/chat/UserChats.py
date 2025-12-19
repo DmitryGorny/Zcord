@@ -64,7 +64,10 @@ class UserChats:
         for group in groups:  # TODO: Оптимизация
             members = []
             for user in group['group']['users']:
-                members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id'])))
+                is_admin = False
+                if user['user_id'] == str(group['group']['user_admin']):
+                    is_admin = True
+                members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']), is_admin=is_admin))
 
             group_name = group['group']['group_name']
             group_obj = fabric.create_chat(is_dm=False,
@@ -77,7 +80,6 @@ class UserChats:
                                            is_password=group['group']['is_password'],
                                            is_admin_invite=group['group']['is_invite_from_admin'],
                                            admin_id=group['group']['user_admin'])
-            group_obj.group_member_online(str(self.__user.id))
             self._groups.append(group_obj)
             self._chats_controller.add_view(str(group['id']), group_obj)
 
@@ -190,3 +192,11 @@ class UserChats:
             print('[UserChats] {}'.format(e))
             return
         group.group_member_online(member_id)
+
+    def member_activity_status(self, member_id: str, chat_id: str, color: str) -> None:
+        try:
+            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
+        except StopIteration as e:
+            print('[UserChats] {}'.format(e))
+            return
+        group.group_member_activity(member_id, color)

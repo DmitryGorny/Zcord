@@ -151,10 +151,12 @@ class StatusWidget(QtWidgets.QMenu):
         self.exec(button_pos)
 
     def clicked(self, actvity_status):
+        if self._user.status == actvity_status:
+            return
         if isinstance(actvity_status, Online):
             ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={
-                'status_name': "В сети",
-                'color': "#008000"})
+                                                                                            'status_name': "В сети",
+                                                                                            'status_instance': str(actvity_status)})
             self.miniProfile.change_activity_color("#008000")
             self.miniProfile.change_status_text("В сети")
             self._user.status = actvity_status
@@ -163,7 +165,7 @@ class StatusWidget(QtWidgets.QMenu):
         if isinstance(actvity_status, DisturbBlock):
             ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS",
                                                    extra_data={'status_name': "Не беспокоить",
-                                                               'color': "red"})
+                                                               'status_instance': str(actvity_status)})
             self.miniProfile.change_activity_color("red")
             self.miniProfile.change_status_text("Не беспокоить")
             self._user.status = actvity_status
@@ -171,15 +173,16 @@ class StatusWidget(QtWidgets.QMenu):
 
         if isinstance(actvity_status, Hidden):
             ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={'status_name': "Невидимка",
-                                                                                       'color': "grey"})
+                                                                                                       'status_instance': str(actvity_status)})
             self.miniProfile.change_activity_color("grey")
             self.miniProfile.change_status_text("Невидимка")
             self._user.status = actvity_status
             return
 
         if isinstance(actvity_status, AFK):
-            ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={'status_name': "Не активен",
-                                                                                       'color': "yellow"})
+            ClientConnections.send_service_message(group='CLIENT', msg_type="USER-STATUS", extra_data={
+                                                                                       'status_name': "Не активен",
+                                                                                       'status_instance': str(actvity_status)})
             self.miniProfile.change_activity_color("yellow")
             self.miniProfile.change_status_text("Не активен")
             self._user.status = actvity_status

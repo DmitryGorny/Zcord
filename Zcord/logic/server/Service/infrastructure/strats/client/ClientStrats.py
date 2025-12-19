@@ -49,9 +49,9 @@ class UserStatusStrategy(ClientStrategyKeeper, IServiceStrat):
 
     async def execute(self, msg: dict) -> None:
         user_status = msg['status_name']
-        color = msg['color']
+        instance = msg['status_instance']
         user_id: str = str(msg['user_id'])
-        user_status = {'color': color, 'user-status': user_status}
+        user_status = {'status_instance': instance, 'user-status': user_status}
         await self._service.user_status(user_id, user_status)
 
 

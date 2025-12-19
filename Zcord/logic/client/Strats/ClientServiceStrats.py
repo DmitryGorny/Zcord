@@ -48,39 +48,17 @@ class UserStatusReceive(ClientsStrategies):
         super(UserStatusReceive, self).__init__()
 
     def execute(self, msg: dict) -> None:
+        sender_id = msg['sender_id']
         sender_status = msg["user-status"]
         sender_nickname = msg["nickname"]
         receiver_nickname = self.service_connection_pointer.user.getNickName()
-        color = sender_status['color']
-
         target = "self" if sender_nickname == receiver_nickname else "friend"
         self.service_connection_pointer.call_main_dynamic_update("CHANGE-ACTIVITY", {'target': target,
-                                                                                     'color': color,
-                                                                                     'sender_nickname': sender_nickname})
+                                                                                     'sender_nickname': sender_nickname,
+                                                                                     'status_instance': sender_status[
+                                                                                         'status_instance']})
 
-
-class GroupMemberOffline(ClientsStrategies):
-    header_name = "GROUP-MEMBER-OFFLINE"
-
-    def __init__(self):
-        super(GroupMemberOffline, self).__init__()
-
-    def execute(self, msg: dict) -> None:
-        sender_id = msg["sender_id"]
-        chat_id = msg["chat_id"]
-        self.service_connection_pointer.user.chat_member_offline(sender_id, chat_id)
-
-
-class GroupMemberOnline(ClientsStrategies):
-    header_name = "GROUP-MEMBER-ONLINE"
-
-    def __init__(self):
-        super(GroupMemberOnline, self).__init__()
-
-    def execute(self, msg: dict) -> None:
-        sender_id = msg["sender_id"]
-        chat_id = msg['chat_id']
-        self.service_connection_pointer.user.chat_member_online(sender_id, chat_id)
+        self.service_connection_pointer.user.group_member_change_status(sender_id, sender_status['status_instance'])
 
 
 class SendFirstInfo(ClientsStrategies):
@@ -93,7 +71,7 @@ class SendFirstInfo(ClientsStrategies):
         dictToSend = {
             "friends": self.service_connection_pointer.user.getFriends(),
             "status": {'status_name': self.service_connection_pointer.user.status.name,
-                       'color': self.service_connection_pointer.user.status.color},
+                       'status_instance': str(self.service_connection_pointer.user.status)},
             "last_online": self.service_connection_pointer.user.last_online,
             'chats': self.service_connection_pointer.user.get_chats(True)
         }

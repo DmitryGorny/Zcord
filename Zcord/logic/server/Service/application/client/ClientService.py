@@ -25,8 +25,10 @@ class ClientService(IClientService):
         await self._client_repo.change_client_activity_status(user_id, user_id, status)
         await self._client_repo.notify_message_server_add(user_id, chats, writer)
 
+        notified_users = set()
         for friend_attr in friends:  # TODO: В случае кастомных статусов присылать еще и онлайн статус друга
             await self._change_client_activity_status(friend_attr['id'], user_id, status)
+            notified_users.add(friend_attr['id'])
             await self._change_client_activity_status(user_id, friend_attr['id'],
                                                       self._client_repo.get_client_online_stat(friend_attr['id']))
 
@@ -36,13 +38,18 @@ class ClientService(IClientService):
             for member in members:
                 if member.user_id == user_id:
                     continue
-                await self._client_repo.chat_member_online(member.user_id, user_id, chat.chat_id)
-                await self._client_repo.chat_member_online(user_id, member.user_id, chat.chat_id)
+
+                if member.user_id in notified_users:
+                    continue
+                await self._change_client_activity_status(member.user_id, user_id, status)
+                await self._change_client_activity_status(user_id, member.user_id, status)
 
     async def user_left(self, client_id: str, status: dict[str, str]):
         friends = self._friend_repo.get_client_friends(client_id=client_id)
         chats = self._chat_repo.get_chats_by_user_id(user_id=client_id)
+        notified_users = set()
         for friend in friends:
+            notified_users.add(friend.id)
             await self._change_client_activity_status(friend.id, client_id, status)
 
         for chat in chats: # TODO: Оптимизация
@@ -50,7 +57,9 @@ class ClientService(IClientService):
             for member in members:
                 if member.user_id == client_id:
                     continue
-                await self._client_repo.chat_member_offline(member.user_id, client_id, chat.chat_id)
+                if member.user_id in notified_users:
+                    continue
+                await self._change_client_activity_status(member.user_id, client_id, status)
 
         await self._client_repo.close_client_writer(client_id)
         self._client_repo.delete_client(client_id)
@@ -62,8 +71,20 @@ class ClientService(IClientService):
     async def user_status(self, client_id: str, status: dict[str, str]) -> None:
         friends = self._friend_repo.get_client_friends(client_id)
         await self._change_client_activity_status(client_id=client_id, sender_id=client_id, status=status)
+        notified_users = set()
         for friend in friends:
+            notified_users.add(friend.id)
             await self._change_client_activity_status(client_id=friend.id, sender_id=client_id, status=status)
+
+        chats = self._chat_repo.get_chats_by_user_id(user_id=client_id)
+        for chat in chats: # TODO: Оптимизация
+            members = chat.get_members()
+            for member in members:
+                if member.user_id == client_id:
+                    continue
+                if member.user_id in notified_users:
+                    continue
+                await self._change_client_activity_status(member.user_id, client_id, status)
 
     async def call_notification(self, user_id: str, chat_id: str, call_flg) -> None:
         chat = self._chat_repo.get_chat_by_id(chat_id=chat_id)

@@ -82,29 +82,10 @@ class ClientRepo(IClientRepo):
         await client.send_message('USER-STATUS', {
             "user-status": status,
             "nickname": sender.nick,
+            "sender_id": sender_id
         })
 
         client.status = status
-
-    async def chat_member_offline(self, client_id: str, sender_id: str, chat_id: str) -> None:
-        client = self._get_client(client_id)
-        sender = self._get_client(sender_id)
-        if client is None or sender is None:
-            return
-        await client.send_message('GROUP-MEMBER-OFFLINE', {
-            "sender_id": sender_id,
-            "chat_id": chat_id
-        })
-
-    async def chat_member_online(self, client_id: str, sender_id: str, chat_id: str) -> None:
-        client = self._get_client(client_id)
-        sender = self._get_client(sender_id)
-        if client is None or sender is None:
-            return
-        await client.send_message('GROUP-MEMBER-ONLINE', {
-            "sender_id": sender_id,
-            'chat_id': chat_id
-        })
 
     def get_clients_current_chat(self, client_id: str) -> int | None:
         client = self._get_client(client_id)

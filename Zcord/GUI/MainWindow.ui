@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1222</width>
-    <height>777</height>
+    <height>750</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -305,8 +305,8 @@ border:0;</string>
                     <rect>
                      <x>0</x>
                      <y>0</y>
-                     <width>100</width>
-                     <height>400</height>
+                     <width>200</width>
+                     <height>222</height>
                     </rect>
                    </property>
                   </widget>
@@ -959,6 +959,9 @@ QScrollBar:vertical {
              <property name="rightMargin">
               <number>0</number>
              </property>
+             <property name="bottomMargin">
+              <number>0</number>
+             </property>
              <item>
               <widget class="QStackedWidget" name="stackedWidget_2">
                <property name="sizePolicy">
@@ -1012,6 +1015,9 @@ QScrollBar:vertical {
                      <number>0</number>
                     </property>
                     <property name="rightMargin">
+                     <number>0</number>
+                    </property>
+                    <property name="bottomMargin">
                      <number>0</number>
                     </property>
                     <item>

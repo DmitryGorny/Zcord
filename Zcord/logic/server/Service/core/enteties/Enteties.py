@@ -70,10 +70,15 @@ class IFriend(IClient, Protocol):
 
 class IChatMember:
     _user_id: str
+    _username: str
 
     @property
     def user_id(self) -> str:
         return self._user_id
+
+    @property
+    def username(self) -> str:
+        return self._username
 
 
 class IChat(Protocol):
@@ -88,7 +93,7 @@ class IChat(Protocol):
     def add_member(self, friend: IChatMember) -> None:
         raise NotImplementedError
 
-    def create_and_add_member(self, user_id: str):
+    def create_and_add_member(self, user_id: str, nickname: str):
         raise NotImplementedError
 
     def get_member_by_id(self, user_id) -> IChatMember | None:

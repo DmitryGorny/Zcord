@@ -50,9 +50,11 @@ class GroupRequestAcceptStrat(ChatStrategyKeeper, IServiceStrat):
         request_receiver = str(msg['user_id'])
         group_id = str(msg['group_id'])
         request_id = str(msg['request_id'])
+        nickname = str(msg['nickname'])
         await self._service.add_user_group(request_receiver=request_receiver,
                                            group_id=group_id,
-                                           request_id=request_id)
+                                           request_id=request_id,
+                                           receiver_nick=nickname)
 
 
 class UserLeftGroupStrat(ChatStrategyKeeper, IServiceStrat):
@@ -62,7 +64,7 @@ class UserLeftGroupStrat(ChatStrategyKeeper, IServiceStrat):
         super().__init__()
 
     async def execute(self, msg: dict) -> None:
-        request_receiver = str(msg['user_id'])
+        request_receiver = str(msg['request_receiver'])
         group_id = str(msg['group_id'])
         await self._service.user_left_group(request_receiver=request_receiver, group_id=group_id)
 

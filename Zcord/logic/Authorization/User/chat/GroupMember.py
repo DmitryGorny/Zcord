@@ -16,5 +16,5 @@ class GroupMember:
     def is_admin(self):
         return self._is_admin
 
-    def __str__(self):
-        return f'{self._id}'
+    def get_props(self) -> dict[str]:
+        return {'member_id': self._id, 'member_nickname': self._nickname}

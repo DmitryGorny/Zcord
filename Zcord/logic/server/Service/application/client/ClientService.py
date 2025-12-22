@@ -44,9 +44,11 @@ class ClientService(IClientService):
                 await self._change_client_activity_status(member.user_id, user_id, status)
                 await self._change_client_activity_status(user_id, member.user_id, status)
 
-    async def user_left(self, client_id: str, status: dict[str, str]):
+    async def user_left(self, client_id: str):
         friends = self._friend_repo.get_client_friends(client_id=client_id)
         chats = self._chat_repo.get_chats_by_user_id(user_id=client_id)
+        status = {'status_name': "Невидимка", 'status_instance': 'hidden'}
+
         notified_users = set()
         for friend in friends:
             notified_users.add(friend.id)

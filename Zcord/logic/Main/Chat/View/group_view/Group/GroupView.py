@@ -48,7 +48,7 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
         self.ui.Call.hide()
 
-        self._invite_dial_controller: UserInviteController = UserInviteController(self._user, self._chat_id)
+        self._invite_dial_controller: UserInviteController = UserInviteController(self._user, self._chat_id, self._users)
         self._invite_dialog = self._invite_dial_controller.get_widget()
         self._invite_overlay = Overlay(self._invite_dialog)
         self._invite_overlay.setParent(self.ui.Column)
@@ -74,7 +74,8 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
         self.ui.members_column.setHidden(True)
 
-        self._members_column_controller = MembersColumnController(self.ui.members_column, self.ui.members_list, self._user)
+        self._members_column_controller = MembersColumnController(self.ui.members_column, self.ui.members_list,
+                                                                  self._user, self.chat_id)
         self._members_column_controller.setup_members(self._users, self._admin_id)
         self.ui.show_members.clicked.connect(self.show_hide_members_column)
 
@@ -127,10 +128,14 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
             self._invite_overlay.close()
             self._invite_dialog.close()
 
-    def add_member_to_group(self, member: GroupMember) -> None:
+    def add_member_to_group(self, member: GroupMember) -> None: # TODO: Пофиксить рассинхрон статусов
         self._users.append(member)
+        self._members_column_controller.add_user(member.user_id, member.nickname)
 
     def show_number_of_members(self) -> None:
+        if self._online_users_number > len(self._users):
+            self._online_users_number = len(self._users)
+            self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
         self.ui.members_number.setText('{} участников,'.format(len(self._users)))
 
     def group_member_offline(self, user_id: str) -> None:
@@ -142,6 +147,16 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._members_column_controller.change_activity_color(member_id, 'green')
         self._online_users_number += 1
         self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
+
+    def remove_member(self, member_id: str):
+        try:
+            member = next(filter(lambda x: x.user_id == member_id, self._users))
+        except StopIteration:
+            print('[GroupView]')
+            return
+        self._users.remove(member)
+        self.show_number_of_members()
+        self._members_column_controller.remove_user(member_id)
 
     def group_member_activity(self, member_id: str, color: str):
         self._members_column_controller.change_activity_color(member_id, color)

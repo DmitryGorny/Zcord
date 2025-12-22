@@ -5,8 +5,8 @@ from logic.Main.Chat.View.dm_view.GroupInviteDialog.view.FriendWidget.FriendWidg
 
 
 class FriendOptionWidget(QtWidgets.QWidget):
-    was_checked = pyqtSignal(str)
-    was_unchecked = pyqtSignal(str)
+    was_checked = pyqtSignal(str, str)
+    was_unchecked = pyqtSignal(dict)
 
     def __init__(self, friend_id: str, friend_name: str):
         super(FriendOptionWidget, self).__init__()
@@ -28,6 +28,6 @@ class FriendOptionWidget(QtWidgets.QWidget):
 
     def on_checkbox_toggled(self, is_checked):
         if is_checked:
-            self.was_checked.emit(self._friend_id)
+            self.was_checked.emit(self._friend_id, self._friend_name)
         else:
-            self.was_unchecked.emit(self._friend_id)
+            self.was_unchecked.emit([self._friend_id, self._friend_name])

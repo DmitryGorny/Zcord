@@ -17,7 +17,7 @@ class UserInviteView(QtWidgets.QDialog):  # TODO: В qt designer добавит�
         self._ui.invite_users_button.clicked.connect(self._invite_user)
         self._friends_options: dict[str, FriendOptionWidget] = {}
 
-        self._friends_ids_group: List[str] = []
+        self._friends_ids_group: List[dict[str, str]] = []
 
         self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
         self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
@@ -40,12 +40,12 @@ class UserInviteView(QtWidgets.QDialog):  # TODO: В qt designer добавит�
     def clear_friends_list(self) -> None:
         self._ui.friend_list.clear()
 
-    def _add_friend_to_group(self, friend_id: str) -> None:
-        self._friends_ids_group.append(friend_id)
+    def _add_friend_to_group(self, friend_id: str, nickname: str) -> None:
+        self._friends_ids_group.append({"user_id": friend_id, "nickname": nickname})
 
-    def _remove_friend_from_group(self, friend_id: str) -> None:
+    def _remove_friend_from_group(self, props: dict[str, str]) -> None:
         try:
-            self._friends_ids_group.remove(friend_id)
+            self._friends_ids_group.remove(props)
         except ValueError as e:
             print(e)
 

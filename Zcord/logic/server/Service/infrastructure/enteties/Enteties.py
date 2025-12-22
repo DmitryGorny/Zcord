@@ -89,12 +89,17 @@ class Friend(IFriend, Client):
 class ChatMember(IChatMember):
     """Класс под пользователя, не являющегося другом"""
 
-    def __init__(self, user_id: str):
+    def __init__(self, user_id: str, username: str):
         self._id = user_id
+        self._username = username
 
     @property
     def user_id(self) -> str:
         return self._id
+
+    @property
+    def username(self) -> str:
+        return self._username
 
 
 class Chat(IChat):  # TODO: Проверить добавляются ли Friend в группу
@@ -114,13 +119,12 @@ class Chat(IChat):  # TODO: Проверить добавляются ли Frien
     def get_members_len(self) -> int:
         return len(self._members)
 
-    def create_and_add_member(self, user_id: str):
-        member = ChatMember(user_id)
+    def create_and_add_member(self, user_id: str, nickname: str):
+        member = ChatMember(user_id, nickname)
         self._members.append(member)
 
     def get_member_by_id(self, user_id) -> IChatMember | None:
         try:
-
             return next(filter(lambda x: str(x.user_id) == str(user_id), self._members))
         except StopIteration as e:
             print(e)
@@ -131,7 +135,7 @@ class Chat(IChat):  # TODO: Проверить добавляются ли Frien
 
     def delete_member_by_id(self, user_id: str) -> None:
         try:
-            member = next(filter(lambda x: x.id == user_id, self._members))
+            member = next(filter(lambda x: x.user_id == user_id, self._members))
         except StopIteration as e:
             print(e)
             return

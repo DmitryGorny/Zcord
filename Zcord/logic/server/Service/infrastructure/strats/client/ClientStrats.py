@@ -37,7 +37,7 @@ class EndSessionStrategy(ClientStrategyKeeper, IServiceStrat):
 
     async def execute(self, msg: dict) -> None:
         user_id = str(msg["user_id"])
-        await self._service.user_left(client_id=user_id, status={'color': 'grey', 'user-status': 'Невидимка'})
+        await self._service.user_left(client_id=user_id)
         raise ConnectionResetError  # Чтобы задача стопалась
 
 

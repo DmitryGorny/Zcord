@@ -14,7 +14,10 @@ class IChatDBRepo(Protocol):
     def delete_dm_chat(self, DM_id: int) -> None:
         raise NotImplementedError
 
-    def search_chat_by_id(self, chat_id: int, is_group: bool) -> dict:
+    def search_chat_by_inner_id(self, chat_id: int, is_group: bool) -> list[dict]:
+        raise NotImplementedError
+
+    def get_chat_by_id(self, chat_id: int) -> dict:
         raise NotImplementedError
 
     def add_group_member(self, user_id: int, group_id: int) -> None:
@@ -29,7 +32,7 @@ class IChatDBRepo(Protocol):
     def delete_group_member_by_id(self, member_id: int) -> None:
         raise NotImplementedError
 
-    def search_group_member(self, user_id: int, group_id: int) -> None:
+    def search_group_member(self, user_id: int, group_id: int) -> list:
         raise NotImplementedError
 
     def create_group(self, group_name: str, is_private: bool, is_invite_from_admin: bool, is_password: bool,

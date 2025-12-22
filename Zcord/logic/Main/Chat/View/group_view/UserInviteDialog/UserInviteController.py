@@ -4,9 +4,9 @@ from logic.Main.Chat.View.group_view.UserInviteDialog.view.UserInviteView import
 
 
 class UserInviteController:
-    def __init__(self, user, current_group_id: str):
+    def __init__(self, user, current_group_id: str, group_members: list):
         self._view: UserInviteView = UserInviteView()
-        self._model: UserInviteModel = UserInviteModel(user, current_group_id)
+        self._model: UserInviteModel = UserInviteModel(user, current_group_id, group_members)
 
         self._view.invite_user_model.connect(self._model.invite_user)
         self._model.show_friend_view.connect(self._view.add_friend_option)
@@ -22,3 +22,4 @@ class UserInviteController:
 
     def reload_model(self):
         self._model.reload_flag()
+        self._model.show_friends()

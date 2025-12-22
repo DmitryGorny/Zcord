@@ -1,14 +1,15 @@
 from typing import Dict
 
 from PyQt6 import QtWidgets, QtCore
-from PyQt6.QtCore import pyqtSignal
+from PyQt6.QtCore import pyqtSignal, QObject
 from logic.Main.Chat.View.group_view.members_column.MembersColumnView.UserCard.UserCard import UserCard
 
 
-class MembersColumnView:
-    kick_member_model = pyqtSignal()
+class MembersColumnView(QObject):
+    kick_member_model = pyqtSignal(str)
 
     def __init__(self, column_widget):
+        super(MembersColumnView, self).__init__()
         self._ui = column_widget
         self._ui.setSpacing(15)
         self._ui.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
@@ -33,9 +34,23 @@ class MembersColumnView:
         item.setSizeHint(card.get_widget().sizeHint())
         self._ui.addItem(item)
         self._ui.setItemWidget(item, card.get_widget())
+        card.widget_id = self._ui.count() - 1
 
     def change_activity_status(self, member_id: str, color: str) -> None:
         member_card = self._members.get(member_id)
         if member_card is None:
             return
         member_card.change_activity(color)
+
+    def remove_user(self, user_id: str):
+        if user_id not in self._members.keys():
+            return
+
+        widget = self._members[user_id]
+
+        item = self._ui.takeItem(widget.widget_id)
+        widget = self._ui.itemWidget(item)
+        self._ui.removeItemWidget(item)
+        if widget:
+            widget.deleteLater()
+        del self._members[user_id]

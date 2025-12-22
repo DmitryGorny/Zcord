@@ -67,7 +67,8 @@ class UserChats:
                 is_admin = False
                 if user['user_id'] == str(group['group']['user_admin']):
                     is_admin = True
-                members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']), is_admin=is_admin))
+                members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']),
+                                                           is_admin=is_admin))
 
             group_name = group['group']['group_name']
             group_obj = fabric.create_chat(is_dm=False,
@@ -102,7 +103,10 @@ class UserChats:
         member_fabric = GroupMemberCreator()
         groups = self._db.get_chat_by_id(chat_id=chat_id)
         for user in groups['group']['users']:
-            members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id'])))
+            admin: bool = False
+            if admin_id != str(user['user_id']):
+                admin = True
+            members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']), is_admin=admin))
 
         group = fabric.create_chat(is_dm=False,
                                    group_id=str(chat_id),
@@ -136,12 +140,15 @@ class UserChats:
         """Поочередно возвращает атрибуты каждого класса"""
         for chat in self._dm_chats:
             yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(),
-                   'friends_id': [chat.friend_id, self.__user.id],
+                   'friends_id': [{'member_id': chat.friend_id,
+                                   'member_nickname': chat.getNickName()},
+                                  {'member_id': self.__user.id,
+                                   'member_nickname': self.__user.getNickName()}],
                    'is_dm': True}
 
         for group in self._groups:
             yield {"chat_id": str(group.chat_id), "group_name": group.group_name,
-                   'friends_id': [str(member) for member in group.get_users],
+                   'friends_id': [member.get_props() for member in group.get_users],
                    'is_dm': False}
 
     def get_dm_chats(self) -> List[ChatView]:
@@ -156,6 +163,11 @@ class UserChats:
         self._dm_chats.remove(chat)
         self._chats_controller.delete_chat(chat_id)
 
+    def delete_group_chat(self, chat_id: str) -> None:
+        chat = list(filter(lambda x: str(x.chat_id) == str(chat_id), self._groups))[0]
+        self._groups.remove(chat)
+        self._chats_controller.delete_chat(chat_id)
+
     def get_group_by_id(self, group_id: str) -> dict | None:
         try:
             group = next(filter(lambda x: x.chat_id == group_id, self._groups))
@@ -168,7 +180,7 @@ class UserChats:
     def add_member_to_group(self, member_id: str, group_id: str) -> None:
         user = self._db.get_user_by_id(user_id=int(member_id))
         member_fabric = GroupMemberCreator()
-        member = member_fabric.create_member(nickname=user['nickname'], user_id=str(user['id']))
+        member = member_fabric.create_member(nickname=user['nickname'], user_id=str(user['id']), is_admin=False)
         try:
             group = next(filter(lambda x: str(x.chat_id) == group_id, self._groups))
             group.add_member_to_group(member)
@@ -200,3 +212,11 @@ class UserChats:
             print('[UserChats] {}'.format(e))
             return
         group.group_member_activity(member_id, color)
+
+    def remove_group_member(self, user_id: str, chat_id: str) -> None:
+        try:
+            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
+        except StopIteration as e:
+            print('[UserChats] {}'.format(e))
+            return
+        group.remove_member(user_id)

@@ -9,14 +9,14 @@ class ChatRepo(IChatRepo):
     def __init__(self):
         self._chats: Dict[str, IChat] = {}
 
-    def add_chat(self, chat_id: str, friends_id: list[str]) -> None:
+    def add_chat(self, chat_id: str, friends_id: list[dict[str]]) -> None:
 
         if chat_id in self._chats.keys():
             return
 
         chat = Chat(chat_id)
         for friend_id in friends_id:
-            chat.add_member(ChatMember(str(friend_id)))
+            chat.add_member(ChatMember(str(friend_id['member_id']), friend_id['member_nickname']))
 
         self._chats[chat_id] = chat
 

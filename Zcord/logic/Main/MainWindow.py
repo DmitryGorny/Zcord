@@ -350,6 +350,14 @@ class MainWindow(FramelessWindow):
 
         return chat_gui
 
+    def delete_group_chat(self, chat_id: str):
+        chat_gui = list(filter(lambda x: str(chat_id) == str(x.id), self._groups_options))[0]
+        self._groups_options.remove(chat_gui)
+        if self.ui.stackedWidget_2.currentWidget() == chat_gui.chat_ui:
+            self.ui.stackedWidget_2.setCurrentWidget(self.ui.WrapperForHomeScreen)
+
+        return chat_gui
+
     # <----------------------------------------------Работа с чатами--------------------------------------------------->
 
     def showProfile(self):
@@ -484,7 +492,8 @@ class MainWindow(FramelessWindow):
                                                    is_private=args['is_private'],
                                                    is_admin_invite=args['is_admin_invite'],
                                                    is_password=args['is_password'],
-                                                   admin_id=args['admin_id'])
+                                                   admin_id=args['admin_id'],
+                                                   members_activity=args['members_activity'])
                 group_ui = self.add_group_to_view(group_id=args['group_id'], group_name=args['group_name'],
                                                   ui=group.ui.MAIN)
                 ClientConnections.add_chat({'chat_id': args['group_id'],
@@ -494,7 +503,7 @@ class MainWindow(FramelessWindow):
                 self._groups.hide_alert()
                 self.group_request_alert()
             case "USER-JOINED-GROUP":
-                self.__user.add_group_member(args['joined_user_id'], args['group_id'])
+                self.__user.add_group_member(args['joined_user_id'], args['group_id'], args['status'])
             case "GROUP-CREATED":
                 try:
                     self.__user.current_chat.close_group_dialog()
@@ -513,6 +522,9 @@ class MainWindow(FramelessWindow):
                                             'socket_controller': self.__user.get_socket_controller()})
                 self.update_chats_groups_list(group_ui, True)
                 self._groups.group_was_created()
+            case "GROUP-MEMBER-LEFT":
+                chat = self.delete_group_chat(args['chat_id'])
+                self.delete_group_from_ui(chat)
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

@@ -66,6 +66,8 @@ class UserCard(QWidget):
 
         self.change_activity('grey')
 
+        self.widget_id = 0
+
     def add_is_admin(self):
         self._ui.is_admin.show()
 

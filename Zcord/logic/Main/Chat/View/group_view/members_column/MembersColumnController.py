@@ -6,13 +6,16 @@ from logic.Main.Chat.View.group_view.members_column.MembersColumnView.MembersCol
 
 
 class MembersColumnController:
-    def __init__(self, column_widget, list_widget, user):
+    def __init__(self, column_widget, list_widget, user, chat_id):
         self._user = user
 
         self._view = MembersColumnView(list_widget)
-        self._model = MembersColumnModel(self._user.id)
+        self._model = MembersColumnModel(self._user.id, chat_id)
 
         self._model.add_member_view.connect(self._view.add_member)
+        self._model.remove_user_view.connect(self._view.remove_user)
+
+        self._view.kick_member_model.connect(self._model.remove_user)
 
         self._column_widget = column_widget
 
@@ -27,3 +30,12 @@ class MembersColumnController:
 
     def change_activity_color(self, member_id: str, color: str) -> None:
         self._view.change_activity_status(member_id=member_id, color=color)
+
+    def remove_user(self, user_id: str) -> None:
+        self._view.remove_user(user_id)
+
+    def add_user(self, user_id: str, nickname: str):
+        self._view.add_member(user_id=user_id,
+                              username=nickname,
+                              is_admin=False,
+                              add_kick_button=True)

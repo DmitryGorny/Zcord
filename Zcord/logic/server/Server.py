@@ -140,6 +140,7 @@ class Server:
                         strategy = self._onion_handler.choose_strategy(group_name=group_name, command=msg_type)
                         if isinstance(strategy, UserInfoStrat):
                             msg['writer'] = writer
+                        print(msg)
                         await strategy.execute(msg)
                     except AttributeError as e:
                         print('[Server(client_tcp)] Ошибка: {}'.format(e))

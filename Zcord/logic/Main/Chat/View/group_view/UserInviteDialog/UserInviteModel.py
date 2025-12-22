@@ -10,36 +10,34 @@ class UserInviteModel(QObject):
     show_friend_view = pyqtSignal(str, str)
     clear_friend_list_view = pyqtSignal()
 
-    def __init__(self, user, current_group_id: str):
+    def __init__(self, user, current_group_id: str, group_members):
         super(UserInviteModel, self).__init__()
         self._user = user
 
         self._invite_sent = False
         self._api_client = APIClient()
-        self._group = self._group_setter(current_group_id)
+        self._group_id = self._group_setter(current_group_id)
+        self._group_members = group_members
 
     def _group_setter(self, current_group_id) -> str:
         group = self._api_client.get_chat_by_id(chat_id=int(current_group_id))
         if group is None:
             print('[UserInviteModel] группа с id {} не найдена'.format(current_group_id))
             return '0'
-        return group['group']
+        return group['group']['id']
 
-    def invite_user(self, ids: List[str]) -> None:
-        if self._group == '0':
-            return
-
+    def invite_user(self, ids: List[dict[str, str]]) -> None:
         if len(ids) == 0 and self._invite_sent:
             return
 
         friends = self._user.getFriends()
         for fr_id in ids:
             try:
-                friend_id = next(filter(lambda x: x['id'] == fr_id, friends))['id']
+                friend_id = next(filter(lambda x: x['id'] == fr_id['user_id'], friends))['id']
             except StopIteration:
                 continue
             try:
-                next(filter(lambda x: str(x['user_id']) == friend_id, self._group['users']))
+                next(filter(lambda x: str(x.user_id) == friend_id, self._group_members))
                 print('[UserInviteModel] user is already in group')
                 return
             except StopIteration:
@@ -47,7 +45,8 @@ class UserInviteModel(QObject):
                     ClientConnections.send_service_message(group='CHAT', msg_type='SEND-GROUP-INVITE',
                                                            extra_data={'sender_id': self._user.id,
                                                                        'receiver_id': friend_id,
-                                                                       'group_id': self._group['id'],
+                                                                       'group_id': self._group_id,
+                                                                       'nickname': fr_id['nickname']
                                                                        })
                 except Exception as e:
                     print('[UserInviteModel] {}'.format(e))
@@ -58,7 +57,7 @@ class UserInviteModel(QObject):
         self.clear_friend_list_view.emit()
         for friend in self._user.getFriends():
             try:
-                next(filter(lambda x: str(x['user_id']) == friend['id'], self._group['users']))
+                next(filter(lambda x: str(x.user_id) == friend['id'], self._group_members))
                 print('[UserInviteModel] user is already in group')
                 continue
             except StopIteration:

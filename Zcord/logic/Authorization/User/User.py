@@ -97,7 +97,7 @@ class User(BaseUser):
         return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
     def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool,
-                       admin_id: str):
+                       admin_id: str, members_activity: dict): # дописать взятие статуса активности учатсников группы из этого массива
         return self._chats_model.add_group_chat(chat_id=chat_id,
                                                 group_name=group_name,
                                                 is_private=is_private,
@@ -128,6 +128,8 @@ class User(BaseUser):
     def delete_chat(self, chat_id: str, is_dm: bool) -> None:
         if is_dm:
             self._chats_model.delete_dm_chat(chat_id)
+            return
+        self._chats_model.delete_group_chat(chat_id)
 
     def delete_friend(self, friend_id: str) -> None:
         self._friends_model.delete_friend(friend_id)
@@ -154,8 +156,9 @@ class User(BaseUser):
     def get_group_by_id(self, group_id: str):
         return self._chats_model.get_group_by_id(group_id=group_id)
 
-    def add_group_member(self, member_id: str, group_id: str) -> None:
+    def add_group_member(self, member_id: str, group_id: str, status: dict) -> None:
         self._chats_model.add_member_to_group(member_id=member_id, group_id=group_id)
+        self.group_member_change_status(member_id, status['status_instance'])
 
     def group_member_change_status(self, member_id: str, status_instance: str):
         status = self.get_status_by_instance(status_instance)
@@ -170,11 +173,11 @@ class User(BaseUser):
 
             if isinstance(status, Online):
                 self._chat_member_online(member_id, group_view['chat_id'])
-                return
+                continue
 
             if isinstance(status, Hidden):
                 self._chat_member_offline(member_id, group_view['chat_id'])
-                return
+                continue
 
             self._chats_model.member_activity_status(member_id=member_id, chat_id=group_view['chat_id'], color=status.color)
 
@@ -183,3 +186,6 @@ class User(BaseUser):
 
     def _chat_member_online(self, member_id: str, chat_id: str) -> None:
         self._chats_model.chat_member_online(member_id=member_id, chat_id=chat_id)
+
+    def remove_group_member(self, user_id: str, chat_id: str) -> None:
+        self._chats_model.remove_group_member(user_id, chat_id)

@@ -7,7 +7,7 @@ class IClientService(Protocol):
                           friends: list[dict], status: dict[str, str], chats: list[dict]):
         raise NotImplementedError
 
-    async def user_left(self, client_id: str, status: dict[str, str]):
+    async def user_left(self, client_id: str):
         raise NotImplementedError
 
     async def _change_client_activity_status(self, client_id: str, sender_id: str, status: dict[str, str]) -> None:

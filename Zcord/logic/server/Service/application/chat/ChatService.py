@@ -70,7 +70,7 @@ class ChatService(IChatService):
                 chat.create_and_add_member(request_receiver, receiver_nick)
             except KeyError as e:
                 print(e)
-        chat = self._chat_repo.get_chat_by_id(group_id)
+        chat = self._chat_repo.get_chat_by_id(group['id'])
         members = chat.get_members()
         members_activity = {}
         for member in members: # TODO: Оптимизация

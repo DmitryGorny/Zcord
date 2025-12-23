@@ -97,13 +97,17 @@ class User(BaseUser):
         return self._chats_model.add_dm_chat(chat_id=chat_id, friend_id=friend_id)
 
     def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool,
-                       admin_id: str, members_activity: dict): # дописать взятие статуса активности учатсников группы из этого массива
-        return self._chats_model.add_group_chat(chat_id=chat_id,
-                                                group_name=group_name,
-                                                is_private=is_private,
-                                                is_admin_invite=is_admin_invite,
-                                                is_password=is_password,
-                                                admin_id=admin_id)
+                       admin_id: str,
+                       members_activity: dict):  # дописать взятие статуса активности учатсников группы из этого массива
+        group = self._chats_model.add_group_chat(chat_id=chat_id,
+                                                 group_name=group_name,
+                                                 is_private=is_private,
+                                                 is_admin_invite=is_admin_invite,
+                                                 is_password=is_password,
+                                                 admin_id=admin_id)
+        for user_id in members_activity:
+            self.group_member_change_status(user_id, members_activity.get(user_id))
+        return group
 
     def add_friend(self, username: str, user_id: str):
         from datetime import datetime
@@ -179,7 +183,8 @@ class User(BaseUser):
                 self._chat_member_offline(member_id, group_view['chat_id'])
                 continue
 
-            self._chats_model.member_activity_status(member_id=member_id, chat_id=group_view['chat_id'], color=status.color)
+            self._chats_model.member_activity_status(member_id=member_id, chat_id=group_view['chat_id'],
+                                                     color=status.color)
 
     def _chat_member_offline(self, member_id: str, chat_id: str) -> None:
         self._chats_model.chat_member_offline(member_id, chat_id)

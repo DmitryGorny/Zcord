@@ -523,8 +523,10 @@ class MainWindow(FramelessWindow):
                 self.update_chats_groups_list(group_ui, True)
                 self._groups.group_was_created()
             case "GROUP-MEMBER-LEFT":
+                self.__user.delete_chat(args['chat_id'], False)
                 chat = self.delete_group_chat(args['chat_id'])
                 self.delete_group_from_ui(chat)
+
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

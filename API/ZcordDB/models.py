@@ -53,10 +53,10 @@ class FriendsAdding(models.Model):
 
 
 class Groups(models.Model):
-    group_name = models.CharField()
+    group_name = models.CharField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     members = models.ManyToManyField(Users, through='GroupsMembers', related_name='groups')
-    user_admin = models.ForeignKey(Users, on_delete=models.CASCADE,  related_name='admin')
+    user_admin = models.ForeignKey(Users, on_delete=models.CASCADE, related_name='admin')
     is_private = models.BooleanField(default=False)
     is_invite_from_admin = models.BooleanField(default=False)
     is_password = models.BooleanField(default=False)
@@ -65,6 +65,40 @@ class Groups(models.Model):
     class Meta:
         verbose_name = 'Группа'
         verbose_name_plural = 'Группы'
+
+    def save(
+            self,
+            *args,
+            force_insert=False,
+            force_update=False,
+            using=None,
+            update_fields=None,
+    ):
+        admin_changed = False
+
+        if self.pk:
+            old = Groups.objects.get(pk=self.pk)
+            admin_changed = old.user_admin != self.user_admin
+
+        super().save(*args,
+                     force_insert=False,
+                     force_update=False,
+                     using=None,
+                     update_fields=None)
+
+        if admin_changed:
+            self._sync_admin_membership()
+
+    def _sync_admin_membership(self):
+        GroupsMembers.objects.filter(
+            group=self,
+            role=True
+        ).update(role=False)
+
+        GroupsMembers.objects.filter(
+            group=self,
+            user=self.user_admin
+        ).update(role=True)
 
 
 class GroupsMembers(models.Model):

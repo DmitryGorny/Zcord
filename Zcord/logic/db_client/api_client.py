@@ -211,6 +211,12 @@ class APIClient:
     def delete_group_member_by_id(self, row_id):
         return self._request('DELETE', f'groups-members/{row_id}/')
 
+    def patch_member_admin(self, row_id, is_admin):
+        params = {
+            'role': is_admin
+        }
+        return self._request('PATCH', f'groups-members/{row_id}/', json=params)
+
     # Работа с чатами
     def get_chats(self, user_id, is_group):
         """{
@@ -290,3 +296,9 @@ class APIClient:
             params['password'] = password
 
         return self._request('POST', f'groups/', json=params)
+
+    def patch_admin_id(self, admin_id: int, group_id: int):
+        params = {
+            'user_admin': admin_id
+        }
+        return self._request('PATCH', f'groups/{group_id}/', json=params)

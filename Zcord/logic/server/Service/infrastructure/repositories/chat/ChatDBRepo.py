@@ -51,3 +51,6 @@ class ChatDBRepo(IChatDBRepo):
     def send_group_request(self, group_id: int, sender_id: int, receiver_id: int) -> dict:
         return self._api_client.send_group_request(group_id, sender_id, receiver_id)
 
+    def change_group_admin(self, group_id: int, new_admin_id: int) -> None:
+        return self._api_client.patch_admin_id(new_admin_id, group_id)
+

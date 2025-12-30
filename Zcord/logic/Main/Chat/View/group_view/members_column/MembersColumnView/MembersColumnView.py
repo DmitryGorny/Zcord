@@ -19,8 +19,10 @@ class MembersColumnView(QObject):
     def add_member(self, user_id: str, username: str, is_admin: bool, add_kick_button: bool) -> None:
         card = UserCard(username)
 
-        if user_id not in self._members.keys():
-            self._members[user_id] = card
+        if user_id in self._members.keys():
+            return
+
+        self._members[user_id] = card
 
         card.connect_kick_button(lambda: self.kick_member_model.emit(user_id))
 
@@ -54,3 +56,7 @@ class MembersColumnView(QObject):
         if widget:
             widget.deleteLater()
         del self._members[user_id]
+
+    def clear_list(self):
+        self._ui.clear()
+        self._members.clear()

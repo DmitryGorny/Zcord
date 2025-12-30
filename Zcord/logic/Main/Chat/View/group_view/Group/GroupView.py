@@ -48,7 +48,8 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
         self.ui.Call.hide()
 
-        self._invite_dial_controller: UserInviteController = UserInviteController(self._user, self._chat_id, self._users)
+        self._invite_dial_controller: UserInviteController = UserInviteController(self._user, self._chat_id,
+                                                                                  self._users)
         self._invite_dialog = self._invite_dial_controller.get_widget()
         self._invite_overlay = Overlay(self._invite_dialog)
         self._invite_overlay.setParent(self.ui.Column)
@@ -79,6 +80,8 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._members_column_controller.setup_members(self._users, self._admin_id)
         self.ui.show_members.clicked.connect(self.show_hide_members_column)
 
+        self.ui.leave_group.clicked.connect(self.leave_group)
+
     @property
     def group_name(self) -> str:
         return self._group_name
@@ -87,7 +90,6 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
     def get_users(self):
         return self._users.copy()
 
-    #  абстрактно здесь будет класс VOICE GUI
     def start_call(self):
         if self._controller.get_voice_flg():
             return
@@ -128,7 +130,10 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
             self._invite_overlay.close()
             self._invite_dialog.close()
 
-    def add_member_to_group(self, member: GroupMember) -> None: # TODO: Пофиксить рассинхрон статусов
+    def leave_group(self) -> None:
+        self._controller.leave_group(str(self._user.id), self._chat_id)
+
+    def add_member_to_group(self, member: GroupMember) -> None:
         self._users.append(member)
         self._members_column_controller.add_user(member.user_id, member.nickname)
 
@@ -158,14 +163,20 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self.show_number_of_members()
         self._members_column_controller.remove_user(member_id)
 
-    def group_member_activity(self, member_id: str, color: str):
-        self._members_column_controller.change_activity_color(member_id, color)
-
     def group_member_status_changed(self, member_id: str, color: str):
         self._members_column_controller.change_activity_color(member_id, color)
 
     def show_hide_members_column(self) -> None:
         self._members_column_controller.show_hide_members_column()
+
+    def change_admin(self, new_admin_id: str) -> None:
+        for user in self._users:
+            if user.user_id == new_admin_id:
+                user.is_admin = True
+            elif user.user_id == self._admin_id:
+                user.is_admin = False
+        self._members_column_controller.change_admin(self._users, str(new_admin_id))
+        self._admin_id = new_admin_id
 
     def __str__(self):
         return self._chat_id

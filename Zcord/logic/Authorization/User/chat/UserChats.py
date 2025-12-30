@@ -102,10 +102,11 @@ class UserChats:
         members = []
         member_fabric = GroupMemberCreator()
         groups = self._db.get_chat_by_id(chat_id=chat_id)
+
         for user in groups['group']['users']:
-            admin: bool = False
+            admin: bool = True
             if admin_id != str(user['user_id']):
-                admin = True
+                admin = False
             members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']), is_admin=admin))
 
         group = fabric.create_chat(is_dm=False,
@@ -189,34 +190,43 @@ class UserChats:
             print('[UserChats] {}'.format(e))
             return None
 
-    def chat_member_offline(self, user_id: str, chat_id: str):
+    def _get_group_by_id(self, group_id: str) -> GroupView | None:
         try:
-            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
+            group = next(filter(lambda g: str(g.chat_id) == str(group_id), self._groups))
+            return group
         except StopIteration as e:
             print('[UserChats] {}'.format(e))
             return
+
+    def chat_member_offline(self, user_id: str, chat_id: str):
+        group = self._get_group_by_id(group_id=chat_id)
+        if group is None:
+            return
+
         group.group_member_offline(user_id)
 
     def chat_member_online(self, member_id: str, chat_id: str) -> None:
-        try:
-            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
-        except StopIteration as e:
-            print('[UserChats] {}'.format(e))
+        group = self._get_group_by_id(group_id=chat_id)
+        if group is None:
             return
+
         group.group_member_online(member_id)
 
     def member_activity_status(self, member_id: str, chat_id: str, color: str) -> None:
-        try:
-            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
-        except StopIteration as e:
-            print('[UserChats] {}'.format(e))
+        group = self._get_group_by_id(group_id=str(chat_id))
+        if group is None:
             return
-        group.group_member_activity(member_id, color)
+        group.group_member_status_changed(member_id, color)
 
     def remove_group_member(self, user_id: str, chat_id: str) -> None:
-        try:
-            group = next(filter(lambda g: str(g.chat_id) == str(chat_id), self._groups))
-        except StopIteration as e:
-            print('[UserChats] {}'.format(e))
+        group = self._get_group_by_id(group_id=chat_id)
+        if group is None:
             return
         group.remove_member(user_id)
+
+    def group_admin_changed(self, group_id: str, new_admin_id: str) -> None:
+        group = self._get_group_by_id(group_id=group_id)
+        if group is None:
+            return
+        group.change_admin(new_admin_id)
+

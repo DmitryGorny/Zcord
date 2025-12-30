@@ -71,8 +71,14 @@ class UserCard(QWidget):
     def add_is_admin(self):
         self._ui.is_admin.show()
 
+    def remove_is_admin(self):
+        self._ui.is_admin.hide()
+
     def add_kick_button(self):
         self._ui.kick_user.show()
+
+    def remove_kick_button(self):
+        self._ui.kick_user.hide()
 
     def connect_kick_button(self, cb):
         self._ui.kick_user.clicked.connect(cb)

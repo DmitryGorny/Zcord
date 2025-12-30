@@ -300,3 +300,4 @@ class GroupsView(viewsets.ModelViewSet):
 
         exists = Groups.objects.filter(group_name=group_name).exists()
         return Response({"unique": not exists})
+

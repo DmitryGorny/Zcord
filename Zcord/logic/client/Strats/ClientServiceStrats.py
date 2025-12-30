@@ -55,7 +55,8 @@ class UserStatusReceive(ClientsStrategies):
         target = "self" if sender_nickname == receiver_nickname else "friend"
         self.service_connection_pointer.call_main_dynamic_update("CHANGE-ACTIVITY", {'target': target,
                                                                                      'sender_nickname': sender_nickname,
-                                                                                     'status_instance': sender_status['status_instance']})
+                                                                                     'status_instance': sender_status[
+                                                                                         'status_instance']})
         self.service_connection_pointer.user.group_member_change_status(sender_id, sender_status['status_instance'])
 
 
@@ -340,6 +341,21 @@ class GroupUserLeftStrat(ClientsStrategies):
         group_id = str(msg['group_id'])
 
         if left_user_id == str(self.service_connection_pointer.user.id):
-            self.service_connection_pointer.call_main_dynamic_update('GROUP-MEMBER-LEFT', {'chat_id': group_id, 'user_id': left_user_id})
+            self.service_connection_pointer.call_main_dynamic_update('GROUP-MEMBER-LEFT',
+                                                                     {'chat_id': group_id, 'user_id': left_user_id})
         else:
             self.service_connection_pointer.user.remove_group_member(left_user_id, group_id)
+
+
+class GroupAdminChangedStrat(ClientsStrategies):
+    header_name = "GROUP-ADMIN-CHANGED"
+
+    def __init__(self):
+        super(GroupAdminChangedStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        new_admin_id = str(msg['new_admin_id'])
+        group_id = str(msg['chat_id'])
+
+        self.service_connection_pointer.user.group_admin_changed(group_id, new_admin_id)
+

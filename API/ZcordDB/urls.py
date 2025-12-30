@@ -83,6 +83,7 @@ urlpatterns = [
     path('groups-members/<int:pk>/', GroupsMembersView.as_view({
         'get': 'retrieve',
         'delete': 'destroy',
+        'patch': 'update'
     }), name='groups-members-by-group-id'),
 
     path('groups-requests/', GroupsRequestView.as_view({
@@ -98,6 +99,10 @@ urlpatterns = [
         'get': 'list',
         'post': 'create'
     }), name='groups'),
+    path('groups/<int:pk>/', GroupsView.as_view({
+        'get': 'retrieve',
+        'patch': 'update'
+    }), name='groups-detail'),
     path('groups/groups-name-unique/', GroupsView.as_view({
         'get': 'check_name',
     }), name='groups-name-unique')

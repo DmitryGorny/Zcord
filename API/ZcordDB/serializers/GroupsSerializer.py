@@ -16,8 +16,9 @@ class GroupsSerializer(serializers.ModelSerializer):
         members = GroupsMembers.objects.filter(group=group)
 
         if members.exists():
-            members_list = members if members.count() > 1 else list(members)  # Ensure it's a list
+            members_list = members if members.count() > 1 else list(members)
             serializer = GroupsMembersDetailSerializer(members_list, many=True)
             return serializer.data
 
         return []
+

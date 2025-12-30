@@ -52,8 +52,14 @@ class ChatService(IChatService):
 
     async def add_user_group(self, request_receiver: str, group_id: str, receiver_nick: str,
                              request_id: str = None) -> None:
+        self._chat_db_repo.add_group_member(int(request_receiver), int(group_id))
+        if request_id is not None:
+            self._chat_db_repo.delete_group_request(int(request_id))
+
         group = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]
         for user in group['group']['users']:
+            if user['user_id'] == request_receiver:
+                continue
             try:
                 chat = self._chat_repo.get_chat_by_id(group['id'])
                 await self._client_repo.send_message(str(user['user_id']), 'USER-JOINED-GROUP',
@@ -73,7 +79,7 @@ class ChatService(IChatService):
         chat = self._chat_repo.get_chat_by_id(group['id'])
         members = chat.get_members()
         members_activity = {}
-        for member in members: # TODO: Оптимизация
+        for member in members:  # TODO: Оптимизация
             client_status = self._client_repo.get_client_online_stat(client_id=member.user_id)
             if client_status is None:
                 members_activity[member.user_id] = 'hidden'
@@ -91,9 +97,6 @@ class ChatService(IChatService):
                                               'members_activity': members_activity
                                               })
 
-        self._chat_db_repo.add_group_member(int(request_receiver), int(group_id))
-        if request_id is not None:
-            self._chat_db_repo.delete_group_request(int(request_id))
         nickname = self._client_repo.get_client_nick(client_id=request_receiver)
         await self._msg_server_communication.send_msg_server(msg_type='CHAT-MESSAGE', mes_data={'chat_id': group['id'],
                                                                                                 'user_id': request_receiver,
@@ -121,13 +124,13 @@ class ChatService(IChatService):
             members_id = user.get('user_id')
             try:
                 await self._client_repo.send_message(members_id, 'USER-LEFT-GROUP', {'user_id': request_receiver,
-                                                                                     'group_id': group_id, })
+                                                                                     'group_id': group_id,
+                                                                                     })
                 chat.delete_member_by_id(request_receiver)
                 if chat.get_members_len() == 0:
                     self._chat_repo.delete_chat(chat.chat_id)
             except KeyError as e:
                 print('[ChatService] {}'.format(e))
-                return
 
         row_id = self._chat_db_repo.search_group_member(int(request_receiver), group['group']['id'])[0]['id']
         self._chat_db_repo.delete_group_member_by_id(row_id)
@@ -135,6 +138,11 @@ class ChatService(IChatService):
                                                                               'user_id': request_receiver,
                                                                               'type': 'service',
                                                                               'service_message': f'Пользователь {nickname} покинул группу'})
+        if group['group']['user_admin'] == int(request_receiver):
+            try:
+                await self.change_admin(str(group_id), str(group['group']['id']), chat.get_members()[0].user_id)
+            except Exception as e:
+                print('[ChatService] {}'.format(e))
 
     async def send_group_request(self, sender_id: str, receiver_id: str, group_id: str) -> None:
         request = self._chat_db_repo.send_group_request(group_id=int(group_id),
@@ -187,3 +195,31 @@ class ChatService(IChatService):
         if len(members) > 0:
             for member_id in members:
                 await self.send_group_request(receiver_id=member_id, group_id=group_id, sender_id=creator_id)
+
+    async def change_admin(self, chat_id: str, group_id: str, new_admin_id: str) -> None:
+        try:
+            chat = self._chat_repo.get_chat_by_id(chat_id)
+        except KeyError as e:
+            print('[ChatService] {}'.format(e))
+            return
+        admin = chat.get_member_by_id(str(new_admin_id))
+
+        if admin is None:
+            return
+
+        self._chat_db_repo.change_group_admin(int(group_id), int(new_admin_id))
+
+        for member in chat.get_members():
+            try:
+                await self._client_repo.send_message(member.user_id, 'GROUP-ADMIN-CHANGED',
+                                                     {'new_admin_id': new_admin_id,
+                                                      'chat_id': chat_id,
+                                                      })
+            except KeyError as e:
+                print('[ChatService] {}'.format(e))
+
+        nickname = admin.username
+        await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': chat_id,
+                                                                              'user_id': new_admin_id,
+                                                                              'type': 'service',
+                                                                              'service_message': f'Пользователь {nickname} новый администратор'})

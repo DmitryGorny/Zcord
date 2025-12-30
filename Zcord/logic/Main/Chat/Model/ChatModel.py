@@ -29,6 +29,14 @@ class ChatModel:
     def block_user(self, user, friend_nick):
         pass
 
+    def leave_group(self, user_id: str, chat_id: str):
+        try:
+            ClientConnections.send_service_message(group='CHAT', msg_type='USER-LEFT-GROUP', extra_data={'request_receiver': user_id,
+                                                                                                         'group_id': chat_id})
+        except Exception as e:
+            print('[MembersColumnModel] {}'.format(e))
+            return
+
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id):

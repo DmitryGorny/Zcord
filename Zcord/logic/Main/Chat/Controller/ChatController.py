@@ -31,18 +31,11 @@ class ChatController:
     def get_socket_controller(self) -> 'ChatController.SocketController':
         return self.SocketController(self._views, self._model)
 
-    # TODO: Переделать вместе с ситемой добавления друзей + ChatModel
-    def send_friend_request(self, chat_id, friend_nick):
-        self._model.send_friend_request(chat_id, friend_nick)
-
-    def reject_request(self, user, friend_nick, deleteFriend):
-        self._model.reject_request(user, friend_nick, deleteFriend)
-
     def block_user(self, user, friend_nick):
         self._model.block_user(user, friend_nick)
 
-    def accept_request(self, user, friend_nick):
-        self._model.accept_friend_request(user, friend_nick)
+    def leave_group(self, user_id: str, chat_id: str) -> None:
+        self._model.leave_group(user_id, chat_id)
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id):
@@ -72,9 +65,6 @@ class ChatController:
 
         def receive_message(self, chat_id: str, message_dict: dict[str, str], messageIndex=1):
             self._views[chat_id].messageReceived.emit(message_dict['type'], message_dict, messageIndex)
-
-        def send_chat_service_server(self, service_message: str):  # TODO: Надо?
-            self._model.send_service_message(service_message)
 
         def enable_scroll_bar(self, chat_id: str):
             self._views[chat_id].enable_scroll_bar.emit()

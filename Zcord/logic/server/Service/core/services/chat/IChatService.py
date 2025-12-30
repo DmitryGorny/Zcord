@@ -21,5 +21,8 @@ class IChatService(Protocol):
                            is_invite_from_admin: bool, is_password: bool, password: bool, members: list[str]) -> None:
         raise NotImplementedError
 
+    async def change_admin(self, chat_id: str, group_id: str, new_admin_id: str) -> None:
+        raise NotImplementedError
+
     async def send_group_request(self, sender_id: str, receiver_id: str, group_id: str) -> None:
         raise NotImplementedError

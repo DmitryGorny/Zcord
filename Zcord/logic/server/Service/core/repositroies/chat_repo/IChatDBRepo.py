@@ -42,3 +42,9 @@ class IChatDBRepo(Protocol):
     def add_group_admin(self, user_id: int, group_id: int) -> dict:
         raise NotImplementedError
 
+    def change_group_admin(self, group_id: int, new_admin_id: int) -> None:
+        raise NotImplementedError
+
+    def change_group_members_admin(self, ):
+        raise NotImplementedError
+

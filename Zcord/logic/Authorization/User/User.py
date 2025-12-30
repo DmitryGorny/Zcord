@@ -98,14 +98,14 @@ class User(BaseUser):
 
     def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool,
                        admin_id: str,
-                       members_activity: dict):  # дописать взятие статуса активности учатсников группы из этого массива
+                       members_activity: dict):
         group = self._chats_model.add_group_chat(chat_id=chat_id,
                                                  group_name=group_name,
                                                  is_private=is_private,
                                                  is_admin_invite=is_admin_invite,
                                                  is_password=is_password,
                                                  admin_id=admin_id)
-        for user_id in members_activity:
+        for user_id in members_activity.keys():
             self.group_member_change_status(user_id, members_activity.get(user_id))
         return group
 
@@ -194,3 +194,7 @@ class User(BaseUser):
 
     def remove_group_member(self, user_id: str, chat_id: str) -> None:
         self._chats_model.remove_group_member(user_id, chat_id)
+
+    def group_admin_changed(self, group_id: str, new_admin_id: str) -> None:
+        self._chats_model.group_admin_changed(group_id, new_admin_id)
+

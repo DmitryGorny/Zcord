@@ -7,6 +7,7 @@ from logic.Main.Chat.View.CallDialog.CallView import Call
 from logic.Main.Chat.View.IView.IView import IView, BaseChatView
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
+from logic.Main.Chat.View.group_view.GroupSettings.GroupSettingsController import GroupSettingsController
 from logic.Main.Chat.View.group_view.UserInviteDialog.UserInviteController import UserInviteController
 from logic.Main.Chat.View.group_view.members_column.MembersColumnController import MembersColumnController
 from logic.Main.miniProfile.MiniProfile import Overlay
@@ -41,13 +42,11 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._users: List[GroupMember] = members.copy()
         self.ui.members_number.setText('{} участников,'.format(len(self._users)))
 
-        self._is_private = is_private
-        self._is_admin_invite = is_admin_invite
-        self._is_password = is_password
         self._admin_id = admin_id
 
         self.ui.Call.hide()
 
+        """Приглашения в группу"""
         self._invite_dial_controller: UserInviteController = UserInviteController(self._user, self._chat_id,
                                                                                   self._users)
         self._invite_dialog = self._invite_dial_controller.get_widget()
@@ -70,17 +69,32 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self.ui.muteMic.clicked.connect(self.mute_mic_self)
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
 
+        """Участники группы"""
         self._online_users_number = 0
         self.ui.online_members_number.setText('{} в сети'.format(self._online_users_number))
 
         self.ui.members_column.setHidden(True)
-
         self._members_column_controller = MembersColumnController(self.ui.members_column, self.ui.members_list,
                                                                   self._user, self.chat_id)
         self._members_column_controller.setup_members(self._users, self._admin_id)
         self.ui.show_members.clicked.connect(self.show_hide_members_column)
-
         self.ui.leave_group.clicked.connect(self.leave_group)
+
+        """Настройки группы"""
+        self._settings_controller: GroupSettingsController = GroupSettingsController(self._user.id,
+                                                                                     self._group_name,
+                                                                                     is_private,
+                                                                                     is_admin_invite,
+                                                                                     is_password)
+        self._settings_dialog = self._settings_controller.get_widget()
+        self._settings_overlay = Overlay(self._settings_dialog)
+        self._settings_overlay.setParent(self.ui.Column)
+        self._settings_dialog.setParent(self.ui.Column)
+
+        self._settings_dialog.close()
+        self._settings_overlay.close()
+
+        self.ui.show_settings.clicked.connect(self.show_settings)
 
     @property
     def group_name(self) -> str:
@@ -125,6 +139,21 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
         self._invite_dialog.exec()
 
+    def show_settings(self):
+        self._settings_controller.reload_model()
+        new_rect = QtCore.QRect(
+            self.ui.Column.rect().x(),
+            self.ui.Column.rect().y(),
+            self.ui.Column.width(),
+            self.ui.Column.height()
+        )
+        self._settings_overlay.setGeometry(new_rect)
+
+        self._settings_overlay.show()
+        self._settings_dialog.raise_()
+
+        self._settings_dialog.exec()
+
     def close_invite_dialog(self):
         if self._invite_overlay.isVisible():
             self._invite_overlay.close()
@@ -135,7 +164,7 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
     def add_member_to_group(self, member: GroupMember) -> None:
         self._users.append(member)
-        self._members_column_controller.add_user(member.user_id, member.nickname)
+        self._members_column_controller.add_user(member, self._admin_id)
 
     def show_number_of_members(self) -> None:
         if self._online_users_number > len(self._users):

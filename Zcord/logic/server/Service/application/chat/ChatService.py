@@ -3,6 +3,7 @@ import bcrypt
 from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
 from logic.server.Service.core.repositroies.chat_repo.IChatDBRepo import IChatDBRepo
 from logic.server.Service.core.repositroies.chat_repo.IChatRepo import IChatRepo
+from logic.server.Service.core.repositroies.client_repo.IClientDBRepo import IClientDBRepo
 from logic.server.Service.core.repositroies.client_repo.IClientRepo import IClientRepo
 from logic.server.Service.core.services.chat.IChatService import IChatService
 
@@ -12,11 +13,13 @@ class ChatService(IChatService):
                  client_repo: IClientRepo,
                  chat_repo: IChatRepo,
                  chat_db_rp: IChatDBRepo,
+                 client_db_repo: IClientDBRepo,
                  msg_communication: IMessageServiceDispatcher):
         self._chat_repo: IChatRepo = chat_repo
         self._chat_db_repo: IChatDBRepo = chat_db_rp
         self._msg_server_communication: IMessageServiceDispatcher = msg_communication
         self._client_repo: IClientRepo = client_repo
+        self._client_db_repo = client_db_repo
 
     async def cache_request(self, user_id: str) -> None:
         chats = self._chat_repo.get_chats_by_user_id(user_id)
@@ -103,13 +106,24 @@ class ChatService(IChatService):
                                                                                                 'type': 'service',
                                                                                                 'service_message': f'Пользователь {nickname} присоединился к группе'})
 
-    async def group_request_rejected(self, request_id: str, receiver_id: str) -> None:
+    async def group_request_rejected(self, request_id: str, receiver_id: str, group_id: str) -> None:
         self._chat_db_repo.delete_group_request(int(request_id))
 
         await self._client_repo.send_message(receiver_id, 'GROUP-REQUEST-REJECTED',
                                              {'user_id': receiver_id})
 
-    async def user_left_group(self, request_receiver: str, group_id: str) -> None:
+        receiver_nickname = self._client_repo.get_client_nick(receiver_id)
+        if receiver_nickname is None:
+            receiver_nickname = self._client_db_repo.get_user_by_id(int(receiver_id))['nickname']
+
+        chat = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]
+
+        await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': chat['id'],
+                                                                              'user_id': receiver_id,
+                                                                              'type': 'service',
+                                                                              'service_message': f'Пользователь {receiver_nickname} отклонил приглашение'})
+
+    async def user_left_group(self, request_receiver: str, group_id: str) -> None: #### Сделать проверку на админа
         group = self._chat_db_repo.get_chat_by_id(chat_id=int(group_id))  # TODO: Отработать ошибку
         nickname: str
         try:
@@ -159,6 +173,19 @@ class ChatService(IChatService):
                                               'group_id': group_id,
                                               'request_id': request['id'],
                                               'group_name': request['group']['group_name']})
+
+        sender_nickname = self._client_repo.get_client_nick(sender_id)
+
+        receiver_nickname = self._client_repo.get_client_nick(receiver_id)
+        if receiver_nickname is None:
+            receiver_nickname = self._client_db_repo.get_user_by_id(int(receiver_id))['nickname']
+
+        chat = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]
+
+        await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': str(chat['id']),
+                                                                              'user_id': sender_nickname,
+                                                                              'type': 'service',
+                                                                              'service_message': f'Пользователь {sender_nickname} пригласил {receiver_nickname} в группу'})
 
     async def create_group(self, creator_id: str, group_name: str, is_private: bool,
                            is_invite_from_admin: bool, is_password: bool, password: bool, members: list[str]) -> None:

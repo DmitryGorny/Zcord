@@ -53,6 +53,7 @@ class OnionHandler(metaclass=SingletonMeta):
                           'chat_service': ChatService(client_repo=self._repositories['client_repo'],
                                                       chat_repo=self._repositories['chat_repo'],
                                                       chat_db_rp=self._repositories['chat_db_repo'],
+                                                      client_db_repo=self._repositories['client_db_repo'],
                                                       msg_communication=self._message_service_dispatcher)}
 
         self._choose_strategy = ChooseStrategy(client_service=self._services['client_service'],

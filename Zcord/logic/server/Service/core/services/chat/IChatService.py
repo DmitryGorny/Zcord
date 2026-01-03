@@ -11,7 +11,7 @@ class IChatService(Protocol):
     async def add_user_group(self, request_receiver: str, group_id: str, receiver_nick: str, request_id: str):
         raise NotImplementedError
 
-    async def group_request_rejected(self, request_id: str, receiver_id: str) -> None:
+    async def group_request_rejected(self, request_id: str, receiver_id: str, group_id: str) -> None:
         raise NotImplementedError
 
     async def user_left_group(self, request_receiver: str, group_id: str) -> None:

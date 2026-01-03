@@ -36,11 +36,8 @@ class MembersColumnController:
     def remove_user(self, user_id: str) -> None:
         self._view.remove_user(user_id)
 
-    def add_user(self, user_id: str, nickname: str):
-        self._view.add_member(user_id=user_id,
-                              username=nickname,
-                              is_admin=False,
-                              add_kick_button=True)
+    def add_user(self, member: GroupMember, admin_id: str):
+        self._model.add_member(member, admin_id)
 
     def change_admin(self, members: List[GroupMember], new_admin_id: str) -> None:
         self._model.setup_members(members, new_admin_id)

@@ -37,7 +37,8 @@ class GroupRejectAcceptStrat(ChatStrategyKeeper, IServiceStrat):
     async def execute(self, msg: dict) -> None:
         request_id = str(msg['request_id'])
         user_id = str(msg['user_id'])
-        await self._service.group_request_rejected(request_id, user_id)
+        group_id = str(msg['group_id'])
+        await self._service.group_request_rejected(request_id, user_id, group_id)
 
 
 class GroupRequestAcceptStrat(ChatStrategyKeeper, IServiceStrat):

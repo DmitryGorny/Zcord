@@ -22,16 +22,8 @@ class MembersColumnModel(QtCore.QObject):
     def setup_members(self, members: List[GroupMember], admin_id: str) -> None:
         self.clear_view.emit()
         self._users = members
-        user_is_admin = False
-        if self._user_id == str(admin_id):
-            user_is_admin = True
         for member in members:
-            add_kick_button = user_is_admin
-            if member.user_id == self._user_id:
-                add_kick_button = False
-
-            self.add_member_view.emit(member.user_id, member.nickname, member.is_admin, add_kick_button)
-            self.change_activity_view.emit(member.user_id, member.online_status)
+            self.add_member(member, admin_id)
 
     def remove_user(self, user_id: str):
         try:
@@ -48,4 +40,14 @@ class MembersColumnModel(QtCore.QObject):
             if user.user_id == member_id:
                 user.online_status = color
         self.change_activity_view.emit(member_id, color)
+
+    def add_member(self, member: GroupMember, admin_id: str) -> None:
+        user_is_admin = False
+        if self._user_id == str(admin_id):
+            user_is_admin = True
+        if member.user_id == self._user_id:
+            user_is_admin = False
+
+        self.add_member_view.emit(member.user_id, member.nickname, member.is_admin, user_is_admin)
+        self.change_activity_view.emit(member.user_id, member.online_status)
 

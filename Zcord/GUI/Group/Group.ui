@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>747</width>
-    <height>664</height>
+    <height>763</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -400,6 +400,47 @@ QPushButton:pressed {
                <property name="icon">
                 <iconset resource="../res-rec.qrc">
                  <normaloff>:/icons/icon/icons8-группы-пользователей-48.png</normaloff>:/icons/icon/icons8-группы-пользователей-48.png</iconset>
+               </property>
+               <property name="iconSize">
+                <size>
+                 <width>30</width>
+                 <height>30</height>
+                </size>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QPushButton" name="show_settings">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="minimumSize">
+                <size>
+                 <width>45</width>
+                 <height>45</height>
+                </size>
+               </property>
+               <property name="maximumSize">
+                <size>
+                 <width>40</width>
+                 <height>40</height>
+                </size>
+               </property>
+               <property name="cursor">
+                <cursorShape>PointingHandCursor</cursorShape>
+               </property>
+               <property name="styleSheet">
+                <string notr="true"/>
+               </property>
+               <property name="text">
+                <string/>
+               </property>
+               <property name="icon">
+                <iconset resource="../res-rec.qrc">
+                 <normaloff>:/icons/icon/icons8-settings-46.png</normaloff>:/icons/icon/icons8-settings-46.png</iconset>
                </property>
                <property name="iconSize">
                 <size>

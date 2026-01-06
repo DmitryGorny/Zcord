@@ -54,3 +54,6 @@ class ChatDBRepo(IChatDBRepo):
     def change_group_admin(self, group_id: int, new_admin_id: int) -> None:
         return self._api_client.patch_admin_id(new_admin_id, group_id)
 
+    def change_group_settings(self, group_id: int, settings: dict[str, bool]) -> None | dict:
+        return self._api_client.patch_group_settings(group_id, settings)
+

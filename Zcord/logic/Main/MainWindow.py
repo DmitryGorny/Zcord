@@ -526,7 +526,10 @@ class MainWindow(FramelessWindow):
                 self.__user.delete_chat(args['chat_id'], False)
                 chat = self.delete_group_chat(args['chat_id'])
                 self.delete_group_from_ui(chat)
-
+            case "GROUP-NAME-CHANGED":
+                for chat in self._groups_options:
+                    if chat.id == args['chat_id']:
+                        chat.change_group_name(args['new_name'])
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

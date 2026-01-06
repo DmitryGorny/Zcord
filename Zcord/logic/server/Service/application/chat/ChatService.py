@@ -1,3 +1,6 @@
+import json
+from typing import Union
+
 import bcrypt
 
 from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
@@ -123,7 +126,7 @@ class ChatService(IChatService):
                                                                               'type': 'service',
                                                                               'service_message': f'Пользователь {receiver_nickname} отклонил приглашение'})
 
-    async def user_left_group(self, request_receiver: str, group_id: str) -> None: #### Сделать проверку на админа
+    async def user_left_group(self, request_receiver: str, group_id: str) -> None:  #### Сделать проверку на админа
         group = self._chat_db_repo.get_chat_by_id(chat_id=int(group_id))  # TODO: Отработать ошибку
         nickname: str
         try:
@@ -250,3 +253,48 @@ class ChatService(IChatService):
                                                                               'user_id': new_admin_id,
                                                                               'type': 'service',
                                                                               'service_message': f'Пользователь {nickname} новый администратор'})
+
+    async def change_group_settings(self, group_id: str, sender_id: str, new_settings: dict[str, Union[str, bool]],
+                                    flags: dict[str, bool]):
+        chat = self._chat_db_repo.get_chat_by_id(int(group_id))
+
+        if chat is None or not chat['is_group']:
+            await self._client_repo.send_message(sender_id, 'SETTINGS-CHANGE-ERROR',
+                                                 {'error_name': 'Ошибка', 'chat_id': group_id})
+            return
+
+        if chat['group']['user_admin'] != int(sender_id):
+            await self._client_repo.send_message(sender_id, 'SETTINGS-CHANGE-ERROR',
+                                                 {'error_name': 'Вы не администратор', 'chat_id': group_id})
+            return
+
+        if len(new_settings.keys()) == 0:
+            await self._client_repo.send_message(sender_id, 'SETTINGS-CHANGE-ERROR',
+                                                 {'error_name': 'Ошибка', 'chat_id': group_id})
+            return
+        changed = self._chat_db_repo.change_group_settings(chat['group']['id'], new_settings)
+
+        if changed is None:
+            await self._client_repo.send_message(sender_id, 'SETTINGS-CHANGE-ERROR',
+                                                 {'error_name': 'Ошибка', 'chat_id': group_id})
+            return
+
+        chat = self._chat_repo.get_chat_by_id(group_id)
+
+        name_changed = False
+        for member in chat.get_members():
+            await self._client_repo.send_message(member.user_id, 'GROUP-CHANGED-SETTINGS',
+                                                 extra_data={'chat_id': group_id,
+                                                             'new_settings': json.dumps(new_settings)})
+
+            if flags.get('name_changed'):
+                name_changed = True
+                await self._client_repo.send_message(member.user_id, 'GROUP-CHANGED-NAME',
+                                                     extra_data={'chat_id': group_id,
+                                                                 'new_name': new_settings.get('group_name')})
+
+        if name_changed:
+            await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': group_id,
+                                                                                      'user_id': sender_id,
+                                                                                      'type': 'service',
+                                                                                      'service_message': f'Название группы было изменено на {new_settings.get("group_name")}'})

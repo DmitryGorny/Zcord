@@ -35,3 +35,7 @@ class GroupInList(QtWidgets.QWidget):
     @property
     def id(self):
         return self._chat_id
+
+    def change_group_name(self, new_name):
+        self.username = new_name
+        self.ui.user_name.setText(new_name)

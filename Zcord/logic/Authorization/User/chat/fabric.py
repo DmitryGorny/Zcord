@@ -28,7 +28,8 @@ class CreateGroupChat(ChatFabric):
                          kwargs['is_private'],
                          kwargs['is_password'],
                          kwargs['is_admin_invite'],
-                         kwargs['admin_id'])
+                         kwargs['admin_id'],
+                         kwargs['date_of_creation'])
 
 
 class GroupMemberFabric(ABC):

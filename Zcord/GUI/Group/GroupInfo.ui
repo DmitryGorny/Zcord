@@ -1,0 +1,321 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>GroupInfo</class>
+ <widget class="QWidget" name="GroupInfo">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>525</width>
+    <height>280</height>
+   </rect>
+  </property>
+  <property name="sizePolicy">
+   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+    <horstretch>0</horstretch>
+    <verstretch>0</verstretch>
+   </sizepolicy>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <layout class="QHBoxLayout" name="horizontalLayout">
+   <property name="spacing">
+    <number>0</number>
+   </property>
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
+   <property name="topMargin">
+    <number>0</number>
+   </property>
+   <property name="rightMargin">
+    <number>0</number>
+   </property>
+   <property name="bottomMargin">
+    <number>0</number>
+   </property>
+   <item alignment="Qt::AlignHCenter">
+    <widget class="QFrame" name="Wrapper">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+     <property name="minimumSize">
+      <size>
+       <width>400</width>
+       <height>0</height>
+      </size>
+     </property>
+     <property name="styleSheet">
+      <string notr="true">QFrame {
+background-color:rgba(16,19,23,255);
+border:1px solid white;
+border-radius:45px;
+}</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" stretch="0,0">
+      <property name="spacing">
+       <number>20</number>
+      </property>
+      <property name="leftMargin">
+       <number>30</number>
+      </property>
+      <property name="topMargin">
+       <number>20</number>
+      </property>
+      <property name="rightMargin">
+       <number>30</number>
+      </property>
+      <property name="bottomMargin">
+       <number>20</number>
+      </property>
+      <item alignment="Qt::AlignHCenter">
+       <widget class="QLabel" name="label_2">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">color:white;
+font-size:18px;
+border:none;</string>
+        </property>
+        <property name="text">
+         <string>Информация о группе</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QFrame" name="FriendsList">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
+        <property name="styleSheet">
+         <string notr="true">border:none;</string>
+        </property>
+        <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,0,0">
+         <property name="spacing">
+          <number>20</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <item alignment="Qt::AlignHCenter">
+          <widget class="QFrame" name="change_name">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,3">
+            <property name="spacing">
+             <number>7</number>
+            </property>
+            <property name="leftMargin">
+             <number>11</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>11</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_3">
+              <property name="styleSheet">
+               <string notr="true">color:white;
+font-size:18px;
+border:none;</string>
+              </property>
+              <property name="text">
+               <string>Название:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="group_name_label">
+              <property name="styleSheet">
+               <string notr="true">color:white;
+font-size:18px;
+border:none;
+</string>
+              </property>
+              <property name="text">
+               <string>BYDLO_BYDLO2</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item alignment="Qt::AlignLeft">
+          <widget class="QFrame" name="date_of_creation">
+           <property name="sizePolicy">
+            <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+             <horstretch>0</horstretch>
+             <verstretch>0</verstretch>
+            </sizepolicy>
+           </property>
+           <layout class="QHBoxLayout" name="horizontalLayout_4" stretch="1,3">
+            <property name="spacing">
+             <number>7</number>
+            </property>
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="topMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>0</number>
+            </property>
+            <property name="bottomMargin">
+             <number>0</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_4">
+              <property name="styleSheet">
+               <string notr="true">color:white;
+font-size:18px;
+border:none;</string>
+              </property>
+              <property name="text">
+               <string>Дата создания:</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="dat_of_creation_label">
+              <property name="styleSheet">
+               <string notr="true">color:white;
+font-size:18px;
+border:none;
+</string>
+              </property>
+              <property name="text">
+               <string>0.0.0</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="is_password">
+           <property name="styleSheet">
+            <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+}</string>
+           </property>
+           <property name="text">
+            <string>Вход по паролю</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="is_private">
+           <property name="styleSheet">
+            <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+}</string>
+           </property>
+           <property name="text">
+            <string>Приватная группа (только по приглашению)</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QCheckBox" name="is_inviteGromAdmin">
+           <property name="styleSheet">
+            <string notr="true">QCheckBox {
+color:white;
+font-size:20px;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 9px;
+    border: 2px solid orange;
+    background: transparent;
+}
+
+QCheckBox::indicator:hover {
+    border: 2px solid #rgb(255, 170, 0);
+}
+
+QCheckBox::indicator:checked {
+    background: orange;
+}</string>
+           </property>
+           <property name="text">
+            <string>Приглашения только от администратора</string>
+           </property>
+          </widget>
+         </item>
+        </layout>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>

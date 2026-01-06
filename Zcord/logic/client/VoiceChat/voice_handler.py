@@ -53,14 +53,13 @@ class VoiceHandler:
         self.vad = wb.Vad()
         self.vad.set_mode(2)
 
-    def audio_input_thread(self, seq):
+    def audio_input_thread(self, seq, token):
         # читаем микрофон и шлём UDP
         try:
             data = self.in_stream.read(SAMPLES_PER_FRAME, exception_on_overflow=False)
             if self.is_mic_mute:
                 data = b"\x00" * len(data)
         except Exception:
-            # TODO надо зафиксить data может быть пустой изначально если микро нет
             data = b"\x00" * len(data)
 
         if not self.is_mic_mute:
@@ -69,7 +68,7 @@ class VoiceHandler:
                 #data = self.agc_process(data)
             if seq % 5 == 0:
                 self.chat_obj.socket_controller.vad_animation(self.room, self.vad.is_speech(data, RATE), self.user.id)
-        pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id) + data
+        pkt = HDR_STRUCT.pack(PKT_HDR, PKT_AUDIO, seq, self.user.id, token) + data
         seq = (seq + 1) & 0xFFFFFFFF
         return pkt, seq
 

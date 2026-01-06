@@ -1,6 +1,7 @@
 import asyncio
 import socket
 import json
+import struct
 import datetime
 import time
 from dataclasses import dataclass, field
@@ -32,6 +33,12 @@ from typing import Dict, List, Optional
 # ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ!!!!!!!!!!!!!
 # В отслыку сообщений на сервисный сервер в словарь добавлена еще и g (Группа), т.к. сейчас сратегии
 # разделены на группы (CLIENT, CHAT, FRIEND). Тебе, скорее всего, нужны будут только CLIENT
+
+# Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | user_id | payload...
+PKT_HDR = b"V1"
+PKT_AUDIO = b"A"
+HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
+
 @dataclass
 class ClientInfo:
     reader: asyncio.StreamReader
@@ -85,6 +92,19 @@ class TcpSignalServer:
                 continue
 
             public_ip, public_port = addr
+
+            # аудио-пакеты
+            if len(data) >= HDR_STRUCT.size:
+                magic, typ, seq, user_id, token = HDR_STRUCT.unpack_from(data, 0)
+                if magic != PKT_HDR:
+                    continue
+                if typ == PKT_AUDIO:
+                    client = self.client_by_token.get(token)
+
+                    if client:
+                        await self._forward_voice_pkt(data, client)
+                        continue
+
             token = data.decode(errors="ignore")
 
             client = self.client_by_token.get(token)
@@ -150,6 +170,20 @@ class TcpSignalServer:
         token = msg.get("token")
         if client.token == token:
             await self._broadcast_room(room, {"t": t, "client": client.to_dict(), }, skip=client)
+
+    async def _forward_voice_pkt(self, voice_pkt, client):
+        lst = self.rooms.get(client.room, [])
+
+        # Пересылаем пакеты всем другим в руме
+        for c in list(lst):
+            if c == client:
+                continue
+            try:
+                #c.writer.write(voice_pkt)
+                #await c.writer.drain()
+                self.udp_sock.sendto(voice_pkt, c.addr_str())
+            except Exception as e:
+                print(f"[UDP] ошибка отправки {c.addr_str()}: {e}")
 
     async def _maybe_send_peers(self, client):
         lst = self.rooms.get(client.room, [])

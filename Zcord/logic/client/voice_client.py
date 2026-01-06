@@ -34,6 +34,7 @@ class VoiceConnection(IConnection, BaseConnection):
         self.udp.setblocking(False)
         self.local_udp_port = self.udp.getsockname()[1]
         self.peer = None  # (ip, port) после сигналинга
+        self.got_udp_event = None  # event после получения udp пакета
         self.seq = 0
 
         # Аудио
@@ -59,9 +60,21 @@ class VoiceConnection(IConnection, BaseConnection):
                 pass
             await asyncio.sleep(0.1)
 
+    # ставим таймер на 4 секунды, ожидающий любой udp - p2p трафик
+    async def monitoring_udp(self):
+        try:
+            await asyncio.wait_for(self.got_udp_event.wait(), timeout=4.0)
+        except asyncio.TimeoutError:
+            print("[Client] Таймаут ожидания p2p, переходим на fallback")
+            self.peer = ("server_ip", )  # server_ip, server_port куда отсылаем fallback пакеты
+
     async def recv_server(self):
         """Читает уведомления сервера: peers, сервисные команды и т.п."""
         assert self.reader is not None
+
+        # Создаем событие для отслеживания получения p2p udp трафика
+        self.got_udp_event = asyncio.Event()
+
         try:
             while self.flg:
                 line = await self.reader.readline()
@@ -79,17 +92,19 @@ class VoiceConnection(IConnection, BaseConnection):
                         # для простоты — берём первого (или последовательно всех)
                         p = peers[0]
                         self.peer = (p["ip"], int(p["udp_port"]))
+
+                        await self.monitoring_udp()
+
                         self.voice_handler.reset_last_seq(p["user_id"])
                         print(f"[Client] peer: {self.peer}")
                         self.chat_obj.socket_controller.receive_connect(chat_id=str(self.room), clients=peers)
-                        for _ in range(8):
-                            self._udp_send('12'.encode('utf-8'))
 
                 elif t == "peer_left":
                     client = msg.get("client")
                     print(f"[Client] peer_left: {client}")
                     self.chat_obj.socket_controller.receive_disconnect(chat_id=self.room, client=client)
                     self.peer = None
+                    self.got_udp_event.clear()
 
                 elif "mute" in t:  # Реализация мутов
                     client = msg.get("client")
@@ -123,9 +138,13 @@ class VoiceConnection(IConnection, BaseConnection):
                 print(f"recv_udp вышел: {e}")
                 continue
 
+            # в p2p трафике если пакеты не приходят то .set() не сработает и скоро переключим на fallback
+            # на fallback сработает всегда, но уже не будет таймера переключения
+            if not self.got_udp_event.is_set():
+                self.got_udp_event.set()
             # аудио-пакеты
             if len(data) >= HDR_STRUCT.size:
-                magic, typ, seq, user_id = HDR_STRUCT.unpack_from(data, 0)
+                magic, typ, seq, user_id, token = HDR_STRUCT.unpack_from(data, 0)
                 if magic != PKT_HDR:
                     continue
                 if typ == PKT_AUDIO:
@@ -136,7 +155,7 @@ class VoiceConnection(IConnection, BaseConnection):
     def _audio_input_thread(self):
         # читаем микрофон и шлём UDP
         while self.flg:
-            pkt, self.seq = self.voice_handler.audio_input_thread(self.seq)
+            pkt, self.seq = self.voice_handler.audio_input_thread(self.seq, self.token)
             try:
                 self._udp_send(pkt, msg_type="audio")
             except Exception:

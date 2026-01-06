@@ -143,8 +143,6 @@ class Server:
                             msg['writer'] = writer
                         print(msg)
                         await strategy.execute(msg)
-                    except AttributeError as e:
-                        print('[Server(client_tcp)] Ошибка: {}'.format(e))
                     except KeyError as e:
                         print('[Server(client_tcp)] Ошибка: {}'.format(e))
                     continue

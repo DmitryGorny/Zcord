@@ -101,7 +101,7 @@ urlpatterns = [
     }), name='groups'),
     path('groups/<int:pk>/', GroupsView.as_view({
         'get': 'retrieve',
-        'patch': 'update'
+        'patch': 'partial_update'
     }), name='groups-detail'),
     path('groups/groups-name-unique/', GroupsView.as_view({
         'get': 'check_name',

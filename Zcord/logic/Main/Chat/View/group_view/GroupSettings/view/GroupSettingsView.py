@@ -9,7 +9,7 @@ from logic.Main.Chat.View.group_view.GroupSettings.view.GroupSettingsQt import U
 
 
 class GroupSettingsView(QtWidgets.QDialog):
-    save_settings_model = pyqtSignal(dict)
+    save_settings_model = pyqtSignal(dict, dict)
 
     def __init__(self):
         super(GroupSettingsView, self).__init__()
@@ -24,6 +24,10 @@ class GroupSettingsView(QtWidgets.QDialog):
             'is_password': True,
             'is_invite_from_admin': True,
             'group_name': ''
+        }
+
+        self._flags = {
+            'name_changed': False
         }
 
         self._spinner = DotSpinner()
@@ -90,9 +94,12 @@ class GroupSettingsView(QtWidgets.QDialog):
     def _on_toggled_invite(self, is_invite_from_admin: bool) -> None:
         self._args_list['is_invite_from_admin'] = is_invite_from_admin
 
-    def _get_new_name(self):
+    def _get_new_name(self) -> bool:
         group_name = self._ui.GroupName.text()
-        self._args_list['group_name'] = group_name
+        if self._args_list['group_name'] != group_name:
+            self._args_list['group_name'] = group_name
+            return True
+        return False
 
     def _send_settings(self) -> None:
         if self._args_list['is_password']:
@@ -111,8 +118,9 @@ class GroupSettingsView(QtWidgets.QDialog):
             if self._ui.Password_input.text().strip() != self._ui.RepeatPassword_input.text().strip():
                 self._ui.error_label.setText('Ошибка: Пароли не совпадают')
                 return
-
-        self.save_settings_model.emit(self._args_list)
+        if self._get_new_name():
+            self._flags['name_changed'] = True
+        self.save_settings_model.emit(self._args_list, self._flags)
         self._ui.error_label.setHidden(True)
 
     def data_sent(self) -> None:

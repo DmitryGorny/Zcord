@@ -15,7 +15,7 @@ from logic.Main.miniProfile.MiniProfile import Overlay
 
 class GroupView(BaseChatView):  # TODO: Сделать ui private
     def __init__(self, chatId, group_name, user, controller, members, is_private, is_password, is_admin_invite,
-                 admin_id):
+                 admin_id, date_of_creation):
         super(GroupView, self).__init__(chatId, user, controller)
 
         self.ui = Ui_Group()
@@ -82,11 +82,13 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
         """Настройки группы"""
         self._settings_controller: GroupSettingsController = GroupSettingsController(self._user.id,
+                                                                                     self._chat_id,
                                                                                      self._group_name,
                                                                                      is_private,
                                                                                      is_admin_invite,
-                                                                                     is_password)
-        self._settings_dialog = self._settings_controller.get_widget()
+                                                                                     is_password,
+                                                                                     date_of_creation)
+        self._settings_dialog = self._settings_controller.get_settings_widget()
         self._settings_overlay = Overlay(self._settings_dialog)
         self._settings_overlay.setParent(self.ui.Column)
         self._settings_dialog.setParent(self.ui.Column)
@@ -95,6 +97,18 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._settings_overlay.close()
 
         self.ui.show_settings.clicked.connect(self.show_settings)
+
+        """Информация о группе"""
+
+        self._info_dialog = self._settings_controller.get_info_widget()
+        self._info_overlay = Overlay(self._info_dialog)
+        self._info_dialog.setParent(self.ui.Column)
+        self._info_overlay.setParent(self.ui.Column)
+
+        self._info_dialog.close()
+        self._info_overlay.close()
+
+        self.ui.info.clicked.connect(self.show_info)
 
     @property
     def group_name(self) -> str:
@@ -140,7 +154,10 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._invite_dialog.exec()
 
     def show_settings(self):
-        self._settings_controller.reload_model()
+
+        if str(self._admin_id) != str(self._user.id):
+            return
+        self._settings_controller.reload_settings_model()
         new_rect = QtCore.QRect(
             self.ui.Column.rect().x(),
             self.ui.Column.rect().y(),
@@ -154,10 +171,29 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
 
         self._settings_dialog.exec()
 
+    def show_info(self):
+        self._settings_controller.reload_info_model()
+        new_rect = QtCore.QRect(
+            self.ui.Column.rect().x(),
+            self.ui.Column.rect().y(),
+            self.ui.Column.width(),
+            self.ui.Column.height()
+        )
+        self._info_overlay.setGeometry(new_rect)
+
+        self._info_overlay.show()
+        self._info_dialog.raise_()
+
+        self._info_dialog.exec()
+
     def close_invite_dialog(self):
         if self._invite_overlay.isVisible():
             self._invite_overlay.close()
             self._invite_dialog.close()
+
+    def admin_changed_settings(self, new_settings: dict) -> None:
+        # Передавать методы связанные с правами пользователей и отображением GUI в settings controller через сигналы
+        self._settings_controller.admin_changed_settings(new_settings)
 
     def leave_group(self) -> None:
         self._controller.leave_group(str(self._user.id), self._chat_id)
@@ -206,6 +242,13 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
                 user.is_admin = False
         self._members_column_controller.change_admin(self._users, str(new_admin_id))
         self._admin_id = new_admin_id
+
+    def group_settings_changed_fail(self, error_text: str) -> None:
+        self._settings_controller.data_sent_error(error_text)
+
+    def change_group_name(self, new_name: str) -> None:
+        self.ui.GroupName.setText(new_name)
+        self._group_name = new_name
 
     def __str__(self):
         return self._chat_id

@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import List
 
 from logic.Main.Chat.Controller.ChatController import ChatController
@@ -69,6 +70,8 @@ class UserChats:
                     is_admin = True
                 members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']),
                                                            is_admin=is_admin))
+            dt = datetime.strptime(group['group']['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
+            dt_formed = dt.strftime("%d.%m.%Y")
 
             group_name = group['group']['group_name']
             group_obj = fabric.create_chat(is_dm=False,
@@ -80,7 +83,8 @@ class UserChats:
                                            is_private=group['group']['is_private'],
                                            is_password=group['group']['is_password'],
                                            is_admin_invite=group['group']['is_invite_from_admin'],
-                                           admin_id=group['group']['user_admin'])
+                                           admin_id=str(group['group']['user_admin']),
+                                           date_of_creation=dt_formed)
             self._groups.append(group_obj)
             self._chats_controller.add_view(str(group['id']), group_obj)
 
@@ -101,14 +105,18 @@ class UserChats:
         fabric = CreateGroupChat()
         members = []
         member_fabric = GroupMemberCreator()
-        groups = self._db.get_chat_by_id(chat_id=chat_id)
+        group = self._db.get_chat_by_id(chat_id=chat_id)
+        if group is None:
+            return
 
-        for user in groups['group']['users']:
+        for user in group['group']['users']:
             admin: bool = True
             if admin_id != str(user['user_id']):
                 admin = False
             members.append(member_fabric.create_member(nickname=user['nickname'], user_id=str(user['user_id']), is_admin=admin))
 
+        dt = datetime.strptime(group['group']['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
+        dt_formed = dt.strftime("%d.%m.%Y")
         group = fabric.create_chat(is_dm=False,
                                    group_id=str(chat_id),
                                    group_name=group_name,
@@ -118,7 +126,8 @@ class UserChats:
                                    is_private=is_private,
                                    is_admin_invite=is_admin_invite,
                                    is_password=is_password,
-                                   admin_id=admin_id)
+                                   admin_id=admin_id,
+                                   date_of_creation=dt_formed)
         group.group_member_online(str(self.__user.id))
         self._groups.append(group)
         self._chats_controller.add_view(chat_id, group)
@@ -230,3 +239,20 @@ class UserChats:
             return
         group.change_admin(new_admin_id)
 
+    def group_settings_changed_fail(self, group_id: str, error_text: str) -> None:
+        group = self._get_group_by_id(group_id=str(group_id))
+        if group is None:
+            return
+        group.group_settings_changed_fail(error_text)
+
+    def admin_changed_settings(self, group_id: str, new_settings: dict) -> None:
+        group = self._get_group_by_id(group_id=str(group_id))
+        if group is None:
+            return
+        group.admin_changed_settings(new_settings)
+
+    def change_group_name(self, group_id: str, new_name: str) -> None:
+        group = self._get_group_by_id(group_id=str(group_id))
+        if group is None:
+            return
+        group.change_group_name(new_name)

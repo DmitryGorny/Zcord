@@ -302,3 +302,6 @@ class APIClient:
             'user_admin': admin_id
         }
         return self._request('PATCH', f'groups/{group_id}/', json=params)
+
+    def patch_group_settings(self, group_id: int, settings: dict[str, bool]):
+        return self._request('PATCH', f'groups/{group_id}/', json=settings)

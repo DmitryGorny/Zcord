@@ -104,3 +104,18 @@ class SendGroupInviteStrat(ChatStrategyKeeper, IServiceStrat):
         receiver_id = str(msg['receiver_id'])
         group_id = msg['group_id']
         await self._service.send_group_request(sender_id=sender_id, receiver_id=receiver_id, group_id=group_id)
+
+
+class ChangeGroupSettingsStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "CHANGE-GROUP-SETTINGS"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        sender_id = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+        new_settings = json.loads(msg['new_settings'])
+        flags = json.loads(msg['flags'])
+
+        await self._service.change_group_settings(sender_id=sender_id, new_settings=new_settings, group_id=group_id, flags=flags)

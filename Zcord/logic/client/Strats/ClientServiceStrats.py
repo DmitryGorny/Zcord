@@ -1,3 +1,4 @@
+import json
 from abc import abstractmethod
 
 from logic.client.Strats.Strategy import Strategy
@@ -359,3 +360,50 @@ class GroupAdminChangedStrat(ClientsStrategies):
 
         self.service_connection_pointer.user.group_admin_changed(group_id, new_admin_id)
 
+
+class GroupSettingsChangedSuccessStrat(ClientsStrategies):
+    header_name = "SETTINGS-CHANGE-SUCCESS"
+
+    def __init__(self):
+        super(GroupSettingsChangedSuccessStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['chat_id'])
+        self.service_connection_pointer.user.group_settings_changed_success(group_id)
+
+
+class GroupSettingsChangedFailStrat(ClientsStrategies):
+    header_name = "SETTINGS-CHANGE-ERROR"
+
+    def __init__(self):
+        super(GroupSettingsChangedFailStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['chat_id'])
+        error_text = msg['error_name']
+        self.service_connection_pointer.user.group_settings_changed_fail(group_id, error_text)
+
+
+class GroupSettingsChangedStrat(ClientsStrategies):
+    header_name = "GROUP-CHANGED-SETTINGS"
+
+    def __init__(self):
+        super(GroupSettingsChangedStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['chat_id'])
+        new_settings = json.loads(msg['new_settings'])
+        self.service_connection_pointer.user.admin_changed_settings(group_id, new_settings)
+
+
+class GroupNameChangedStrat(ClientsStrategies):
+    header_name = "GROUP-CHANGED-NAME"
+
+    def __init__(self):
+        super(GroupNameChangedStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['chat_id'])
+        new_name = msg['new_name']
+        self.service_connection_pointer.user.change_group_name(group_id, new_name)
+        self.service_connection_pointer.call_main_dynamic_update('GROUP-NAME-CHANGED', {'chat_id': group_id, 'new_name': new_name})

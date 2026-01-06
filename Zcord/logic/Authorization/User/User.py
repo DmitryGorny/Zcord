@@ -198,3 +198,11 @@ class User(BaseUser):
     def group_admin_changed(self, group_id: str, new_admin_id: str) -> None:
         self._chats_model.group_admin_changed(group_id, new_admin_id)
 
+    def group_settings_changed_fail(self, group_id: str, error_text: str) -> None:
+        self._chats_model.group_settings_changed_fail(group_id, error_text)
+
+    def admin_changed_settings(self, group_id: str, new_settings: dict) -> None:
+        self._chats_model.admin_changed_settings(group_id, new_settings)
+
+    def change_group_name(self, group_id: str, new_name: str) -> None:
+        self._chats_model.change_group_name(group_id, new_name)

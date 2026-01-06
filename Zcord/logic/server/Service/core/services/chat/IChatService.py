@@ -26,3 +26,6 @@ class IChatService(Protocol):
 
     async def send_group_request(self, sender_id: str, receiver_id: str, group_id: str) -> None:
         raise NotImplementedError
+
+    async def change_group_settings(self, group_id: str, sender_id: str, new_settings: dict[str, bool], flags: dict[str, bool]):
+        raise NotImplementedError

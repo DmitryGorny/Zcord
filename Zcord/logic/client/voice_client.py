@@ -93,7 +93,7 @@ class VoiceConnection(IConnection, BaseConnection):
                         p = peers[0]
                         self.peer = (p["ip"], int(p["udp_port"]))
 
-                        await self.monitoring_udp()
+                        asyncio.create_task(self.monitoring_udp())
 
                         self.voice_handler.reset_last_seq(p["user_id"])
                         print(f"[Client] peer: {self.peer}")
@@ -137,17 +137,16 @@ class VoiceConnection(IConnection, BaseConnection):
             except (OSError, Exception) as e:
                 print(f"recv_udp вышел: {e}")
                 continue
-
-            # в p2p трафике если пакеты не приходят то .set() не сработает и скоро переключим на fallback
-            # на fallback сработает всегда, но уже не будет таймера переключения
-            if not self.got_udp_event.is_set():
-                self.got_udp_event.set()
             # аудио-пакеты
             if len(data) >= HDR_STRUCT.size:
                 magic, typ, seq, user_id, token = HDR_STRUCT.unpack_from(data, 0)
                 if magic != PKT_HDR:
                     continue
                 if typ == PKT_AUDIO:
+                    # в p2p трафике если пакеты не приходят то .set() не сработает и скоро переключим на fallback
+                    # на fallback сработает всегда, но уже не будет таймера переключения
+                    if not self.got_udp_event.is_set():
+                        self.got_udp_event.set()
                     payload = data[HDR_STRUCT.size:]
                     # чуть-чуть упорядочим (без жёсткого ожидания)
                     await self.voice_handler.play_enqueue(user_id, seq, payload)

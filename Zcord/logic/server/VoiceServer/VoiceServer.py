@@ -99,7 +99,7 @@ class TcpSignalServer:
                 if magic != PKT_HDR:
                     continue
                 if typ == PKT_AUDIO:
-                    client = self.client_by_token.get(token)
+                    client = self.client_by_token.get(token.decode("utf-8"))
 
                     if client:
                         await self._forward_voice_pkt(data, client)
@@ -181,7 +181,7 @@ class TcpSignalServer:
             try:
                 #c.writer.write(voice_pkt)
                 #await c.writer.drain()
-                self.udp_sock.sendto(voice_pkt, c.addr_str())
+                self.udp_sock.sendto(voice_pkt, (c.ip, c.udp_port))
             except Exception as e:
                 print(f"[UDP] ошибка отправки {c.addr_str()}: {e}")
 

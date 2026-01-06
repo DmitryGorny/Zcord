@@ -10,7 +10,7 @@ from logic.client.VoiceChat.voice_handler import VoiceHandler
 # Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | user_id | payload...
 PKT_HDR = b"V1"
 PKT_AUDIO = b"A"
-HDR_STRUCT = struct.Struct("!2s1sIQ")  # magic, type, seq
+HDR_STRUCT = struct.Struct("!2s1sIQ32s")  # magic, type, seq
 
 
 class VoiceConnection(IConnection, BaseConnection):

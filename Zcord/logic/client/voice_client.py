@@ -66,7 +66,7 @@ class VoiceConnection(IConnection, BaseConnection):
             await asyncio.wait_for(self.got_udp_event.wait(), timeout=4.0)
         except asyncio.TimeoutError:
             print("[Client] Таймаут ожидания p2p, переходим на fallback")
-            self.peer = ("server_ip", )  # server_ip, server_port куда отсылаем fallback пакеты
+            self.peer = ("212.8.227.220", 55560)  # server_ip, server_port куда отсылаем fallback пакеты
 
     async def recv_server(self):
         """Читает уведомления сервера: peers, сервисные команды и т.п."""

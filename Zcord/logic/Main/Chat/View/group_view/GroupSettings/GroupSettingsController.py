@@ -1,3 +1,5 @@
+from typing import Callable
+
 from PyQt6.QtWidgets import QDialog
 
 from logic.Main.Chat.View.group_view.GroupSettings.GroupSettingsModel import GroupSettingsModel, GroupSettings
@@ -6,13 +8,33 @@ from logic.Main.Chat.View.group_view.GroupSettings.view.GroupSettingsView import
 
 
 class GroupSettingsController:
-    def __init__(self, user_id: str, group_id: str, group_name: str, is_private: bool, is_invite_from_admin: bool,
-                 is_password: bool,
-                 date_of_creation: str):
-        self._model = GroupSettingsModel(user_id, group_id,
-                                         GroupSettings(group_name, is_private, is_invite_from_admin, is_password))
+    def __init__(self, date_of_creation: str):
+        self._model: GroupSettingsModel | None = None
         self._settings_view = GroupSettingsView()
         self._info_view = GroupInfoView(date_of_creation)
+
+    def init_model(self, user_id: str, group_id: str, group_name: str, is_private: bool,
+                   is_invite_from_admin: bool, is_password: bool) -> None:
+        self._model = GroupSettingsModel(user_id, group_id,
+                                         GroupSettings(group_name=group_name,
+                                                       is_private=is_private,
+                                                       is_invite_from_admin=is_invite_from_admin,
+                                                       is_password=is_password))
+        self._connect_signals()
+
+    def connect_permissions(self, invite_button_cb: Callable, show_settings: Callable):
+        self._model.allow_invite_main_view.connect(invite_button_cb)
+        self._model.show_settings_main_view.connect(show_settings)
+
+    def setup_permissions(self, admin_id: str):
+        self._model.permissions_setup(admin_id)
+
+    def connect_allow_invite(self, cb: Callable) -> None:
+        self._model.allow_invite_main_view.connect(cb)
+
+    def _connect_signals(self):
+        if self._model is None:
+            return
 
         self._settings_view.save_settings_model.connect(self._model.send_changes)
 

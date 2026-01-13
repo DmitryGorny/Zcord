@@ -11,7 +11,7 @@ class GroupInfoView(QDialog):
         self._ui = Ui_GroupInfo()
         self._ui.setupUi(self)
 
-        self._ui.dat_of_creation_label.setText(date_of_creation)
+        self._ui.dat_of_creation_label.setText(str(date_of_creation))
         self._ui.is_private.setEnabled(False)
         self._ui.is_inviteGromAdmin.setEnabled(False)
         self._ui.is_password.setEnabled(False)

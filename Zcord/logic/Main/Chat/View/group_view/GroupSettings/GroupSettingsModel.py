@@ -1,5 +1,7 @@
 import json
 from dataclasses import dataclass
+from typing import Callable
+
 from PyQt6.QtCore import QObject, pyqtSignal
 from logic.client.ClientConnections.ClientConnections import ClientConnections
 
@@ -13,20 +15,25 @@ class GroupSettings:
 
 
 class GroupSettingsModel(QObject):
+    # Сигналы для отображения данных в окне настройки группы
     private_group_view = pyqtSignal(bool)
     invite_from_admin_only_view = pyqtSignal(bool)
     is_password_view = pyqtSignal(bool)
     show_hide_password_view = pyqtSignal(bool)
     group_name_view = pyqtSignal(str)
+    data_sent_view = pyqtSignal()
+    success_sent_view = pyqtSignal()
+    error_sent_view = pyqtSignal(str)
 
+    # Сигналы для отображения данных в окне информации о группе
     private_group_InfoView = pyqtSignal(bool)
     invite_from_admin_only_InfoView = pyqtSignal(bool)
     is_password_InfoView = pyqtSignal(bool)
     group_name_InfoView = pyqtSignal(str)
 
-    data_sent_view = pyqtSignal()
-    success_sent_view = pyqtSignal()
-    error_sent_view = pyqtSignal(str)
+    # Сигналы изменения интерфейса в зависимости от настроек группы
+    allow_invite_main_view = pyqtSignal(bool)
+    show_settings_main_view = pyqtSignal(bool)
 
     def __init__(self, user_id: str, group_id: str, settings: GroupSettings):
         super(GroupSettingsModel, self).__init__()
@@ -62,6 +69,9 @@ class GroupSettingsModel(QObject):
     def _group_name_info_setup(self) -> None:
         self.group_name_InfoView.emit(self._settings_dto.group_name)
 
+    def _allow_invites(self):
+        self.allow_invite_main_view.emit(self._settings_dto.is_invite_from_admin)
+
     def setup_settings_view(self):
         self._is_private_setup()
         self._is_invite_from_admin_setup()
@@ -73,6 +83,14 @@ class GroupSettingsModel(QObject):
         self._is_invite_from_admin_info_setup()
         self._is_password_info_setup()
         self._group_name_info_setup()
+
+    def permissions_setup(self, admin_id: str):
+        if str(admin_id) == str(self._user_id):
+            self.allow_invite_main_view.emit(False)
+            self.show_settings_main_view.emit(True)
+            return
+        self.allow_invite_main_view.emit(self._settings_dto.is_invite_from_admin)
+        self.show_settings_main_view.emit(False)
 
     def send_changes(self, settings: dict, flags: dict) -> None:
         if self._data_sent:

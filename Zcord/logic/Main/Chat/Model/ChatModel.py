@@ -9,8 +9,8 @@ class ChatModel:
         self.call_manager = CallManager()
         self._block_scroll_cache = False
 
-    #def call_notification(self):
-     #   ClientConnections.send_service_message(msg_type="CALL-NOTIFICATION")
+    # def call_notification(self):
+    #   ClientConnections.send_service_message(msg_type="CALL-NOTIFICATION")
 
     def ask_for_cached_messages(self):
         if not self._block_scroll_cache:
@@ -31,12 +31,12 @@ class ChatModel:
 
     def leave_group(self, user_id: str, chat_id: str):
         try:
-            ClientConnections.send_service_message(group='CHAT', msg_type='USER-LEFT-GROUP', extra_data={'request_receiver': user_id,
-                                                                                                         'group_id': chat_id})
+            ClientConnections.send_service_message(group='CHAT', msg_type='USER-LEFT-GROUP',
+                                                   extra_data={'request_receiver': user_id,
+                                                               'group_id': chat_id})
         except Exception as e:
             print('[MembersColumnModel] {}'.format(e))
             return
-
 
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id):
@@ -44,16 +44,18 @@ class ChatModel:
         success = self.call_manager.start_call(
             user=user,
             chat_obj=ClientConnections.get_chat_id(),
-            host="212.8.227.220",
+            host="26.181.96.20",
             port=55559,
             room=chat_id
         )
-        ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "1"})
+        ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__",
+                                               extra_data={"call_flg": "1"})
 
     def stop_call(self):
         """Остановка звонка - синхронный вызов"""
         success = self.call_manager.stop_call()
-        ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__", extra_data={"call_flg": "0"})
+        ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__",
+                                               extra_data={"call_flg": "0"})
 
     def get_voice_flg(self):
         return self.call_manager.get_voice_flg()

@@ -81,13 +81,15 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self.ui.leave_group.clicked.connect(self.leave_group)
 
         """Настройки группы"""
-        self._settings_controller: GroupSettingsController = GroupSettingsController(self._user.id,
-                                                                                     self._chat_id,
-                                                                                     self._group_name,
-                                                                                     is_private,
-                                                                                     is_admin_invite,
-                                                                                     is_password,
-                                                                                     date_of_creation)
+        self._settings_controller: GroupSettingsController = GroupSettingsController(date_of_creation)
+        self._settings_controller.init_model(self._user.id,
+                                             self._chat_id,
+                                             self._group_name,
+                                             is_private,
+                                             is_admin_invite,
+                                             is_password)
+        self._settings_controller.connect_permissions(self.show_hide_invite_window, self.show_hide_settings_button)
+        self._settings_controller.setup_permissions(self._admin_id)
         self._settings_dialog = self._settings_controller.get_settings_widget()
         self._settings_overlay = Overlay(self._settings_dialog)
         self._settings_overlay.setParent(self.ui.Column)
@@ -109,6 +111,11 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self._info_overlay.close()
 
         self.ui.info.clicked.connect(self.show_info)
+
+        if str(self._user.id) != str(self._admin_id):
+            self.show_hide_settings_button(False)
+        else:
+            self.show_hide_settings_button(True)
 
     @property
     def group_name(self) -> str:
@@ -191,10 +198,6 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
             self._invite_overlay.close()
             self._invite_dialog.close()
 
-    def admin_changed_settings(self, new_settings: dict) -> None:
-        # Передавать методы связанные с правами пользователей и отображением GUI в settings controller через сигналы
-        self._settings_controller.admin_changed_settings(new_settings)
-
     def leave_group(self) -> None:
         self._controller.leave_group(str(self._user.id), self._chat_id)
 
@@ -242,6 +245,14 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
                 user.is_admin = False
         self._members_column_controller.change_admin(self._users, str(new_admin_id))
         self._admin_id = new_admin_id
+        self._settings_controller.setup_permissions(self._admin_id)
+
+    def admin_changed_settings(self, new_settings: dict) -> None:
+        self._settings_controller.admin_changed_settings(new_settings)
+        self._settings_controller.setup_permissions(self._admin_id)
+
+    def show_hide_settings_button(self, is_visible: bool) -> None:
+        self.ui.show_settings.setVisible(is_visible)
 
     def group_settings_changed_fail(self, error_text: str) -> None:
         self._settings_controller.data_sent_error(error_text)
@@ -249,6 +260,9 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
     def change_group_name(self, new_name: str) -> None:
         self.ui.GroupName.setText(new_name)
         self._group_name = new_name
+
+    def show_hide_invite_window(self, is_visible: bool):
+        self.ui.invite_user.setHidden(is_visible)
 
     def __str__(self):
         return self._chat_id

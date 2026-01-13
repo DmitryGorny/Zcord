@@ -1,5 +1,3 @@
-import time
-
 from PyQt6 import QtCore, QtWidgets
 from logic.Main.Chat.View.CallDialog.CallView import Call
 from logic.Main.Chat.View.dm_view.GroupInviteDialog.GroupInviteController import GroupInviteController

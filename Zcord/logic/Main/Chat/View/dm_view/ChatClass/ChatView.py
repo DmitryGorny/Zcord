@@ -9,8 +9,8 @@ from logic.Main.miniProfile.MiniProfile import Overlay
 
 class ChatView(BaseChatView):
 
-    def __init__(self, chatId, friend_id, user, controller):
-        super(ChatView, self).__init__(chatId, user, controller)
+    def __init__(self, chatId, friend_id, user, controller, is_group):
+        super(ChatView, self).__init__(chatId, user, controller, is_group)
         self.ui = Ui_Chat()
         self.ui.setupUi(self)
 

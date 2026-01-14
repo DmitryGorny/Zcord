@@ -23,7 +23,8 @@ class GroupSettingsView(QtWidgets.QDialog):
             'is_private': True,
             'is_password': True,
             'is_invite_from_admin': True,
-            'group_name': ''
+            'group_name': '',
+            'password': ''
         }
 
         self._flags = {
@@ -118,6 +119,7 @@ class GroupSettingsView(QtWidgets.QDialog):
             if self._ui.Password_input.text().strip() != self._ui.RepeatPassword_input.text().strip():
                 self._ui.error_label.setText('Ошибка: Пароли не совпадают')
                 return
+        self._args_list['password'] = self._ui.Password_input.text().strip()
         if self._get_new_name():
             self._flags['name_changed'] = True
         self.save_settings_model.emit(self._args_list, self._flags)

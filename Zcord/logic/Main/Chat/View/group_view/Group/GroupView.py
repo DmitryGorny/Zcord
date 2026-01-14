@@ -4,7 +4,7 @@ from PyQt6 import QtCore, QtWidgets
 
 from logic.Authorization.User.chat.GroupMember import GroupMember
 from logic.Main.Chat.View.CallDialog.CallView import Call
-from logic.Main.Chat.View.IView.IView import IView, BaseChatView
+from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
 from logic.Main.Chat.View.group_view.GroupSettings.GroupSettingsController import GroupSettingsController
@@ -15,8 +15,8 @@ from logic.Main.miniProfile.MiniProfile import Overlay
 
 class GroupView(BaseChatView):  # TODO: Сделать ui private
     def __init__(self, chatId, group_name, user, controller, members, is_private, is_password, is_admin_invite,
-                 admin_id, date_of_creation):
-        super(GroupView, self).__init__(chatId, user, controller)
+                 admin_id, date_of_creation, is_group):
+        super(GroupView, self).__init__(chatId, user, controller, is_group)
 
         self.ui = Ui_Group()
         self.ui.setupUi(self)

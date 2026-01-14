@@ -1,3 +1,4 @@
+from django.contrib.auth.hashers import make_password, check_password
 from rest_framework import serializers
 from rest_framework.response import Response
 
@@ -22,3 +23,26 @@ class GroupsSerializer(serializers.ModelSerializer):
 
         return []
 
+    def validate_new_password(self, value):
+        group = self.context["group"]
+
+        if check_password(value, group.password):
+            raise serializers.ValidationError(
+                "Новый пароль должен отличаться от старого"
+            )
+
+        return value
+
+    def create(self, validated_data):
+        password = validated_data.get('password', None)
+        group = Groups(**validated_data)
+        group.password = make_password(password)
+        group.save()
+        return group
+
+    def update(self, instance, validated_data):
+        password = validated_data.pop('password')
+        instance.password = make_password(password)
+        instance.save()
+        super().update(instance, validated_data)
+        return instance

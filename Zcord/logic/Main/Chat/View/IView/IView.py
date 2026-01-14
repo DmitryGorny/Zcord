@@ -63,7 +63,7 @@ class BaseChatView(IView):
     iconCall = QtCore.pyqtSignal(int, str)
     iconCallLeft = QtCore.pyqtSignal(int)
 
-    def __init__(self, chatId, user, controller):
+    def __init__(self, chatId, user, controller, is_group: bool):
         super(BaseChatView, self).__init__()
         self.ui: Optional[Union[Ui_Chat, Ui_Group]]
         """Окно приходящего звонка"""
@@ -99,6 +99,8 @@ class BaseChatView(IView):
         self.unseenMessages = []
 
         self.scroll_pos = 0
+
+        self._is_group: bool = is_group
 
         # Словарь по иконкам юзеров: {client: icon}
         self.client_icons = {}

@@ -1,10 +1,7 @@
 from datetime import datetime
 from typing import List
-
 from logic.Main.Chat.Controller.ChatController import ChatController
-from logic.Main.Chat.View.IView.IView import BaseChatView
 from logic.Main.Chat.View.dm_view.ChatClass.ChatView import ChatView
-
 from logic.Main.Chat.View.group_view.Group.GroupView import GroupView
 from logic.db_client.api_client import APIClient
 from .fabric import CreateDMChat, CreateGroupChat, GroupMemberCreator
@@ -44,7 +41,8 @@ class UserChats:
                                       chat_id=str(chat_attrs["id"]),
                                       friend_id=str(friend_id),
                                       user_obj=self.__user,
-                                      controller=self._chats_controller)
+                                      controller=self._chats_controller,
+                                      is_group=chat_attrs['is_group'])
             self._dm_chats.append(chat)
             self._chats_controller.add_view(str(chat_attrs['id']), chat)
 
@@ -84,7 +82,8 @@ class UserChats:
                                            is_password=group['group']['is_password'],
                                            is_admin_invite=group['group']['is_invite_from_admin'],
                                            admin_id=str(group['group']['user_admin']),
-                                           date_of_creation=dt_formed)
+                                           date_of_creation=dt_formed,
+                                           is_group=group['is_group'])
             self._groups.append(group_obj)
             self._chats_controller.add_view(str(group['id']), group_obj)
 

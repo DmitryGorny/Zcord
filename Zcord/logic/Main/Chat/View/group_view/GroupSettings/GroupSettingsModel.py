@@ -1,6 +1,6 @@
 import json
 from dataclasses import dataclass
-from typing import Callable
+from typing import Callable, Optional
 
 from PyQt6.QtCore import QObject, pyqtSignal
 from logic.client.ClientConnections.ClientConnections import ClientConnections
@@ -12,6 +12,7 @@ class GroupSettings:
     is_private: bool
     is_invite_from_admin: bool
     is_password: bool
+    password: Optional[str] = None
 
 
 class GroupSettingsModel(QObject):

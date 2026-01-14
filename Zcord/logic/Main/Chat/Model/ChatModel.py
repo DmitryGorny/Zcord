@@ -39,11 +39,12 @@ class ChatModel:
             return
 
     #  абстрактно здесь будет класс VOICE GUI
-    def start_call(self, user, chat_id):
+    def start_call(self, user, chat_id, is_group):
         """Запуск звонка - синхронный вызов"""
         success = self.call_manager.start_call(
             user=user,
             chat_obj=ClientConnections.get_chat_id(),
+            is_group=is_group,
             host="26.181.96.20",
             port=55559,
             room=chat_id

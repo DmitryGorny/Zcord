@@ -38,8 +38,8 @@ class ChatController:
         self._model.leave_group(user_id, chat_id)
 
     #  абстрактно здесь будет класс VOICE GUI
-    def start_call(self, user, chat_id):
-        self._model.start_call(user, chat_id)
+    def start_call(self, user, chat_id, is_group=False):
+        self._model.start_call(user, chat_id, is_group)
 
     def stop_call(self):
         self._model.stop_call()

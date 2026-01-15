@@ -16,12 +16,13 @@ HDR_STRUCT = struct.Struct("!2s1sIQ32s")  # magic, type, seq
 class VoiceConnection(IConnection, BaseConnection):
     _flg = False
 
-    def __init__(self, user, chat_obj, server_host="127.0.0.1", server_port=55559, room="default_room"):
+    def __init__(self, user, chat_obj, is_group, server_host="127.0.0.1", server_port=55559, room="default_room"):
         self.server = (server_host, server_port)
         self.room = room
         self.token = uuid.uuid4().hex
         self._user = user
         self.chat_obj = chat_obj
+        self.is_group = is_group
 
         # TCP
         self.reader: asyncio.StreamReader | None = None
@@ -91,7 +92,10 @@ class VoiceConnection(IConnection, BaseConnection):
                     if peers:
                         # для простоты — берём первого (или последовательно всех)
                         p = peers[0]
-                        self.peer = (p["ip"], int(p["udp_port"]))
+                        if not self.is_group:
+                            self.peer = (p["ip"], int(p["udp_port"]))
+                        else:
+                            self.peer = ("212.8.227.220", 55560)
 
                         asyncio.create_task(self.monitoring_udp())
 
@@ -299,25 +303,26 @@ class CallManager:
             self._thread = None
             self._initialized = True
 
-    def start_call(self, user, chat_obj, host="localhost", port=55559, room="room1"):
+    def start_call(self, user, chat_obj, is_group, host="localhost", port=55559, room="room1"):
         if self.client is not None:
             print("Клиент уже запущен")
             return
 
         self._thread = threading.Thread(
             target=self._run_call,
-            args=(user, host, port, room, chat_obj),
+            args=(user, host, port, room, chat_obj, is_group),
             daemon=True
         )
         self._thread.start()
         print("Звонок запущен")
 
-    def _run_call(self, user, host, port, room, chat_obj):
+    def _run_call(self, user, host, port, room, chat_obj, is_group):
         self._loop = asyncio.new_event_loop()
         asyncio.set_event_loop(self._loop)
 
         try:
-            self.client = VoiceConnection(user=user, chat_obj=chat_obj, server_host=host, server_port=port, room=room)
+            self.client = VoiceConnection(user=user, chat_obj=chat_obj, is_group=is_group, server_host=host,
+                                          server_port=port, room=room)
             # создаем задачу, но не блокируемся на ней
             self._task = self._loop.create_task(self.client.run())
             self._loop.run_forever()

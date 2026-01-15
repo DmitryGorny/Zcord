@@ -142,7 +142,7 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self.client_icons[int(client["user_id"])] = newcomer
         self.ui.UsersFiled_layout.addWidget(newcomer.ui.widget_2, alignment=QtCore.Qt.AlignmentFlag.AlignHCenter)
 
-        self._controller.start_call(self._user, self._chat_id)
+        self._controller.start_call(self._user, self._chat_id, self._is_group)
         self.call_dialog.hide_call_event()
 
     def invite_users(self):

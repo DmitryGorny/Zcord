@@ -28,7 +28,8 @@ class GroupSettingsView(QtWidgets.QDialog):
         }
 
         self._flags = {
-            'name_changed': False
+            'name_changed': False,
+            'password_changed': False
         }
 
         self._spinner = DotSpinner()
@@ -48,10 +49,18 @@ class GroupSettingsView(QtWidgets.QDialog):
 
     def _setup_widget(self) -> None:
         self._ui.password_wrapper.setVisible(False)
-        self._ui.change_password_button.clicked.connect(lambda: self._show_hide_password(True) if self._ui.is_password.isChecked() else self._show_hide_password(False))
+        self._ui.change_password_button.clicked.connect(self._change_password)
         self._ui.is_private.toggled.connect(self._on_toggled_private)
         self._ui.is_password.toggled.connect(self._on_toggled_password)
         self._ui.is_inviteGromAdmin.toggled.connect(self._on_toggled_invite)
+
+    def _change_password(self) -> None:
+        if self._ui.is_password.isChecked() and not self._ui.password_wrapper.isVisible():
+            self._show_hide_password(True)
+            self._flags['password_changed'] = True
+        else:
+            self._show_hide_password(False)
+            self._flags['password_changed'] = False
 
     def private_group(self, is_private: bool) -> None:
         self._args_list['is_private'] = is_private
@@ -86,11 +95,11 @@ class GroupSettingsView(QtWidgets.QDialog):
         self._args_list['is_private'] = is_private
 
     def _on_toggled_password(self, is_password: bool) -> None:
-        if is_password and not self._args_list['is_password']:
-            self._show_hide_password(is_password)
-        else:
-            self._show_hide_password(is_password)
         self._args_list['is_password'] = is_password
+
+        if not is_password:
+            self._show_hide_password(False)
+            self._flags['password_changed'] = False
 
     def _on_toggled_invite(self, is_invite_from_admin: bool) -> None:
         self._args_list['is_invite_from_admin'] = is_invite_from_admin

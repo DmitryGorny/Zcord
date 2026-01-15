@@ -98,15 +98,19 @@ class User(BaseUser):
 
     def add_group_chat(self, group_name: str, chat_id: str, is_private: bool, is_password: bool, is_admin_invite: bool,
                        admin_id: str,
-                       members_activity: dict):
+                       members_activity: dict = None):
+        if members_activity is None:
+            members_activity = {}
         group = self._chats_model.add_group_chat(chat_id=chat_id,
                                                  group_name=group_name,
                                                  is_private=is_private,
                                                  is_admin_invite=is_admin_invite,
                                                  is_password=is_password,
-                                                 admin_id=admin_id)
-        for user_id in members_activity.keys():
-            self.group_member_change_status(user_id, members_activity.get(user_id))
+                                                 admin_id=admin_id,
+                                                 )
+        if members_activity is not None:
+            for user_id in members_activity.keys():
+                self.group_member_change_status(user_id, members_activity.get(user_id))
         return group
 
     def add_friend(self, username: str, user_id: str):

@@ -37,8 +37,7 @@ class UserChats:
             user1 = chat_attrs['DM']['user1']
             user2 = chat_attrs['DM']['user2']
             friend_id = user2 if str(user1) == str(self.__user.id) else user1
-            chat = fabric.create_chat(is_dm=True,
-                                      chat_id=str(chat_attrs["id"]),
+            chat = fabric.create_chat(chat_id=str(chat_attrs["id"]),
                                       friend_id=str(friend_id),
                                       user_obj=self.__user,
                                       controller=self._chats_controller,
@@ -72,8 +71,7 @@ class UserChats:
             dt_formed = dt.strftime("%d.%m.%Y")
 
             group_name = group['group']['group_name']
-            group_obj = fabric.create_chat(is_dm=False,
-                                           group_id=group['id'],
+            group_obj = fabric.create_chat(group_id=group['id'],
                                            group_name=group_name,
                                            user_obj=self.__user,
                                            controller=self._chats_controller,
@@ -90,11 +88,11 @@ class UserChats:
     def add_dm_chat(self, chat_id: str, friend_id: str):
         fabric = CreateDMChat()
 
-        chat = fabric.create_chat(is_dm=True,
-                                  chat_id=str(chat_id),
+        chat = fabric.create_chat(chat_id=str(chat_id),
                                   friend_id=str(friend_id),
                                   user_obj=self.__user,
-                                  controller=self._chats_controller)
+                                  controller=self._chats_controller,
+                                  is_group=False)
         self._dm_chats.append(chat)
         self._chats_controller.add_view(chat_id, chat)
         return chat
@@ -116,8 +114,7 @@ class UserChats:
 
         dt = datetime.strptime(group['group']['created_at'], "%Y-%m-%dT%H:%M:%S.%fZ")
         dt_formed = dt.strftime("%d.%m.%Y")
-        group = fabric.create_chat(is_dm=False,
-                                   group_id=str(chat_id),
+        group = fabric.create_chat(group_id=str(chat_id),
                                    group_name=group_name,
                                    user_obj=self.__user,
                                    controller=self._chats_controller,
@@ -126,7 +123,8 @@ class UserChats:
                                    is_admin_invite=is_admin_invite,
                                    is_password=is_password,
                                    admin_id=admin_id,
-                                   date_of_creation=dt_formed)
+                                   date_of_creation=dt_formed,
+                                   is_group=False)
         group.group_member_online(str(self.__user.id))
         self._groups.append(group)
         self._chats_controller.add_view(chat_id, group)

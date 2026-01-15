@@ -41,8 +41,14 @@ class GroupsSerializer(serializers.ModelSerializer):
         return group
 
     def update(self, instance, validated_data):
-        password = validated_data.pop('password')
-        instance.password = make_password(password)
+        if 'password' in validated_data:
+            password = validated_data.pop('password')
+            instance.password = make_password(password)
+
+        if not validated_data.get('is_password'):
+            if instance.password is not None:
+                instance.password = None
+
         instance.save()
         super().update(instance, validated_data)
         return instance

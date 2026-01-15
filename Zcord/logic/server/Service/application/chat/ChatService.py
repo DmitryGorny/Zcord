@@ -79,10 +79,10 @@ class ChatService(IChatService):
                                                       'status_instance': self._client_repo.get_client_online_stat(
                                                           request_receiver)
                                                       })
-                chat.create_and_add_member(request_receiver, receiver_nick)
             except KeyError as e:
                 print(e)
         chat = self._chat_repo.get_chat_by_id(group['id'])
+        chat.create_and_add_member(request_receiver, receiver_nick)
         members = chat.get_members()
         members_activity = {}
         for member in members:  # TODO: Оптимизация
@@ -272,6 +272,10 @@ class ChatService(IChatService):
             await self._client_repo.send_message(sender_id, 'SETTINGS-CHANGE-ERROR',
                                                  {'error_name': 'Ошибка', 'chat_id': group_id})
             return
+
+        if not flags.get('password_changed'):
+            new_settings.pop('password')
+
         changed = self._chat_db_repo.change_group_settings(chat['group']['id'], new_settings)
 
         if changed is None:
@@ -295,6 +299,6 @@ class ChatService(IChatService):
 
         if name_changed:
             await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': group_id,
-                                                                                      'user_id': sender_id,
-                                                                                      'type': 'service',
-                                                                                      'service_message': f'Название группы было изменено на {new_settings.get("group_name")}'})
+                                                                                  'user_id': sender_id,
+                                                                                  'type': 'service',
+                                                                                  'service_message': f'Название группы было изменено на {new_settings.get("group_name")}'})

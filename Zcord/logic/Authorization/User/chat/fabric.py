@@ -15,7 +15,7 @@ class ChatFabric(ABC):
 
 class CreateDMChat(ChatFabric):
     def create_chat(self, **kwargs) -> ChatView:
-        return ChatView(kwargs["chat_id"], kwargs["friend_id"], kwargs["user_obj"], kwargs['controller'], kwargs['is_dm'])
+        return ChatView(kwargs["chat_id"], kwargs["friend_id"], kwargs["user_obj"], kwargs['controller'], kwargs['is_group'])
 
 
 class CreateGroupChat(ChatFabric):
@@ -30,7 +30,7 @@ class CreateGroupChat(ChatFabric):
                          kwargs['is_admin_invite'],
                          kwargs['admin_id'],
                          kwargs['date_of_creation'],
-                         kwargs['is_dm'])
+                         kwargs['is_group'])
 
 
 class GroupMemberFabric(ABC):

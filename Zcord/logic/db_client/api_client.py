@@ -7,7 +7,7 @@ class APIClient:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.base_url = "http://127.0.0.1:8000/api"
+            cls._instance.base_url = "http://212.8.227.220:8000/api"
             cls._instance.session = requests.Session()  # Общая сессия
             cls._instance.session.headers.update({
                 'Content-Type': 'application/json',
@@ -206,16 +206,10 @@ class APIClient:
         return self._request('POST', 'groups-members/', json=data)
 
     def search_group_member(self, user_id, group_id):
-        return self._request('GET', f'groups-members/?search={user_id}&group={group_id}')
+        return self._request('GET', f'chats/?search={user_id}&group={group_id}')
 
     def delete_group_member_by_id(self, row_id):
-        return self._request('DELETE', f'groups-members/{row_id}/')
-
-    def patch_member_admin(self, row_id, is_admin):
-        params = {
-            'role': is_admin
-        }
-        return self._request('PATCH', f'groups-members/{row_id}/', json=params)
+        return self._request('DELETE', f'groups-members/{row_id}')
 
     # Работа с чатами
     def get_chats(self, user_id, is_group):
@@ -296,12 +290,3 @@ class APIClient:
             params['password'] = password
 
         return self._request('POST', f'groups/', json=params)
-
-    def patch_admin_id(self, admin_id: int, group_id: int):
-        params = {
-            'user_admin': admin_id
-        }
-        return self._request('PATCH', f'groups/{group_id}/', json=params)
-
-    def patch_group_settings(self, group_id: int, settings: dict[str, bool]):
-        return self._request('PATCH', f'groups/{group_id}/', json=settings)

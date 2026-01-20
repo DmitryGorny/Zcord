@@ -204,7 +204,7 @@ class Runner:
         self._service_server.server_connected(server_name, writer)
 
     async def main(self):
-        IP = "26.181.96.20"
+        IP = "212.8.227.220"
         PORT_FO_USERS = 55558
 
         server_user = await asyncio.start_server(

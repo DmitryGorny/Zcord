@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>GroupRequest</class>
- <widget class="QWidget" name="GroupRequest">
+ <class>GroupInList</class>
+ <widget class="QWidget" name="GroupInList">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
     <width>550</width>
-    <height>164</height>
+    <height>235</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,6 +21,12 @@
      <width>501</width>
      <height>80</height>
     </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>0</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
    </property>
    <property name="minimumSize">
     <size>
@@ -45,7 +51,7 @@ QLabel {
 	color:white;
 }</string>
    </property>
-   <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,1,0">
+   <layout class="QHBoxLayout" name="horizontalLayout" stretch="3,0">
     <property name="rightMargin">
      <number>40</number>
     </property>
@@ -91,21 +97,58 @@ text-align:center;
         </widget>
        </item>
        <item>
-        <widget class="QLabel" name="GroupName">
-         <property name="styleSheet">
-          <string notr="true">font-size:20px;
+        <layout class="QGridLayout" name="gridLayout">
+         <item row="1" column="0">
+          <widget class="QLabel" name="label">
+           <property name="styleSheet">
+            <string notr="true">font-size:16px;
 color:white;</string>
-         </property>
-         <property name="text">
-          <string>Имя пользователя</string>
-         </property>
-        </widget>
+           </property>
+           <property name="text">
+            <string>Количество участников:</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QLabel" name="GroupName">
+           <property name="styleSheet">
+            <string notr="true">font-size:16px;
+color:white;</string>
+           </property>
+           <property name="text">
+            <string>Имя пользователя</string>
+           </property>
+          </widget>
+         </item>
+         <item row="1" column="1">
+          <widget class="QLabel" name="number_of_members">
+           <property name="styleSheet">
+            <string notr="true">font-size:16px;
+color:white;</string>
+           </property>
+           <property name="text">
+            <string>0</string>
+           </property>
+          </widget>
+         </item>
+         <item row="0" column="1">
+          <widget class="QPushButton" name="has_password">
+           <property name="text">
+            <string/>
+           </property>
+           <property name="icon">
+            <iconset resource="../res-rec.qrc">
+             <normaloff>:/icons/icon/icons8-password-16.png</normaloff>:/icons/icon/icons8-password-16.png</iconset>
+           </property>
+          </widget>
+         </item>
+        </layout>
        </item>
       </layout>
      </widget>
     </item>
     <item>
-     <widget class="QPushButton" name="accept_request">
+     <widget class="QPushButton" name="join_group">
       <property name="sizePolicy">
        <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
         <horstretch>0</horstretch>
@@ -129,42 +172,7 @@ color:white;</string>
       </property>
       <property name="icon">
        <iconset resource="../res-rec.qrc">
-        <normaloff>:/icons/icon/person_add_46dp_018741_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/person_add_46dp_018741_FILL0_wght400_GRAD0_opsz48.svg</iconset>
-      </property>
-      <property name="iconSize">
-       <size>
-        <width>40</width>
-        <height>40</height>
-       </size>
-      </property>
-     </widget>
-    </item>
-    <item>
-     <widget class="QPushButton" name="decline_request">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>50</width>
-        <height>50</height>
-       </size>
-      </property>
-      <property name="cursor">
-       <cursorShape>PointingHandCursor</cursorShape>
-      </property>
-      <property name="styleSheet">
-       <string notr="true">border:none;</string>
-      </property>
-      <property name="text">
-       <string/>
-      </property>
-      <property name="icon">
-       <iconset resource="../res-rec.qrc">
-        <normaloff>:/icons/icon/person_cancel_46dp_8B1A10_FILL0_wght400_GRAD0_opsz48.svg</normaloff>:/icons/icon/person_cancel_46dp_8B1A10_FILL0_wght400_GRAD0_opsz48.svg</iconset>
+        <normaloff>:/icons/icon/icons8-enter-40.png</normaloff>:/icons/icon/icons8-enter-40.png</iconset>
       </property>
       <property name="iconSize">
        <size>

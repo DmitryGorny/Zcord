@@ -92,7 +92,10 @@ class FriendService(IFriendService):
         self._friend_repo.change_friendship_status(friend_id, sender_id, '2')
 
         # Добавление чата
-        self._chat_repo.add_chat(str(friendship['id']), [str(friend_id), str(sender_id)])
+        self._chat_repo.add_chat(str(friendship['id']), [{'user_id': str(friend_id),
+                                                          'nickname': friend['nickname']},
+                                                         {'user_id': str(sender_id),
+                                                         'nickname': sender['nickname']}])
 
         # Рассылка нового статуса онлайна
         await self._client_repo.change_client_activity_status(client_id=sender_id,

@@ -3,6 +3,7 @@ from typing import Dict
 from PyQt6 import QtWidgets
 
 from logic.Main.Groups.GroupsCreate.GroupsCreateController import GroupsCreateController
+from logic.Main.Groups.GroupsList.GroupListController import GroupListController
 from logic.Main.Groups.GroupsListRequestsQt import Ui_Groups_page
 from logic.Main.Groups.GroupsRequests.GroupRequestsController import GroupRequestsController
 
@@ -18,9 +19,11 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
 
         self._requests_controller = self._init_requests_controller()
         self._create_group_controller = self._init_create_groups_controller()
+        self._group_list_controller = self._init_group_list_controller()
 
         self._ui.requests_button.clicked.connect(self._select_requests_page)
         self._ui.create_group.clicked.connect(self._select_create_group_page)
+        self._ui.groups_list.clicked.connect(self._select_list_page)
 
         self._ui.groups_alert.setHidden(True)
 
@@ -40,6 +43,12 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
         self._ui.stackedWidget.addWidget(controller.get_widget())
         return controller
 
+    def _init_group_list_controller(self) -> GroupListController:
+        controller = GroupListController(self._user.id, self._user.getNickName())
+        self._pages['list'] = controller.get_widget()
+        self._ui.stackedWidget.addWidget(controller.get_widget())
+        return controller
+
     def _select_create_group_page(self) -> None:
         self._create_group_controller.reload_page()
         self._ui.stackedWidget.setCurrentWidget(self._pages['create'])
@@ -47,6 +56,9 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
     def _select_requests_page(self) -> None:
         self._requests_controller.reload_page()
         self._ui.stackedWidget.setCurrentWidget(self._pages['requests'])
+
+    def _select_list_page(self) -> None:
+        self._ui.stackedWidget.setCurrentWidget(self._pages['list'])
 
     def group_was_created(self) -> None:
         self._create_group_controller.group_created()

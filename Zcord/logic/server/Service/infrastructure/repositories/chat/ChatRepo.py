@@ -16,7 +16,7 @@ class ChatRepo(IChatRepo):
 
         chat = Chat(chat_id)
         for friend_id in friends_id:
-            chat.add_member(ChatMember(str(friend_id['member_id']), friend_id['member_nickname']))
+            chat.add_member(ChatMember(str(friend_id['user_id']), friend_id['nickname']))
 
         self._chats[chat_id] = chat
 
@@ -37,5 +37,5 @@ class ChatRepo(IChatRepo):
         return chats
 
     def get_chat_by_id(self, chat_id: str):
-        return self._chats[str(chat_id)]
+        return self._chats.get(str(chat_id), None)
 

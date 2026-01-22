@@ -147,10 +147,10 @@ class UserChats:
         """Поочередно возвращает атрибуты каждого класса"""
         for chat in self._dm_chats:
             yield {"chat_id": chat.chat_id, "nickname": chat.getNickName(),
-                   'friends_id': [{'member_id': chat.friend_id,
-                                   'member_nickname': chat.getNickName()},
-                                  {'member_id': self.__user.id,
-                                   'member_nickname': self.__user.getNickName()}],
+                   'friends_id': [{'user_id': chat.friend_id,
+                                   'nickname': chat.getNickName()},
+                                  {'user_id': self.__user.id,
+                                   'nickname': self.__user.getNickName()}],
                    'is_dm': True}
 
         for group in self._groups:

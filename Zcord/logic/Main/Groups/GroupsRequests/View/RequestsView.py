@@ -44,10 +44,6 @@ class RequestsView(QtWidgets.QWidget):
 
         self._requests_widgets: Dict[str, RequestWidget] = {}
 
-        self._ui.group_request.setSpacing(10)
-        self._ui.group_request.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
-        self._ui.group_request.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
-
     def add_request(self, group_id: str, group_name: str, request_id: str) -> None:
         request = RequestWidget(group_name=group_name, group_id=group_id)
         request.connect_accept_requests(lambda: self.request_accepted_model.emit(str(group_id), str(request_id)))

@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>Groups_List</class>
+ <widget class="QWidget" name="Groups_List">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>771</width>
+    <height>818</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Form</string>
+  </property>
+  <widget class="QFrame" name="Column">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>60</y>
+     <width>741</width>
+     <height>661</height>
+    </rect>
+   </property>
+   <property name="sizePolicy">
+    <sizepolicy hsizetype="Fixed" vsizetype="Preferred">
+     <horstretch>10</horstretch>
+     <verstretch>0</verstretch>
+    </sizepolicy>
+   </property>
+   <property name="minimumSize">
+    <size>
+     <width>50</width>
+     <height>50</height>
+    </size>
+   </property>
+   <property name="styleSheet">
+    <string notr="true">background-color:rgba(16,19,23,255);</string>
+   </property>
+   <layout class="QVBoxLayout" name="verticalLayout_2" stretch="4">
+    <property name="spacing">
+     <number>0</number>
+    </property>
+    <property name="leftMargin">
+     <number>0</number>
+    </property>
+    <property name="topMargin">
+     <number>0</number>
+    </property>
+    <property name="rightMargin">
+     <number>0</number>
+    </property>
+    <property name="bottomMargin">
+     <number>0</number>
+    </property>
+    <item>
+     <widget class="QFrame" name="groups_layout">
+      <property name="styleSheet">
+       <string notr="true">QListWidget {
+background:transparent;
+border:none;
+}
+
+
+QListWidget::item
+{
+    background:none; 
+}
+QListWidget::item:selected
+{
+    background: none;
+}
+
+QScrollBar:vertical {
+           border:none;
+            width:10px;
+             height:20px;
+                                                            
+  }
+                                                        
+ QScrollBar::up-arrow:vertical, QScrollBar::down-arrow:vertical
+ {
+         heigth:0;
+ }
+QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical
+ {
+               background: none;
+ }
+  QScrollBar::add-line:vertical {
+               height: 0px;
+  }
+ QScrollBar::sub-line:vertical {
+ 				height: 0px;
+ }
+QScrollBar::handle:vertical {
+               background: orange;
+                min-height:10px;
+                 border-radius: 5px;
+ }</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <property name="spacing">
+        <number>7</number>
+       </property>
+       <property name="leftMargin">
+        <number>15</number>
+       </property>
+       <property name="topMargin">
+        <number>20</number>
+       </property>
+       <property name="rightMargin">
+        <number>15</number>
+       </property>
+       <property name="bottomMargin">
+        <number>15</number>
+       </property>
+       <item alignment="Qt::AlignLeft">
+        <widget class="QPushButton" name="groups">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>80</width>
+           <height>30</height>
+          </size>
+         </property>
+         <property name="cursor">
+          <cursorShape>PointingHandCursor</cursorShape>
+         </property>
+         <property name="styleSheet">
+          <string notr="true"> QPushButton {
+border:1px solid orange;
+border-radius:15%;
+background-color:orange;
+color:white;
+font-size:16px;
+padding:5px;
+}
+
+QPushButton:hover {
+	background-color: rgba(255, 211, 121, 200);
+	border:1px solid rgba(255, 211, 121, 200);
+}</string>
+         </property>
+         <property name="text">
+          <string>Обновить</string>
+         </property>
+         <property name="icon">
+          <iconset resource="../res-rec.qrc">
+           <normaloff>:/icons/icon/icons8-refresh-20.png</normaloff>:/icons/icon/icons8-refresh-20.png</iconset>
+         </property>
+         <property name="iconSize">
+          <size>
+           <width>20</width>
+           <height>20</height>
+          </size>
+         </property>
+        </widget>
+       </item>
+       <item alignment="Qt::AlignHCenter">
+        <widget class="QListWidget" name="group_request">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Expanding">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
+         <property name="minimumSize">
+          <size>
+           <width>500</width>
+           <height>0</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QListWidget {
+border:1px solid rgba(38,40,45,255);
+border-left:none;
+border-right:none;
+border-top:none;
+}
+
+</string>
+         </property>
+         <property name="verticalScrollBarPolicy">
+          <enum>Qt::ScrollBarAsNeeded</enum>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+   </layout>
+  </widget>
+ </widget>
+ <resources>
+  <include location="../res-rec.qrc"/>
+ </resources>
+ <connections/>
+</ui>

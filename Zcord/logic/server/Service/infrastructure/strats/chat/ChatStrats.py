@@ -58,6 +58,21 @@ class GroupRequestAcceptStrat(ChatStrategyKeeper, IServiceStrat):
                                            receiver_nick=nickname)
 
 
+class JoinGroupStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "JOIN-GROUP"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        user_id = str(msg['user_id'])
+        group_id = str(msg['group_id'])
+        nickname = str(msg['nickname'])
+        await self._service.add_user_group(request_receiver=user_id,
+                                           group_id=group_id,
+                                           receiver_nick=nickname)
+
+
 class UserLeftGroupStrat(ChatStrategyKeeper, IServiceStrat):
     command_name = "USER-LEFT-GROUP"
 

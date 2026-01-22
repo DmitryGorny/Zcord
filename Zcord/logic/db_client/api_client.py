@@ -283,6 +283,9 @@ class APIClient:
     def check_unique_group_name(self, group_name):
         return self._request('GET', f'groups/groups-name-unique/?group_name={group_name}')
 
+    def get_groups(self):
+        return self._request('GET', f'groups/')
+
     def create_group(self, group_name, is_private, is_invite_from_admin, is_password, admin_id, password=None):
         params = {
             'group_name': group_name,

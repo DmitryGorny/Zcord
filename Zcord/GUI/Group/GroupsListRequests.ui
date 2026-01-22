@@ -224,7 +224,7 @@ text-align: center; </string>
           </widget>
          </item>
          <item>
-          <widget class="QPushButton" name="friends">
+          <widget class="QPushButton" name="groups_list">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
              <horstretch>0</horstretch>

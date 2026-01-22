@@ -102,7 +102,7 @@ class ChatMember(IChatMember):
         return self._username
 
 
-class Chat(IChat):  # TODO: Проверить добавляются ли Friend в группу
+class Chat(IChat):
     def __init__(self, chat_id: str):
         self._chat_id = chat_id
 
@@ -148,7 +148,7 @@ class Chat(IChat):  # TODO: Проверить добавляются ли Frien
 
     def delete_voice_member_by_id(self, user_id: str) -> None:
         for friend in self._current_voice_members:
-            if friend.id == user_id:
+            if friend.user_id == user_id:
                 self._current_voice_members.remove(friend)
                 return
 

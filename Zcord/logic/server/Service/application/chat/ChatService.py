@@ -63,34 +63,39 @@ class ChatService(IChatService):
             self._chat_db_repo.delete_group_request(int(request_id))
 
         group = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]
-        for user in group['group']['users']:
-            if user['user_id'] == request_receiver:
-                continue
-            try:
-                chat = self._chat_repo.get_chat_by_id(group['id'])
-                await self._client_repo.send_message(str(user['user_id']), 'USER-JOINED-GROUP',
-                                                     {'user_id': request_receiver,
-                                                      'group_id': group['id'],
-                                                      'group_name': group['group']["group_name"],
-                                                      'is_private': group['group']['is_private'],
-                                                      'is_password': group['group']['is_password'],
-                                                      'is_admin_invite': group['group']['is_invite_from_admin'],
-                                                      'admin_id': group['group']['user_admin'],
-                                                      'status_instance': self._client_repo.get_client_online_stat(
-                                                          request_receiver)
-                                                      })
-            except KeyError as e:
-                print(e)
-        chat = self._chat_repo.get_chat_by_id(group['id'])
+
+        members_activity = {}
+        chat = self._chat_repo.get_chat_by_id(str(group['id']))
+        if chat is None:
+            chat_created = await self._init_group_by_inner_id(group_id, request_receiver)
+            if not chat_created:
+                print('[ChatService] Chat wasnt created')
+                return
+            chat = self._chat_repo.get_chat_by_id(str(group['id']))
+
         chat.create_and_add_member(request_receiver, receiver_nick)
         members = chat.get_members()
-        members_activity = {}
-        for member in members:  # TODO: Оптимизация
+        for member in members:
             client_status = self._client_repo.get_client_online_stat(client_id=member.user_id)
             if client_status is None:
                 members_activity[member.user_id] = 'hidden'
                 continue
             members_activity[member.user_id] = client_status['status_instance']
+
+            if member.user_id == request_receiver:
+                continue
+
+            await self._client_repo.send_message(str(member.user_id), 'USER-JOINED-GROUP',
+                                                 {'user_id': request_receiver,
+                                                  'group_id': group['id'],
+                                                  'group_name': group['group']["group_name"],
+                                                  'is_private': group['group']['is_private'],
+                                                  'is_password': group['group']['is_password'],
+                                                  'is_admin_invite': group['group']['is_invite_from_admin'],
+                                                  'admin_id': group['group']['user_admin'],
+                                                  'status_instance': self._client_repo.get_client_online_stat(
+                                                      request_receiver)
+                                                  })
 
         await self._client_repo.send_message(request_receiver, 'USER-JOINED-GROUP',
                                              {'user_id': request_receiver,
@@ -302,3 +307,14 @@ class ChatService(IChatService):
                                                                                   'user_id': sender_id,
                                                                                   'type': 'service',
                                                                                   'service_message': f'Название группы было изменено на {new_settings.get("group_name")}'})
+
+    async def _init_group_by_inner_id(self, group_id: str, user_id: str) -> bool:
+        try:
+            group = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]
+        except KeyError as e:
+            print('[ChatService] {}'.format(e))
+            return False
+        self._chat_repo.add_chat(str(group['id']), group['group']['users'])
+        await self._msg_server_communication.send_msg_server("INIT-CHAT", {"users_id": [user_id],
+                                                                           "chat_id": group['id']})
+        return True

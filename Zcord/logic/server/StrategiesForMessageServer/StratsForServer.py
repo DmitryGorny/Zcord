@@ -326,6 +326,22 @@ class AddNewFriendStrat(MessageStrategy):
         self._messageRoom_pointer.unseen_messages.add_user(chat_id, sender_id)
 
 
+class InitChatStrat(MessageStrategy):
+    command_name = "INIT-CHAT"
+
+    def __init__(self):
+        super(InitChatStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        users_id: list[str] = msg["users_id"]
+        chat_id = str(msg["chat_id"])
+
+        self._messageRoom_pointer.ids_in_chats[chat_id] = []
+        self._messageRoom_pointer.cache_chat.init_cache(chat_id)
+        for user_id in users_id:
+            self._messageRoom_pointer.unseen_messages.add_user(chat_id, user_id)
+
+
 class DeleteFriendStrat(MessageStrategy):
     command_name = "DELETE-FRIEND"
 

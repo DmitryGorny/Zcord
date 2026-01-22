@@ -30,7 +30,7 @@ class GroupMember:
         self._is_admin = val
 
     def get_props(self) -> dict[str]:
-        return {'member_id': self._id, 'member_nickname': self._nickname}
+        return {'user_id': self._id, 'nickname': self._nickname}
 
     def __str__(self):
         return f'{self.user_id}'

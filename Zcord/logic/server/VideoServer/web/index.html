@@ -11,58 +11,109 @@
 </head>
 <body>
   <h2>WebRTC P2P</h2>
-  <video id="localVideo" autoplay playsinline muted></video>
-  <video id="remoteVideo" autoplay playsinline></video>
-  <br>
+  <div id="videos" style="display: flex; flex-wrap: wrap; justify-content: center;">
+        <video id="localVideo" autoplay playsinline muted></video>
+  </div>
   <button id="shareScreen">Поделиться экраном</button>
   <button id="unshareScreen">Перестать делится экраном</button>
   <script>
+    const peers = {};   // peerId -> RTCPeerConnection
+    const videos = {};  // peerId -> HTMLVideoElement
+
     const room = prompt("Введите имя комнаты:", "testroom") || "default";
     const ws = new WebSocket(`ws://localhost:8080/ws?room=${room}`);
     const localVideo = document.getElementById("localVideo");
-    const remoteVideo = document.getElementById("remoteVideo");
 
-    let pc = null;
     let localStream = null;
+
+    async function createPeerConnection(peerId) {
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      peers[peerId] = pc;
+
+      // локальные треки
+      if (!localStream) {
+          localStream = createBlackStream();
+          localVideo.srcObject = null;
+      }
+
+      localStream.getTracks().forEach(track =>
+        pc.addTrack(track, localStream)
+       );
+
+      pc.ontrack = (event) => {
+        const video = videos[peerId] || createRemoteVideo(peerId);
+        video.srcObject = event.streams[0];
+      };
+
+      pc.onicecandidate = (event) => {
+        if (event.candidate) {
+          ws.send(JSON.stringify({
+            type: "candidate",
+            target: peerId,
+            candidate: event.candidate
+          }));
+        }
+      };
+
+      return pc;
+    }
+
+    function replaceVideoTrack(track) {
+      Object.values(peers).forEach(pc => {
+        const sender = pc.getSenders().find(s => s.track?.kind === "video");
+        if (sender) sender.replaceTrack(track);
+      });
+    }
 
     function createBlackStream() {
       const canvas = document.createElement("canvas");
       canvas.width = 640;
-      canvas.height = 480;
+      canvas.height = 320;
       const ctx = canvas.getContext("2d");
       ctx.fillStyle = "black";
       ctx.fillRect(0, 0, canvas.width, canvas.height);
-      const stream = canvas.captureStream(1); // 1 FPS — чтобы не нагружать
-      return stream;
+      return canvas.captureStream(1);  // 1 FPS для производительности
+    }
+
+    function createRemoteVideo(peerId) {
+      const video = document.createElement("video");
+      video.autoplay = true;
+      video.playsInline = true;
+      video.style.width = "45%";
+      video.style.margin = "10px";
+      video.id = `video-${peerId}`;
+
+      document.getElementById("videos").appendChild(video);
+      videos[peerId] = video;
+      return video;
+    }
+
+    function removePeer(peerId) {
+      console.log("Удаляем пира:", peerId);
+
+      if (peers[peerId]) {
+        peers[peerId].close();
+        delete peers[peerId];
+      }
+
+      if (videos[peerId]) {
+        videos[peerId].remove();
+        delete videos[peerId];
+      }
     }
 
     document.getElementById("unshareScreen").addEventListener("click", async () => {
         try {
-            localVideo.srcObject.getTracks().forEach(track => track.stop());
-            const cameraStream = await navigator.mediaDevices.getUserMedia({video: true, audio: true});
-            localVideo.srcObject = cameraStream;
-            // Если есть активное соединение — отправляем поток
-            if (pc) {
-              const sender = pc.getSenders().find(s => s.track.kind === "video");
-              if (sender) {
-                sender.replaceTrack(cameraStream.getVideoTracks()[0]);
-              } else {
-                cameraStream.getTracks().forEach(track => pc.addTrack(track, cameraStream));
-              }
-              localVideo.srcObject = cameraStream;
-            }
-        } catch (err) {
-            console.error("Ошибка при получении камеры:", err);
             const blackStream = createBlackStream();
+            localStream = blackStream;
             localVideo.srcObject = null;
-            const sender = pc.getSenders().find(s => s.track.kind === "video");
-            if (sender) {
-                sender.replaceTrack(blackStream.getVideoTracks()[0]);
-            }
+            replaceVideoTrack(blackStream.getVideoTracks()[0]);
+        } catch (err) {
+            console.error("Ошибка при получении black_stream:", err);
         }
-        const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        ws.send(JSON.stringify(pc.localDescription));
     });
 
     document.getElementById("shareScreen").addEventListener("click", async () => {
@@ -72,91 +123,79 @@
           audio: true
         });
 
+        localStream = screenStream;
         localVideo.srcObject = screenStream;
 
-        // Если есть активное соединение — отправляем поток
-        if (pc) {
-          const sender = pc.getSenders().find(s => s.track.kind === "video");
-          if (sender) {
-            sender.replaceTrack(screenStream.getVideoTracks()[0]);
-          } else {
-            screenStream.getTracks().forEach(track => pc.addTrack(track, screenStream));
-          }
-        }
+        replaceVideoTrack(screenStream.getVideoTracks()[0]);
 
-        screenStream.getVideoTracks()[0].onended = () => {
-          console.log("Пользователь перестал делиться экраном");
+        screenStream.getVideoTracks()[0].onended = async () => {
+          const blackStream = createBlackStream();
+          localStream = blackStream;
+          localVideo.srcObject = null;
+          replaceVideoTrack(blackStream.getVideoTracks()[0]);
         };
       } catch (err) {
         console.error("Ошибка при получении экрана:", err);
       }
-      const offer = await pc.createOffer();
-        await pc.setLocalDescription(offer);
-        ws.send(JSON.stringify(pc.localDescription));
     });
 
-    async function createPeerConnection() {
-      pc = new RTCPeerConnection({
-        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
-      });
-
-      pc.ontrack = (event) => {
-        console.log("Пришёл поток от пира");
-        remoteVideo.srcObject = event.streams[0];
-      };
-
-      pc.onicecandidate = (event) => {
-        if (event.candidate) {
-          ws.send(JSON.stringify({ type: "candidate", candidate: event.candidate }));
-        }
-      };
-      try {
-      if (!localStream) {
-        localStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
-        localVideo.srcObject = localStream;
-        localStream.getTracks().forEach(track => pc.addTrack(track, localStream));
-      }} catch (err) {
-          localVideo.srcObject = null
-      }
-    }
       // Получение сигналов от других клиентов
-      ws.onmessage = async (event) => {
-        const data = JSON.parse(event.data);
-        console.log(data.type);
+    ws.onmessage = async (event) => {
+      const data = JSON.parse(event.data);
+        console.log("WS <-", data.type, data);
+      // новый пользователь
+      if (data.type === "peer-joined") {
+        const pc = await createPeerConnection(data.peerId);
 
-        if (data.type === "offer") {
-          await pc.setRemoteDescription(new RTCSessionDescription(data));
-          const answer = await pc.createAnswer();
-          await pc.setLocalDescription(answer);
-          ws.send(JSON.stringify(pc.localDescription));
+        const offer = await pc.createOffer();
+        await pc.setLocalDescription(offer);
+        console.log("SEND OFFER ->", data.peerId);
+        ws.send(JSON.stringify({
+          type: "offer",
+          target: data.peerId,
+          offer
+        }));
+      }
 
-        } else if (data.type === "answer") {
-          await pc.setRemoteDescription(new RTCSessionDescription(data));
+      // пришёл offer
+      else if (data.type === "offer") {
+        const pc = await createPeerConnection(data.from);
+        await pc.setRemoteDescription(new RTCSessionDescription(data.offer));
+        console.log("SEND ANSWER ->", data.from);
+        const answer = await pc.createAnswer();
+        await pc.setLocalDescription(answer);
+        ws.send(JSON.stringify({
+          type: "answer",
+          target: data.from,
+          answer
+        }));
+      }
 
-        } else if (data.type === "candidate" && data.candidate) {
-          try {
-            await pc.addIceCandidate(data.candidate);
-          } catch (e) {
-            console.error("Ошибка ICE:", e);
-          }
+      // пришёл answer
+      else if (data.type === "answer") {
+        await peers[data.from].setRemoteDescription(
+          new RTCSessionDescription(data.answer)
+        );
+      }
 
-        } else if (data.type === "peer-left") {
-          console.log("Пир вышел — очищаем соединение");
-          remoteVideo.srcObject = null;
+      // ICE
+      else if (data.type === "candidate") {
+        try {
+            const pc = peers[data.from];
 
-          if (pc) {
-            pc.close();
-            pc = null;
-          }
-          await createPeerConnection();
+            if (pc.remoteDescription) {
+              await pc.addIceCandidate(data.candidate);
+            }
+        } catch (e) {
+          console.error("ICE error", e);
         }
-      };
+      }
 
-    ws.onopen = async () => {
-      await createPeerConnection();
-      const offer = await pc.createOffer();
-      await pc.setLocalDescription(offer);
-      ws.send(JSON.stringify(pc.localDescription));
+      // пользователь вышел
+      else if (data.type === "peer-left") {
+          console.log(data)
+        removePeer(data.peerId);
+      }
     };
   </script>
 </body>

@@ -2,7 +2,6 @@ import asyncio
 import socket
 import json
 import struct
-import datetime
 import time
 from dataclasses import dataclass, field
 from typing import Dict, List, Optional
@@ -12,7 +11,7 @@ from typing import Dict, List, Optional
 # 1) Регистрация/вход в комнату:
 #    {"t":"join_room","room":"room1","token":"<uuid>","user":"user1","udp_port":54321}
 #
-# 2) Сервер сообщает о найденном пиро(ах):
+# 2) Сервер сообщает о найденном пире(ах):
 #    {"t":"peer","peers":[{"ip":"1.2.3.4","udp_port":55555},{"ip":"5.6.7.8","udp_port":55556}]}
 #
 # 3) Клиент уходит:
@@ -31,13 +30,14 @@ from typing import Dict, List, Optional
 # Примечание: TCP-соединение само по себе является keep-alive'ом, отдельные UDP keep-alive не нужны.
 
 # ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ ВНИМАНИЕ!!!!!!!!!!!!!
-# В отслыку сообщений на сервисный сервер в словарь добавлена еще и g (Группа), т.к. сейчас сратегии
+# В отсылку сообщений на сервисный сервер в словарь добавлена еще и g (Группа), т.к. сейчас стратегии
 # разделены на группы (CLIENT, CHAT, FRIEND). Тебе, скорее всего, нужны будут только CLIENT
 
 # Пакет: | b'V1' (2) | type (1) | seq (uint32, 4) | user_id | payload...
 PKT_HDR = b"V1"
 PKT_AUDIO = b"A"
 HDR_STRUCT = struct.Struct("!2s1sIQ32s")  # magic, type, seq
+
 
 @dataclass
 class ClientInfo:
@@ -150,15 +150,15 @@ class TcpSignalServer:
             try:
                 writer.close()
                 await writer.wait_closed()
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"[TCP] ошибка {client.addr_str()}: {e}")
             self.client_by_writer.pop(writer, None)
 
     async def handle_message(self, client: ClientInfo, msg: dict):
         typ = msg.get("t")
         if typ == "join_room":
             await self._join_room(client, msg)
-        elif typ == "leave":  # btw информационное сообщение, что с ним делать не ебу, управление всё равно отдаётся finally
+        elif typ == "leave":  # btw информационное сообщение, что с ним делать, управление всё равно отдаётся finally
             print("Клиент сообщил о выходе с сервера")
         elif "mute" in typ:
             await self._mute_msg(typ, client, msg)
@@ -174,13 +174,11 @@ class TcpSignalServer:
     async def _forward_voice_pkt(self, voice_pkt, client):
         lst = self.rooms.get(client.room, [])
 
-        # Пересылаем пакеты всем другим в руме
+        # Пересылаем пакеты всем другим в комнате
         for c in list(lst):
             if c == client:
                 continue
             try:
-                #c.writer.write(voice_pkt)
-                #await c.writer.drain()
                 self.udp_sock.sendto(voice_pkt, (c.ip, c.udp_port))
             except Exception as e:
                 print(f"[UDP] ошибка отправки {c.addr_str()}: {e}")
@@ -224,7 +222,8 @@ class TcpSignalServer:
         print(f"[TCP] {client.addr_str()} присоединился к комнате '{room}', участников={len(lst)}")
 
         await self._send_service_msg(
-            obj={"g": "CLIENT", "t": "__ICON-CALL__", "user_id": client.user_id, "chat_id": room, "username": client.user})
+            obj={"g": "CLIENT", "t": "__ICON-CALL__", "user_id": client.user_id,
+                 "chat_id": room, "username": client.user})
 
     async def _leave_room(self, client: ClientInfo):
         if not client.room:
@@ -236,12 +235,13 @@ class TcpSignalServer:
             lst.remove(client)
             print(f"[TCP] {client.addr_str()} вышел из комнаты '{room}', участников={len(lst)}")
 
-            await self._send_service_msg(obj={"g": "CLIENT", "t": "__LEFT-ICON-CALL__", "user_id": client.user_id, "chat_id": room})
+            await self._send_service_msg(obj={"g": "CLIENT", "t": "__LEFT-ICON-CALL__",
+                                              "user_id": client.user_id, "chat_id": room})
             await self._broadcast_room(room, {"t": "peer_left", "client": client.to_dict()}, skip=client)
         token = client.token
         self.client_by_token.pop(token, None)
 
-        # чистка комнаты если пустая TODO: Не знаю нужно ли??
+        # чистка комнаты если пустая
         if not lst:
             self.rooms.pop(room, None)
         client.room = None
@@ -310,7 +310,7 @@ class TcpSignalServer:
 
 
 async def main():
-    HOST = "212.8.227.220"
+    HOST = "26.36.124.241"
     srv = TcpSignalServer()
     await asyncio.gather(
         srv.serve(HOST, 55559),

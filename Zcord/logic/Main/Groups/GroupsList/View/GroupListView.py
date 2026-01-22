@@ -11,6 +11,7 @@ from logic.Main.miniProfile.MiniProfile import Overlay
 class GroupListView(QWidget):
     join_group_model = pyqtSignal(str, bool)
     send_password_model = pyqtSignal(str, str)
+    find_group_model = pyqtSignal(str)
 
     def __init__(self):
         super(GroupListView, self).__init__()
@@ -33,6 +34,13 @@ class GroupListView(QWidget):
         self._ui.group_request.setFocusPolicy(QtCore.Qt.FocusPolicy.NoFocus)
         self._ui.group_request.setSelectionMode(QtWidgets.QListWidget.SelectionMode.NoSelection)
 
+        self._ui.Search_button.clicked.connect(self.find_group)
+
+    def find_group(self):
+        text = self._ui.search_group_input.text().strip()
+        if len(text) != 0:
+            self.find_group_model.emit(text)
+
     def add_group(self, group_id: str, group_name: str, number_of_members: str, is_password: bool) -> None:
         group = GroupInList(group_name=group_name, number_of_members=number_of_members, is_password=is_password)
         group.connect_signal(lambda: self.join_group_model.emit(group_id, is_password))
@@ -43,20 +51,24 @@ class GroupListView(QWidget):
         self._ui.group_request.setItemWidget(item, group.get_widget())
         group.widget = item
 
-        if group_id not in self._groups.keys():
-            self._groups[group_id] = group
+        if group_id in self._groups.keys():
+            self.remove_group(group_id)
+        self._groups[group_id] = group
 
     def remove_group(self, group_id: str) -> None:
-        if group_id not in self._groups.keys():
+        if group_id not in self._groups:
             return
 
-        widget = self._groups[group_id]
+        item = self._groups[group_id].widget
 
-        item = widget.widget
-        widget = self._ui.group_request.itemWidget(item)
-        self._ui.group_request.removeItemWidget(item)
+        row = self._ui.group_request.row(item)
+        taken_item = self._ui.group_request.takeItem(row)
+
+        widget = self._ui.group_request.itemWidget(taken_item)
         if widget:
             widget.deleteLater()
+
+        del taken_item
         del self._groups[group_id]
 
     def show_password_dialog(self, group_id: str):

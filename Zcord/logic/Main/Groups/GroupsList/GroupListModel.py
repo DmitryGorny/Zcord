@@ -16,16 +16,18 @@ class GroupListModel(QObject):
         self._user_nickname = user_nickname
         self._api_client = APIClient()
 
-    def get_groups(self) -> None:
-        groups = self._api_client.get_groups()
-        for group in groups:
-            try:
-                next(filter(lambda x: x.get('user_id') == str(self._user_id), group.get("users")))
-            except StopIteration:
-                self.add_group_view.emit(str(group.get('id')),
-                                         group.get('group_name'),
-                                         str(len(group.get('users'))),
-                                         group.get('is_password'))
+    def get_group(self, group_name: str) -> None:
+        try:
+            ClientConnections.send_service_message(group='CHAT', msg_type='FIND-GROUP',
+                                                   extra_data={'group_name': group_name})
+        except Exception as e:
+            print('[GroupListModel] {}'.format(e))
+
+    def show_group(self, group_id: str, group_name: str, users_number: str, is_password: bool):
+        self.add_group_view.emit(group_id,
+                                 group_name,
+                                 users_number,
+                                 is_password)
 
     def join_group(self, group_id: str, is_password: bool) -> None:
         if is_password:

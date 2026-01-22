@@ -301,3 +301,13 @@ class GroupsView(viewsets.ModelViewSet):
         exists = Groups.objects.filter(group_name=group_name).exists()
         return Response({"unique": not exists})
 
+    @action(detail=False, methods=['get'], url_path="groups-by-name/")
+    def retrieve_by_name(self, request):
+        group_name = request.query_params.get('group_name')
+        group = Groups.objects.filter(group_name=group_name).first()
+        if group is None:
+            return Response({"error": "group_name param required"}, status=400)
+
+        serializer = self.get_serializer(group)
+        return Response(serializer.data)
+

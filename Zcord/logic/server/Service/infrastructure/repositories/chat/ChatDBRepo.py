@@ -57,3 +57,5 @@ class ChatDBRepo(IChatDBRepo):
     def change_group_settings(self, group_id: int, settings: dict[str, bool]) -> None | dict:
         return self._api_client.patch_group_settings(group_id, settings)
 
+    def get_group_by_name(self, group_name: str) -> dict:
+        return self._api_client.get_group_by_name(group_name)

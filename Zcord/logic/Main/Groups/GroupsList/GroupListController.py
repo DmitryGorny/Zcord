@@ -13,9 +13,11 @@ class GroupListController:
 
         self._view.send_password_model.connect(self._model.send_password)
         self._view.join_group_model.connect(self._model.join_group)
-
-        self._model.get_groups()
+        self._view.find_group_model.connect(self._model.get_group)
 
     def get_widget(self):
         return self._view.get_widget()
+
+    def group_was_found(self, group_id: str, group_name: str, users_number: str, is_password: bool) -> None:
+        self._model.show_group(group_id, group_name, users_number, is_password)
 

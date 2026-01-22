@@ -80,3 +80,6 @@ class GroupsListRequestWidget(QtWidgets.QWidget):
             return True
         self._ui.groups_alert.setHidden(True)
         return False
+
+    def group_was_found(self, group_id: str, group_name: str, users_number: str, is_password: bool) -> None:
+        self._group_list_controller.group_was_found(group_id, group_name, users_number, is_password)

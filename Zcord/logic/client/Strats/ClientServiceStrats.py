@@ -264,6 +264,23 @@ class UserJoinedGroupStrat(ClientsStrategies):
                                                                       'status': status})
 
 
+class GroupFoundStrat(ClientsStrategies):
+    header_name = "GROUP-FOUND"
+
+    def __init__(self):
+        super(GroupFoundStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['chat_id'])
+        group_name = msg['group_name']
+        users_number = msg['users_number']
+        is_password = msg['is_password']
+        self.service_connection_pointer.call_main_dynamic_update('GROUP-FOUND', {'group_id': group_id,
+                                                                                 'group_name': group_name,
+                                                                                 'users_number': users_number,
+                                                                                 'is_password': is_password})
+
+
 class GroupCreatedStrat(ClientsStrategies):
     header_name = "GROUP-CREATED-SUCCESS"
 

@@ -308,6 +308,20 @@ class ChatService(IChatService):
                                                                                   'type': 'service',
                                                                                   'service_message': f'Название группы было изменено на {new_settings.get("group_name")}'})
 
+    async def find_group(self, group_name: str, user_id: str) -> None:
+        group = self._chat_db_repo.get_group_by_name(group_name)
+        if 'error' in group.keys() or group.get('is_private'):
+            return # TODO: Вернуть сообщение клиенту об отсутсвии искомой группы
+
+        try:
+            next(filter(lambda x: x.get('user_id') == user_id, group.get('users')))
+        except StopIteration:
+            await self._client_repo.send_message(user_id, 'GROUP-FOUND',
+                                                 extra_data={'chat_id': str(group.get('id')),
+                                                             'group_name': group.get('group_name'),
+                                                             'users_number': str(len(group.get('users'))),
+                                                             'is_password': group.get('is_password')})
+
     async def _init_group_by_inner_id(self, group_id: str, user_id: str) -> bool:
         try:
             group = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]

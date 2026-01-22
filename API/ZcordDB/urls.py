@@ -105,5 +105,8 @@ urlpatterns = [
     }), name='groups-detail'),
     path('groups/groups-name-unique/', GroupsView.as_view({
         'get': 'check_name',
-    }), name='groups-name-unique')
+    }), name='groups-name-unique'),
+    path('groups/groups-by-name/', GroupsView.as_view({
+        'get': 'retrieve_by_name',
+    }), name='groups-by-name')
 ]

@@ -7,7 +7,7 @@ class APIClient:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.base_url = "http://212.8.227.220:8000/api"
+            cls._instance.base_url = "http://127.0.0.1:8000/api"
             cls._instance.session = requests.Session()  # Общая сессия
             cls._instance.session.headers.update({
                 'Content-Type': 'application/json',
@@ -293,3 +293,6 @@ class APIClient:
             params['password'] = password
 
         return self._request('POST', f'groups/', json=params)
+
+    def get_group_by_name(self, group_name):
+        return self._request('GET', f'groups/groups-by-name/?group_name={group_name}')

@@ -48,3 +48,6 @@ class IChatDBRepo(Protocol):
     def change_group_settings(self, group_id: int, settings: dict[str, bool]) -> None | dict:
         raise NotImplementedError
 
+    def get_group_by_name(self, group_name: str) -> dict:
+        raise NotImplementedError
+

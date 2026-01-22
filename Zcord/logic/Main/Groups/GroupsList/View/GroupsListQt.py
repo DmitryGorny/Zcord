@@ -74,33 +74,61 @@ class Ui_Groups_List(object):
         self.verticalLayout_3.setContentsMargins(15, 20, 15, 15)
         self.verticalLayout_3.setSpacing(7)
         self.verticalLayout_3.setObjectName("verticalLayout_3")
-        self.groups = QtWidgets.QPushButton(parent=self.groups_layout)
+        self.horizontalFrame = QtWidgets.QFrame(parent=self.groups_layout)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Preferred)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.horizontalFrame.sizePolicy().hasHeightForWidth())
+        self.horizontalFrame.setSizePolicy(sizePolicy)
+        self.horizontalFrame.setObjectName("horizontalFrame")
+        self.horizontalLayout = QtWidgets.QHBoxLayout(self.horizontalFrame)
+        self.horizontalLayout.setObjectName("horizontalLayout")
+        self.search_group_input = QtWidgets.QLineEdit(parent=self.horizontalFrame)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.groups.sizePolicy().hasHeightForWidth())
-        self.groups.setSizePolicy(sizePolicy)
-        self.groups.setMinimumSize(QtCore.QSize(80, 30))
-        self.groups.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
-        self.groups.setStyleSheet(" QPushButton {\n"
-"border:1px solid orange;\n"
-"border-radius:15%;\n"
-"background-color:orange;\n"
-"color:white;\n"
-"font-size:16px;\n"
-"padding:5px;\n"
+        sizePolicy.setHeightForWidth(self.search_group_input.sizePolicy().hasHeightForWidth())
+        self.search_group_input.setSizePolicy(sizePolicy)
+        self.search_group_input.setMinimumSize(QtCore.QSize(450, 50))
+        self.search_group_input.setStyleSheet("QLineEdit{ \n"
+"width:250px;\n"
+"height:30px;\n"
+"border: 2px solid #323338;\n"
+"border-radius: 10px;\n"
+"background-color:#1e1f22;\n"
+"font-size:18px;\n"
+"color:#808994;\n"
+"text-align:left;\n"
+"padding-left:27px;\n"
 "}\n"
 "\n"
-"QPushButton:hover {\n"
-"    background-color: rgba(255, 211, 121, 200);\n"
-"    border:1px solid rgba(255, 211, 121, 200);\n"
-"}")
+"")
+        self.search_group_input.setInputMask("")
+        self.search_group_input.setText("")
+        self.search_group_input.setMaxLength(50)
+        self.search_group_input.setObjectName("search_group_input")
+        self.horizontalLayout.addWidget(self.search_group_input, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
+        self.Search_button = QtWidgets.QPushButton(parent=self.horizontalFrame)
+        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Fixed)
+        sizePolicy.setHorizontalStretch(0)
+        sizePolicy.setVerticalStretch(0)
+        sizePolicy.setHeightForWidth(self.Search_button.sizePolicy().hasHeightForWidth())
+        self.Search_button.setSizePolicy(sizePolicy)
+        self.Search_button.setMinimumSize(QtCore.QSize(50, 50))
+        self.Search_button.setMaximumSize(QtCore.QSize(50, 50))
+        self.Search_button.setCursor(QtGui.QCursor(QtCore.Qt.CursorShape.PointingHandCursor))
+        self.Search_button.setStyleSheet("background-color:rgba(38,40,45,255);\n"
+"border:none;\n"
+"border-radius:15%;\n"
+"border:3px solid white;")
+        self.Search_button.setText("")
         icon = QtGui.QIcon()
-        icon.addPixmap(QtGui.QPixmap("GUI/icon/icons8-refresh-20.png"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
-        self.groups.setIcon(icon)
-        self.groups.setIconSize(QtCore.QSize(20, 20))
-        self.groups.setObjectName("groups")
-        self.verticalLayout_3.addWidget(self.groups, 0, QtCore.Qt.AlignmentFlag.AlignLeft)
+        icon.addPixmap(QtGui.QPixmap("GUI/icon/search_53dp_E3E3E3_FILL0_wght400_GRAD0_opsz48.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        self.Search_button.setIcon(icon)
+        self.Search_button.setIconSize(QtCore.QSize(35, 35))
+        self.Search_button.setObjectName("Search_button")
+        self.horizontalLayout.addWidget(self.Search_button)
+        self.verticalLayout_3.addWidget(self.horizontalFrame, 0, QtCore.Qt.AlignmentFlag.AlignHCenter)
         self.group_request = QtWidgets.QListWidget(parent=self.groups_layout)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Policy.Fixed, QtWidgets.QSizePolicy.Policy.Expanding)
         sizePolicy.setHorizontalStretch(0)
@@ -128,4 +156,4 @@ class Ui_Groups_List(object):
     def retranslateUi(self, Groups_List):
         _translate = QtCore.QCoreApplication.translate
         Groups_List.setWindowTitle(_translate("Groups_List", "Form"))
-        self.groups.setText(_translate("Groups_List", "Обновить"))
+        self.search_group_input.setPlaceholderText(_translate("Groups_List", "Название группы"))

@@ -530,6 +530,11 @@ class MainWindow(FramelessWindow):
                 for chat in self._groups_options:
                     if chat.id == args['chat_id']:
                         chat.change_group_name(args['new_name'])
+            case "GROUP-FOUND":
+                self._groups.group_was_found(args.get('group_id'),
+                                             args.get('group_name'),
+                                             args.get('users_number'),
+                                             args.get('is_password'))
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

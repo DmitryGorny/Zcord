@@ -19,12 +19,26 @@
   <script>
     const peers = {};   // peerId -> RTCPeerConnection
     const videos = {};  // peerId -> HTMLVideoElement
-
-    const room = prompt("Введите имя комнаты:", "testroom") || "default";
-    const ws = new WebSocket(`ws://localhost:8080/ws?room=${room}`);
     const localVideo = document.getElementById("localVideo");
 
+    let ws = null;
+    let currentRoom = null;
     let localStream = null;
+
+    function connect(room = null) {
+      let url;
+      if (room) {
+          url = `ws://localhost:8080/ws?room=${room}`;
+      }
+      else {
+          url = `ws://localhost:8080/ws`;
+      }
+
+      console.log("WS connect:", url);
+      ws = new WebSocket(url);
+
+      ws.onmessage = onWsMessage;
+    }
 
     async function createPeerConnection(peerId) {
       const pc = new RTCPeerConnection({
@@ -139,10 +153,24 @@
       }
     });
 
-      // Получение сигналов от других клиентов
-    ws.onmessage = async (event) => {
+    async function onWsMessage(event) {
       const data = JSON.parse(event.data);
-        console.log("WS <-", data.type, data);
+      console.log("WS <-", data.type, data);
+
+      if (data.type === "assign-room") {
+        if (currentRoom === data.room) return;
+
+        console.log("Assigned room:", data.room);
+        currentRoom = data.room;
+
+        ws.close();
+        connect(currentRoom);
+        return;
+      }
+
+      // пока room не подтверждён — ничего не делаем
+      if (!currentRoom) return;
+
       // новый пользователь
       if (data.type === "peer-joined") {
         const pc = await createPeerConnection(data.peerId);
@@ -196,7 +224,11 @@
           console.log(data)
         removePeer(data.peerId);
       }
-    };
+
+      else if (data.type === "tcp-message") {
+        console.log("TCP → Browser:", data.payload);
+      }
+    }
   </script>
 </body>
 </html>

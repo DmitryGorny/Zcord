@@ -38,6 +38,14 @@ class ChatModel:
             print('[MembersColumnModel] {}'.format(e))
             return
 
+    def assign_room(self, chat_id: str):
+        try:
+            ClientConnections.send_service_message(group='CHAT', msg_type='ASSIGN-VIDEO-ROOM',
+                                                   extra_data={'chat_id': chat_id})
+        except Exception as e:
+            print('[AssignRoomModel] {}'.format(e))
+            return
+
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id, is_group):
         """Запуск звонка - синхронный вызов"""

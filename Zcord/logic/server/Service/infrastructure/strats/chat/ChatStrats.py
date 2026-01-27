@@ -146,3 +146,16 @@ class ChangeGroupSettingsStrat(ChatStrategyKeeper, IServiceStrat):
         flags = json.loads(msg['flags'])
 
         await self._service.change_group_settings(sender_id=sender_id, new_settings=new_settings, group_id=group_id, flags=flags)
+
+
+class AssignVideoRoomStrat(ChatStrategyKeeper, IServiceStrat):
+    command_name = "ASSIGN-VIDEO-ROOM"
+
+    def __init__(self):
+        super().__init__()
+
+    async def execute(self, msg: dict) -> None:
+        sender_id = str(msg['user_id'])
+        group_id = str(msg['chat_id'])
+
+        await self._service.assign_video_room(group_id, sender_id)

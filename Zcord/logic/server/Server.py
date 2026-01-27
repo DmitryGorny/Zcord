@@ -7,8 +7,11 @@ from logic.server.Service.application.chat.ChatService import ChatService
 from logic.server.Service.application.client.ClientService import ClientService
 from logic.server.Service.application.friend.FriendshipService import FriendService
 from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
+from logic.server.Service.core.VideoServerCommunication.IVideoServerDispatcher import IVideoServerDispatcher
 from logic.server.Service.infrastructure.MessageServiceCommunication.MessageServiceDispatcher import \
     MessageServiceDispatcher
+from logic.server.Service.infrastructure.VideoServerCommunication.VideoServerDispathcer import \
+    VideoServerDispatcher
 from logic.server.Service.infrastructure.repositories.chat.ChatDBRepo import ChatDBRepo
 from logic.server.Service.infrastructure.repositories.chat.ChatRepo import ChatRepo
 from logic.server.Service.infrastructure.repositories.client.ClientDBRepo import ClientDBRepo
@@ -31,6 +34,7 @@ class SingletonMeta(type):
 class OnionHandler(metaclass=SingletonMeta):
     def __init__(self):  # TODO: Сделать фабрику
         self._message_service_dispatcher: IMessageServiceDispatcher = MessageServiceDispatcher()
+        self._video_server_dispatcher: IVideoServerDispatcher = VideoServerDispatcher()
         # Все репозитории
         self._repositories = {'client_repo': ClientRepo(self._message_service_dispatcher),
                               'chat_repo': ChatRepo(),
@@ -54,7 +58,8 @@ class OnionHandler(metaclass=SingletonMeta):
                                                       chat_repo=self._repositories['chat_repo'],
                                                       chat_db_rp=self._repositories['chat_db_repo'],
                                                       client_db_repo=self._repositories['client_db_repo'],
-                                                      msg_communication=self._message_service_dispatcher)}
+                                                      msg_communication=self._message_service_dispatcher,
+                                                      video_communication=self._video_server_dispatcher)}
 
         self._choose_strategy = ChooseStrategy(client_service=self._services['client_service'],
                                                friend_service=self._services['friend_service'],
@@ -62,6 +67,10 @@ class OnionHandler(metaclass=SingletonMeta):
 
     def define_message_communication(self, func: Callable) -> None:
         self._message_service_dispatcher.define_sender_func(func)
+
+    def define_video_communication(self, func: Callable) -> None:
+        self._video_server_dispatcher.define_sender_func(func)
+
 
     def choose_strategy(self, group_name, command):
         return self._choose_strategy.get_strategy(group_name, command)
@@ -82,7 +91,8 @@ class Server:
 
         if server_name == 'message-server':
             self._onion_handler.define_message_communication(self.send_decorator(Server.servers["message-server"]))
-
+        elif server_name == 'video-server':
+            self._onion_handler.define_video_communication(self.send_decorator(Server.servers["video-server"]))
     async def create_task(self, reader: asyncio.StreamReader, writer: asyncio.StreamWriter):
         await self.handle(reader, writer)
 
@@ -153,7 +163,8 @@ class Server:
 class ServersHandler:
     def __init__(self, server_connected_signal: Callable):
         self._servers: Dict[str, asyncio.StreamWriter | None] = {'message-server': None,
-                                                                 'voice-server': None}
+                                                                 'voice-server': None,
+                                                                 'video-server': None}
 
         self._server_connected = server_connected_signal
 
@@ -181,6 +192,11 @@ class ServersHandler:
                     self._servers["voice-server"] = writer
                     print("[Server(servers_tcp)] Подключен voice")
                     self._server_connected("voice-server", writer)
+                    continue
+                elif typ == 'VIDEO-SERVER':
+                    self._servers["video-server"] = writer
+                    print("[Server(servers_tcp)] Подключен video")
+                    self._server_connected("video-server", writer)
                     continue
                 group_name = msg.get("g")
                 strategy = self._onion_handler.choose_strategy(group_name=group_name, command=typ)

@@ -4,6 +4,7 @@ from typing import Union
 import bcrypt
 
 from logic.server.Service.core.MessageServiceCommunication.IMessageServiceDispatcher import IMessageServiceDispatcher
+from logic.server.Service.core.VideoServerCommunication.IVideoServerDispatcher import IVideoServerDispatcher
 from logic.server.Service.core.repositroies.chat_repo.IChatDBRepo import IChatDBRepo
 from logic.server.Service.core.repositroies.chat_repo.IChatRepo import IChatRepo
 from logic.server.Service.core.repositroies.client_repo.IClientDBRepo import IClientDBRepo
@@ -17,10 +18,12 @@ class ChatService(IChatService):
                  chat_repo: IChatRepo,
                  chat_db_rp: IChatDBRepo,
                  client_db_repo: IClientDBRepo,
-                 msg_communication: IMessageServiceDispatcher):
+                 msg_communication: IMessageServiceDispatcher,
+                 video_communication: IVideoServerDispatcher):
         self._chat_repo: IChatRepo = chat_repo
         self._chat_db_repo: IChatDBRepo = chat_db_rp
         self._msg_server_communication: IMessageServiceDispatcher = msg_communication
+        self._video_communication: IVideoServerDispatcher = video_communication
         self._client_repo: IClientRepo = client_repo
         self._client_db_repo = client_db_repo
 
@@ -308,6 +311,21 @@ class ChatService(IChatService):
                                                                                   'type': 'service',
                                                                                   'service_message': f'Название группы было изменено на {new_settings.get("group_name")}'})
 
+    async def assign_video_room(self, group_id: str, user_id: str) -> None:
+        nickname = self._client_repo.get_client_nick(user_id)
+        if nickname is None:
+            return
+
+        await self._video_communication.send_video_server(msg_type="ASSIGN-ROOM", mes_data={
+            'chat_id': group_id,
+            'user_id': user_id,
+            'nickname': nickname
+        })
+
+        await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': group_id,
+                                                                              'user_id': user_id,
+                                                                              'type': 'service',
+                                                                              'service_message': f'{nickname} начал видео звонок'})
     async def find_group(self, group_name: str, user_id: str) -> None:
         group = self._chat_db_repo.get_group_by_name(group_name)
         if 'error' in group.keys() or group.get('is_private'):

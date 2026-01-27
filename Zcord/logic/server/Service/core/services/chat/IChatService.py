@@ -30,6 +30,9 @@ class IChatService(Protocol):
     async def change_group_settings(self, group_id: str, sender_id: str, new_settings: dict[str, bool], flags: dict[str, bool]):
         raise NotImplementedError
 
+    async def assign_video_room(self, group_id: str, user_id: str) -> None:
+        raise NotImplementedError
+
     async def _init_group_by_inner_id(self, group_id: str, user_id: str) -> bool:
         raise NotImplementedError
 

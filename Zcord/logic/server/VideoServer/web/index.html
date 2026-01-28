@@ -28,10 +28,10 @@
     function connect(room = null) {
       let url;
       if (room) {
-          url = `ws://localhost:8080/ws?room=${room}`;
+          url = `ws://127.0.0.1:8080/ws?room=${room}`;
       }
       else {
-          url = `ws://localhost:8080/ws`;
+          url = `ws://127.0.0.1:8080/ws`;
       }
 
       console.log("WS connect:", url);
@@ -229,6 +229,7 @@
         console.log("TCP → Browser:", data.payload);
       }
     }
+    connect();
   </script>
 </body>
 </html>

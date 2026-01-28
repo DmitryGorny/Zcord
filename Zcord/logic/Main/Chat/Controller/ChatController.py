@@ -37,6 +37,9 @@ class ChatController:
     def leave_group(self, user_id: str, chat_id: str) -> None:
         self._model.leave_group(user_id, chat_id)
 
+    def assign_room(self, chat_id: str):
+        self._model.assign_room(chat_id)
+
     #  абстрактно здесь будет класс VOICE GUI
     def start_call(self, user, chat_id, is_group=False):
         self._model.start_call(user, chat_id, is_group)

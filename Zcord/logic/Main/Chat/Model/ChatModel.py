@@ -53,8 +53,6 @@ class ChatModel:
             user=user,
             chat_obj=ClientConnections.get_chat_id(),
             is_group=is_group,
-            host="26.181.96.20",
-            port=55559,
             room=chat_id
         )
         ClientConnections.send_service_message(group='CLIENT', msg_type=f"__CALL-NOTIFICATION__",

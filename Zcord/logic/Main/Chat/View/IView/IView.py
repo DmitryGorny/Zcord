@@ -1,12 +1,39 @@
 from abc import abstractmethod, ABCMeta
 from typing import Optional, Union
 from PyQt6 import QtWidgets, QtCore
+from qframelesswindow import FramelessWindow
+from qframelesswindow.webengine import FramelessWebEngineView
 from logic.Main.Chat.View.Message.Message import Message
 from logic.Main.Chat.View.CallDialog.CallView import Call
 from logic.Main.Chat.View.ServiceMessage.ServiceMessage import ServiceMessage
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon, MiniUserIcon
 from logic.Main.Chat.View.dm_view.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
+
+
+class WebWindow(FramelessWindow):
+    ready_to_connect = QtCore.pyqtSignal()
+
+    def __init__(self, parent=None):
+        super().__init__(parent=parent)
+        self.setWindowTitle("PyQt-Frameless-Window")
+
+        self.hBoxLayout = QtWidgets.QHBoxLayout(self)
+        self.webEngine = FramelessWebEngineView(self)
+
+        self.webEngine.loadFinished.connect(self._on_load_finished)
+        self.webEngine.load(QtCore.QUrl("http://127.0.0.1:8080/"))
+
+        self.hBoxLayout.setContentsMargins(0, self.titleBar.height(), 0, 0)
+        self.hBoxLayout.addWidget(self.webEngine)
+
+        self.titleBar.raise_()
+
+    def _on_load_finished(self, ok):
+        if ok:
+            self.ready_to_connect.emit()
+        else:
+            print("Ошибка загрузки страницы")
 
 
 class QWidgetABCMeta(type(QtWidgets.QWidget), ABCMeta):
@@ -68,6 +95,8 @@ class BaseChatView(IView):
         self.ui: Optional[Union[Ui_Chat, Ui_Group]]
         """Окно приходящего звонка"""
         self.call_dialog: Call
+        """Окно для web"""
+        self.web_window = None
         # Сигналы
         self.messageReceived.connect(self.receive_message)
         self.enable_scroll_bar.connect(self.enable_scroll)
@@ -342,3 +371,13 @@ class BaseChatView(IView):
         if int(user_id) in self.client_mini_icons.keys():
             self.ui.miniIconsCall.removeWidget(self.client_mini_icons[int(user_id)].ui.widget_2)
             del self.client_mini_icons[int(user_id)]
+
+    """Подключение Видеосвязи"""
+    def assign_room(self):
+        self.web_window = WebWindow()
+        self.web_window.ready_to_connect.connect(lambda: self._controller.assign_room(self.chat_id))
+        self.show_web_window()
+
+    # работа с web окном
+    def show_web_window(self):
+        self.web_window.show()

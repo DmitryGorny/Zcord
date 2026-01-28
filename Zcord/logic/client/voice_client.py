@@ -4,6 +4,9 @@ import socket
 import struct
 import threading
 import uuid
+import os
+from pathlib import Path
+from dotenv import load_dotenv
 from logic.client.IConnection.IConnection import IConnection, BaseConnection
 from logic.client.VoiceChat.voice_handler import VoiceHandler
 
@@ -303,14 +306,21 @@ class CallManager:
             self._thread = None
             self._initialized = True
 
-    def start_call(self, user, chat_obj, is_group, host="localhost", port=55559, room="room1"):
+            # NON HARD IP
+            BASE_DIR = Path(__file__).resolve().parent
+            dotenv_path = os.path.join(BASE_DIR, '.env')
+            load_dotenv(dotenv_path)
+            self.HOST = os.environ.get("HOST")
+            self.PORT = int(os.environ.get("VOICE_PORT"))
+
+    def start_call(self, user, chat_obj, is_group, room="room1"):
         if self.client is not None:
             print("Клиент уже запущен")
             return
 
         self._thread = threading.Thread(
             target=self._run_call,
-            args=(user, host, port, room, chat_obj, is_group),
+            args=(user, self.HOST, self.PORT, room, chat_obj, is_group),
             daemon=True
         )
         self._thread.start()

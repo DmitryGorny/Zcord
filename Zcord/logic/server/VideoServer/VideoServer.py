@@ -2,6 +2,9 @@ import asyncio
 import json
 import logging
 import uuid
+from pathlib import Path
+import os
+from dotenv import load_dotenv
 from aiohttp import web, WSMsgType
 
 logging.basicConfig(level=logging.INFO)
@@ -41,10 +44,10 @@ class TcpSignalServer:
                     data = json.loads(msg)
                     print("[SERVICE] Получено:", data)
 
-                    await self.out_queue.put(msg)
+                    await self.out_queue.put(data)
 
-                except json.JSONDecodeError:
-                    pass
+                except json.JSONDecodeError as e:
+                    print(f"[SERVICE] Ошибка json: {e}")
         except Exception as e:
             print(f"[SERVICE] Ошибка: {e}")
 
@@ -61,14 +64,12 @@ class TcpSignalServer:
 
 
 async def on_startup(app):
-    HOST = "26.36.124.241"
-
     app["rooms"] = {}  # room_id -> {peer_id: ws}
     app["tcp_queue"] = asyncio.Queue()
     app["tcp_srv"] = TcpSignalServer(app["tcp_queue"])
     app["pending_ws"] = set()
     app["tcp_task"] = asyncio.create_task(
-        app["tcp_srv"].connect_service_server(HOST, 55572)
+        app["tcp_srv"].connect_service_server(app["host"], app["video_port"])
     )
 
     app["dispatcher_task"] = asyncio.create_task(
@@ -83,36 +84,39 @@ async def tcp_to_ws_dispatcher(app):
     rooms = app["rooms"]
 
     while True:
-        msg = await queue.get()
+        try:
+            msg = await queue.get()
+            print(f"Сообщение {msg} получено из очереди")
+            # { "peer": "abc", "room": "room42", "payload": {...} }
+            room = msg.get("chat_id")
+            peer = msg.get("nickname")
 
-        # { "peer": "abc", "room": "room42", "payload": {...} }
-        room = msg.get("room")
-        peer = msg.get("peer")
+            if room:
+                for ws in list(app["pending_ws"]):
+                    ws.room_id = room
+                    rooms.setdefault(room, {})[ws.peer_id] = ws
+                    app["pending_ws"].remove(ws)
 
-        if room:
-            for ws in list(app["pending_ws"]):
-                ws.room_id = room
-                rooms.setdefault(room, {})[ws.peer_id] = ws
-                app["pending_ws"].remove(ws)
+                    await ws.send_json({
+                        "type": "assign-room",
+                        "room": room
+                    })
 
-                await ws.send_json({
-                    "type": "assign-room",
-                    "room": room
-                })
+                    logging.info(f"Назначена комната {room} для пира {peer}: {ws.peer_id}")
 
-                logging.info(f"Назначена комната {room} для пира {peer}: {ws.peer_id}")
+            if room not in rooms:
+                continue
 
-        if room not in rooms:
-            continue
-
-        for ws in rooms[room].values():
-            try:
-                await ws.send_json({
-                    "type": "tcp-message",
-                    "payload": msg
-                })
-            except Exception as e:
-                print("WS send error:", e)
+            for ws in rooms[room].values():
+                try:
+                    await ws.send_json({
+                        "type": "tcp-message",
+                        "payload": msg
+                    })
+                except Exception as e:
+                    print("WS send error:", e)
+        except Exception as e:
+            logging.error(f"Ошибка в диспетчере: {e}", exc_info=True)
 
 
 async def on_shutdown(app):
@@ -137,7 +141,7 @@ async def websocket_handler(request):
 
     peer_id = uuid.uuid4().hex
     room_id = request.query.get("room")
-
+    print(f"У peerid: {peer_id}, комната: {room_id}")
     ws.peer_id = peer_id
     ws.room_id = room_id
 
@@ -193,9 +197,15 @@ async def index(request):
 
 
 if __name__ == "__main__":
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    dotenv_path = os.path.join(BASE_DIR, '.env')
+    load_dotenv(dotenv_path)
+
     app = web.Application()
+    app["host"] = os.environ.get("HOST")
+    app["video_port"] = int(os.environ.get("SERVICE_PORT_FOR_VIDEO"))
     app.on_startup.append(on_startup)
     app.on_shutdown.append(on_shutdown)
     app.router.add_get("/", index)
     app.router.add_get("/ws", websocket_handler)
-    web.run_app(app, host="localhost", port=8080)
+    web.run_app(app, host=app["host"], port=8080)

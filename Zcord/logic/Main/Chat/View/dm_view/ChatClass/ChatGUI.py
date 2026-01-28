@@ -224,7 +224,7 @@ class Ui_Chat(object):
 "}")
         self.videoCall.setText("")
         icon2 = QtGui.QIcon()
-        icon2.addPixmap(QtGui.QPixmap("../../../../../.designer/icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
+        icon2.addPixmap(QtGui.QPixmap("GUI/icon/videocam_28dp_E3E3E3_FILL0_wght400_GRAD0_opsz24.svg"), QtGui.QIcon.Mode.Normal, QtGui.QIcon.State.Off)
         self.videoCall.setIcon(icon2)
         self.videoCall.setIconSize(QtCore.QSize(28, 28))
         self.videoCall.setCheckable(True)

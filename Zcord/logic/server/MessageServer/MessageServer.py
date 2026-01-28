@@ -1,11 +1,14 @@
 import json
+import os
 import socket
 import threading
+from pathlib import Path
 from typing import Dict, List
 
 import msgspec
 import copy
 import select
+from dotenv import load_dotenv
 
 from logic.server.MessageServer.Cache.Cache import CacheManager
 from logic.server.MessageServer.Clients.ClientManager import ClientManager
@@ -172,14 +175,18 @@ def receive(server_socket):
 
 
 if __name__ == "__main__":
-    HOST = "26.181.96.20"
-    PORT = 55557
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    dotenv_path = os.path.join(BASE_DIR, '.env')
+    load_dotenv(dotenv_path)
+
+    HOST = os.environ.get("HOST")
+    PORT = int(os.environ.get("MESSAGE_PORT"))
     server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server_socket.bind((HOST, PORT))
     server_socket.listen()
 
     main_server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-    main_server_socket.connect((HOST, 55569))
+    main_server_socket.connect((HOST, int(os.environ.get("SERVICE_PORT_FOR_MESSAGE"))))
 
     recieve_service_comands(main_server_socket)
     receive(server_socket)

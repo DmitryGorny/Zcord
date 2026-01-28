@@ -1,11 +1,14 @@
 import asyncio
+import os
 import socket
 import json
 import struct
 import time
 from dataclasses import dataclass, field
+from pathlib import Path
 from typing import Dict, List, Optional
 
+from dotenv import load_dotenv
 
 # Протокол сообщений по TCP (NDJSON: JSON + "\n"):
 # 1) Регистрация/вход в комнату:
@@ -310,11 +313,15 @@ class TcpSignalServer:
 
 
 async def main():
-    HOST = "26.36.124.241"
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    dotenv_path = os.path.join(BASE_DIR, '.env')
+    load_dotenv(dotenv_path)
+
+    HOST = os.environ.get("HOST")
     srv = TcpSignalServer()
     await asyncio.gather(
-        srv.serve(HOST, 55559),
-        srv.connect_service_server(HOST, 55571),
+        srv.serve(HOST, int(os.environ.get("VOICE_PORT"))),
+        srv.connect_service_server(HOST, int(os.environ.get("SERVICE_PORT_FOR_VOICE"))),
         srv.udp_loop(),
     )
 

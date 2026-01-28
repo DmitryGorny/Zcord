@@ -24,7 +24,7 @@ DB_PASSWORD = os.environ.get('DB_PASSWORD')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["212.8.227.220"]
 
 # Application definition
 

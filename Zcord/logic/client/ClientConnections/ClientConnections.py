@@ -1,7 +1,11 @@
+import os
 import socket
 import threading
+from pathlib import Path
 from typing import Dict, Any
 import queue
+
+from dotenv import load_dotenv
 
 from logic.client.Chat.ClientChat import ChatInterface
 from logic.client.message_client import MessageConnection
@@ -22,10 +26,14 @@ class ClientConnections:
     _chat_interface: ChatInterface = ChatInterface()
 
     # Данные сервеа
-    _SERVER_IP = "26.181.96.20"  # IP
-    _SERVER_PORT = 55558  # Порт, используемый сервером с сервисными сообщениями
-    _MESSAGE_SERVER_PORT = 55557  # Порт, используемый сервером чата
-    _VOICE_SERVER_PORT = 55559  # Порт, используемый сервером войса
+    BASE_DIR = Path(__file__).resolve().parent.parent
+    dotenv_path = os.path.join(BASE_DIR, '.env')
+    load_dotenv(dotenv_path)
+
+    _SERVER_IP = os.environ.get("HOST") # IP
+    _SERVER_PORT = int(os.environ.get("SERVICE_PORT"))  # Порт, используемый сервером с сервисными сообщениями
+    _MESSAGE_SERVER_PORT = int(os.environ.get("MESSAGE_PORT"))  # Порт, используемый сервером чата
+    _VOICE_SERVER_PORT = int(os.environ.get("VOICE_PORT"))  # Порт, используемый сервером войса
 
     @staticmethod
     def start_client(user, chats: queue.Queue, main_window_dynamic_update_cb):

@@ -49,6 +49,7 @@ class ChatView(BaseChatView):
         self.ui.muteMic.clicked.connect(self.mute_mic_self)
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
         self.ui.InviteToGroup.clicked.connect(self.show_group_invite)
+        self.ui.videoCall.clicked.connect(self.assign_room)
 
         self._group_invite_dial_controller: GroupInviteController = GroupInviteController(self._user, self._friend_id)
 

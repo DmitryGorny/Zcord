@@ -1,4 +1,8 @@
+import os
+from pathlib import Path
+
 import requests
+from dotenv import load_dotenv
 
 
 class APIClient:
@@ -7,7 +11,10 @@ class APIClient:
     def __new__(cls):
         if cls._instance is None:
             cls._instance = super().__new__(cls)
-            cls._instance.base_url = "http://127.0.0.1:8000/api"
+            BASE_DIR = Path(__file__).resolve().parent
+            dotenv_path = os.path.join(BASE_DIR, '.env')
+            load_dotenv(dotenv_path)
+            cls._instance.base_url = os.environ.get("BASE_URL")
             cls._instance.session = requests.Session()  # Общая сессия
             cls._instance.session.headers.update({
                 'Content-Type': 'application/json',

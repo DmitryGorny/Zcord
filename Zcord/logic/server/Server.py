@@ -1,7 +1,10 @@
 import asyncio
 import json
+import os
+from pathlib import Path
 from typing import Dict, Callable
 import msgspec
+from dotenv import load_dotenv
 
 from logic.server.Service.application.chat.ChatService import ChatService
 from logic.server.Service.application.client.ClientService import ClientService
@@ -220,18 +223,22 @@ class Runner:
         self._service_server.server_connected(server_name, writer)
 
     async def main(self):
-        IP = "26.181.96.20"
-        PORT_FO_USERS = 55558
+        BASE_DIR = Path(__file__).resolve().parent
+        dotenv_path = os.path.join(BASE_DIR, '.env')
+        load_dotenv(dotenv_path)
+        IP = os.environ.get("HOST")
+        PORT_FOR_USERS = int(os.environ.get("SERVICE_PORT_FOR_USERS"))
 
         server_user = await asyncio.start_server(
             lambda r, w: self._service_server.handle(r, w),
             IP,
-            PORT_FO_USERS,
+            PORT_FOR_USERS,
             reuse_address=True,
         )
 
-        PORT_FOR_MESSAGE = 55569
-        PORT_FOR_VOICE = 55571
+        PORT_FOR_MESSAGE = int(os.environ.get("SERVICE_PORT_FOR_MESSAGE"))
+        PORT_FOR_VOICE = int(os.environ.get("SERVICE_PORT_FOR_VOICE"))
+        PORT_FOR_VIDEO = int(os.environ.get("SERVICE_PORT_FOR_VIDEO"))
 
         server_message_service = await asyncio.start_server(
             lambda r, w: self._servers_handler.handle_server(r, w),
@@ -245,10 +252,17 @@ class Runner:
             PORT_FOR_VOICE
         )
 
+        server_video_service = await asyncio.start_server(
+            lambda r, w: self._servers_handler.handle_server(r, w),
+            IP,
+            PORT_FOR_VIDEO
+        )
+
         async with server_message_service, server_voice_service, server_user:
             await asyncio.gather(
                 server_message_service.serve_forever(),
                 server_voice_service.serve_forever(),
+                server_video_service.serve_forever(),
                 server_user.serve_forever()
             )
 

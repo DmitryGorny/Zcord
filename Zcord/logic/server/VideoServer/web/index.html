@@ -150,6 +150,7 @@
         };
       } catch (err) {
         console.error("Ошибка при получении экрана:", err);
+        console.error("Ошибка:", err.name, "| Сообщение:", err.message);
       }
     });
 

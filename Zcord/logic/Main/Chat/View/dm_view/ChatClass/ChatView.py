@@ -49,7 +49,7 @@ class ChatView(BaseChatView):
         self.ui.muteMic.clicked.connect(self.mute_mic_self)
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
         self.ui.InviteToGroup.clicked.connect(self.show_group_invite)
-        self.ui.videoCall.clicked.connect(self.assign_room)
+        self.ui.videoCall.clicked.connect(lambda state, btn=self.ui.videoCall : self.assign_room(state, btn))
 
         self._group_invite_dial_controller: GroupInviteController = GroupInviteController(self._user, self._friend_id)
 

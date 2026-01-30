@@ -68,6 +68,7 @@ class GroupView(BaseChatView):  # TODO: Сделать ui private
         self.ui.leaveCall.clicked.connect(self.stop_call)
         self.ui.muteMic.clicked.connect(self.mute_mic_self)
         self.ui.muteHeadphones.clicked.connect(self.mute_head_self)
+        self.ui.videoCall.clicked.connect(lambda state, btn=self.ui.videoCall : self.assign_room(state, btn))
 
         """Участники группы"""
         self._online_users_number = 0

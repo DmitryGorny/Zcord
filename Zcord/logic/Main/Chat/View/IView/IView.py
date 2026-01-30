@@ -1,6 +1,9 @@
 from abc import abstractmethod, ABCMeta
 from typing import Optional, Union
 from PyQt6 import QtWidgets, QtCore
+from PyQt6.QtWebEngineCore import QWebEnginePage, QWebEngineDesktopMediaRequest
+from PyQt6.QtWebEngineCore import QWebEnginePermission
+from qframelesswindow.utils import ScreenCaptureFilter
 from qframelesswindow import FramelessWindow
 from qframelesswindow.webengine import FramelessWebEngineView
 from logic.Main.Chat.View.Message.Message import Message
@@ -9,6 +12,12 @@ from logic.Main.Chat.View.ServiceMessage.ServiceMessage import ServiceMessage
 from logic.Main.Chat.View.UserIcon.UserIcon import UserIcon, MiniUserIcon
 from logic.Main.Chat.View.dm_view.ChatClass.ChatGUI import Ui_Chat
 from logic.Main.Chat.View.group_view.Group.GroupQt import Ui_Group
+
+
+class MyWebPage(QWebEnginePage):
+    def javaScriptConsoleMessage(self, level, message, line, sourceID):
+        # Теперь все ошибки из JS будут печататься в терминале PyCharm/VS Code
+        print(f"JS Console [{level}]: {message} (line {line})")
 
 
 class WebWindow(FramelessWindow):
@@ -20,6 +29,15 @@ class WebWindow(FramelessWindow):
 
         self.hBoxLayout = QtWidgets.QHBoxLayout(self)
         self.webEngine = FramelessWebEngineView(self)
+        self.installEventFilter(ScreenCaptureFilter(self))
+
+        self.myPage = MyWebPage(self.webEngine)
+        self.myPage.settings().setAttribute(
+            # ВСЯ МАГИЯ ЗАХВАТА ЭКРАНА ЮЗАЕТСЯ ЧЕРЕЗ НАСТРОЙКИ ВОТ ЗДЕСЬ
+            self.myPage.settings().WebAttribute.ScreenCaptureEnabled, True,
+        )
+        self.webEngine.setPage(self.myPage)
+        self.webEngine.page().permissionRequested.connect(self._on_permission_requested)
 
         self.webEngine.loadFinished.connect(self._on_load_finished)
         self.webEngine.load(QtCore.QUrl("http://127.0.0.1:8080/"))
@@ -34,6 +52,25 @@ class WebWindow(FramelessWindow):
             self.ready_to_connect.emit()
         else:
             print("Ошибка загрузки страницы")
+
+    def _on_permission_requested(self, permission):
+        # Список разрешений, которые мы готовы дать автоматически
+        allowed_features = [
+            QWebEnginePermission.PermissionType.MediaAudioCapture,
+            QWebEnginePermission.PermissionType.MediaVideoCapture,
+            QWebEnginePermission.PermissionType.MediaAudioVideoCapture,
+            QWebEnginePermission.PermissionType.DesktopVideoCapture,
+            QWebEnginePermission.PermissionType.DesktopAudioVideoCapture
+        ]
+
+        if permission.permissionType() in allowed_features:
+            print("Есть разрешение")
+            # Даем разрешение
+            permission.grant()
+        else:
+            print("Нет разрешение")
+            permission.deny()
+            # Не даем разрешение
 
 
 class QWidgetABCMeta(type(QtWidgets.QWidget), ABCMeta):
@@ -298,6 +335,8 @@ class BaseChatView(IView):
 
     def stop_call(self):
         self.ui.Call.hide()
+        self.web_window.hide()
+        self.web_window.close()
         self._controller.stop_call()
 
         for icon in self.client_icons.values():
@@ -373,11 +412,11 @@ class BaseChatView(IView):
             del self.client_mini_icons[int(user_id)]
 
     """Подключение Видеосвязи"""
-    def assign_room(self):
-        self.web_window = WebWindow()
-        self.web_window.ready_to_connect.connect(lambda: self._controller.assign_room(self.chat_id))
-        self.show_web_window()
-
-    # работа с web окном
-    def show_web_window(self):
-        self.web_window.show()
+    def assign_room(self, state, btn):
+        if state:
+            self.web_window = WebWindow()
+            self.web_window.ready_to_connect.connect(lambda: self._controller.assign_room(self.chat_id))
+            self.web_window.show()
+        else:
+            self.web_window.hide()
+            self.web_window.close()

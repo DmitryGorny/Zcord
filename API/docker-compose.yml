@@ -1,29 +1,48 @@
 services:
   postgres:
     image: postgres:18-alpine
-    container_name: db_Zcord
     restart: unless-stopped
     env_file:
-      - ../.env
+      - .env
     ports:
       - "5432:5432"
     volumes:
-      - postgres_data:/var/lib/postgresql/db_Zcord
-    deploy:
-      resources:
-        limits:
-          memory: 512M
-          cpus: "1.0"
-        reservations:
-          memory: 256M
-          cpus: "0.25"
+      - postgres_data:/var/lib/postgresql/data
     command: >
       postgres
-      -c shared_buffers=128MB
-      -c max_connections=50
-      -c work_mem=4MB
-      -c maintenance_work_mem=64MB
-      -c effective_cache_size=256MB
+      -c shared_buffers=256MB
+      -c max_connections=100
+      -c work_mem=8MB
+      -c maintenance_work_mem=128MB
+      -c effective_cache_size=512MB
+      -c random_page_cost=1.1
+      -c effective_io_concurrency=200
+    networks:
+      - app-network
+
+  django:
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    ports:
+      - "8000:8000"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DJANGO_SETTINGS_MODULE: API.settings
+    networks:
+      - app-network
 
 volumes:
   postgres_data:
+    driver: local
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,29 @@
+services:
+  postgres:
+    image: postgres:18-alpine
+    container_name: db_Zcord
+    restart: unless-stopped
+    env_file:
+      - ../.env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/db_Zcord
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: "1.0"
+        reservations:
+          memory: 256M
+          cpus: "0.25"
+    command: >
+      postgres
+      -c shared_buffers=128MB
+      -c max_connections=50
+      -c work_mem=4MB
+      -c maintenance_work_mem=64MB
+      -c effective_cache_size=256MB
+
+volumes:
+  postgres_data:

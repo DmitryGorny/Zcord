@@ -22,18 +22,18 @@ services:
 
   django:
     build:
-      context: ..
+      context: .
       dockerfile: Dockerfile
     restart: unless-stopped
     env_file:
       - .env
     depends_on:
       postgres:
-        condition: service_healthy
+        condition: service_started
     ports:
       - "8000:8000"
     environment:
-      DB_HOST: postgres
+      DB_HOST: lskwdfvj
       DB_PORT: "5432"
       DJANGO_SETTINGS_MODULE: API.settings
     networks:

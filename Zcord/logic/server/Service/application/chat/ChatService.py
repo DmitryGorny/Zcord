@@ -157,8 +157,8 @@ class ChatService(IChatService):
             except KeyError as e:
                 print('[ChatService] {}'.format(e))
 
-        row_id = self._chat_db_repo.search_group_member(int(request_receiver), group['group']['id'])[0]['id']
-        self._chat_db_repo.delete_group_member_by_id(row_id)
+        row_id = self._chat_db_repo.search_group_member(int(request_receiver), group['group']['id'])[0]
+        self._chat_db_repo.delete_group_member_by_id(row_id.get('id'))
         await self._msg_server_communication.send_msg_server('CHAT-MESSAGE', {'chat_id': group_id,
                                                                               'user_id': request_receiver,
                                                                               'type': 'service',
@@ -328,8 +328,12 @@ class ChatService(IChatService):
                                                                               'service_message': f'{nickname} начал видео звонок'})
     async def find_group(self, group_name: str, user_id: str) -> None:
         group = self._chat_db_repo.get_group_by_name(group_name)
+
+        if group is None:
+            return  # TODO: Вернуть сообщение клиенту об отсутсвии искомой группы
+
         if 'error' in group.keys() or group.get('is_private'):
-            return # TODO: Вернуть сообщение клиенту об отсутсвии искомой группы
+            return  # TODO: Вернуть сообщение клиенту об отсутсвии искомой группы
 
         try:
             next(filter(lambda x: x.get('user_id') == user_id, group.get('users')))
@@ -339,6 +343,12 @@ class ChatService(IChatService):
                                                              'group_name': group.get('group_name'),
                                                              'users_number': str(len(group.get('users'))),
                                                              'is_password': group.get('is_password')})
+
+    async def check_if_group_has_password(self, group_id: str, user_id: str) -> bool:
+        group = self._chat_db_repo.search_chat_by_inner_id(chat_id=int(group_id), is_group=True)[0]
+        if group.get('group').get('is_password'):
+            await self._client_repo.send_message(user_id, "GROUP-PASSWORD-REQUIRED", {'group_id': group_id})
+        return group.get('group').get('is_password')
 
     async def _init_group_by_inner_id(self, group_id: str, user_id: str) -> bool:
         try:

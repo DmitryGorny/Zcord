@@ -20,6 +20,82 @@ class MyWebPage(QWebEnginePage):
         print(f"JS Console [{level}]: {message} (line {line})")
 
 
+class DesktopMediaPicker(QtWidgets.QDialog):
+    """Диалог выбора экрана/окна для демонстрации.
+
+    QtWebEngine начиная с 6.7 при вызове JS-метода getDisplayMedia()
+    эмитит сигнал desktopMediaRequested и ожидает, что приложение
+    вручную выберет конкретный экран или окно из переданных моделей.
+    Если этого не сделать, getDisplayMedia на стороне страницы
+    отклоняется, и кнопка «Поделиться экраном» не работает.
+    """
+
+    def __init__(self, screens_model, windows_model, parent=None):
+        super().__init__(parent)
+        self.setWindowTitle("Выбор источника для демонстрации")
+        self.resize(620, 400)
+
+        self._selected_kind = None
+        self._selected_index = None
+
+        layout = QtWidgets.QVBoxLayout(self)
+
+        sources_layout = QtWidgets.QHBoxLayout()
+
+        screens_box = QtWidgets.QGroupBox("Экраны")
+        screens_box_layout = QtWidgets.QVBoxLayout(screens_box)
+        self._screens_view = QtWidgets.QListView()
+        self._screens_view.setModel(screens_model)
+        self._screens_view.clicked.connect(self._on_screen_clicked)
+        self._screens_view.doubleClicked.connect(
+            lambda idx: (self._on_screen_clicked(idx), self.accept())
+        )
+        screens_box_layout.addWidget(self._screens_view)
+
+        windows_box = QtWidgets.QGroupBox("Окна")
+        windows_box_layout = QtWidgets.QVBoxLayout(windows_box)
+        self._windows_view = QtWidgets.QListView()
+        self._windows_view.setModel(windows_model)
+        self._windows_view.clicked.connect(self._on_window_clicked)
+        self._windows_view.doubleClicked.connect(
+            lambda idx: (self._on_window_clicked(idx), self.accept())
+        )
+        windows_box_layout.addWidget(self._windows_view)
+
+        sources_layout.addWidget(screens_box)
+        sources_layout.addWidget(windows_box)
+        layout.addLayout(sources_layout)
+
+        buttons = QtWidgets.QDialogButtonBox(
+            QtWidgets.QDialogButtonBox.StandardButton.Ok
+            | QtWidgets.QDialogButtonBox.StandardButton.Cancel
+        )
+        buttons.accepted.connect(self.accept)
+        buttons.rejected.connect(self.reject)
+        layout.addWidget(buttons)
+
+        # По умолчанию выделяем первый доступный экран, чтобы по нажатию OK
+        # сразу был корректный выбор без обязательного клика мыши.
+        if screens_model is not None and screens_model.rowCount() > 0:
+            first = screens_model.index(0, 0)
+            self._screens_view.setCurrentIndex(first)
+            self._selected_kind = "screen"
+            self._selected_index = first
+
+    def _on_screen_clicked(self, index):
+        self._selected_kind = "screen"
+        self._selected_index = index
+        self._windows_view.clearSelection()
+
+    def _on_window_clicked(self, index):
+        self._selected_kind = "window"
+        self._selected_index = index
+        self._screens_view.clearSelection()
+
+    def selection(self):
+        return self._selected_kind, self._selected_index
+
+
 class WebWindow(FramelessWindow):
     ready_to_connect = QtCore.pyqtSignal()
 
@@ -38,9 +114,15 @@ class WebWindow(FramelessWindow):
         )
         self.webEngine.setPage(self.myPage)
         self.webEngine.page().permissionRequested.connect(self._on_permission_requested)
+        # Без этой подписки JS-вызов navigator.mediaDevices.getDisplayMedia()
+        # в QtWebEngine 6.7+ зависает, потому что сторона приложения должна
+        # явно выбрать конкретный экран или окно из переданных моделей.
+        self.webEngine.page().desktopMediaRequested.connect(
+            self._on_desktop_media_requested
+        )
 
         self.webEngine.loadFinished.connect(self._on_load_finished)
-        self.webEngine.load(QtCore.QUrl("http://127.0.0.1:8080/"))
+        self.webEngine.load(QtCore.QUrl("http://26.181.96.20:8080/"))
 
         self.hBoxLayout.setContentsMargins(0, self.titleBar.height(), 0, 0)
         self.hBoxLayout.addWidget(self.webEngine)
@@ -71,6 +153,23 @@ class WebWindow(FramelessWindow):
             print("Нет разрешение")
             permission.deny()
             # Не даем разрешение
+
+    def _on_desktop_media_requested(self, request: QWebEngineDesktopMediaRequest):
+        screens_model = request.screensModel()
+        windows_model = request.windowsModel()
+
+        picker = DesktopMediaPicker(screens_model, windows_model, parent=self)
+        if picker.exec() != QtWidgets.QDialog.DialogCode.Accepted:
+            request.cancel()
+            return
+
+        kind, index = picker.selection()
+        if kind == "screen" and index is not None and index.isValid():
+            request.selectScreen(index)
+        elif kind == "window" and index is not None and index.isValid():
+            request.selectWindow(index)
+        else:
+            request.cancel()
 
 
 class QWidgetABCMeta(type(QtWidgets.QWidget), ABCMeta):

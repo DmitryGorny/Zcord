@@ -47,6 +47,7 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
     @staticmethod
     def broadcast(chat_id: str, message_dict: dict):
         message_dict['msg_type'] = 'CHAT-MESSAGE'
+        print(MessageRoom.ids_in_chats[chat_id])
         for client in MessageRoom.ids_in_chats[chat_id]:
             try:
                 MessageRoom.clients.send(client, json.dumps(message_dict).encode('utf-8'))
@@ -151,7 +152,6 @@ class MessageRoom(object):  # TODO: Когда-нибудь переделать
                     except AttributeError as e:
                         print(e)
             except ConnectionResetError:
-                print("Сервер сдох")
                 break
 
 

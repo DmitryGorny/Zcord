@@ -11,7 +11,7 @@ class GroupListController:
         self._model.show_password_dialog.connect(self._view.show_password_dialog)
         self._model.remove_group_view.connect(self._view.remove_group)
 
-        self._view.send_password_model.connect(self._model.send_password)
+        self._view.connect_password_dialog(self._model.send_password)
         self._view.join_group_model.connect(self._model.join_group)
         self._view.find_group_model.connect(self._model.get_group)
 
@@ -20,4 +20,7 @@ class GroupListController:
 
     def group_was_found(self, group_id: str, group_name: str, users_number: str, is_password: bool) -> None:
         self._model.show_group(group_id, group_name, users_number, is_password)
+
+    def group_require_password(self, group_id: str) -> None:
+        self._model.show_password(group_id)
 

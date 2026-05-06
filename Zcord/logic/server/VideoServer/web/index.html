@@ -28,10 +28,10 @@
     function connect(room = null) {
       let url;
       if (room) {
-          url = `ws://127.0.0.1:8080/ws?room=${room}`;
+          url = `ws://self._clients_with_sockets:8080/ws?room=${room}`;
       }
       else {
-          url = `ws://127.0.0.1:8080/ws`;
+          url = `ws://self._clients_with_sockets:8080/ws`;
       }
 
       console.log("WS connect:", url);
@@ -119,14 +119,30 @@
       }
     }
 
+    function stopLocalStream() {
+        // Без явной остановки трека из getDisplayMedia браузер продолжает
+        // считать экран расшаренным: индикатор «Идёт демонстрация экрана»
+        // в Chrome/Edge не гаснет, а WebRTC-сессия удерживает источник.
+        if (localStream) {
+            localStream.getTracks().forEach(t => {
+                try { t.stop(); } catch (e) { /* трек уже мог быть закрыт */ }
+            });
+        }
+    }
+
+    function switchToBlackStream() {
+        const blackStream = createBlackStream();
+        localStream = blackStream;
+        localVideo.srcObject = null;
+        replaceVideoTrack(blackStream.getVideoTracks()[0]);
+    }
+
     document.getElementById("unshareScreen").addEventListener("click", async () => {
         try {
-            const blackStream = createBlackStream();
-            localStream = blackStream;
-            localVideo.srcObject = null;
-            replaceVideoTrack(blackStream.getVideoTracks()[0]);
+            stopLocalStream();
+            switchToBlackStream();
         } catch (err) {
-            console.error("Ошибка при получении black_stream:", err);
+            console.error("Ошибка при остановке демонстрации экрана:", err);
         }
     });
 
@@ -137,16 +153,23 @@
           audio: true
         });
 
+        // Останавливаем предыдущий поток (например, чёрный canvas или
+        // оставшийся захват экрана при повторном нажатии кнопки),
+        // чтобы не плодить активные источники.
+        stopLocalStream();
+
         localStream = screenStream;
         localVideo.srcObject = screenStream;
 
         replaceVideoTrack(screenStream.getVideoTracks()[0]);
 
         screenStream.getVideoTracks()[0].onended = async () => {
-          const blackStream = createBlackStream();
-          localStream = blackStream;
-          localVideo.srcObject = null;
-          replaceVideoTrack(blackStream.getVideoTracks()[0]);
+          // Срабатывает, когда пользователь нажал «Остановить демонстрацию»
+          // в нативной плашке браузера. Останавливаем все треки потока
+          // (видео уже закрыто браузером, но аудио и сопутствующие треки
+          // могут оставаться активными) и возвращаемся к чёрному кадру.
+          stopLocalStream();
+          switchToBlackStream();
         };
       } catch (err) {
         console.error("Ошибка при получении экрана:", err);

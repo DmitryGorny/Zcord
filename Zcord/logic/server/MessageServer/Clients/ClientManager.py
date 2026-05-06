@@ -23,6 +23,7 @@ class ClientManager:
 
     def send(self, client_identent: str, message: Any) -> None:
         try:
+            print(self._clients_with_sockets)
             self._clients_with_sockets[client_identent].send(message)
         except KeyError as e:
             print(e)

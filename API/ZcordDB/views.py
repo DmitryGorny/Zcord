@@ -281,8 +281,8 @@ class GroupsRequestView(viewsets.ModelViewSet):
 class GroupsMembersView(viewsets.ModelViewSet):
     queryset = GroupsMembers.objects.all()
     filter_backends = [DjangoFilterBackend, filters.SearchFilter]
-    search_fields = ["user__id"]
-    filterset_fields = ["group"]
+    search_fields = ["user__id", "group__id"]
+    filterset_fields = ["group", "user"]
     serializer_class = GroupsMembersSerializer
 
 
@@ -310,4 +310,3 @@ class GroupsView(viewsets.ModelViewSet):
 
         serializer = self.get_serializer(group)
         return Response(serializer.data)
-

@@ -535,6 +535,8 @@ class MainWindow(FramelessWindow):
                                              args.get('group_name'),
                                              args.get('users_number'),
                                              args.get('is_password'))
+            case "GROUP-PASSWORD-REQUIRED":
+                self._groups.group_require_password(args.get('group_id'))
 
     def friend_request_alert(self):
         if self.ui.friends_alert.isHidden():

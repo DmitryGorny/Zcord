@@ -1,6 +1,6 @@
 from typing import Dict, List, Union, Tuple, NamedTuple
 
-MAX_MESSAGES_INDEX = 4  # Кто поменяет - захуячу
+MAX_MESSAGES_INDEX = 4
 
 
 class Message(NamedTuple):

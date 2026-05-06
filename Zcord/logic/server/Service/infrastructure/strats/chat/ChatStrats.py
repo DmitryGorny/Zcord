@@ -68,9 +68,12 @@ class JoinGroupStrat(ChatStrategyKeeper, IServiceStrat):
         user_id = str(msg['user_id'])
         group_id = str(msg['group_id'])
         nickname = str(msg['nickname'])
-        await self._service.add_user_group(request_receiver=user_id,
-                                           group_id=group_id,
-                                           receiver_nick=nickname)
+
+        is_password = await self._service.check_if_group_has_password(group_id, user_id)
+        if not is_password:
+            await self._service.add_user_group(request_receiver=user_id,
+                                               group_id=group_id,
+                                               receiver_nick=nickname)
 
 
 class UserLeftGroupStrat(ChatStrategyKeeper, IServiceStrat):
@@ -145,7 +148,9 @@ class ChangeGroupSettingsStrat(ChatStrategyKeeper, IServiceStrat):
         new_settings = json.loads(msg['new_settings'])
         flags = json.loads(msg['flags'])
 
-        await self._service.change_group_settings(sender_id=sender_id, new_settings=new_settings, group_id=group_id, flags=flags)
+        await self._service.change_group_settings(sender_id=sender_id, new_settings=new_settings, group_id=group_id,
+                                                  flags=flags)
+<<<<<<< Updated upstream
 
 
 class AssignVideoRoomStrat(ChatStrategyKeeper, IServiceStrat):
@@ -159,3 +164,5 @@ class AssignVideoRoomStrat(ChatStrategyKeeper, IServiceStrat):
         group_id = str(msg['chat_id'])
 
         await self._service.assign_video_room(group_id, sender_id)
+=======
+>>>>>>> Stashed changes

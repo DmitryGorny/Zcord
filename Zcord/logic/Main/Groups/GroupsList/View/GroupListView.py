@@ -1,3 +1,5 @@
+from typing import Callable
+
 from PyQt6 import QtWidgets, QtCore
 from PyQt6.QtCore import pyqtSignal
 from PyQt6.QtWidgets import QWidget, QFrame
@@ -9,7 +11,7 @@ from logic.Main.miniProfile.MiniProfile import Overlay
 
 
 class GroupListView(QWidget):
-    join_group_model = pyqtSignal(str, bool)
+    join_group_model = pyqtSignal(str)
     send_password_model = pyqtSignal(str, str)
     find_group_model = pyqtSignal(str)
 
@@ -43,7 +45,7 @@ class GroupListView(QWidget):
 
     def add_group(self, group_id: str, group_name: str, number_of_members: str, is_password: bool) -> None:
         group = GroupInList(group_name=group_name, number_of_members=number_of_members, is_password=is_password)
-        group.connect_signal(lambda: self.join_group_model.emit(group_id, is_password))
+        group.connect_signal(lambda: self.join_group_model.emit(group_id))
 
         item = QtWidgets.QListWidgetItem()
         item.setSizeHint(group.get_widget().sizeHint())
@@ -72,12 +74,9 @@ class GroupListView(QWidget):
         del self._groups[group_id]
 
     def show_password_dialog(self, group_id: str):
-        password = self._password_dialog.get_password()
-        if password is not None:
-            self.send_password_model.emit(group_id, password)
 
-    def send_password(self):
         self._password_dialog.reload_dialog()
+        self._password_dialog.group_id = group_id
         new_rect = QtCore.QRect(
             self._ui.Column.rect().x(),
             self._ui.Column.rect().y(),
@@ -90,6 +89,9 @@ class GroupListView(QWidget):
         self._password_dialog.raise_()
 
         self._password_dialog.exec()
+
+    def connect_password_dialog(self, cb: Callable) -> None:
+        self._password_dialog.send_password_signal.connect(cb)
 
     def get_widget(self) -> QFrame:
         return self._ui.Column

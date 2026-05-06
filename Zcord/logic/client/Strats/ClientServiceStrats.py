@@ -423,4 +423,17 @@ class GroupNameChangedStrat(ClientsStrategies):
         group_id = str(msg['chat_id'])
         new_name = msg['new_name']
         self.service_connection_pointer.user.change_group_name(group_id, new_name)
-        self.service_connection_pointer.call_main_dynamic_update('GROUP-NAME-CHANGED', {'chat_id': group_id, 'new_name': new_name})
+        self.service_connection_pointer.call_main_dynamic_update('GROUP-NAME-CHANGED',
+                                                                 {'chat_id': group_id, 'new_name': new_name})
+
+
+class GroupRequirePasswordStrat(ClientsStrategies):
+    header_name = "GROUP-PASSWORD-REQUIRED"
+
+    def __init__(self):
+        super(GroupRequirePasswordStrat, self).__init__()
+
+    def execute(self, msg: dict) -> None:
+        group_id = str(msg['group_id'])
+        self.service_connection_pointer.call_main_dynamic_update('GROUP-PASSWORD-REQUIRED',
+                                                                 {'group_id': group_id})

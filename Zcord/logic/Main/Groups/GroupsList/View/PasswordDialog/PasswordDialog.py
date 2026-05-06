@@ -1,6 +1,7 @@
 import math
 
-from PyQt6.QtCore import QTimer, Qt
+from PyQt6 import QtCore
+from PyQt6.QtCore import QTimer, Qt, pyqtSignal, QPropertyAnimation, QEasingCurve, QRect
 from PyQt6.QtWidgets import QDialog, QWidget
 
 from logic.Main.Groups.GroupsList.View.PasswordDialog.PasswordDialogQt import Ui_GroupPassword
@@ -8,12 +9,19 @@ from PyQt6.QtGui import QPainter, QColor
 
 
 class PasswordDialog(QDialog):
+    send_password_signal = pyqtSignal(str)
+
     def __init__(self):
         super(PasswordDialog, self).__init__()
         self._ui = Ui_GroupPassword()
         self._ui.setupUi(self)
 
-    def get_password(self):
+        self.group_id = 0
+
+        self.setAttribute(QtCore.Qt.WidgetAttribute.WA_TranslucentBackground)
+        self.setWindowFlags(QtCore.Qt.WindowType.FramelessWindowHint)
+
+    def _get_password(self):
         if self._ui.Errors.isHidden():
             self._ui.Errors.setHidden(False)
 
@@ -24,6 +32,7 @@ class PasswordDialog(QDialog):
                 self._ui.ErrorText.setText('Ошибка: Поле "Пароль" не было заполнено')
                 return
         self._ui.Errors.setHidden(True)
+        return self._ui.GroupPassword_input.text()
 
     def password_wrong(self):
         if self._ui.Errors.isHidden():
@@ -38,6 +47,50 @@ class PasswordDialog(QDialog):
     def reload_dialog(self) -> None:
         self._ui.Errors.setHidden(True)
         self._ui.GroupPassword_input.setText('')
+
+    def _send_password(self, group_id: str):
+        password = self._get_password()
+        if password is not None:
+            self.send_password_signal.emit(group_id, password)
+
+    def showEvent(self, event):
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(500)
+        self.animation.setStartValue(self.calculateStartGeometry())
+        self.animation.setEndValue(self.calculateFinalGeometry())
+        self.animation.setEasingCurve(QEasingCurve.Type.OutBack)
+        self.animation.start()
+
+    def showEvent(self, event):
+        self.animation = QPropertyAnimation(self, b"geometry")
+        self.animation.setDuration(500)
+        self.animation.setStartValue(self.calculateStartGeometry())
+        self.animation.setEndValue(self.calculateFinalGeometry())
+        self.animation.setEasingCurve(QEasingCurve.Type.OutBack)
+        self.animation.start()
+
+    def calculateStartGeometry(self):
+        parent_center = self.parent().rect().center()
+
+        start_x = parent_center.x() - 10
+        start_y = parent_center.y() - 10
+
+        return QRect(start_x, start_y, 350, 350)
+
+    def calculateFinalGeometry(self):
+        parent_center = self.parent().rect().center()
+        final_x = parent_center.x() - self.width() // 2
+        final_y = parent_center.y() - self.height() // 2
+
+        return QRect(final_x, final_y, self.width(), self.height())
+
+    def center_child_window(self):
+        parent_center = self.parent().rect().center()
+        offset_x = parent_center.x() - self.width() // 2
+        offset_y = parent_center.y() - self.height() // 2
+
+        self.move(offset_x, offset_y)
+
 
 
 class DotSpinner(QWidget):

@@ -29,10 +29,7 @@ class GroupListModel(QObject):
                                  users_number,
                                  is_password)
 
-    def join_group(self, group_id: str, is_password: bool) -> None:
-        if is_password:
-            self.show_password_dialog.emit(group_id)
-
+    def join_group(self, group_id: str) -> None:
         try:
             ClientConnections.send_service_message(group='CHAT', msg_type='JOIN-GROUP',
                                                    extra_data={'group_id': group_id,
@@ -50,3 +47,6 @@ class GroupListModel(QObject):
                                                                'user_id': self._user_id})
         except Exception as e:
             print(e)
+
+    def show_password(self, group_id: str) -> None:
+        self.show_password_dialog.emit(group_id)

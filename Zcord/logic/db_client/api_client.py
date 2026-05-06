@@ -213,10 +213,10 @@ class APIClient:
         return self._request('POST', 'groups-members/', json=data)
 
     def search_group_member(self, user_id, group_id):
-        return self._request('GET', f'chats/?search={user_id}&group={group_id}')
+        return self._request('GET', f'groups-members/?group={group_id}&user={user_id}')
 
     def delete_group_member_by_id(self, row_id):
-        return self._request('DELETE', f'groups-members/{row_id}')
+        return self._request('DELETE', f'groups-members/{row_id}/')
 
     # Работа с чатами
     def get_chats(self, user_id, is_group):

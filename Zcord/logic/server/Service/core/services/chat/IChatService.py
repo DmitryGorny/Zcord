@@ -36,5 +36,8 @@ class IChatService(Protocol):
     async def _init_group_by_inner_id(self, group_id: str, user_id: str) -> bool:
         raise NotImplementedError
 
+    async def check_if_group_has_password(self, group_id: str, user_id: str) -> bool:
+        raise NotImplementedError
+
     async def find_group(self, group_name: str, user_id: str) -> None:
         raise NotImplementedError

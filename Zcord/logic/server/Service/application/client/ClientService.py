@@ -14,16 +14,18 @@ class ClientService(IClientService):
 
     async def user_joined(self, user_id: str, nickname: str, writer: asyncio.StreamWriter, last_online: str,
                           friends: list[dict], status: dict[str, str], chats: list[dict]):
+
+        await self._client_repo.notify_message_server_add(user_id, chats, writer)
         self._client_repo.add_client(client_id=user_id,
                                      client_name=nickname,
                                      writer=writer,
                                      last_online=last_online)
         self._friend_repo.add_friends(client_id=user_id, friends=friends)
         self._chat_repo.add_chats(chats=chats)
-        await self._client_repo.connect_message_socket(user_id)
 
         await self._client_repo.change_client_activity_status(user_id, user_id, status)
-        await self._client_repo.notify_message_server_add(user_id, chats, writer)
+
+        await self._client_repo.connect_message_socket(user_id)
 
         notified_users = set()
         for friend_attr in friends:  # TODO: В случае кастомных статусов присылать еще и онлайн статус друга

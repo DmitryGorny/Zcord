@@ -16,9 +16,12 @@ class ClientManager:
             key = next((key for key in self._clients.keys() if self._clients[key] == ip))
             self._clients[key] = ''
         except StopIteration:
+            print(1111111)
+            print(self._clients)
             return None
 
         if self._clients_with_sockets[key] is None:
+            print(2131231)
             self._clients_with_sockets[key] = socket_object
 
     def send(self, client_identent: str, message: Any) -> None:

@@ -150,8 +150,6 @@ class ChangeGroupSettingsStrat(ChatStrategyKeeper, IServiceStrat):
 
         await self._service.change_group_settings(sender_id=sender_id, new_settings=new_settings, group_id=group_id,
                                                   flags=flags)
-<<<<<<< Updated upstream
-
 
 class AssignVideoRoomStrat(ChatStrategyKeeper, IServiceStrat):
     command_name = "ASSIGN-VIDEO-ROOM"
@@ -164,5 +162,3 @@ class AssignVideoRoomStrat(ChatStrategyKeeper, IServiceStrat):
         group_id = str(msg['chat_id'])
 
         await self._service.assign_video_room(group_id, sender_id)
-=======
->>>>>>> Stashed changes
